@@ -1,0 +1,530 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="iframe.css">
+    <link rel="stylesheet" href="highlight.css">
+    <title>Help</title>
+  </head>
+  <body>
+    <article>
+
+  <nav>
+    <a href="#Preamble">Preamble</a>
+    <a href="#how_to">How to Use</a>
+    <a href="#options">Options</a>
+    <a href="#support">Support</a>
+  </nav>
+
+
+  <h2 id="Preamble">Preamble</h2>
+  <p><i>Firemonkey</i> is a totally new extension that can handle both user Scripts and user CSS. While it has similar functions to user script extensions like <i>GreaseMonkey</i>, and user CSS extensions like <i>Stylish</i> or <i>Stylus</i>, there are differences. Similar to <i>GreaseMonkey</i>, scripts (or CSS) are injected in tabs and for a new script/CSS to have an effect, tab must be reloaded. The behaviour differs from <i>Stylus</i> which can inject CSS into a tab and remove it without having to reload the tab.</p>
+
+
+
+  <h2 id="how_to">How to Use</h2>
+  <p></p>
+
+
+  <h3>Toolbar Icon Context Menu</h3>
+  <ul>
+    <li><b>Options</b><br>
+      Open Options page to manage Options and Scripts</li>
+  </ul>
+
+
+  <h2 id="options">Options</h2>
+
+  <h3>Auto-Update Interval</h3>
+  <p>You can set the number of days between updates. Setting 0 (default) means there will be no auto-update.</p>
+  <p>In order to minimise the impact on your browsing, auto-update is set to run when Firefox is idle and then 10 updates at a time (until the next idle time).</p> 
+  <p>Please note that updating each script can take around 4-5 seconds. If there are many scripts, that can add up to consider amount of time. I would suggest manually updating Scripts/CSS or enabling auto-update only on the ones that require regular update.</p>
+
+  <h3>Preferences: Import/Export</h3>
+  <p>You can export/import Preferences (for backup or share) to/from a local file on your computer.</p>
+
+
+  <h3>Save</h3>
+  <p>Please note that changes will not take effect until they are saved.</p>
+
+
+
+
+  <h2>Script & CSS</h2>
+  <p>List of both UserScript and UserCss</p>
+  <p>Scripts and CSS have different icons and the icon for disabled ones are grey.</p>
+  <p>Click on the Script/CSS to view/edit/enable/disable/delete or start a new Script/CSS.</p>
+
+  <ul>
+    <li>&#x2611; <img src="../image/js.svg" width="16" alt=""><img src="../image/css.svg" width="16" alt=""> Uncheck to hide all enabled Script & CSS</li>
+
+    <li>&#x2611; <img src="../image/js.svg" style="filter: grayscale(1);" width="16" alt=""><img src="../image/css.svg" style="filter: grayscale(1);" width="16" alt=""> Uncheck to hide all disabled Script & CSS</li>
+  
+    <li>&#x2611; <img src="../image/js.svg" width="16" alt=""><span style="display: inline-block; width: 16px;"></span> Uncheck to hide all Scripts</li>
+
+    <li>&#x2611; <img src="../image/css.svg" width="16" alt=""><span style="display: inline-block; width: 16px;"></span> Uncheck to hide all CSS</li>  
+  
+  
+  </ul>
+
+
+  <h4>Navigation Buttons</h4>
+  <ul>
+    <li><b>&#128229; Import</b><br>
+      Import one or more Script/CSS from file, same name Script/CSS will be overwritten without warning</li>
+
+    <li><b>&#128229; Export</b><br>
+      Export all Script/CSS to <i>FireMonkey</i> folder in the download location set in <i>Firefox Options -> Downloads</i></li>
+
+    <li><b>Import from Stylus</b><br>
+      Export styles from <i>Stylus</i> and Import the JSON (on pop-up change the file type selection to <i>All Files</i>), same name Script/CSS will be overwritten without warning<br>
+      Note: Not perfect (but helps), RegEx patterns are ignored, sections are separated into different files</li>
+  </ul>
+
+  <h4>Edit Area Buttons</h4>
+  <ul>
+    <li><b>&#128190; Save</b><br>
+      Save the currently displaying Script/CSS</li>
+
+    <li><b>✔ Enable</b><br>
+      Enable/Disable the currently displaying Script/CSS</li>
+
+    <li><b>✔ Auto-update</b><br>
+      Enable/Disable the Auto-Update on currently displaying Script/CSS</li>
+
+    <li><b>&#x1f310 Update</b><br>
+      Update the currently displaying Script/CSS</li>
+
+    <li><b>&#10133; <img src="../image/js.svg" width="16" alt=""></b><br>
+      Display a new Script Template that you can edit and Save</li>
+
+    <li><b>&#10133; <img src="../image/css.svg" width="16" alt=""></b><br>
+      Display a new CSS Template that you can edit and Save</li>
+
+    <li><b>&#128190; Save Template</b><br>
+      Save the currently displaying Script/CSS as a Template</li>
+
+    <li><b>&#128229; Export</b><br>
+      Export the currently displaying Script/CSS to file</li>
+
+    <li><img src="../image/bin.svg" width="16" alt=""><br>
+      Delete the currently displaying Script/CSS after confirmation<br><br></li>
+
+    <li>Multiple Enable/Disable & Delete<br>
+      Make a selection of (highlight with mouse) items listed under Script & CSS to multiple Delete (after confirmation) or multiple Enable/Disable the selected items.</li>
+  </ul>
+
+  <h3>Update & Auto-update</h3>
+  <p>Any target can be set for <code>@updateURL</code> as long it directly leads to the final file and it is in plain text. The <code>.js</code> or <code>.css</code> file extensions are not necessary although it makes sense to have them. The <code>.user.</code> is not necessary.</p>
+  <p><i>FireMoneky</i> uses <code>@version</code> for the update process and both the current file and the update file must have <code>@version</code> and the version of the target file must be higher.</p>
+  <p>Update will fail if the new version has a different name which already exists among user's installed Scripts/CSS.</p>
+  <p>Auto-update will only update enabled Scripts/CSS but manual update can update both enabled and disabled ones.</p>
+
+  <h3>Syntax Highlighting</h3>
+  <p>Syntax Highlighting requires considerably large libraries. Personally as a developer, I always use a dedicated application for coding and then copy/paste or import into GreaseMonkey, Stylish/Stylus etc. Therefore, for slimness and efficiency, I have written a basic Syntax Highlighting code. It does not have all the features of the large library scripts but it is still being improved.</p>
+
+  <h3>Metadata Block</h3>
+  <p>For easier compatibility, format is simialr to <i>GreaseMonkey</i> Metadata Block for UserScritps. The commenting is different for CSS and as a result a uniform commenting for Metadata Block can be used. The Metadata Block identifier (case-insensitive e.g. ==userscript== etc) for UserScript is <code>==UserScript== ... ==/UserScript==</code> and for UserCSS is <code>==UserCSS== ... ==/UserCSS==</code>. For clarity, it is best to have the Metadata Block on top (or after <code>'use strict';</code> if wanted, but <i>FireMonkey</i> can pick it up from anywhere within the code.</p>
+
+  <h4>Examples:</h4>
+
+<pre class="comment">// ==UserScript==
+// @name          My Script
+// @description   Scripting is fun
+// @match         http://www.example.com/*
+// @match         http://www.example.org/*
+// @version       1.0
+// ==/UserScript==</pre>
+
+
+<pre class="comment">/*
+==UserScript==
+@name          My Script
+@description   Scripting is fun
+@match         http://www.example.com/*
+@match         http://www.example.org/*
+@version       1.0
+==/UserScript==
+*/</pre>
+
+<pre class="comment">/*
+==UserCSS==
+@name          My CSS
+@description   CSS is fun
+@match         http://www.example.com/*
+@match         http://www.example.org/*
+@version       1.0
+==/UserCSS==
+*/</pre>
+
+
+  <p><i>FireMonkey</i> supports the following entries based on <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/contentScripts/register">
+contentScripts.register()</a> & <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/contentScripts/register">
+userScripts.register()</a>. Each entry must be in the format of <code>@entry ...some space ... detail</code>. In case of matches & globes, repeat entry for each detail (as in GreaseMonkey). Match details must conform to the <b>Match Patterns</b>.</p>
+  <p>Script/CSS developers are free to add any other <i>@entry</i> (e.g. <i>@homepage, @copyright, @support</i> etc) for reference or information.</p>
+  <p>At the moment, there is no plan to include <i>@require, @resource, @connect, @icon</i> etc, due to the associated security risks. Scripts will have access to all available APIs and therefore <i>@grant</i> is not needed or used.</p>
+
+  <p><b>Note:</b> <i>FireMonkey</i> uses the <code>name</code> (case-sensitive) as ID for Scripts & CSS, therefore names must be unique. A shorter & concise name is recommended.</p>
+
+
+  <ul>
+    <li><code>name</code></li>
+    <li><code>matches</code></li>
+    <li><code>version</code> <i>(Optional, but needed for updates)</i></li>
+    <li><code>updateURL</code> <i>(Optional, but needed for updates)</i><br><br></li>
+
+    <li><code>author</code> <i>(Optional)</i></li>
+    <li><code>description</code> <i>(Optional)</i></li>
+    <li><code>excludeMatches</code> <i>(Optional)</i></li>
+    <li><code>includeGlobs</code> <i>(Optional)</i></li>
+    <li><code>excludeGlobs</code> <i>(Optional)</i></li>
+    <li><code>allFrames</code> <i>(Optional, true or false (default))</i></li>
+    <li><code>matchAboutBlank</code> <i>(Optional)</i></li>
+    <li><code>run-at</code> <i>(Optional, document_start or document_end or document_idle (default))</i></li>
+    <li><code>include</code> <i>(&#128078;  Deprecated, entries will be merged into match, use match or includeGlobs instead)</i></li>
+  </ul>
+
+  <h4>run-at</h4>
+  <p>Unlike <i>GreaseMonkey</i> which defaults to '<i>document-end</i>', the Firefox <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts">content_scripts</a> default <code>run-at</code> is '<i>document_idle</i>' and <i>FireMonkey</i> conforms to the Firefox API default.</p>
+  <p>That means, there is no need for event listeners such as <code>load</code> or <code>DOMContentLoaded</code> as they will not apply. If script has to run earlier, then the <code>run-at</code> has to be set accordingly.</p>
+
+
+  <h3>Script API</h3>
+  <p><i>FireMonkey</i> supports both GM4 & GM3 style APIs (e.g. GM.*** & GM_***) via asynchronous <code>Promise</code>. Therefore if scripts requires a return, it must wait for the <code>Promise</code> to resolve.</p>
+  <p>Following APIs (similar to GreaseMonkey) are provided to the User Script (more can be added later):</p>
+
+<pre>(<span class="keyword">async</span> () =&gt; {
+<span class="string">'use strict'</span>;
+
+  <span class="comment">// stored value for key OR default</span>
+  <span class="keyword">const</span> <span class="property">value</span> = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="gm">getValue</span>(key, default);
+  <span class="keyword">const</span> <span class="property">value</span> = <span class="keyword">await</span> <span class="gm">GM_getValue</span>(key, default);
+
+  <span class="comment">// an array of keys set by script</span>
+  <span class="keyword">const</span> <span class="method">keys</span> = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="gm">listValues</span>();
+  <span class="keyword">const</span> <span class="method">keys</span> = <span class="keyword">await</span> <span class="gm">GM_listValues</span>();
+
+  <span class="comment">// Response Object</span>
+  <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="gm">fetch</span>(url[, init]);
+  <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM_fetcht</span>(url[, init]);
+
+
+  <span class="comment">// callback function</span>
+  <span class="gm">GM</span>.<span class="gm">xmlHttpRequest</span>({
+    url: <span class="string">'https://example.com/etc'</span>,
+    <span class="property">onload</span>: response =&gt; {
+      <span class="property">console</span>.<span class="method">log</span>(response.<span class="property">responseText</span>);
+    }
+  });
+
+
+  <span class="comment">// usually there is no need to wait for the following, but if needed you must use await</span>
+  <span class="gm">GM</span>.<span class="gm">setValue</span>(key, <span class="property">value</span>);
+  <span class="gm">GM_setValue</span>(key, <span class="property">value</span>);
+
+  <span class="gm">GM</span>.<span class="gm">deleteValue</span>(key);
+  <span class="gm">GM_deleteValue</span>(key);
+
+  <span class="gm">GM</span>.<span class="gm">openInTab</span>(url, open_in_background);
+  <span class="gm">GM_openInTab</span>(url, open_in_background);
+
+  <span class="gm">GM</span>.<span class="gm">setClipboard</span>(text);
+  <span class="gm">GM_setClipboard</span>(text);
+
+  <span class="gm">GM</span>.<span class="gm">notification</span>(text);
+  <span class="gm">GM_notification</span>(text);
+})();</pre>
+
+
+  <h3>fetch</h3>
+  <p><i>FireMoneky</i> <code>fetch</code> API is based on the JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch">Fetch API</a> which provides the new Promise based interface for fetching resources (including across the network). It will seem familiar to anyone who has used <i>XMLHttpReques</i>t, but it provides a more powerful and flexible feature set.</p>
+  <p>For simplicity and compatibility, the same GM style naming is kept for <i>fetch</i> API although it is not available in <i>GreaseMoneky</i>.</p>
+  <p><i>FireMoneky</i> <code>fetch</code> returns response object/string or <code>null</code>.</p>
+
+
+<pre>GM.fetch(url[, init]);
+GM_fetch(url[, init]);</pre>
+
+    <p><b>init</b> <i>(Optional)</i></p>
+
+    <p>An options object containing any custom settings that you want to apply to the request. The possible options are:</p>
+
+    <ul>
+      <li><code>method:</code> The request method, e.g., GET, POST. (can be omitted, defaults to 'GET')</li>
+      <li><code>headers:</code> Any headers you want to add to your request, contained within a Headers object or an object literal with ByteString values.</li>
+      <li><code>body:</code> Any body that you want to add to your request: this can be a Blob, BufferSource, FormData, URLSearchParams, or USVString object. Note that a request using the GET or HEAD method cannot have a body.</li>
+      <li><code>mode:</code> The mode you want to use for the request, e.g., cors, no-cors, or same-origin.</li>
+      <li><code>credentials:</code> The request credentials you want to use for the request: omit, same-origin, or include. To automatically send cookies for the current domain, this option must be provided. Starting with Chrome 50, this property also takes a FederatedCredential instance or a PasswordCredential instance.</li>
+      <li><code>cache:</code> The cache mode you want to use for the request.</li>
+      <li><code>redirect:</code> The redirect mode to use: follow (automatically follow redirects), error (abort with an error if a redirect occurs), or manual (handle redirects manually). In Chrome the default is follow (before Chrome 47 it defaulted to manual).</li>
+      <li><code>referrer:</code> A USVString specifying no-referrer, client, or a URL. The default is client.</li>
+      <li><code>referrerPolicy:</code> Specifies the value of the referer HTTP header. May be one of no-referrer, no-referrer-when-downgrade, origin, origin-when-cross-origin, unsafe-url.</li>
+      <li><code>integrity:</code> Contains the subresource integrity value of the request (e.g., sha256-BpfBw7ivV8q2jLiT13fxDYAe2tJllusRSZ273h2nFSE=).</li>
+      <li><code>keepalive:</code> The keepalive option can be used to allow the request to outlive the page. Fetch with the keepalive flag is a replacement for the Navigator.sendBeacon() API.</li>
+      <li><code>signal:</code> An AbortSignal object instance; allows you to communicate with a fetch request and abort it if desired via an AbortController.<br><br></li>
+
+      <li><code>responseType:</code> <i>(Optional, FireMonkey only)</i><br>
+      You can set a responseType for the respose e.g: <code>'text'</code> <i>(defualt)</i>, <code>'json'</code>, <code>'blob'</code>, <code>'arrayBuffer'</code>, <code>'formData'</code></li>
+    </ul>
+
+
+
+
+
+  <h4>Examples</h4>
+  <pre><span class="comment">// simplest, returns response text</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="method">fetch</span>(<span class="string">'https://example.com/etc'</span>);
+
+<span class="comment">// with init, returns response text</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="method">fetch</span>(<span class="string">'https://example.com/etc'</span>, {
+  method: <span class="string">'POST'</span>,
+  <span class="property">body</span>: <span class="object">JSON</span>.<span class="method">stringify</span>(data), <span class="comment">// data can be `string` or {object}!</span>
+  headers:{
+    <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span>
+});
+
+<span class="comment">// returns response JSON</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="method">fetch</span>(<span class="string">'https://example.com/etc'</span>, {responseType: <span class="string">'json'</span>});
+
+<span class="comment">// if you don't need to wait for the response</span>
+<span class="gm">GM</span>.<span class="method">fetch</span>(<span class="string">'https://example.com/etc'</span>)
+.<span class="method">then</span>(response =&gt; callback(response))
+.<span class="keyword">catch</span>(<span class="method">error</span> =&gt; <span class="property">console</span>.<span class="method">error</span>(<span class="method">error</span>.message));</pre>
+
+  <h3>xmlHttpRequest</h3>
+  <p><code>GM.xmlHttpRequest/GM_xmlhttpRequest</code> is the xmlHttpRequest interface and mostly compatible with GreaseMonkey API.</p>
+  <p>All requests are <code>asynchronous</code>, therefore GreaseMoneky <code>synchronous</code> is not supported.</p>
+
+<pre>GM.xmlHttpRequest({
+  url,                      // http, https, ftp, ftps, (file not allowed), can be relative to the web page
+  
+  method,                   // Optional, defaults to 'GET' if omitted
+  headers,                  // optional, header object to send with the request
+  data,                     // optional, e.g. POST data
+  overrideMimeType,         // optional, MIME type to send with the request
+  user,                     // optional, username to send with the request
+  password,                 // optional, password to send with the request
+  timeout,                  // optional, number of milliseconds before terminating the request (default 0 = no timeout)
+  withCredentials,          // optional, Boolean, for cross-site Access-Control
+                               e.g. cookies, authorization headers or TLS client certificates,
+                               defaults to false, no effect on same-site requests  
+  
+  onload,                   // callback function
+  onerror,                  // callback function
+  onabort,                  // callback function
+  ontimeout,                // callback function
+});</pre>
+
+
+  <p><b>Callback Response:</b> returns response object or <code>null</code></p>
+
+<pre>onload
+{
+  readyState
+  response
+  responseHeaders
+  responseText
+  responseType
+  responseURL
+  responseXML
+  status
+  statusText
+  finalUrl                  // clone of responseURL for GreaseMonkey compatibility
+}
+
+onerror, ontimeout, onabort
+{
+  error                     // 'error' or 'timeout' or 'abort'
+  responseHeaders           // if any
+  status
+  statusText
+}</pre>
+
+  <h4>Examples</h4>
+  <pre><span class="comment">// simplest</span>
+<span class="gm">GM</span>.<span class="gm">xmlHttpRequest</span>({
+  url: <span class="string">'https://example.com/etc'</span>,
+  <span class="property">onload</span>: response =&gt; {
+    <span class="property">console</span>.<span class="method">log</span>(response.<span class="property">responseText</span>);
+  }
+});
+
+<span class="comment">// POST request</span>
+<span class="gm">GM</span>.<span class="gm">xmlHttpRequest</span>({
+  url: <span class="string">'https://example.com/etc'</span>,
+  method: <span class="string">'POST'</span>,
+  data: <span class="object">JSON</span>.<span class="method">stringify</span>(data), <span class="comment">// data can be `string` or {object}!</span>
+  headers:{
+    <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span>
+  }
+  <span class="property">onload</span>: response =&gt; {
+    <span class="property">console</span>.<span class="method">log</span>(response.<span class="property">responseText</span>);
+  },
+  <span class="property">onerror</span>: response =&gt; {
+    <span class="property">console</span>.<span class="method">log</span>(${xhr.<span class="property">status</span>}  ${xhr.<span class="property">statusText</span>}`);
+  },
+);
+
+<span class="comment">// HEAD request</span>
+<span class="gm">GM</span>.<span class="gm">xmlHttpRequest</span>({
+  url: <span class="string">'https://example.com/etc'</span>,
+  method: <span class="string">'HEAD'</span>,
+  <span class="property">onload</span>: response =&gt; {
+    <span class="property">console</span>.<span class="method">log</span>(response.<span class="property">responseHeaders</span>);
+  }
+});</pre>
+
+  <p>Following APIs are not supported at the moment:</p>
+
+  <ul>
+    <li><b>GM.info/GM_info</b> (easy to add, but I have never found a use for it)</li>
+    <li><b>GM.getResourceUrl/GM_getResourceURL</b> (besides security risks, saving large external data to storage can affect performance)</li>
+  </ul>
+
+
+  <h3>Forbidden header name</h3>
+  <p>A <a href="https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name">forbidden header name</a> is the name of any <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers">HTTP header</a> that cannot be modified programmatically; specifically, an HTTP <b>request</b> header name (in contrast with a Forbidden response header name).</p>
+  
+  <p>Modifying such headers is forbidden because the user agent retains full control over them. Names starting with `<code>Sec-</code>` are reserved for creating new headers safe from APIs using <code>fetch</code> that grant developers control over headers, such as <code>XMLHttpRequest</code>.</p>
+  
+  <p>All Forbidden header names will be removed from the request by <i>FireMonkey</i> before sending.</p>
+
+  <p>Forbidden header names start with <code>Proxy-</code> or <code>Sec-</code>, or are one of the following names:</p>
+  <ul>
+    <li>Accept-Charset</li>
+    <li>Accept-Encoding</li>
+    <li>Access-Control-Request-Headers</li>
+    <li>Access-Control-Request-Method</li>
+    <li>Connection</li>
+    <li>Content-Length</li>
+    <li>Cookie</li>
+    <li>Cookie2</li>
+    <li>Date</li>
+    <li>DNT</li>
+    <li>Expect</li>
+    <li>Host</li>
+    <li>Keep-Alive</li>
+    <li>Origin</li>
+    <li>Proxy-</li>
+    <li>Sec-</li>
+    <li>Referer</li>
+    <li>TE</li>
+    <li>Trailer</li>
+    <li>Transfer-Encoding</li>
+    <li>Upgrade</li>
+    <li>Via</li>
+  </ul>
+
+  <h3>Match Patterns</h3>
+  <p>FireMonkey uses <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/match_patterns">Match Patterns</a> for <i>@match</i> & <i>@excludeMatches</i> and <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts#globs">globs</a> for <i>@includeGlobs</i> & <i>@excludeGlobs</i></p>
+  <p>Note: Paths are case-sensitive.</p>
+  <br>
+  <p>A <b>glob</b> is just a string that may contain wildcards. There are two types of wildcard, and you can combine them in the same glob:</p>
+
+    <ul>
+      <li>Wildcard <strong>*</strong> matches zero or more characters</li>
+      <li>Character <strong>?</strong> matches exactly one character.</li>
+    </ul>
+
+<p>For example: <code>"*na?i"</code> would match <code>"illuminati"</code> and <code>"annunaki"</code>, but not <code>"sagnarelli"</code>.</p>
+
+<h4>Examples</h4>
+
+<table>
+  <thead>
+  <tr>
+    <th style="width: 30%;" scope="col">Pattern</th>
+    <th style="width: 70%;" scope="col">URL</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td>
+      <p><all_urls></p>
+      <p>Match all URLs</p>
+    </td>
+    <td>
+      <p class="pass">http://example.org/</p>
+      <p class="pass">https://files.example.org/</p>
+      <p class="pass">ftp://example.org/some/path/</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <p>*://*/*</p>
+      <p>Match all HTTP, HTTPS</p>
+    </td>
+    <td>
+      <p class="pass">http://example.org/</p>
+      <p class="pass">https://www.example.org/aaa/</p>
+      <p class="fail">ftp://www.example.org/aaa/</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <p>*://*.example.org/*</p>
+    </td>
+    <td>
+      <p class="pass">http://example.org/</p>
+      <p class="pass">https://www.example.org/</p>
+      <p class="pass">http://www.sub.example.org/aaa/</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <p>*://example.org/</p>
+    </td>
+    <td>
+      <p class="pass">http://example.org/</p>
+      <p class="fail">https://www.example.org/</p>
+      <p class="fail">http://example.org/aaa/</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <p>https://*/path</p>
+    </td>
+    <td>
+      <p class="fail">http://example.org/</p>
+      <p class="fail">http://example.org/path</p>
+      <p class="pass">https://www.example.org/path</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <p>file:///blah/*</p>
+    </td>
+    <td>
+      <p class="pass">file:///blah/</p>
+      <p class="pass">file:///blah/bleh</p>
+      <p class="fail">file:///bleh/</p>
+    </td>
+  </tr>
+
+  </tbody>
+</table>
+
+
+  <h3>Editing</h3>
+
+    <ul>
+      <li><kbd>Tab</kbd> will be converted to 2 spaces. If there is a selection it will be applied to every line in the selection.</li>
+      <li><kbd>Tab</kbd> + <kbd>Shift</kbd> will remove 2 spaces (if there are). If there is a selection it will be applied to every line in the selection.</li>
+      <li>Syntax Highlighting refreshes on <code>blur</code> which means when you click outside the edit box.</li>
+    </ul>
+
+
+
+
+
+  <h2 id="support"><img src="../image/help32.png" alt=""> Support</h2>
+  <p>Please use the GitHub Community <a href="https://github.com/erosman/support" target="_blank">Support</a>.</p>
+
+    </article>
+  </body>
+</html>

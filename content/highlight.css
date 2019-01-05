@@ -1,0 +1,37 @@
+﻿/* ----- General ----- */
+pre div {
+  max-width: 100vmin;
+}
+
+.plain {color: black; }
+.comment { color: forestgreen; }
+.keyword { color: blue; }
+.object { color: red; }
+.string { color: gray; }
+.method { color: darkviolet; }
+.gm { color: maroon; }
+
+.property { color: red; }
+.value { color: dodgerblue; }
+.html { color: blue; }
+.pseudo { color: darkgreen; }
+.important { color: darkorange; }
+.font { color: gray; }
+.color { color: orchid; }
+
+/* ----- Counter ----- */
+.box { counter-reset: n; }
+
+.box div::before {
+   display: inline-block;
+   color: #777;
+   min-width: 2.5em;
+   text-align: right;
+   vertical-align: middle;
+   margin-right: 1em;
+   pointer-events: none;
+   counter-increment: n;              /* Increment the section counter*/
+   content: counter(n);               /* Display the counter */
+}
+/* ----- /Counter ----- */
+
