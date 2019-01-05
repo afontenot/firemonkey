@@ -1,0 +1,188 @@
+﻿/* ----- General ----- */
+body {
+  color: #000;
+  padding: 0;
+  font-family: sans-serif;
+  width: 25em;
+  overflow-y: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex > * {
+  flex: 1;
+}
+
+article {
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+article > div {
+  display: flex;
+  width: 200%;
+  transition: all 0.5s ease-in-out;
+}
+
+section {
+  padding: 0;
+  width: 50%;
+}
+
+.spacer {
+  flex-grow: 1;
+}
+
+h3 {
+  font-weight: normal;
+  margin: 0;
+  padding: 0.5em;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  background: #fff linear-gradient(to right, #f5f5f5, #fff 20%, #f5f5f5);
+}
+
+.template {
+  display: none !important;
+}
+
+ul {
+  list-style: none;
+  padding: 0.1em;
+  margin: 0;
+  overflow-y: auto;
+  min-height: 5em;
+  max-height: 10em;
+  scrollbar-color: #ddd #f5f5f5;
+  /*scrollbar-width: thin;*/
+}
+
+ul.other {
+  max-height: 25em;
+}
+
+li {
+  padding: 0 0.4em;;
+  margin: 0;
+  display: flex;
+  transition: all 0.3s ease-in-out;
+}
+
+li:hover {
+  background-color: #eee;
+}
+
+li span {
+  display: inline-block;
+}
+
+li span.enable,
+li img {
+  width: 16px;
+  text-align: center;
+  cursor: pointer;
+}
+
+li img {
+  opacity: 0.2;
+}
+
+li img:hover {
+  opacity: 1;
+}
+
+li.disabled span.enable {
+  color: transparent;
+}
+
+li span.name {
+  padding: 0 0.4em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+}
+
+li.disabled span.name {
+  color: #aaa;
+}
+
+li span.name::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: text-bottom;
+  margin-right: 0.5em;
+}
+
+li.disabled span.name::before {
+  filter: grayscale(1);
+}
+
+li.js span.name::before {
+  background: url('../image/js.svg');
+}
+
+li.css span.name::before {
+  background: url('../image/css.svg');
+}
+
+/* ----- Info ----- */
+section.info {
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+section.info img {
+  width: 16px;
+  vertical-align: middle;
+}
+
+dl {
+  margin: 0.5em;
+}
+
+dt {
+  color: #004080;
+  font-weight: bold;
+  width: 6em;
+  float: left;
+  clear: left;
+  text-align: right;
+}
+
+dd {
+  margin: 0 0 0 7em;
+  padding: 0 0 0.4em 0;
+}
+/* ----- /Info ----- */
+
+/* ----- Buttons ----- */
+button {
+  background-color: #f5f5f5;
+  border: 0;
+  font-size: 1.0em;
+  padding: 1em;
+  text-align: center;
+  transition: all 0.5s ease-in-out;
+  cursor: pointer;
+  border-top: 1px solid #ddd;
+}
+
+button:hover {
+  background-color: #eee;
+}
+
+button img {
+ vertical-align: text-bottom;
+}
+/* ----- /Buttons ----- */
