@@ -358,6 +358,7 @@ async function saveScript() {
 
     // --- new script
     case !box.id:
+      box.id = data.name;
       addScript(data);
       break;
 
