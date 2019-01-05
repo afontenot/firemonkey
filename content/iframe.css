@@ -1,0 +1,170 @@
+﻿/* ----- General ----- */
+body {
+  padding: 0;
+  font-size: 0.9em;
+  font-family: sans-serif;
+}
+
+dl {
+}
+
+dt {
+  color: #004080;
+  font-weight: bold;
+  width: 10em;
+  border-bottom: 1px solid #add8e6;
+  margin-top: 1em;
+}
+
+dd.image {
+  padding-top: 0.3em;
+}
+
+dd.image img {
+  width: 16px;
+  height: 16px;
+}
+
+img {
+  vertical-align: text-bottom;
+}
+
+h2, h3, h4 {
+ margin-top: 2em;
+}
+
+h2 {
+  color: #066;
+}
+
+h3 {
+  color: #004080;
+  margin-bottom: 0
+}
+
+p {
+  margin: 0 auto auto 2em;
+}
+
+ul {
+  /*margin-top: 0;*/
+}
+
+a {
+  color: #0080ff;
+  text-decoration: none;
+}
+
+/* ----- Navigation ----- */
+nav  {
+  background-color: #fff;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+
+nav a {
+  color: #066;
+  display: inline-block;
+  padding: 0.3em 0.5em;
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+  text-align: center;
+  transition: all 0.3s ease-in-out 0s;
+}
+
+nav a:hover {
+  border-bottom-color: #f84;
+}
+/* ----- /Navigation ----- */
+
+strong {
+  color: #905;
+}
+
+pre {
+  background-color: #fff;
+  border-left: 4px solid #4682b4;
+  padding: 1em;
+  margin-left: 2.5em;
+}
+
+pre span {
+  color: #905;
+  font-weight: bold;
+}
+
+code {
+  background-color: #def;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+kbd {
+  color: #333;  
+  padding: 0 0.2em;
+  background: transparent linear-gradient(to bottom, #eaeaea, rgba(0,0,0,0) 60%);
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  border-bottom-width: 2px;
+  line-height: 1;
+}
+
+address {
+  font-size: 0.9em;
+  margin: 2em auto 2em 2em;
+}
+
+/* ----- Table ----- */
+table {
+  background: #fff;
+  border: 1px solid #eaeff2;
+  margin: 1em auto 2.5em 2em;
+  border-collapse: collapse;
+}
+
+th {
+  background-color: #e9eef1;
+  text-align: left;
+  padding: 0.5em;
+  border-top: 1px solid #abc;
+}
+
+tr:nth-child(odd) td {
+  background-color: #f4f6f8;
+}
+
+tr:nth-child(even) td {
+  background-color: #f8fafb;
+}
+
+tr:not(:last-of-type) {
+  border-bottom: 1px solid #fff;
+}
+
+td {
+  padding: 0.5em;
+}
+
+td p {
+  margin: 0;
+}
+
+.pass, .fail {
+ font-family: monospace;
+}
+
+.pass {
+  color: #080;
+}
+
+.pass::before {
+  content: "\2714\00A0"; font-weight: 900;
+}
+
+.fail {
+  color: #f00;
+}
+
+.fail::before {
+  content: "\2718\00A0"; font-weight: 900;
+}

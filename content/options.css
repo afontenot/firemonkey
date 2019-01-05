@@ -1,0 +1,580 @@
+﻿/* ----- General ----- */
+body {
+  padding: 0;
+  margin: 0;
+  font-family: sans-serif;
+  background: #f9f9fa;
+  display: flex;
+}
+* {
+  box-sizing: border-box;
+}
+
+img {
+  vertical-align: text-bottom;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ----- Navigation ----- */
+input[name="nav"] {
+  display: none;
+}
+
+nav {
+  color: #789;
+  background-color: #234;
+  width: 14em;
+  min-height: 100vh;
+  padding: 0.5em;
+  box-shadow: 0px 4px 10px 0 rgba(0,0,0,0.8);
+  display: flex;
+  flex-direction: column;
+}
+
+nav h3 {
+ font-weight: normal;
+ margin: 0.6em 0;
+}
+
+nav h3:nth-of-type(1) {
+ margin-top: 0;
+}
+
+nav h3:nth-of-type(1), nav h3:nth-of-type(2), nav h3:nth-of-type(4) {
+ border-bottom: 1px solid #456;
+}
+
+nav h3 img, nav h3 svg {
+ width: 32px;
+}
+
+nav label {
+  display: block;
+  cursor: pointer;
+  transition: all 0.5s ease-in-out;
+}
+
+nav label:hover {
+  color: #bcd;
+}
+
+nav > label {
+  margin-left: 1.5em;
+}
+
+nav label::before {
+  content: '\25B6';
+  margin-right: 0.4em;
+  font-size: 0.8em;
+  opacity: 0;
+  transition: all 0.5s ease-in-out;
+}
+
+nav label:hover::before {
+  opacity: 1;
+}
+
+#nav1:checked ~ article section:nth-of-type(1),
+#nav2:checked ~ article section:nth-of-type(2),
+#nav3:checked ~ article section:nth-of-type(3),
+#nav4:checked ~ article section:nth-of-type(4),
+#nav5:checked ~ article section:nth-of-type(5),
+#nav6:checked ~ article section:nth-of-type(6) {
+  display: block;
+  animation: sect 0.5s ease-in-out;
+}
+
+#nav1:checked ~ nav label[for="nav1"],
+#nav2:checked ~ nav label[for="nav2"],
+#nav3:checked ~ nav label[for="nav3"],
+#nav4:checked ~ nav label[for="nav4"],
+#nav5:checked ~ nav label[for="nav5"],
+#nav6:checked ~ nav label[for="nav6"] {
+  color: #bcd;
+}
+
+#nav1:checked ~ article div.save,
+#nav2:checked ~ article div.save {
+  display: block;
+}
+
+@keyframes sect {
+    0% { opacity: 0; transform: scale(0.8);}
+   /*50% {  }*/
+  100% { opacity: 1; transform: scale(1); }
+}
+/* ----- /Navigation ----- */
+
+
+article {
+  padding: 0;
+  margin: 0;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.spacer {
+  flex-grow: 1;
+}
+
+section {
+  padding: 1em;
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+iframe {
+  border: none;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.description {
+  border-left: 2px solid #abc;
+  color: #066;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-left: 0.7rem;
+  margin-top: 0;
+  padding-left: 0.2em;
+}
+
+textarea {
+  vertical-align: top;
+  width: 100%;
+}
+
+.invalid {
+  box-shadow: 1px 1px 4px #f20, -1px -1px 4px #f20;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex > * {
+  flex: 1;
+}
+
+fieldset {
+  border-radius: 10px;
+  margin-bottom: 1em;
+  border: 1px solid #ccc;
+  transition: all 0.5s ease-in-out;
+}
+
+fieldset:hover {
+  background-color: #fff;
+}
+
+legend {
+  color: #066;
+  font-size: 1.1em;
+}
+
+.flat {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 0.4em 1em;
+  font-size: 0.9em;
+  transition: all 0.5s ease-in-out;
+}
+
+.flat:not(:disabled) {
+  cursor: pointer;
+}
+
+.flat:hover:not(:disabled) {
+  background-color: #fff;
+  box-shadow: 0px 1px 5px rgba(0,0,0,0.3);
+}
+
+.template {
+  display: none !important;
+}
+
+option {
+  width: 10em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+input[type="number"] {
+  width: 4em;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+img.bin {
+  width: 24px;
+  transition: all 0.5s ease-in-out;
+  cursor: pointer;
+  vertical-align: text-bottom;
+  margin-left: 1em;
+  filter: opacity(0.4) grayscale(1);
+}
+
+img.bin:hover {
+  filter: opacity(1) grayscale(0);
+}
+
+
+/* ----- Submit Button ----- */
+button[type="submit"] {
+  color: #fff;
+  font-weight: bold;
+  padding: 0.3em 3em;
+  background: #3bb3e0 linear-gradient(to bottom, #2ca0ca, #3eb8e5);
+  border-radius: 5px;
+  border: solid 1px #186f8f;
+  cursor: pointer;
+  position: relative;
+  text-shadow: 0px -1px 1px #333;
+  display: block;
+  margin: 1em auto;
+  box-shadow: inset 0px 1px 0px #2ab7ec, 0px 5px 0px 0px #048, 0px 10px 5px #999;
+}
+
+button[type="submit"]::before {
+  background-color: #dcdcdc;
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0.5em;
+  position: absolute;
+  left: -0.5em;
+  top: -0.5em;
+  z-index: -1;
+  border-radius: 5px;
+  box-shadow: inset 0px 1px 1px #909193, 0px 1px 3px #fff;
+}
+
+button[type="submit"]:active {
+  top: 0.3em;
+  box-shadow: inset 0px 1px 0px #2ab7ec, 0px 2px 0px 0px #008, 0px 5px 3px #999;
+}
+
+button[type="submit"]:active::before {
+  top: -0.8em;
+}
+/* ----- /Submit Button ----- */
+
+/* ----- Checkbox ----- */
+input[type="checkbox"] {
+  display: none;
+}
+
+input[type="checkbox"] + label {
+  cursor: pointer;
+}
+
+input[type="checkbox"] + label:hover {
+  color: #080;
+}
+
+input[type="checkbox"] + label::before {
+  content: '\2714';
+  color: transparent;
+  display: inline-block;
+  padding: 0 0.3rem;
+  margin-right: 0.5em;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  transition: all 0.5s ease;
+}
+
+input[type="checkbox"]:checked + label::before {
+  color: #4284f3;
+}
+/* ----- /Checkbox ----- */
+
+
+/* ----- Progress Bar ----- */
+.progressBar {
+  opacity: 0;
+  height: 2px;
+  width: 0;
+  background: #3bb3e0 linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3);
+  background-size: 900% 900%;
+  transition: opacity 1s ease-in-out, width 3s ease-in-out;
+  animation: rainbow 5s ease infinite;
+}
+
+@keyframes rainbow {
+  0% { background-position: 0% 100%; }
+  50% { background-position: 100% 200%; }
+  100% { background-position: 0% 100%; }
+}
+/* ----- Progress Bar ----- */
+
+/* ----- Settings ----- */
+input[type="range"] {
+  cursor: pointer;
+}
+
+output {
+  display: inline-block;
+  margin-left: 1em;
+  border: 1px solid #ccc;
+  padding: 0.3em 0.3em 0.2em;
+  border-radius: 5px;
+  width: 2.5em;
+  text-align: center;
+  vertical-align: text-bottom;
+}
+/* ----- /Settings ----- */
+
+/* ----- Nav Scripts ----- */
+div.list {
+  margin-bottom: 0.4em;
+}
+
+.list label {
+  font-size: 0.5em;
+  padding: 0;
+  border: none;
+  text-align: left;
+}
+
+.list label:hover {
+  color: #bcd;
+}
+
+.list label::before {
+  content: '\2714';
+  color: transparent;
+  display: inline-block;
+  padding: 0 0.5em;
+  margin-right: 0.8em;
+  border-radius: 5px;
+  border: 1px solid #567;
+  transition: all 0.5s ease;
+  opacity: 1;
+}
+
+#listEnable:checked ~ div label[for="listEnable"]::before,
+#listDisable:checked ~ div label[for="listDisable"]::before,
+#listJS:checked ~ div label[for="listJS"]::before,
+#listCSS:checked ~ div label[for="listCSS"]::before {
+  color: #bcd;
+}
+
+.list label img {
+  width: 12px;
+}
+
+.list label:nth-of-type(1),
+.list label:nth-of-type(2) {
+  flex: 1.3;
+}
+
+.list label:nth-of-type(2) img {
+  filter: grayscale(1);
+}
+
+#listEnable:not(:checked) ~ ul li:not(.disabled) {
+  display: none;
+}
+
+#listDisable:not(:checked) ~ ul li.disabled {
+  display: none;
+}
+
+#listJS:not(:checked) ~ ul li.js {
+  display: none;
+}
+
+#listCSS:not(:checked) ~ ul li.css {
+  display: none;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  height: 30vh;
+  flex-grow: 1;
+  margin-bottom: 1em;
+  margin-right: -0.5em;
+  scrollbar-color: #567 #345;
+  /*scrollbar-width: thin !important;*/
+}
+
+nav ul:hover {
+  overflow-y: auto;
+}
+
+nav li {
+  font-size: 0.8em;
+  transition: all 0.5s ease-in-out;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border-right: 4px solid transparent;
+  border-radius: 0 20px 20px 0;
+  margin-right: 0.2em;
+}
+
+nav li:hover {
+  color: #bcd;
+  background-color: #456;
+}
+
+nav li.on {
+  background-color: #345;
+  border-right-color: #abc;
+}
+
+nav li::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: text-bottom;
+  margin-right: 0.5em;
+}
+
+nav li.disabled::before {
+  filter: grayscale(1);
+}
+
+nav li.js::before {
+  background: url('../image/js.svg');
+}
+
+nav li.css::before {
+  background: url('../image/css.svg');
+}
+
+nav div button, nav div label {
+  background-color: transparent;
+  border: 1px solid #456;
+  border-radius: 10px;
+  font-size: 0.9em;
+  padding: 0.3em;
+  text-align: center;
+  transition: all 0.5s ease-in-out;
+  cursor: pointer;
+  color: #789;
+}
+
+nav div button:hover, nav div label:hover {
+  border-color: #789;
+  color: #bcd;
+}
+
+nav div label[for="fileScript"]::before {
+  content: none;
+}
+/* ----- /Nav Scripts ----- */
+
+/* ----- Scripts ----- */
+section.script {
+  height: 100%;
+}
+
+.script fieldset {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0;
+}
+
+legend.js::before, legend.css::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  vertical-align: text-bottom;
+  margin-left: 0.2em;
+  margin-right: 0.5em;
+}
+
+legend.js::before {
+  background: url('../image/js.svg');
+}
+
+legend.css::before {
+  background: url('../image/css.svg');
+}
+
+div.menu {
+  display: flex;
+  margin-bottom: 1px;
+}
+
+.menu button, .menu > label {
+  background-color: transparent;
+  padding: 0.4em;
+  margin: auto;
+  font-size: 0.8em;
+  text-align: center;
+  border: 0;
+  transition: all 0.5s ease-in-out;
+  cursor: pointer;
+  color: #4284f3;
+  flex: 1;
+  white-space: nowrap;
+  position: relative;
+  user-select: none; -moz-user-select: none;
+}
+
+.menu button:hover, .menu > label:hover {
+  background-color: #f4f6f8;
+  color: #4284f3 !important;
+}
+
+.menu button::after, .menu > label::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 3px;
+  width: 0;
+  background-color: #4284f3;
+  transition: all 0.5s;
+}
+
+.menu button:hover::after, .menu > label:hover::after {
+  left: 0;
+  width: 100%;
+}
+
+.script .box {
+  margin: 0;
+  padding: 0.5em;
+  border: 1px solid #ddd;
+  flex-grow: 1;
+  overflow: auto;
+  height: 60vh;
+}
+
+.box.invalid {
+  box-shadow: none;
+  background-color: #fff0f5;
+  border-color: #f50;
+}
+
+footer {
+  color: #aaa;
+  font-size: 0.7em;
+  text-align: right;
+  height: 1em;
+}
+/* ----- /Scripts ----- */

@@ -1,0 +1,122 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title data-i18n="options">FireMonkey </title>
+    <link rel="icon" type="image/png" href="../image/icon.svg">
+    <link rel="stylesheet" href="options.css">
+    <link rel="stylesheet" href="highlight.css">
+  </head>
+  <body>
+
+    <!-- Navigation -->
+    <input type="radio" name="nav" id="nav1">
+    <input type="radio" name="nav" id="nav2">
+    <input type="radio" name="nav" id="nav3" checked>
+    <input type="radio" name="nav" id="nav4">
+    <input type="radio" name="nav" id="nav5">
+    <input type="radio" name="nav" id="nav6">
+
+    <nav>
+     <img src="../image/gear.svg" style="margin-left: auto;" alt="">
+     <h3 data-i18n="options"><img src="../image/icon.svg" alt=""> </h3>
+        <label for="nav3" data-i18n="settings"></label>
+
+    <h3 data-i18n="help"><img src="../image/help32.png" alt=""> </h3>
+      <label for="nav1" style="cursor: help;">English</label>
+  
+    <h3><label for="nav2" data-i18n="about"></label></h3>
+
+
+    <h3 style="margin: 0.2em 0;"><label for="nav4" data-i18n="script"></label></h3>
+    <input type="checkbox" id="listEnable" checked>
+    <input type="checkbox" id="listDisable" checked>
+    <input type="checkbox" id="listJS" checked>
+    <input type="checkbox" id="listCSS" checked>
+    <div class="flex list">
+      <label for="listEnable"><img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></label>
+      <label for="listDisable"><img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></label>
+      <label for="listJS"><img src="../image/js.svg" alt=""></label>
+      <label for="listCSS"><img src="../image/css.svg" alt=""></label>
+    </div>
+    <ul>
+      <!-- template -->
+      <li class="template"></li>
+    </ul>
+
+    <div class="flex">
+      <input type="file" id="fileScript" accept=".js, .css" multiple>
+      <label for="fileScript" data-i18n="importScript">&#x1f4e5; </label>&nbsp;
+      <button type="button" data-i18n="exportAllScript">&#x1f4e4; </button>
+    </div>
+
+
+    </nav>
+
+    <article>
+      <div class="progressBar"></div>
+
+      <!-- Help/About -->
+      <section><iframe src="help.html"></iframe></section>
+      <section><iframe src="about.html"></iframe></section>
+
+
+      <section class="options">
+        <!-- user options -->
+        <fieldset>
+          <legend data-i18n="options"></legend>
+          <div class="flex">
+            <div>
+              <label data-i18n="autoUpdateInterval"></label>
+              <p class="description" data-i18n="autoUpdateIntervalDescription"></p>
+            </div>
+            <div>
+                <input type="range" id="autoUpdateInterval" min="0" max="30"> <output></output>
+            </div>
+          </div>
+        </fieldset>
+
+        <div style="display: flex;">
+          <input type="file" id="file" accept=".txt,.json">
+          <label for="file" class="flat" data-i18n="importPreference"></label>&nbsp;
+          <button type="button" id="export" class="flat" data-i18n="exportPreference"></button>
+        </div>
+
+        <button type="submit" data-i18n="saveOptions"></button>
+
+        <!-- /user options -->
+      </section>
+
+
+      <section class="script">
+        <fieldset>
+          <legend data-i18n="script"></legend>
+
+          <div class="menu">
+            <button type="button" data-i18n="saveScript">&#x1f4be; </button>
+            <input type="checkbox" id="enable" checked><label for="enable" data-i18n="enable"></label>
+            <input type="checkbox" id="autoUpdate" checked><label for="autoUpdate" data-i18n="autoUpdate"></label>
+            <button type="button" data-i18n="update">&#x1f310; </button>
+
+            <button type="button" data-i18n="newJS|title">&#x2795; <img src="../image/js.svg" width="16" alt=""></button>
+            <button type="button" data-i18n="newCSS|title">&#x2795; <img src="../image/css.svg" width="16" alt=""></button>
+            <button type="button" data-i18n="saveTemplate">&#x1f4be; </button>
+
+            <button type="button" data-i18n="exportScript">&#x1f4e4; </button>
+
+
+            <span style="flex: 1;"></span>
+            <img class="bin" src="../image/bin.svg" data-i18n="delete|title" alt="">
+          </div>
+          <pre id="" class="box" data-type="css" spellcheck="false" contenteditable="true"></pre>
+        </fieldset>
+        <footer></footer>
+      </section>
+
+    </article>
+  <script src="highlight.js"></script>
+  <script src="pref.js"></script>
+  <script src="common.js"></script>
+  <script src="options.js"></script>
+  </body>
+</html>

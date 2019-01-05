@@ -1,0 +1,59 @@
+﻿{
+  "manifest_version": 2,
+
+  "name": "__MSG_extensionName__",
+  "description": "__MSG_extensionDescription__",
+  "version": "1.0",
+  "default_locale": "en",
+  "homepage_url": "https://addons.mozilla.org/user/azbb/",
+  "author": "erosman",
+
+  "icons": {
+    "16": "image/icon.svg",
+    "32": "image/icon.svg",
+    "48": "image/icon.svg",
+    "64": "image/icon.svg",
+    "128": "image/icon.svg"
+  },
+
+  "background": {
+    "scripts": ["content/pref.js", "content/common.js", "content/background.js"]
+  },
+
+  "user_scripts": {
+    "api_script": "content/scriptAPI.js"
+  },
+
+  "options_ui": {
+    "page": "content/options.html",
+    "open_in_tab": true,
+    "browser_style": true
+  },
+
+  "permissions": [
+    "activeTab",
+    "clipboardWrite",
+    "contextMenus",
+    "downloads",
+    "idle",
+    "notifications",
+    "storage",
+    "tabs",
+    "unlimitedStorage",
+    "<all_urls>"
+  ],
+
+  "browser_action": {
+    "browser_style": true,
+    "default_icon": "image/icon.svg",
+    "default_title": "__MSG_extensionName__",
+    "default_popup": "content/popup.html"
+  },
+
+  "applications": {
+    "gecko": {
+      "id": "firemonkey@eros.man",
+      "strict_min_version": "65.0"
+    }
+  }
+}
