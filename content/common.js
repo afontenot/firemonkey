@@ -40,11 +40,14 @@ function getMetaData(str) {
 
   const items = metaData[2].match(/@\S+[^\r\n]+/g) || [];
 
-
   items.forEach(item => {
 
     let [,prop, value] = item.match(/@([\w-]+)\s+(.+)/) || ['', '', ''];
     value = value.trim();
+    if (prop === 'run-at') {                                // convert run-at
+      prop = 'runAt';
+      value = value.replace('-', '_');
+    }
 
     if(data.hasOwnProperty(prop) && value !== '') {
       switch (typeof data[prop]) {
