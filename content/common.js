@@ -69,6 +69,9 @@ function getMetaData(str) {
   // --- remove dunplicates
   Object.keys(data).forEach(item => Array.isArray(data[item]) && (data[item] = [...new Set(data[item])]));
 
+
+console.log(data);
+
   // --- check runAt
   !data.runAt || ['document_start', 'document_end', 'document_idle'].includes(data.runAt) || (data.runAt = 'document_idle');
 
