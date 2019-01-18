@@ -77,7 +77,7 @@ autoUpdateInterval.addEventListener('input', function() {
 `/*
 ==UserScript==
 @name
-@matches
+@match
 @version
 ==/UserScript==
 */`,
@@ -86,7 +86,7 @@ autoUpdateInterval.addEventListener('input', function() {
 `/*
 ==UserCSS==
 @name
-@matches
+@match
 @version
 ==/UserCSS==
 */`
@@ -139,13 +139,12 @@ function processScript() {
 
   Object.keys(pref.content).sort(Intl.Collator().compare).forEach(item => addScript(pref.content[item]));
 
-  getEdit();                                                // run after scripts are loaded
-
   if (box.id) {                                             // refresh previously loaded content
 
     box.textContent = '';
     document.getElementById(box.id).click();
   }
+  getEdit();                                                // run after scripts are loaded
 }
 
 function addScript(item) {
@@ -154,6 +153,7 @@ function addScript(item) {
   li.classList.remove('template');
   li.classList.add(item.js ? 'js' : 'css');
   item.enabled || li.classList.add('disabled');
+  item.error && li.classList.add('error');
   li.textContent = item.name;
   li.id = item.name;
   liTemplate.parentNode.appendChild(li);
@@ -184,6 +184,11 @@ function showScript() {
   autoUpdate.checked = pref.content[id].autoUpdate;
   box.textContent = pref.content[id].js || pref.content[id].css;
   highlight.process();
+
+  if (pref.content[id].error) {
+    box.classList.add('invalid');
+    notify(pref.content[id].error, null,id);
+  }
 }
 
 function noSpace(str) {
@@ -370,11 +375,12 @@ async function saveScript() {
       bg.unregister(oldName);
       bg.unregisterTrack(oldName);
 
-      // update old one in menu list
+      // update old one in menu list & legend
       const li = document.querySelector('nav li.on');
       li.textContent = data.name;
       li.id = data.name;
       box.id = data.name;
+      legend.textContent = data.name;
       break;
   }
 
@@ -566,7 +572,7 @@ async function prepareStylus(data) {
         autoUpdate: false,
     //    namespace: '',
         version: '',
-        registered: null,
+    //    registered: null,
         storage: {},
 
         // --- API related data
@@ -738,12 +744,12 @@ function progressBar() {
 // ----------------- /Progress Bar -------------------------
 
 // ----------------- Helper functions ----------------------
-function notify(message, id = '') {
+function notify(message, id = '', title = chrome.i18n.getMessage('extensionName')) {
 
   chrome.notifications.create(id, {
     type: 'basic',
     iconUrl: 'image/icon.svg',
-    title: chrome.i18n.getMessage('extensionName'),
+    title,
     message
   });
 }

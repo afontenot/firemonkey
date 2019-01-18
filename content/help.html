@@ -32,6 +32,15 @@
       Open Options page to manage Options and Scripts</li>
   </ul>
 
+  <h3>Toolbar Icon Pop-up</h3>
+    <p>The pop-up displays teh installed Scripts/CSS. "Tab Scripts & CSS" shows teh ones running on the active Tab.</p>
+    <ul>
+      <li>✔ shows Script/CSS is enabled. Disabled Script/CSS are greyed out and clicking that area toggles the enable/disable</li>
+      <li><span style="color: #f00;">✘</span> shows that there was an error when registering the script & the Info page displays the error</li>
+      <li><img src="../image/gear.svg" width="16" alt=""> Options button opens the Options Page</li>
+      <li><img src="../image/next.svg" width="16" alt=""> shows the Info for the Script/CSS</li>
+      <li>&#x1f58c; Edit button on Info page opens the Options Page and selects the current Script/CSS</li>
+    </ul>
 
   <h2 id="options">Options</h2>
 
@@ -54,6 +63,7 @@
   <p>List of both UserScript and UserCss</p>
   <p>Scripts and CSS have different icons and the icon for disabled ones are grey.</p>
   <p>Click on the Script/CSS to view/edit/enable/disable/delete or start a new Script/CSS.</p>
+  <p><span style="color: #f50;"><b>✘</b></span> shows that there was an error when registering the script. Scripts with errors get disabled automatically.</p>
 
   <ul>
     <li>&#x2611; <img src="../image/js.svg" width="16" alt=""><img src="../image/css.svg" width="16" alt=""> Uncheck to hide all enabled Script & CSS</li>
@@ -70,10 +80,10 @@
 
   <h4>Navigation Buttons</h4>
   <ul>
-    <li><b>&#128229; Import</b><br>
+    <li><b>&#x1f4e5; Import</b><br>
       Import one or more Script/CSS from file, same name Script/CSS will be overwritten without warning</li>
 
-    <li><b>&#128229; Export</b><br>
+    <li><b>&#x1f4e4; Export</b><br>
       Export all Script/CSS to <i>FireMonkey</i> folder in the download location set in <i>Firefox Options -> Downloads</i></li>
 
     <li><b>Import from Stylus</b><br>
@@ -83,7 +93,7 @@
 
   <h4>Edit Area Buttons</h4>
   <ul>
-    <li><b>&#128190; Save</b><br>
+    <li><b>&#x1f4be; Save</b><br>
       Save the currently displaying Script/CSS</li>
 
     <li><b>✔ Enable</b><br>
@@ -92,19 +102,19 @@
     <li><b>✔ Auto-update</b><br>
       Enable/Disable the Auto-Update on currently displaying Script/CSS</li>
 
-    <li><b>&#x1f310 Update</b><br>
+    <li><b>&#x1f310; Update</b><br>
       Update the currently displaying Script/CSS</li>
 
-    <li><b>&#10133; <img src="../image/js.svg" width="16" alt=""></b><br>
+    <li><b>&#x2795; <img src="../image/js.svg" width="16" alt=""></b><br>
       Display a new Script Template that you can edit and Save</li>
 
-    <li><b>&#10133; <img src="../image/css.svg" width="16" alt=""></b><br>
+    <li><b>&#x2795; <img src="../image/css.svg" width="16" alt=""></b><br>
       Display a new CSS Template that you can edit and Save</li>
 
-    <li><b>&#128190; Save Template</b><br>
+    <li><b>&#x1f4be; Save Template</b><br>
       Save the currently displaying Script/CSS as a Template</li>
 
-    <li><b>&#128229; Export</b><br>
+    <li><b>&#x1f4e4; Export</b><br>
       Export the currently displaying Script/CSS to file</li>
 
     <li><img src="../image/bin.svg" width="16" alt=""><br>
@@ -180,9 +190,33 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
     <li><code>excludeGlobs</code> <i>(Optional)</i></li>
     <li><code>allFrames</code> <i>(Optional, true or false (default))</i></li>
     <li><code>matchAboutBlank</code> <i>(Optional)</i></li>
-    <li><code>run-at</code> <i>(Optional, document_start or document_end or document_idle (default))</i></li>
-    <li><code>include</code> <i>(&#128078;  Deprecated, entries will be merged into match, use match or includeGlobs instead)</i></li>
+    <li><code>run-at</code> <i>(Optional, document_start or document_end or document_idle (default))</i><br><br></li>
+    
+    <li><code>match</code> <i>(entries will be merged into <code>matches</code>)</i></li>
+    <li><code>include</code> <i>(entries will be merged into <code>matches</code>, use <code>match</code>, <code>matches</code> or <code>includeGlobs</code> instead)</i></li>
+    <li><code>exclude</code> <i>(entries will be merged into <code>excludeMatches</code>)</i></li>
+    
   </ul>
+
+  <h4>include/exclude</h4>
+  <p>Entries under <code>@include/@exclude</code> will be merged into <code>@matches/@excludeMatches</code>. Some common incompatibilities with <code>matches</code> API are automatically converted e.g:</p>
+
+<table>
+  <thead>
+  <tr>
+    <th style="width: 10em;" scope="col">From</th>
+    <th style="width: 10em;" scope="col">To</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr><td><p>*</p></td><td><p>*://*/*</p></td></tr>
+  <tr><td><p>http://*</p></td><td><p>http://*/*</p></td></tr>
+  <tr><td><p>https://*</p></td><td><p>https://*/*</p></td></tr>
+  <tr><td><p>http*://*</p></td><td><p>*://*/*</p></td></tr>
+  <tr><td><p>http*://a.b.c/*</p></td><td><p>*://a.b.c/*</p></td></tr>
+  </tbody>
+</table>
+
 
   <h4>run-at</h4>
   <p>Unlike <i>GreaseMonkey</i> which defaults to '<i>document-end</i>', the Firefox <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts">content_scripts</a> default <code>run-at</code> is '<i>document_idle</i>' and <i>FireMonkey</i> conforms to the Firefox API default.</p>
@@ -441,7 +475,7 @@ onerror, ontimeout, onabort
   <tbody>
   <tr>
     <td>
-      <p><all_urls></p>
+      <p>&lt:all_urls&gt;</p>
       <p>Match all URLs</p>
     </td>
     <td>

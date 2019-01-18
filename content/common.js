@@ -20,10 +20,7 @@ function getMetaData(str) {
     enabled: enable ? enable.checked : true,
     updateURL: '',
     autoUpdate: autoUpdate ? autoUpdate.checked : false,
-    include: [],                                            // will be merged into matches
-//    namespace: '',
     version: '',
-    registered: null,
     storage: {},
 
     // --- API related data
@@ -44,12 +41,21 @@ function getMetaData(str) {
 
     let [,prop, value] = item.match(/@([\w-]+)\s+(.+)/) || ['', '', ''];
     value = value.trim();
-    if (prop === 'run-at') {                                // convert run-at
-      prop = 'runAt';
-      value = value.replace('-', '_');
-    }
-
+    
+    switch (prop) {
+    
+      case 'match': prop = 'matches'; break;                // convert match to matches
+      case 'include': prop = 'matches'; break;              // convert include to matches
+      case 'exclude': prop = 'excludeMatches'; break;       // convert exclude to excludeMatches
+      case 'run-at':                                        // convert run-at to runAt
+        prop = 'runtAt';
+        value = value.replace('-', '_');
+        ['document_start', 'document_end'].includes(value) || (value = 'document_idle');
+        break;
+    }    
+    
     if(data.hasOwnProperty(prop) && value !== '') {
+      
       switch (typeof data[prop]) {
 
         case 'boolean': data[prop] = value === 'true'; break;
@@ -62,17 +68,30 @@ function getMetaData(str) {
   // --- check auto-update criteria, must have updateURL & version
   if (data.autoUpdate && (!data.updateURL || !data.version)) { data.autoUpdate = false; }
 
-  // --- merge include into matches
-  data.matches = [...data.matches, ...data.include];
-  delete data.include;
+  // --- convert to match pattern
+  data.matches = data.matches.map(checkPattern);
+  data.excludeMatches = data.excludeMatches.map(checkPattern);
 
   // --- remove dunplicates
   Object.keys(data).forEach(item => Array.isArray(data[item]) && (data[item] = [...new Set(data[item])]));
 
-  // --- check runAt
-  !data.runAt || ['document_start', 'document_end', 'document_idle'].includes(data.runAt) || (data.runAt = 'document_idle');
-
   return data;
+}
+
+function checkPattern(p) {
+
+  // --- convert some common incompatibilities with matches API
+  switch (true) {
+
+    case p === '*': return '*://*/*';
+    case p === 'http://*': return 'http://*/*';
+    case p === 'https://*': return 'https://*/*';
+    case p === 'http*://*': return '*://*/*';
+    case p.startsWith('http*'): return p.replace(/^http\*/, '*');
+  }
+
+  // keep it as it is for now
+  return p;
 }
 // ----------------- /Parse Metadata Block -----------------
 

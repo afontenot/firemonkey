@@ -75,7 +75,7 @@ async function register(id) {
   });
 
   // --- register page script
-  registerTrack(id, options);
+  try { registerTrack(id, options); } catch(error) { processError(id, error.message); }
 
   // --- stop if script is not enabled
   if (!pref.content[id].enabled) { return; }
@@ -122,6 +122,13 @@ async function unregisterTrack(id) {                        // only in case of c
     await registeredTrack[id].unregister();
     delete registeredTrack[id];
   }
+}
+
+function processError(id, error) {
+
+  pref.content[id].error = error;                           // store error message
+  pref.content[id].enabled = false;                         // disable the script
+  browser.storage.local.set(pref);                          // update saved pref  
 }
 // ----------------- /Register Content Script & CSS --------
 
