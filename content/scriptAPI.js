@@ -15,7 +15,6 @@ browser.userScripts.onBeforeScript.addListener(script => {
     } catch(error) { console.error(name, error.message); }
   }
 
-
   // --- GM4 Object based functions
   const GM = {
 

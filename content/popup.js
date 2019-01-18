@@ -62,7 +62,12 @@ function addScript(item) {
   item.enabled || li.classList.add('disabled');
   li.children[1].textContent = item.name;
   li.id = item.name;
-  li.children[0].addEventListener('click', toggleState);
+  
+  if (item.error) {
+    li.children[0].textContent = '\u2718';
+    li.children[0].style.color = '#f00';
+  }
+  else { li.children[0].addEventListener('click', toggleState); }
   li.children[2].addEventListener('click', showInfo);
   ulOther.appendChild(li);
 }
@@ -93,10 +98,13 @@ function showInfo() {
   dl.textContent = '';                                      // clearing previous content
   const dtTemp = document.createElement('dt');
   const ddTemp = document.createElement('dd');
+  const infoArray = ['name', 'description', 'author', 'version', 'matches'];
+  pref.content[id].error && infoArray.push('error');
 
-  ['name', 'description', 'author', 'version', 'matches'].forEach(item => {
+  infoArray.forEach(item => {
 
     const dt = dtTemp.cloneNode();
+    item === 'error' && dt.classList.add('error');
     dt.textContent = item;
     dl.appendChild(dt);
     const arr = Array.isArray(pref.content[id][item]) ? pref.content[id][item] : [pref.content[id][item]];
