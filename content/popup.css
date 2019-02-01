@@ -78,7 +78,6 @@ li {
 
 li:hover {
   background-color: #eee;
-  
 }
 
 li span {
@@ -98,6 +97,10 @@ li img {
 }
 
 li:hover img {
+  opacity: 0.4;
+}
+
+li img:hover {
   opacity: 1;
 }
 
@@ -145,6 +148,17 @@ section.info {
   flex-direction: column;
 }
 
+section.info h3 span {
+  opacity: 0.5;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+section.info h3 span:hover {
+  opacity: 1;
+}
+
+
 section.info img {
   width: 16px;
   vertical-align: middle;
@@ -173,11 +187,11 @@ dd {
   padding: 0 0 0.4em 0;
 }
 
-dt.error { 
+dt.error {
   color: #800;
 }
 
-dt.error ~ dd { 
+dt.error ~ dd {
   color: #f00;
 }
 /* ----- /Info ----- */

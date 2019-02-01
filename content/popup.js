@@ -19,7 +19,7 @@ chrome.storage.local.get(null, result => { // global default set in pref.js
 // ----- global
 [...document.querySelectorAll('button')].forEach(item => item.addEventListener('click', process));
 const info = document.querySelector('section.info');
-info.querySelector('h3 img').addEventListener('click', () => info.parentNode.style.transform = 'translateX(0%)');
+info.querySelector('h3 span').addEventListener('click', () => info.parentNode.style.transform = 'translateX(0%)');
 
 const liTemplate = document.querySelector('li.template');
 const ulTab = document.querySelector('ul.tab');
@@ -29,32 +29,23 @@ const ulOther = document.querySelector('ul.other');
 function process() {
 
   switch (this.dataset.i18n) {
-    case 'edit': editScript(this); break;
+    case 'edit': editScript(this.id); break;
     case 'options': chrome.runtime.openOptionsPage(); window.close(); break;
   }
 }
 
 async function processScript() {
 
-  Object.keys(pref.content).sort(Intl.Collator().compare).forEach(item => addScript(pref.content[item]));
-
   const tabs = await browser.tabs.query({currentWindow: true, active: true});
+  const frames = await browser.webNavigation.getAllFrames({tabId: tabs[0].id});
+  const urls = [...new Set(frames.map(item => item.url).filter(item => /^(https?|wss?|ftp|file|about:blank)/.test(item)))];
 
-  if (!/^(https?|wss?|ftp|file|about:blank)/.test(tabs[0].url)) { return; } // only run on possible schemes
-
-  browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-
-    if(!message.id) { return; }
-    const node = document.getElementById(message.id);
-    if (!node) { return; }
-
-    const li = [...ulTab.children].find(li => Intl.Collator().compare(li.id, node.id) === 1);
-    li ? ulTab.insertBefore(node, li) : ulTab.appendChild(node);
-  });
-  browser.tabs.sendMessage(tabs[0].id, {target: 'page'});
+  Object.keys(pref.content).sort(Intl.Collator().compare).forEach(item =>
+    addScript(pref.content[item], checkMatches(pref.content[item], urls))
+  );
 }
 
-function addScript(item) {
+function addScript(item, tab) {
 
   const li = liTemplate.cloneNode(true);
   li.classList.remove('template');
@@ -62,14 +53,14 @@ function addScript(item) {
   item.enabled || li.classList.add('disabled');
   li.children[1].textContent = item.name;
   li.id = item.name;
-  
+
   if (item.error) {
     li.children[0].textContent = '\u2718';
     li.children[0].style.color = '#f00';
   }
   else { li.children[0].addEventListener('click', toggleState); }
   li.children[2].addEventListener('click', showInfo);
-  ulOther.appendChild(li);
+  (tab ? ulTab : ulOther).appendChild(li);
 }
 
 async function toggleState() {
@@ -82,7 +73,7 @@ async function toggleState() {
   li.classList.toggle('disabled');
 
   pref.content[id].enabled = !li.classList.contains('disabled');
-  browser.storage.local.set(pref);                          // update saved pref
+  browser.storage.local.set({content: pref.content});       // update saved pref
 
   // --- register/unregister
   const bg = await browser.runtime.getBackgroundPage();
@@ -119,13 +110,44 @@ function showInfo() {
   info.parentNode.style.transform = 'translateX(-50%)';
 }
 
-function editScript(button) {
-
-  const id = button.id;
-  if (!id) { throw 'No ID'; }
+function editScript(id) {
 
   localStorage.setItem('editID', id);
   chrome.runtime.openOptionsPage();
   chrome.runtime.sendMessage({edit: id});                   // in case Option page is already open
   window.close();
 }
+
+// ----------------- Match Pattern Check -------------------
+function checkMatches(item, urls) {
+
+  switch (true) {
+
+    // --- about:blank
+    case urls.includes('about:blank'): return item.matchAboutBlank;
+
+    // --- matches & globs
+    case !matches(urls, item.matches):
+    case item.excludeMatches[0] && matches(urls, item.excludeMatches):
+    case item.includeGlobs[0] && !matches(urls, item.includeGlobs, true):
+    case item.excludeGlobs[0] && matches(urls, item.excludeGlobs, true):
+      return false;
+
+    default: return true;
+  }
+}
+
+function matches(urls, arr, glob) {
+
+  if (urls.includes('<all_urls>') || urls.includes('*://*/*')) { return true; }
+
+  return !!urls.find(u => new RegExp(prepareMatches(arr, glob), 'i').test(u));
+}
+
+function prepareMatches(arr, glob) {
+
+  const regexSpChar = glob ? /[-\/\\^$+.()|[\]{}]/g : /[-\/\\^$+?.()|[\]{}]/g; // Regular Expression Special Characters minus * ?
+  const str = arr.map(item => item.replace(regexSpChar, '\\$&').replace(/\*/g, '.*')).join('|');
+  return glob ? str.replace(/\?/g, '.') : str;
+}
+// ----------------- /Match Pattern Check ------------------
