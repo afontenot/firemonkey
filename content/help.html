@@ -21,7 +21,6 @@
   <p><i>Firemonkey</i> is a totally new extension that can handle both user Scripts and user CSS. While it has similar functions to user script extensions like <i>GreaseMonkey</i>, and user CSS extensions like <i>Stylish</i> or <i>Stylus</i>, there are differences. Similar to <i>GreaseMonkey</i>, scripts (or CSS) are injected in tabs and for a new script/CSS to have an effect, tab must be reloaded. The behaviour differs from <i>Stylus</i> which can inject CSS into a tab and remove it without having to reload the tab.</p>
 
 
-
   <h2 id="how_to">How to Use</h2>
   <p></p>
 
@@ -219,7 +218,8 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
 
   <h4>run-at</h4>
-  <p>Unlike <i>GreaseMonkey</i> which defaults to '<i>document-end</i>', the Firefox <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts">content_scripts</a> default <code>run-at</code> is '<i>document_idle</i>' and <i>FireMonkey</i> conforms to the Firefox API default.</p>
+  <p>Unlike <i>GreaseMonkey</i> (and <i>ViolentMonkey</i>) which defaults to '<i>document-end</i>', the Firefox <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts">content_scripts</a> default <code>run-at</code> is '<i>document_idle</i>' and <i>FireMonkey</i> conforms to the Firefox API default (and so does <i>TamperMonkey</i>).</p>
+  
   <p>That means, there is no need for event listeners such as <code>load</code> or <code>DOMContentLoaded</code> as they will not apply. If script has to run earlier, then the <code>run-at</code> has to be set accordingly.</p>
   <p><i>GreaseMonkey</i> uses hyphen separated words (<i>document-start</i>, <i>document-end</i>, <i>document-idle</i>), while the API uses underscore separated words (<i>document_start</i>, <i>document_end</i>, <i>document_idle</i>). <i>FireMonkey</i> converts the hyphen so both can be used.</p>
 
@@ -235,7 +235,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <span class="keyword">const</span> <span class="property">value</span> = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="gm">getValue</span>(key, default);
   <span class="keyword">const</span> <span class="property">value</span> = <span class="keyword">await</span> <span class="gm">GM_getValue</span>(key, default);
 
-  <span class="comment">// an array of keys set by script</span>
+  <span class="comment">// an array of keys set by script OR []</span>
   <span class="keyword">const</span> <span class="method">keys</span> = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="gm">listValues</span>();
   <span class="keyword">const</span> <span class="method">keys</span> = <span class="keyword">await</span> <span class="gm">GM_listValues</span>();
 

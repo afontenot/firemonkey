@@ -2,26 +2,50 @@
 
 // ----- global
 const registered = {};
-const registeredTrack = {};
 const update =[];
-const tabCache = {};
 
 // ----------------- User Preference -----------------------
 chrome.storage.local.get(null, result => {
   Object.keys(result).forEach(item => pref[item] = result[item]); // update pref with the saved version
-  
+
   const days = pref.autoUpdateInterval *1;
   const doUpdate =  days && Date.now() > pref.autoUpdateLast + (days + 86400000); // 86400 * 1000 = 24hr
-  
-  Object.keys(pref.content).forEach(item => {
-    register(item);
 
-    doUpdate && pref.content[item].enabled && pref.content[item].autoUpdate &&
-    pref.content[item].updateURL && pref.content[item].version && update.puch(pref.content[item].name);
+  // --- migrate preferences to v1.4
+  migrate();
+
+  Object.keys(pref.content).forEach(name => {
+
+    register(name);
+    doUpdate && pref[name].enabled && pref[name].autoUpdate && pref[name].updateURL &&
+      pref[name].version && update.puch(name);
   });
-  
+
   update[0] && browser.idle.onStateChanged.addListener(onIdle); // FF51+
 });
+
+async function migrate() {
+
+  // ----- migrate preferences to v1.4 -----
+  if (pref.hasOwnProperty('glabalAutoUpdate')) {
+
+    delete pref.glabalAutoUpdate;
+    await browser.storage.local.remove('glabalAutoUpdate');
+  }
+
+  let storageUpdate = false;
+  Object.keys(pref.content).forEach(name => {
+
+    if (pref.content[name].hasOwnProperty('storage') && Object.keys(pref.content[name].storage)[0]) {
+
+      pref['_' + name] = pref.content[name].storage; // move storage
+      storageUpdate = true;
+    }
+    delete pref.content[name].storage;
+  });
+
+  storageUpdate && await browser.storage.local.set(pref);   // update saved pref
+}
 
 chrome.storage.onChanged.addListener((changes, area) => {   // Change Listener
   Object.keys(changes).forEach(item => pref[item] = changes[item].newValue); // update pref with the saved version
@@ -62,6 +86,9 @@ async function register(id) {
     delete registered[id];
   }
 
+  // --- stop if script is not enabled
+  if (!pref.content[id].enabled) { return; }
+
   // --- preppare scrip options
   const options = {
 
@@ -73,12 +100,6 @@ async function register(id) {
   ['matches', 'excludeMatches', 'includeGlobs', 'excludeGlobs'].forEach(item => {
     pref.content[id][item][0] && (options[item] = pref.content[id][item]);
   });
-
-  // --- register page script
-  try { registerTrack(id, options); } catch(error) { processError(id, error.message); }
-
-  // --- stop if script is not enabled
-  if (!pref.content[id].enabled) { return; }
 
   // --- add CSS & JS
   if (pref.content[id].css) { options.css = [{code: pref.content[id].css}]; }
@@ -92,9 +113,14 @@ async function register(id) {
 
   const API = pref.content[id].js ? browser.userScripts : browser.contentScripts;
 
-  API.register(options)
-  .then(reg => registered[id] = reg)                      // contentScripts.RegisteredContentScript object
-  .catch(console.error);
+  // --- register page script
+  try {                                                     // matches error throws before the Promise
+
+    API.register(options)
+    .then(reg => registered[id] = reg)                      // contentScripts.RegisteredContentScript object
+    .catch(console.error);
+
+  } catch(error) { processError(id, error.message); }
 }
 
 async function unregister(id) {
@@ -105,30 +131,11 @@ async function unregister(id) {
   }
 }
 
-function registerTrack(id, options) {
-
-  options.js = [{code:
-    `browser.runtime.onMessage.addListener(() => browser.runtime.sendMessage({id: ${JSON.stringify(id)}}));`
-  }];
-
-  browser.contentScripts.register(options)
-  .then(reg => registeredTrack[id] = reg)                   // contentScripts.RegisteredContentScript object
-  .catch(console.error);
-}
-
-async function unregisterTrack(id) {                        // only in case of chnaging name or deleting script/css
-
-  if (registeredTrack[id]) {
-    await registeredTrack[id].unregister();
-    delete registeredTrack[id];
-  }
-}
-
 function processError(id, error) {
 
   pref.content[id].error = error;                           // store error message
   pref.content[id].enabled = false;                         // disable the script
-  browser.storage.local.set(pref);                          // update saved pref  
+  browser.storage.local.set({content: pref.content});       // update saved pref
 }
 // ----------------- /Register Content Script & CSS --------
 
@@ -151,9 +158,31 @@ function removeForbiddenHeaders(headers) {
 browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
   const e = message.data;
+  const name = message.name;
+  const storage = '_' + name;
+  const hasProperty = (p) => pref[storage] && Object.prototype.hasOwnProperty.call(pref[storage], p);
+
 
   switch (message.api) {
-    
+
+    case 'setValue':
+      if (!['string', 'number', 'boolean'].includes(typeof e.value)) { throw `${name}: Unsupported value in setValue()`; }
+      pref[storage] || (pref[storage] = {});                // make one if didn't exist
+      if (pref[storage][e.key] === e.value) { return true; } // return if value hasn't changed
+      pref[storage][e.key] = e.value;
+      return await browser.storage.local.set({[storage]: pref[storage]});
+
+    case 'getValue':
+      return hasProperty(e.key) ? pref[storage][e.key] : e.defaultValue;
+
+    case 'listValues':
+      return pref[storage] ? Object.keys(pref[storage]) : [];
+
+    case 'deleteValue':
+      if (!hasProperty(e.key)) { return true; }             // return if nothing to delete
+      delete pref[storage][e.key];
+      return await browser.storage.local.set({[storage]: pref[storage]});
+
     case 'openInTab':
       browser.tabs.create({url: e.url, active: e.active});
       break;
@@ -164,7 +193,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       .catch(error => { console.error(error); notify(chrome.i18n.getMessage('errorClipboard')); }); // failed copy notification
       break;
 
-    case 'notification': notify(e.text, null, message.name); break;
+    case 'notification': notify(e.text, null, name); break;
 
     case 'fetch':
       // --- check url
@@ -269,10 +298,10 @@ function checkURL(url, base) {
 function onIdle() {
 
   if (state !== 'idle' || !update[0]) { return; }
-  
+
   pref.autoUpdateLast = Date.now();
-  browser.storage.local.set(pref);                          // update saved pref
-  
+  browser.storage.local.set({autoUpdateLast: pref.autoUpdateLast}); // update saved pref
+
   // --- do 10 updates at a time
   const sect = update.splice(0, 10);
   update[0] || browser.idle.onStateChanged.removeListener(onIdle);
@@ -291,25 +320,29 @@ function processResponse(text, name) {
   if (data.name !== name) {                                 // name has changed
 
     if (pref.content[data.name]) { throw `${name}: Update new name already exists`; } // name already exists
-    else { delete pref.content[name]; }
+    else {
+
+      if (pref['_' + name]) {                               // move storage
+        pref['_' + data.name] = pref['_' + name];
+        delete pref['_' + name];
+        browser.storage.local.remove('_' + name);
+      }
+      delete pref.content[name];
+    }
   }
-  
+
   // --- update from previous version
   data.enabled = pref.content[data.name].enabled;
-  data.autoUpdate = pref.content[data.name].autoUpdate;  
-  
+  data.autoUpdate = pref.content[data.name].autoUpdate;
+
   // --- unregister old version
   unregister(name);
-  unregisterTrack(name);  
 
   console.log(name, 'updated to version', data.version);
   pref.content[data.name] = data;                           // save to pref
-  browser.storage.local.set(pref);                          // update saved pref
+  browser.storage.local.set({content: pref.content});       // update saved pref
 
-  if (data.enabled) {
-    register(data.name);
-    registerTrack(data.name);
-  }
+  data.enabled && register(data.name);
 }
 // ----------------- /Remote Update ------------------------
 
