@@ -7,6 +7,6 @@ let pref = {                                                // global default
   content: {},
   template: {
    css: '',
-   js: '' 
+   js: ''
   }
 };

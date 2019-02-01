@@ -20,28 +20,39 @@ browser.userScripts.onBeforeScript.addListener(script => {
 
     async setValue(key, value) {
 
-      const res = await browser.storage.local.get('content');
-      res.content[name].storage[key] = value;
-      return await browser.storage.local.set(res);
+      return await browser.runtime.sendMessage({
+        name,
+        api: 'setValue',
+        data: {key, value}
+      });
     },
 
     async getValue(key, defaultValue) {
-      // if managed storage is not set, undefined will be returned
-      const res = await browser.storage.local.get('content');
-      return res.content[name].storage.hasOwnProperty(key) ? res.content[name].storage[key] : defaultValue;
+
+      return await browser.runtime.sendMessage({
+        name,
+        api: 'getValue',
+        data: {key, defaultValue}
+      });
     },
 
     async listValues() {
 
-      const res = await browser.storage.local.get('content');
-      return script.export(Object.keys(res.content[name].storage));
+      const response = await browser.runtime.sendMessage({
+        name,
+        api: 'listValues',
+        data: {}
+      });
+      return script.export(response);
     },
 
     async deleteValue(key) {
 
-      const res = await browser.storage.local.get('content');
-      delete res.content[name].storage[key];
-      return await browser.storage.local.set(res);
+     return await browser.runtime.sendMessage({
+        name,
+        api: 'deleteValue',
+        data: {key}
+      });
     },
 
     openInTab(url, open_in_background) {

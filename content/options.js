@@ -129,7 +129,7 @@ function saveTemplate() {
   if (!metaData) { notify(chrome.i18n.getMessage('errorMeta')); return; }
   const type = metaData[1].toLowerCase() === 'userscript' ? 'js' : 'css';
   pref.template[type] = box.innerText.trim();
-  chrome.storage.local.set(pref);                           // update saved pref
+  browser.storage.local.set({template: pref.template});     // update saved pref
 }
 
 function processScript() {
@@ -234,7 +234,7 @@ async function toggleEnable() {
         pref.content[id].enabled ? bg.register(id) : bg.unregister(id);
       });
 
-      browser.storage.local.set(pref);                        // update saved pref
+      browser.storage.local.set({content: pref.content});   // update saved pref
       return;
     }
   }
@@ -246,7 +246,7 @@ async function toggleEnable() {
   const last = document.querySelector('nav li.on');
   last && last.classList.toggle('disabled', !this.checked);
 
-  browser.storage.local.set(pref);                          // update saved pref
+  browser.storage.local.set({content: pref.content});       // update saved pref
 
   // --- register/unregister
   const bg = await browser.runtime.getBackgroundPage();
@@ -267,67 +267,65 @@ function toggleAutoUpdate() {
     return;
   }
 
-  chrome.storage.local.set(pref);                           // update saved pref
+  browser.storage.local.set({content: pref.content});       // update saved pref
 }
 
 function getMulti() {
 
   // --- fitler the visible items in the selection only
   const sel = window.getSelection();
+  if (!sel.toString().trim()) { return []; }
   return [...document.querySelectorAll('li.js, li.css')].filter(item =>
           sel.containsNode(item, true) && window.getComputedStyle(item).display !== 'none');
 }
 
 async function deleteScript() {
 
+  const li = getMulti();
+  if (li[0] ? !confirm(chrome.i18n.getMessage('deleteMultiConfirm', li.length)) :
+              !confirm(chrome.i18n.getMessage('deleteConfirm', id))) { return; }
+
+  const bg = await browser.runtime.getBackgroundPage();
+  const deleted = [];
+
+
   // --- multi delete
-  if (window.getSelection().toString().trim()) {
+  if (li[0]) {
 
-    const li = getMulti();
-    if (li[0] && confirm(chrome.i18n.getMessage('deleteMultiConfirm', li.length))) {
+    li.forEach(item => {
 
-      const bg = await browser.runtime.getBackgroundPage();
-      legend.className = '';
-      legend.textContent = chrome.i18n.getMessage('script');
-      box.id = '';
-      box.textContent = '';
+      const id = item.id;
+      item.remove();                                        // remove from menu list
+      delete pref.content[id];
+      bg.unregister(id);                                    // remove old registers
+      deleted.push(id);
+    });
+  }
+  // --- single delete
+  else {
 
-      li.forEach(item => {
+    if (!box.id) { return; }
+    const id = box.id;
 
-        const id = item.id;
-        item.remove();                                      // remove from menu list
-        delete pref.content[id];
-        bg.unregister(id);                                  // remove old registers
-        bg.unregisterTrack(id);
-      });
-
-      browser.storage.local.set(pref);                        // update saved pref
-    }
-    return;
+    // --- remove from menu list
+    document.querySelector('nav li.on').remove();
+    delete pref.content[id];
+    bg.unregister(id);                                      // remove old registers
+    deleted.push(id);
   }
 
-  // --- single delete
-  if (!box.id) { return; }
-
-  const id = box.id;
-
-  if (!confirm(chrome.i18n.getMessage('deleteConfirm', id))) { return; }
-
-  // --- remove from menu list
-  document.querySelector('nav li.on').remove();
-
+  // --- reset box
   legend.className = '';
   legend.textContent = chrome.i18n.getMessage('script');
   box.id = '';
   box.textContent = '';
 
-  delete pref.content[id];
-  browser.storage.local.set(pref);                          // update saved pref
+  // --- delete script storage
+  await browser.storage.local.remove(deleted.map(name => '_' + name));
 
-  const bg = await browser.runtime.getBackgroundPage();
-  bg.unregister(id);                                        // remove old registers
-  bg.unregisterTrack(id);
+  browser.storage.local.set({content: pref.content});       // update saved pref
 }
+
 
 async function saveScript() {
 
@@ -373,7 +371,11 @@ async function saveScript() {
       const oldName = box.id;
       delete pref.content[oldName]
       bg.unregister(oldName);
-      bg.unregisterTrack(oldName);
+      if (pref.hasOwnProperty('_' + oldName)) {                   // move script storage
+
+        pref['_' + data.name] = pref['_' + oldName];
+        await browser.storage.local.remove('_' + oldName);
+      }
 
       // update old one in menu list & legend
       const li = document.querySelector('nav li.on');
@@ -384,7 +386,8 @@ async function saveScript() {
       break;
   }
 
-  browser.storage.local.set(pref);                      // update saved pref
+
+  browser.storage.local.set({content: pref.content});       // update saved pref
 
   // --- progress bar
   progressBar();
@@ -421,17 +424,24 @@ async function processResponse(text, name) {
   if (data.name !== name) {                                 // name has changed
 
     if (pref.content[data.name]) { throw `${name}: Update new name already exists`; } // name already exists
-    else { delete pref.content[name]; }
+    else {
+      const oldName = name;
+      delete pref.content[oldName];
+      if (pref.hasOwnProperty('_' + oldName)) {                   // move script storage
+
+        pref['_' + data.name] = pref['_' + oldName];
+        await browser.storage.local.remove('_' + oldName);
+      }
+    }
   }
 
   // --- unregister old version
   const bg = await browser.runtime.getBackgroundPage();
   bg.unregister(name);
-  bg.unregisterTrack(name);
 
   console.log(name, 'updated to version', data.version);
   pref.content[data.name] = data;                           // save to pref
-  browser.storage.local.set(pref);                          // update saved pref
+  browser.storage.local.set({content: pref.content});       // update saved pref
 
   processScript();                                          // update page display
   const on = document.getElementById(data.name);
@@ -440,7 +450,6 @@ async function processResponse(text, name) {
   if (data.enabled) {
     bg.updatePref(pref);
     bg.register(data.name);
-    bg.registerTrack(data.name);
   }
 }
 // ----------------- /Remote Update ------------------------
@@ -485,7 +494,7 @@ async function processFileSelectScript(e) {
 
   if(!multiCache[0]) { return; }
   processScript();                                          // update page display
-  browser.storage.local.set(pref);                          // update saved pref
+  browser.storage.local.set({content: pref.content});       // update saved pref
 
   // --- register/unregister
   const bg = await browser.runtime.getBackgroundPage();
@@ -570,10 +579,7 @@ async function prepareStylus(data) {
         enabled: item.enabled,
         updateURL: item.updateUrl,
         autoUpdate: false,
-    //    namespace: '',
         version: '',
-    //    registered: null,
-        storage: {},
 
         // --- API related data
         allFrames: false,
@@ -613,7 +619,7 @@ async function prepareStylus(data) {
   }
 
   processScript();                                          // update page display
-  browser.storage.local.set(pref);                          // update saved pref
+  browser.storage.local.set({content: pref.content});       // update saved pref
 
   if (!cache[0]) { return; }
 

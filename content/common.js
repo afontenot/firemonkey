@@ -21,17 +21,17 @@ function getMetaData(str) {
     updateURL: '',
     autoUpdate: autoUpdate ? autoUpdate.checked : false,
     version: '',
-    storage: {},
 
     // --- API related data
     allFrames: false,
     js: type === 'js' ? str : '',
     css: type === 'css' ? str.replace(/[\u200B-\u200D\uFEFF]/g, '') : '', // avoid CSS parse error on invisible characters
-    excludeGlobs: [],
+    matches: [],
     excludeMatches: [],
     includeGlobs: [],
+    excludeGlobs: [],
     matchAboutBlank: false,
-    matches: [],
+
     runAt: 'document_idle'                                  // "document_start" "document_end" "document_idle" (default)
   };
 
@@ -41,9 +41,9 @@ function getMetaData(str) {
 
     let [,prop, value] = item.match(/@([\w-]+)\s+(.+)/) || ['', '', ''];
     value = value.trim();
-    
+
     switch (prop) {
-    
+
       case 'match': prop = 'matches'; break;                // convert match to matches
       case 'include': prop = 'matches'; break;              // convert include to matches
       case 'exclude': prop = 'excludeMatches'; break;       // convert exclude to excludeMatches
@@ -52,10 +52,10 @@ function getMetaData(str) {
         value = value.replace('-', '_');
         ['document_start', 'document_end'].includes(value) || (value = 'document_idle');
         break;
-    }    
-    
+    }
+
     if(data.hasOwnProperty(prop) && value !== '') {
-      
+
       switch (typeof data[prop]) {
 
         case 'boolean': data[prop] = value === 'true'; break;
