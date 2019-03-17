@@ -283,7 +283,7 @@ async function deleteScript() {
 
   const li = getMulti();
   if (li[0] ? !confirm(chrome.i18n.getMessage('deleteMultiConfirm', li.length)) :
-              !confirm(chrome.i18n.getMessage('deleteConfirm', id))) { return; }
+              !confirm(chrome.i18n.getMessage('deleteConfirm', box.id))) { return; }
 
   const bg = await browser.runtime.getBackgroundPage();
   const deleted = [];
@@ -414,7 +414,10 @@ async function processResponse(text, name) {
   if (!data) { throw `${name}: Update Meta Data error`; }
 
   // --- check version
-  if (compareVersion(data.version, pref.content[name].version) !== '>') { return; }
+  if (compareVersion(data.version, pref.content[name].version) !== '>') { 
+    notify(chrome.i18n.getMessage('noNewUpdate'), null, name);
+    return; 
+  }
 
   // --- update from previous version
   data.enabled = pref.content[name].enabled;
@@ -435,11 +438,8 @@ async function processResponse(text, name) {
     }
   }
 
-  // --- unregister old version
-  const bg = await browser.runtime.getBackgroundPage();
-  bg.unregister(name);
-
-  console.log(name, 'updated to version', data.version);
+  //console.log(name, 'updated to version', data.version);
+  notify(chrome.i18n.getMessage('scriptUpdated', data.version), null, name);
   pref.content[data.name] = data;                           // save to pref
   browser.storage.local.set({content: pref.content});       // update saved pref
 
@@ -448,6 +448,9 @@ async function processResponse(text, name) {
   on && on.click();                                         // reload the new script
 
   if (data.enabled) {
+
+    const bg = await browser.runtime.getBackgroundPage();
+    if (data.name !== name) { bg.unregister(name); }        // --- unregister old name 
     bg.updatePref(pref);
     bg.register(data.name);
   }

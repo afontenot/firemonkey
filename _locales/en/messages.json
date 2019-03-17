@@ -32,6 +32,8 @@
   "errorName": { "message": "Script/CSS name already exists.\nDo you want to replace the existing one?" },
   "errorMatches": { "message": "@mathces or @includeGlobs must be set." },
   "errorUpdate": { "message": "Script/CSS does not have updateURL or version." },
+  "noNewUpdate": { "message": "There is no new update." },
+  "scriptUpdated": { "message": "Script/CSS updated to version $1" },
 
   "importScript": { "message": "Import" },
   "exportScript": { "message": "Export" },
