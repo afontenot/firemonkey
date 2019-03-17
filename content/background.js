@@ -308,7 +308,7 @@ function onIdle() {
   sect.forEach(item => pref.content.hasOwnProperty(item) && getUpdate(pref.content[item])); // check if script wasn't deleted
 }
 
-function processResponse(text, name) {
+async function processResponse(text, name) {
 
   const data = getMetaData(text);
   if (!data) { throw `${name}: Update Meta Data error`; }
@@ -335,13 +335,11 @@ function processResponse(text, name) {
   data.enabled = pref.content[data.name].enabled;
   data.autoUpdate = pref.content[data.name].autoUpdate;
 
-  // --- unregister old version
-  unregister(name);
-
   console.log(name, 'updated to version', data.version);
   pref.content[data.name] = data;                           // save to pref
   browser.storage.local.set({content: pref.content});       // update saved pref
 
+  if (data.name !== name) { bg.unregister(name); }          // --- unregister old name 
   data.enabled && register(data.name);
 }
 // ----------------- /Remote Update ------------------------
