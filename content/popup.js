@@ -124,7 +124,7 @@ function checkMatches(item, urls) {
   switch (true) {
 
     // --- about:blank
-    case urls.includes('about:blank'): return item.matchAboutBlank;
+    case urls.includes('about:blank') && item.matchAboutBlank: return true;
 
     // --- matches & globs
     case !matches(urls, item.matches):
@@ -147,7 +147,7 @@ function matches(urls, arr, glob) {
 function prepareMatches(arr, glob) {
 
   const regexSpChar = glob ? /[-\/\\^$+.()|[\]{}]/g : /[-\/\\^$+?.()|[\]{}]/g; // Regular Expression Special Characters minus * ?
-  const str = arr.map(item => item.replace(regexSpChar, '\\$&').replace(/\*/g, '.*')).join('|');
+  const str = arr.map(item => '\\b' + item.replace(regexSpChar, '\\$&').replace(/\*/g, '.*') + '\\b').join('|');
   return glob ? str.replace(/\?/g, '.') : str;
 }
 // ----------------- /Match Pattern Check ------------------
