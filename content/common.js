@@ -35,32 +35,34 @@ function getMetaData(str) {
     runAt: 'document_idle'                                  // "document_start" "document_end" "document_idle" (default)
   };
 
-  const items = metaData[2].match(/@\S+[^\r\n]+/g) || [];
+  metaData[2].split('\n').forEach(item =>  {                // lines
 
-  items.forEach(item => {
-
-    let [,prop, value] = item.match(/@([\w-]+)\s+(.+)/) || ['', '', ''];
+    item = item.trim();
+    let [,prop, value] = item.match(/^(?:\/\/)?\s*@([\w-]+)\s+(.+)/) || ['', '', ''];
     value = value.trim();
 
-    switch (prop) {
+    if (prop && value) {
 
-      case 'match': prop = 'matches'; break;                // convert match to matches
-      case 'include': prop = 'matches'; break;              // convert include to matches
-      case 'exclude': prop = 'excludeMatches'; break;       // convert exclude to excludeMatches
-      case 'run-at':                                        // convert run-at to runAt
-        prop = 'runtAt';
-        value = value.replace('-', '_');
-        ['document_start', 'document_end'].includes(value) || (value = 'document_idle');
-        break;
-    }
+      switch (prop) {
 
-    if(data.hasOwnProperty(prop) && value !== '') {
+        case 'match': prop = 'matches'; break;                // convert match to matches
+        case 'include': prop = 'matches'; break;              // convert include to matches
+        case 'exclude': prop = 'excludeMatches'; break;       // convert exclude to excludeMatches
+        case 'run-at':                                        // convert run-at to runAt
+          prop = 'runtAt';
+          value = value.replace('-', '_');
+          ['document_start', 'document_end'].includes(value) || (value = 'document_idle');
+          break;
+      }
 
-      switch (typeof data[prop]) {
+      if(data.hasOwnProperty(prop) && value !== '') {
 
-        case 'boolean': data[prop] = value === 'true'; break;
-        case 'object': data[prop].push(value); break;
-        case 'string': data[prop] = value; break;
+        switch (typeof data[prop]) {
+
+          case 'boolean': data[prop] = value === 'true'; break;
+          case 'object': data[prop].push(value); break;
+          case 'string': data[prop] = value; break;
+        }
       }
     }
   });

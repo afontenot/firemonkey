@@ -147,7 +147,7 @@ function matches(urls, arr, glob) {
 function prepareMatches(arr, glob) {
 
   const regexSpChar = glob ? /[-\/\\^$+.()|[\]{}]/g : /[-\/\\^$+?.()|[\]{}]/g; // Regular Expression Special Characters minus * ?
-  const str = arr.map(item => '\\b' + item.replace(regexSpChar, '\\$&').replace(/\*/g, '.*') + '\\b').join('|');
+  const str = arr.map(item => '^' + item.replace(regexSpChar, '\\$&').replace(/\*/g, '.*') + '$').join('|');
   return glob ? str.replace(/\?/g, '.') : str;
 }
 // ----------------- /Match Pattern Check ------------------
