@@ -10,54 +10,62 @@ const highlight = {
     this.box = box;
     this.original = box.textContent;
 
-    box.addEventListener('keydown', (e) => {
-
-      // --- Tab key
-      if (e.key !== 'Tab') { return; }
-
-      const sel = window.getSelection();
-      const range = sel.getRangeAt(0);
-      e.preventDefault();
+    box.addEventListener('keydown', e => {
 
       switch (true) {
-
-        case e.shiftKey && !!window.getSelection().toString():
-          this.getSelected(sel).forEach(item =>
-            item.firstChild.nodeValue.substring(0, 2).trim() || (item.firstChild.nodeValue = item.firstChild.nodeValue.substring(2))
-          );
+      
+        case e.ctrlKey && e.key === 's':                    // Ctrl + s
+          e.preventDefault();
+          saveScript();
           break;
 
-        case e.shiftKey:
-          const startContainer = range.startContainer;
-          const text = startContainer.nodeValue;
-          const startOffset = range.startOffset;
-          if (startOffset > 1 && !text.substring(startOffset-2, startOffset).trim()) {
-           startContainer.nodeValue =  text.substring(0, startOffset-2) + text.substring(startOffset);
-           range.setStart(startContainer, startOffset-2);
+        case e.key === 'Tab':                               // Tab key
+          const sel = window.getSelection();
+          const range = sel.getRangeAt(0);
+          e.preventDefault();
+    
+          switch (true) {
+    
+            case e.shiftKey && !!window.getSelection().toString():
+              this.getSelected(sel).forEach(item =>
+                item.firstChild.nodeValue.substring(0, 2).trim() || (item.firstChild.nodeValue = item.firstChild.nodeValue.substring(2))
+              );
+              break;
+    
+            case e.shiftKey:
+              const startContainer = range.startContainer;
+              const text = startContainer.nodeValue;
+              const startOffset = range.startOffset;
+              if (startOffset > 1 && !text.substring(startOffset-2, startOffset).trim()) {
+               startContainer.nodeValue =  text.substring(0, startOffset-2) + text.substring(startOffset);
+               range.setStart(startContainer, startOffset-2);
+              }
+              break;
+    
+            case !!window.getSelection().toString():
+              this.getSelected(sel).forEach(item => item.firstChild.nodeValue = '  ' + item.firstChild.nodeValue);
+              break;
+    
+            default:
+              document.execCommand('insertText', false, '  ');
           }
           break;
+      }      
 
-        case !!window.getSelection().toString():
-          this.getSelected(sel).forEach(item => item.firstChild.nodeValue = '  ' + item.firstChild.nodeValue);
-          break;
-
-        default:
-          document.execCommand('insertText', false, '  ');
-      }
     });
 
     // --- not when clicking save
-    box.addEventListener('blur', (e) => box.textContent !== this.original &&
+    box.addEventListener('blur', e => box.textContent !== this.original &&
       (!e.relatedTarget || e.relatedTarget.dataset.i18n !== 'saveScript') && this.process());
 
-    box.addEventListener('copy', (e) => {
+    box.addEventListener('copy', e => {
 
       e.preventDefault();
       const text = window.getSelection().toString().trim().replace(/[ ]*(\r?\n)/g, '$1');
       e.clipboardData.setData('text/plain', text);
     });
 
-    box.addEventListener('paste', (e) => {
+    box.addEventListener('paste', e => {
 
       e.preventDefault();
       const index = this.getIndex(e.target);
