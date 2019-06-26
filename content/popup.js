@@ -27,10 +27,12 @@ const ulOther = document.querySelector('ul.other');
 
 
 function process() {
-
+console.log(this.dataset.i18n);
   switch (this.dataset.i18n) {
-    case 'edit': editScript(this.id); break;
+    case 'edit': editScript('edit', this.id); break;
     case 'options': chrome.runtime.openOptionsPage(); window.close(); break;
+    case 'newJS|title': editScript('new', 'js'); break;
+    case 'newCSS|title': editScript('new', 'css'); break;
   }
 }
 
@@ -110,13 +112,14 @@ function showInfo() {
   info.parentNode.style.transform = 'translateX(-50%)';
 }
 
-function editScript(id) {
+function editScript(edit, id) {
 
-  localStorage.setItem('editID', id);
+  localStorage.setItem(edit, id);
   chrome.runtime.openOptionsPage();
-  chrome.runtime.sendMessage({edit: id});                   // in case Option page is already open
+  chrome.runtime.sendMessage({edit, id});                    // in case Option page is already open
   window.close();
 }
+
 
 // ----------------- Match Pattern Check -------------------
 function checkMatches(item, urls) {

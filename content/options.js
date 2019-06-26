@@ -115,6 +115,7 @@ function newScript(type) {
 
   const last = document.querySelector('nav li.on');
   last && last.classList.remove('on');
+  if(unsavedChanges()) { return; }
   box.id = '';
   legend.textContent = '';
   legend.className = type;
@@ -414,9 +415,9 @@ async function processResponse(text, name) {
   if (!data) { throw `${name}: Update Meta Data error`; }
 
   // --- check version
-  if (compareVersion(data.version, pref.content[name].version) !== '>') { 
+  if (compareVersion(data.version, pref.content[name].version) !== '>') {
     notify(chrome.i18n.getMessage('noNewUpdate'), null, name);
-    return; 
+    return;
   }
 
   // --- update from previous version
@@ -450,7 +451,7 @@ async function processResponse(text, name) {
   if (data.enabled) {
 
     const bg = await browser.runtime.getBackgroundPage();
-    if (data.name !== name) { bg.unregister(name); }        // --- unregister old name 
+    if (data.name !== name) { bg.unregister(name); }        // --- unregister old name
     bg.updatePref(pref);
     bg.register(data.name);
   }
@@ -728,16 +729,29 @@ function exportData(data, ext) {
 // ----- message listeners from popup page, in case Option page is already open
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   message.hasOwnProperty('edit') && getEdit();
+  
 });
 
 function getEdit() {
 
-  const editID = localStorage.getItem('editID');
-  if (editID) {
+  const editID = localStorage.getItem('edit');
+  const newSc = localStorage.getItem('new');
 
-    localStorage.removeItem('editID');
-    document.getElementById('nav4').checked = true;
-    document.getElementById(editID).click();
+  if (!editID && !newSc) { return; }                          // end execution if not found
+
+  document.getElementById('nav4').checked = true;
+
+  switch (true) {
+
+    case !!editID:
+      localStorage.removeItem('edit');
+      document.getElementById(editID).click();
+      break;
+    
+    case !!newSc:
+      localStorage.removeItem('new');
+      newScript(newSc);
+      break;
   }
 }
 
