@@ -11,9 +11,6 @@ chrome.storage.local.get(null, result => {
   const days = pref.autoUpdateInterval *1;
   const doUpdate =  days && Date.now() > pref.autoUpdateLast + (days + 86400000); // 86400 * 1000 = 24hr
 
-  // --- migrate preferences to v1.4
-  migrate();
-
   Object.keys(pref.content).forEach(name => {
 
     register(name);
@@ -22,30 +19,12 @@ chrome.storage.local.get(null, result => {
   });
 
   update[0] && browser.idle.onStateChanged.addListener(onIdle); // FF51+
+  
+  // --- Script Counter
+  browser.tabs.onUpdated.addListener(counter, {urls: ['http://*/*', 'https://*/*', 'file:///*']});
+  browser.browserAction.setBadgeBackgroundColor({color: '#cd853f'});
+  browser.browserAction.setBadgeTextColor({color: '#fff'}); // FF63+
 });
-
-async function migrate() {
-
-  // ----- migrate preferences to v1.4 -----
-  if (pref.hasOwnProperty('glabalAutoUpdate')) {
-
-    delete pref.glabalAutoUpdate;
-    await browser.storage.local.remove('glabalAutoUpdate');
-  }
-
-  let storageUpdate = false;
-  Object.keys(pref.content).forEach(name => {
-
-    if (pref.content[name].hasOwnProperty('storage') && Object.keys(pref.content[name].storage)[0]) {
-
-      pref['_' + name] = pref.content[name].storage; // move storage
-      storageUpdate = true;
-    }
-    delete pref.content[name].storage;
-  });
-
-  storageUpdate && await browser.storage.local.set(pref);   // update saved pref
-}
 
 chrome.storage.onChanged.addListener((changes, area) => {   // Change Listener
   Object.keys(changes).forEach(item => pref[item] = changes[item].newValue); // update pref with the saved version
@@ -343,6 +322,18 @@ async function processResponse(text, name) {
   data.enabled && register(data.name);
 }
 // ----------------- /Remote Update ------------------------
+
+// ----------------- Script Counter ------------------------
+async function counter(tabId, changeInfo, tab) {
+
+  if (changeInfo.status !== 'complete') { return; }        // end execution if not found
+ 
+  const frames = await browser.webNavigation.getAllFrames({tabId});
+  const urls = [...new Set(frames.map(item => item.url).filter(item => /^(https?|wss?|ftp|file|about:blank)/.test(item)))];
+  const count = Object.keys(pref.content).filter(item => checkMatches(pref.content[item], urls));  
+  browser.browserAction.setBadgeText({tabId, text: (count[0] ? count.length.toString() : '')});
+}
+// ----------------- /Script Counter -----------------------
 
 // ----------------- Helper functions ----------------------
 function notify(message, id = '', title = chrome.i18n.getMessage('extensionName')) {
