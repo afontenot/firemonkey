@@ -119,3 +119,37 @@ function compareVersion(a, b) {
   return '=';
 }
 // ----------------- /Remote Update ------------------------
+
+// ----------------- Match Pattern Check -------------------
+function checkMatches(item, urls) {
+
+  switch (true) {
+
+    // --- about:blank
+    case urls.includes('about:blank') && item.matchAboutBlank: return true;
+
+    // --- matches & globs
+    case !matches(urls, item.matches):
+    case item.excludeMatches[0] && matches(urls, item.excludeMatches):
+    case item.includeGlobs[0] && !matches(urls, item.includeGlobs, true):
+    case item.excludeGlobs[0] && matches(urls, item.excludeGlobs, true):
+      return false;
+
+    default: return true;
+  }
+}
+
+function matches(urls, arr, glob) {
+
+  if (urls.includes('<all_urls>') || urls.includes('*://*/*')) { return true; }
+
+  return !!urls.find(u => new RegExp(prepareMatches(arr, glob), 'i').test(u));
+}
+
+function prepareMatches(arr, glob) {
+
+  const regexSpChar = glob ? /[-\/\\^$+.()|[\]{}]/g : /[-\/\\^$+?.()|[\]{}]/g; // Regular Expression Special Characters minus * ?
+  const str = arr.map(item => '^' + item.replace(regexSpChar, '\\$&').replace(/\*/g, '.*') + '$').join('|');
+  return glob ? str.replace(/\?/g, '.') : str;
+}
+// ----------------- /Match Pattern Check ------------------
