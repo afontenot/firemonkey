@@ -168,7 +168,7 @@
 
 
   <p><i>FireMonkey</i> supports the following entries based on <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/contentScripts/register">
-contentScripts.register()</a> & <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/contentScripts/register">
+contentScripts.register()</a> & <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/userScripts">
 userScripts.register()</a>. Each entry must be in the format of <code>@entry ...some space ... detail</code>. In case of matches & globes, repeat entry for each detail (as in GreaseMonkey). Match details must conform to the <b>Match Patterns</b>.</p>
   <p>Script/CSS developers are free to add any other <i>@entry</i> (e.g. <i>@homepage, @copyright, @support</i> etc) for reference or information.</p>
   <p>At the moment, there is no plan to include <i>@require, @resource, @connect, @icon</i> etc, due to the associated security risks. Scripts will have access to all available APIs and therefore <i>@grant</i> is not needed or used.</p>
