@@ -29,6 +29,7 @@
   "deleteMultiConfirm": { "message": "Do you want to delete the selected $1 Scripts/CSS and their stored data?" },
 
   "errorMeta": { "message": "Meta Data Error" },
+  "errorNoName": { "message": "Script/CSS must have a name." },
   "errorName": { "message": "Script/CSS name already exists.\nDo you want to replace the existing one?" },
   "errorMatches": { "message": "@mathces or @includeGlobs must be set." },
   "errorUpdate": { "message": "Script/CSS does not have updateURL or version." },
