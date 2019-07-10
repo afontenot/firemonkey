@@ -342,16 +342,21 @@ async function saveScript() {
     return;
   }
 
+
+  // --- check name
+  if (!data.name) {
+    notify(chrome.i18n.getMessage('errorNoName'));
+    return;
+  }
+  if (data.name !== box.id && pref.content[data.name] &&
+            !confirm(chrome.i18n.getMessage('errorName'))) { return; }
+
   // --- check matches
   if (!data.matches[0] && !data.includeGlobs[0]) {
     box.classList.add('invalid');
-    notify(chrome.i18n.getMessage('errorMatches'))
+    notify(chrome.i18n.getMessage('errorMatches'));
     return;
   }
-
-  // --- check name
-  if (data.name !== box.id && pref.content[data.name] &&
-            !confirm(chrome.i18n.getMessage('errorName'))) { return; }
 
   const bg = await browser.runtime.getBackgroundPage();
   pref.content[data.name] = data;                       // save to pref
@@ -729,7 +734,7 @@ function exportData(data, ext) {
 // ----- message listeners from popup page, in case Option page is already open
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   message.hasOwnProperty('edit') && getEdit();
-  
+
 });
 
 function getEdit() {
@@ -747,7 +752,7 @@ function getEdit() {
       localStorage.removeItem('edit');
       document.getElementById(editID).click();
       break;
-    
+
     case !!newSc:
       localStorage.removeItem('new');
       newScript(newSc);
@@ -761,8 +766,8 @@ function progressBar() {
   const pBar = document.querySelector('.progressBar');
   pBar.style.opacity = 1;
   pBar.style.width = '100%';
-  setTimeout(() => { pBar.style.opacity = 0; }, 3000);
-  setTimeout(() => { pBar.style.width = 0; }, 4000);
+  setTimeout(() => { pBar.style.opacity = 0; }, 2000);
+  setTimeout(() => { pBar.style.width = 0; }, 3000);
 }
 // ----------------- /Progress Bar -------------------------
 
