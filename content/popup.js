@@ -1,11 +1,11 @@
 ﻿'use strict';
 
 // ----------------- Internationalization ------------------
-for (const node of document.querySelectorAll('[data-i18n]')) {
+document.querySelectorAll('[data-i18n]').forEach(node => {
   let [text, attr] = node.dataset.i18n.split('|');
   text = chrome.i18n.getMessage(text);
   attr ? node[attr] = text : node.appendChild(document.createTextNode(text));
-}
+});
 // ----------------- /Internationalization -----------------
 
 // ----------------- User Preference -----------------------
@@ -17,7 +17,7 @@ chrome.storage.local.get(null, result => { // global default set in pref.js
 
 // ----------------- Actions -------------------------------
 // ----- global
-[...document.querySelectorAll('button')].forEach(item => item.addEventListener('click', process));
+document.querySelectorAll('button').forEach(item => item.addEventListener('click', process));
 const info = document.querySelector('section.info');
 info.querySelector('h3 span').addEventListener('click', () => info.parentNode.style.transform = 'translateX(0%)');
 

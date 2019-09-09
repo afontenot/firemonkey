@@ -49,7 +49,7 @@ function getMetaData(str) {
         case 'include': prop = 'matches'; break;              // convert include to matches
         case 'exclude': prop = 'excludeMatches'; break;       // convert exclude to excludeMatches
         case 'run-at':                                        // convert run-at to runAt
-          prop = 'runtAt';
+          prop = 'runAt';
           value = value.replace('-', '_');
           ['document_start', 'document_end'].includes(value) || (value = 'document_idle');
           break;

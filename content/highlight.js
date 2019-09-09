@@ -229,7 +229,7 @@ const highlight = {
 
     let start, end;
     const changeList = [];
-    [...docfrag.querySelectorAll('div, span')].forEach(node => {
+    docfrag.querySelectorAll('div, span').forEach(node => {
 
       switch (true) {
 
