@@ -479,7 +479,7 @@ async function processFileSelectScript(e) {
     return;
   }
 
-  for (file of e.target.files) {
+  for (const file of e.target.files) {
 
     switch (true) {
 
@@ -494,10 +494,10 @@ async function processFileSelectScript(e) {
 
     await new Promise((resolve, reject) => {
 
-        const reader  = new FileReader();
-        reader.onloadend = () => resolve(readDataScript(reader.result));
-        reader.onerror = () => reject(notify(chrome.i18n.getMessage('errorRead')));
-        reader.readAsText(file);
+      const reader  = new FileReader();
+      reader.onloadend = () => resolve(readDataScript(reader.result));
+      reader.onerror = () => reject(notify(chrome.i18n.getMessage('errorRead')));
+      reader.readAsText(file);
     });
   }
 
@@ -620,6 +620,7 @@ async function prepareStylus(data) {
       data.matches.map(item => `@matches        ${item}\n`).join('') +
       (data.version ? `@version        ${data.version}\n` : '') +
       (data.updateURL ? `@updateURL      ${data.updateURL}\n` : '') +
+      '@run-at         document-start\n' +
       '==/UserCSS==\n*/\n\n' + data.css;
 
       pref.content[data.name] = data;                       // save to pref
@@ -712,6 +713,7 @@ function readData(data) {
     importData.hasOwnProperty(item) && (pref[item] = importData[item])); // update pref with the saved version
 
   processOptions();                                         // set options after the pref update
+  processScript();                                          // update page display
 }
 
 function exportData(data, ext) {
