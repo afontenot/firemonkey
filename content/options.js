@@ -5,11 +5,11 @@ let OS = 'win';
 browser.runtime.getPlatformInfo().then(info => OS = info.os); // mac, win, android, cros, linux, openbsd
 
 // ----------------- Internationalization ------------------
-for (const node of document.querySelectorAll('[data-i18n]')) {
+document.querySelectorAll('[data-i18n]').forEach(node => {
   let [text, attr] = node.dataset.i18n.split('|');
   text = chrome.i18n.getMessage(text);
   attr ? node[attr] = text : node.appendChild(document.createTextNode(text));
-}
+});
 // ----------------- /Internationalization -----------------
 
 // ----------------- Options -------------------------------
@@ -19,11 +19,11 @@ submit && submit.addEventListener('click', checkOptions);
 
 function processOptions() {                                 // set saved pref/defaults OR update saved pref
   // 'this' is ony set when clicking the button to save options
-  for (const node of prefNode) {
+  prefNode.forEach(node => {
     // value: 'select-one', 'textarea', 'text', 'number'
     const attr = node.type === 'checkbox' ? 'checked' : 'value';
     this ? pref[node.id] = node[attr] : node[attr] = pref[node.id];
-  }
+  });
 
   this && chrome.storage.local.set(pref);                   // update saved pref
 }
@@ -59,7 +59,7 @@ const box = document.querySelector('.script .box');
 const enable = document.querySelector('#enable');
 const autoUpdate = document.querySelector('#autoUpdate');
 
-[...document.querySelectorAll('.script button[type="button"][data-i18n], nav button[type="button"][data-i18n]')].forEach(item =>
+document.querySelectorAll('.script button[type="button"][data-i18n], nav button[type="button"][data-i18n]').forEach(item =>
   item.addEventListener('click', processButtons));
 enable.addEventListener('change', toggleEnable);
 autoUpdate.addEventListener('change', toggleAutoUpdate);
@@ -764,10 +764,8 @@ function getEdit() {
 function progressBar() {
 
   const pBar = document.querySelector('.progressBar');
-  pBar.style.opacity = 1;
-  pBar.style.width = '100%';
-  setTimeout(() => { pBar.style.opacity = 0; }, 2000);
-  setTimeout(() => { pBar.style.width = 0; }, 3000);
+  pBar.classList.toggle('on');
+  setTimeout(() => { pBar.classList.toggle('on'); }, 2000);
 }
 // ----------------- /Progress Bar -------------------------
 

@@ -222,6 +222,8 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   
   <p>That means, there is no need for event listeners such as <code>load</code> or <code>DOMContentLoaded</code> as they will not apply. If script has to run earlier, then the <code>run-at</code> has to be set accordingly.</p>
   <p><i>GreaseMonkey</i> uses hyphen separated words (<i>document-start</i>, <i>document-end</i>, <i>document-idle</i>), while the API uses underscore separated words (<i>document_start</i>, <i>document_end</i>, <i>document_idle</i>). <i>FireMonkey</i> converts the hyphen so both can be used.</p>
+  
+  <p>FireMonkey accepts both GM style <code>run-at</code> and MDN API style <code>runAt</code>.</p>
 
 
   <h3>Script API</h3>
