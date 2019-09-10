@@ -599,7 +599,7 @@ async function prepareStylus(data) {
         includeGlobs: [],
         matchAboutBlank: false,
         matches: [],
-        'run-at': 'document_idle'
+        runAt: 'document_start'
       };
 
       // --- check auto-update criteria, must have updateURL & version
