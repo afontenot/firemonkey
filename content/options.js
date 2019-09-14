@@ -78,7 +78,7 @@ autoUpdateInterval.addEventListener('input', function() {
 ==UserScript==
 @name
 @match
-@version
+@version        1.0
 ==/UserScript==
 */`,
 
@@ -87,7 +87,8 @@ autoUpdateInterval.addEventListener('input', function() {
 ==UserCSS==
 @name
 @match
-@version
+@version        1.0
+@run-at         document-start
 ==/UserCSS==
 */`
 };

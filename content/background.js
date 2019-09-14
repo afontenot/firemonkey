@@ -81,10 +81,12 @@ async function register(id) {
   });
 
   // --- add CSS & JS
-  if (pref.content[id].css) { options.css = [{code: pref.content[id].css}]; }
+  // Removing metaBlock since there would be an error with /* ... *://*/* ... */
+  if (pref.content[id].css) { 
+    options.css = [{code: pref.content[id].css.replace(metaRegEx, '')}]; 
+  }
   else if (pref.content[id].js) {
-
-    options.js = [{code: pref.content[id].js}];
+    options.js = [{code: pref.content[id].js.replace(metaRegEx, '')}];
     options.scriptMetadata = {
       name: id
     };

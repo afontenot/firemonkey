@@ -224,7 +224,8 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <p><i>GreaseMonkey</i> uses hyphen separated words (<i>document-start</i>, <i>document-end</i>, <i>document-idle</i>), while the API uses underscore separated words (<i>document_start</i>, <i>document_end</i>, <i>document_idle</i>). <i>FireMonkey</i> converts the hyphen so both can be used.</p>
   
   <p>FireMonkey accepts both GM style <code>run-at</code> and MDN API style <code>runAt</code>.</p>
-  <p>FireMonkey accepts both GM style <code>document-start</code>, <code>document-end</code>, <code>document-idle</code> and MDN API style <code>document_start</code>, <code>document_end</code>, <code>document_idle</code>.</p>
+  <br>
+  <p><b>N.B.</b> CSS mangers like Stylus tend to inject CSS at <i>document-start</i>.</p>
 
 
   <h3>Script API</h3>
@@ -418,6 +419,23 @@ onerror, ontimeout, onabort
     <li><b>GM.info/GM_info</b> (easy to add, but I have never found a use for it)</li>
     <li><b>GM.getResourceUrl/GM_getResourceURL</b> (besides security risks, saving large external data to storage can affect performance)</li>
   </ul>
+
+  <h3>GM_addStyle()</h3>
+  GM_addStyle() was dropped in GM4 since it is easy to do in content scope without the need for costly asynchronous API calls to the extension.
+  GM_addStyle() functionality can be easily added by adding the following to the script:
+
+  <pre>
+<span class="keyword">function</span> GM_addStyle(css) {
+
+  <span class="keyword">const</span> <span class="property">head</span> = document.<span class="method">querySelector</span>(<span class="string">'head'</span>);
+  <span class="keyword">if</span> (<span class="property">head</span>) {
+    <span class="keyword">const</span> <span class="property">style</span> = document.<span class="method">createElement</span>(<span class="string">'style'</span>);
+    <span class="property">style</span>.<span class="property">textContent</span> = css;
+    <span class="property">head</span>.<span class="method">appendChild</span>(<span class="property">style</span>);
+  }
+}</pre>
+
+
 
 
   <h3>Forbidden header name</h3>
