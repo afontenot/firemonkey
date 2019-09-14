@@ -142,7 +142,16 @@ function checkMatches(item, urls) {
 
 function matches(urls, arr, glob) {
 
-  if (urls.includes('<all_urls>') || urls.includes('*://*/*')) { return true; }
+  if (arr.includes('<all_urls>')) { return true; }
+  
+  // checking *://*/* for http/https
+  const idx = arr.indexOf('*://*/*');
+  if (idx !== -1) {
+    if(urls.find(item => item.startsWith('http'))) { return true; }
+    
+    if (!arr[1])  { return false; }                         // it only has one item *://*/*
+    arr.splice(idx, 1);                                     // remove *://*/*
+  }
 
   return !!urls.find(u => new RegExp(prepareMatches(arr, glob), 'i').test(u));
 }
@@ -150,7 +159,8 @@ function matches(urls, arr, glob) {
 function prepareMatches(arr, glob) {
 
   const regexSpChar = glob ? /[-\/\\^$+.()|[\]{}]/g : /[-\/\\^$+?.()|[\]{}]/g; // Regular Expression Special Characters minus * ?
-  const str = arr.map(item => '^' + item.replace(regexSpChar, '\\$&').replace(/\*/g, '.*') + '$').join('|');
+  const str = arr.map(item => '^' + 
+      item.replace(regexSpChar, '\\$&').replace(/\*/g, '.*').replace('/.*\\.', '/(.*\\.)?') + '$').join('|');
   return glob ? str.replace(/\?/g, '.') : str;
 }
 // ----------------- /Match Pattern Check ------------------
