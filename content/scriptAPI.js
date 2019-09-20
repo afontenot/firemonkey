@@ -103,9 +103,9 @@ browser.userScripts.onBeforeScript.addListener(script => {
       };
 
       ['url', 'method', 'headers', 'data', 'overrideMimeType', 'user', 'password',
-        'timeout', 'withCredentials'].forEach(item => init.hasOwnProperty(item) && (data[item] = init[item]));
+        'timeout', 'withCredentials', 'responseType'].forEach(item => init.hasOwnProperty(item) && (data[item] = init[item]));
 
-      const response = await  browser.runtime.sendMessage({
+      const response = await browser.runtime.sendMessage({
         name,
         api: 'xmlHttpRequest',
         data
