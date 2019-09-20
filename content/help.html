@@ -171,7 +171,7 @@
 contentScripts.register()</a> & <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/userScripts">
 userScripts.register()</a>. Each entry must be in the format of <code>@entry ...some space ... detail</code>. In case of matches & globes, repeat entry for each detail (as in GreaseMonkey). Match details must conform to the <b>Match Patterns</b>.</p>
   <p>Script/CSS developers are free to add any other <i>@entry</i> (e.g. <i>@homepage, @copyright, @support</i> etc) for reference or information.</p>
-  <p>At the moment, there is no plan to include <i>@require, @resource, @connect, @icon</i> etc, due to the associated security risks. Scripts will have access to all available APIs and therefore <i>@grant</i> is not needed or used.</p>
+  <p>At the moment, there is no plan to include <i>@require (read @require section bellow), @resource, @connect, @icon</i> etc, due to the associated security risks. Scripts will have access to all available APIs and therefore <i>@grant</i> is not needed or used.</p>
 
   <p><b>Note:</b> <i>FireMonkey</i> uses the <code>name</code> (case-sensitive) as ID for Scripts & CSS, therefore names must be unique. A shorter & concise name is recommended.</p>
 
@@ -346,7 +346,9 @@ GM_fetch(url[, init]);</pre>
   timeout,                  // optional, number of milliseconds before terminating the request (default 0 = no timeout)
   withCredentials,          // optional, Boolean, for cross-site Access-Control
                                e.g. cookies, authorization headers or TLS client certificates,
-                               defaults to false, no effect on same-site requests  
+                               defaults to false, no effect on same-site requests 
+  responseType              // Optional, '' or 'text' (default), 'arraybuffer', 'blob', 'document', 'json'
+                               if used, get the result from response (not responseText)
   
   onload,                   // callback function
   onerror,                  // callback function
@@ -421,8 +423,8 @@ onerror, ontimeout, onabort
   </ul>
 
   <h3>GM_addStyle()</h3>
-  GM_addStyle() was dropped in GM4 since it is easy to do in content scope without the need for costly asynchronous API calls to the extension.
-  GM_addStyle() functionality can be easily added by adding the following to the script:
+  <p>GM_addStyle() was dropped in GM4 since it is easy to do in content scope without the need for costly asynchronous API calls to the extension.</p>
+  <p>GM_addStyle() functionality can be easily added by adding the following to the script:</p>
 
   <pre>
 <span class="keyword">function</span> GM_addStyle(css) {
@@ -436,7 +438,14 @@ onerror, ontimeout, onabort
 }</pre>
 
 
-
+  <h3>@require</h3>
+  <p><i>@require</i> functionality can be easily added by copy/pasting the remote code into the script OR by adding the following to the beginning of the script:</p>
+<pre>
+<span class="keyword">const</span> script = document.<span class="method">querySelector</span>(<span class="string">'script'</span>);
+script.<span class="property">src</span> = <span class="string">'http://www.example.com/example.js'</span>;
+document.<span class="property">body</span>.<span class="method">appendChild</span>(script);  
+</pre>
+  
 
   <h3>Forbidden header name</h3>
   <p>A <a href="https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name">forbidden header name</a> is the name of any <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers">HTTP header</a> that cannot be modified programmatically; specifically, an HTTP <b>request</b> header name (in contrast with a Forbidden response header name).</p>
