@@ -89,7 +89,8 @@ browser.userScripts.onBeforeScript.addListener(script => {
         api: 'fetch',
         data: {url, init, base: location.href}
       });
-      return response ? script.export(response) : null;
+      // cloneInto() work around for https://bugzilla.mozilla.org/show_bug.cgi?id=1583159
+      return response ? (typeof response === 'string' ? script.export(response) : cloneInto(response, window)) : null;
     },
 
     async xmlHttpRequest(init) {
@@ -99,6 +100,7 @@ browser.userScripts.onBeforeScript.addListener(script => {
         data: null,
         user: null,
         password: null,
+        responseType: '',
         base: location.href
       };
 
@@ -114,7 +116,10 @@ browser.userScripts.onBeforeScript.addListener(script => {
       if (!response) { throw 'There was an error with the xmlHttpRequest request.'; }
 
       // only these 4 callback functions are processed
-      callUserScriptCallback(init, 'onload', !response.error ? script.export(response) : null);
+      // cloneInto() work around for https://bugzilla.mozilla.org/show_bug.cgi?id=1583159
+      callUserScriptCallback(init, 'onload',
+        !response.error ? (typeof response.response === 'string' ? script.export(response) : cloneInto(response, window)) : null);
+
       ['onerror', 'onabort', 'ontimeout'].forEach(item => response.error &&
         callUserScriptCallback(init, item, response.error === item ? script.export(response) : null)
       );
