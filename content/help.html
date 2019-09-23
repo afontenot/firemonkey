@@ -441,7 +441,7 @@ onerror, ontimeout, onabort
   <h3>@require</h3>
   <p><i>@require</i> functionality can be easily added by copy/pasting the remote code into the script OR by adding the following to the beginning of the script:</p>
 <pre>
-<span class="keyword">const</span> script = document.<span class="method">querySelector</span>(<span class="string">'script'</span>);
+<span class="keyword">const</span> script = document.<span class="method">createElement</span>(<span class="string">'script'</span>);
 script.<span class="property">src</span> = <span class="string">'http://www.example.com/example.js'</span>;
 document.<span class="property">body</span>.<span class="method">appendChild</span>(script);  
 </pre>
