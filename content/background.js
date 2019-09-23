@@ -212,7 +212,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
         const xhr = new XMLHttpRequest();
         xhr.open(e.method, xhrUrl, true, e.user, e.password);
         e.overrideMimeType && xhr.overrideMimeType(e.overrideMimeType);
-        e.responseType && (xhr.responseType = e.responseType);
+        xhr.responseType = e.responseType;
         e.timeout && (xhr.timeout = e.timeout);
         e.hasOwnProperty('withCredentials') && (xhr.withCredentials = e.withCredentials);
         if (e.headers) {
@@ -226,10 +226,10 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
           readyState:       xhr.readyState,
           response:         xhr.response,
           responseHeaders:  xhr.getAllResponseHeaders(),
-          responseText:     xhr.responseText,
+          responseText:     ['', 'text'].includes(xhr.responseType) ? xhr.responseText : '', // responseText is only available if responseType is '' or 'text'.
           responseType:     xhr.responseType,
           responseURL:      xhr.responseURL,
-          responseXML:      xhr.responseXML,
+          responseXML:      ['', 'document'].includes(xhr.responseType) ? xhr.responseXML : '', // responseXML is only available if responseType is '' or 'document'.
           status:           xhr.status,
           statusText:       xhr.statusText,
           finalUrl:         xhr.responseURL
