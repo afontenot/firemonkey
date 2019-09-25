@@ -3,6 +3,7 @@
 // ----- global
 const registered = {};
 const update =[];
+const FMV = browser.runtime.getManifest().version;          // FireMOnkey version
 
 // ----------------- User Preference -----------------------
 chrome.storage.local.get(null, result => {
@@ -68,7 +69,7 @@ async function register(id) {
   // --- stop if script is not enabled
   if (!pref.content[id].enabled) { return; }
 
-  // --- preppare scrip options
+  // --- preppare script options
   const options = {
 
     matchAboutBlank: pref.content[id].matchAboutBlank,
@@ -88,7 +89,24 @@ async function register(id) {
   else if (pref.content[id].js) {
     options.js = [{code: pref.content[id].js.replace(metaRegEx, '')}];
     options.scriptMetadata = {
-      name: id
+      name: id,
+      info: {                                               // GM.info data
+        scriptHandler: 'FireMonkey',
+        version: FMV,
+        scriptMetaStr: null,
+        script: {
+          name: id,
+          version: pref.content[id].version,
+          description: pref.content[id].description,
+          matches: pref.content[id].matches,
+          includes: pref.content[id].matches,
+          excludes: pref.content[id].excludeMatches,
+          'run-at': pref.content[id].runAt.replace('_', '-'),
+          runAt: pref.content[id].runAt.replace('_', '-'),
+          namespace: null,
+          resources: null
+        }
+      }
     };
   }
 
