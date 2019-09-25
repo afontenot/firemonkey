@@ -3,6 +3,7 @@
 browser.userScripts.onBeforeScript.addListener(script => {
 
   const name = script.metadata.name;
+
   /*
     Ref: robwu (Rob Wu)
     In order to make callback functions visible
@@ -129,9 +130,7 @@ browser.userScripts.onBeforeScript.addListener(script => {
       return null;
     },
 
-    info() {
-      return null;
-    }
+    info: script.metadata.info
   };
 
   script.defineGlobals({
