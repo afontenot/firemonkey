@@ -45,7 +45,7 @@
 
   <h3>Auto-Update Interval</h3>
   <p>You can set the number of days between updates. Setting 0 (default) means there will be no auto-update.</p>
-  <p>In order to minimise the impact on your browsing, auto-update is set to run when Firefox is idle and then 10 updates at a time (until the next idle time).</p> 
+  <p>In order to minimise the impact on your browsing, auto-update is set to run when Firefox is idle and then 10 updates at a time (until the next idle time).</p>
   <p>Please note that updating each script can take around 4-5 seconds. If there are many scripts, that can add up to consider amount of time. I would suggest manually updating Scripts/CSS or enabling auto-update only on the ones that require regular update.</p>
 
   <h3>Preferences: Import/Export</h3>
@@ -68,12 +68,12 @@
     <li>&#x2611; <img src="../image/js.svg" width="16" alt=""><img src="../image/css.svg" width="16" alt=""> Uncheck to hide all enabled Script & CSS</li>
 
     <li>&#x2611; <img src="../image/js.svg" style="filter: grayscale(1);" width="16" alt=""><img src="../image/css.svg" style="filter: grayscale(1);" width="16" alt=""> Uncheck to hide all disabled Script & CSS</li>
-  
+
     <li>&#x2611; <img src="../image/js.svg" width="16" alt=""><span style="display: inline-block; width: 16px;"></span> Uncheck to hide all Scripts</li>
 
-    <li>&#x2611; <img src="../image/css.svg" width="16" alt=""><span style="display: inline-block; width: 16px;"></span> Uncheck to hide all CSS</li>  
-  
-  
+    <li>&#x2611; <img src="../image/css.svg" width="16" alt=""><span style="display: inline-block; width: 16px;"></span> Uncheck to hide all CSS</li>
+
+
   </ul>
 
 
@@ -190,11 +190,11 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
     <li><code>allFrames</code> <i>(Optional, true or false (default))</i></li>
     <li><code>matchAboutBlank</code> <i>(Optional)</i></li>
     <li><code>run-at</code> <i>(Optional, document_start or document_end or document_idle (default))</i><br><br></li>
-    
+
     <li><code>match</code> <i>(entries will be merged into <code>matches</code>)</i></li>
     <li><code>include</code> <i>(entries will be merged into <code>matches</code>, use <code>match</code>, <code>matches</code> or <code>includeGlobs</code> instead)</i></li>
     <li><code>exclude</code> <i>(entries will be merged into <code>excludeMatches</code>)</i></li>
-    
+
   </ul>
 
   <h4>include/exclude</h4>
@@ -219,10 +219,10 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
   <h4>run-at</h4>
   <p>Unlike <i>GreaseMonkey</i> (and <i>ViolentMonkey</i>) which defaults to '<i>document-end</i>', the Firefox <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts">content_scripts</a> default <code>run-at</code> is '<i>document_idle</i>' and <i>FireMonkey</i> conforms to the Firefox API default (and so does <i>TamperMonkey</i>).</p>
-  
+
   <p>That means, there is no need for event listeners such as <code>load</code> or <code>DOMContentLoaded</code> as they will not apply. If script has to run earlier, then the <code>run-at</code> has to be set accordingly.</p>
   <p><i>GreaseMonkey</i> uses hyphen separated words (<i>document-start</i>, <i>document-end</i>, <i>document-idle</i>), while the API uses underscore separated words (<i>document_start</i>, <i>document_end</i>, <i>document_idle</i>). <i>FireMonkey</i> converts the hyphen so both can be used.</p>
-  
+
   <p>FireMonkey accepts both GM style <code>run-at</code> and MDN API style <code>runAt</code>.</p>
   <br>
   <p><b>N.B.</b> CSS mangers like Stylus tend to inject CSS at <i>document-start</i>.</p>
@@ -336,7 +336,7 @@ GM_fetch(url[, init]);</pre>
 
 <pre>GM.xmlHttpRequest({
   url,                      // http, https, ftp, ftps, (file not allowed), can be relative to the web page
-  
+
   method,                   // Optional, defaults to 'GET' if omitted
   headers,                  // optional, header object to send with the request
   data,                     // optional, e.g. POST data
@@ -346,10 +346,10 @@ GM_fetch(url[, init]);</pre>
   timeout,                  // optional, number of milliseconds before terminating the request (default 0 = no timeout)
   withCredentials,          // optional, Boolean, for cross-site Access-Control
                                e.g. cookies, authorization headers or TLS client certificates,
-                               defaults to false, no effect on same-site requests 
+                               defaults to false, no effect on same-site requests
   responseType              // Optional, '' or 'text' (default), 'arraybuffer', 'blob', 'document', 'json'
                                if used, get the result from response (not responseText)
-  
+
   onload,                   // callback function
   onerror,                  // callback function
   onabort,                  // callback function
@@ -415,10 +415,29 @@ onerror, ontimeout, onabort
   }
 });</pre>
 
+  <h3>GM.info/GM_info</h3>
+  <span style="">GM.info/GM_info support is added in v1.16. For example:</span>
+<pre>{
+  scriptHandler: 'FireMonkey',
+  version: '1.16',
+  scriptMetaStr: null,
+  script: {
+    name: 'script name',
+    version: 'script version',
+    description: 'script description',
+    matches: array of match/matches/include,
+    includes: array of match/matches/include,
+    excludes: array of exclude/excludeMatches,
+    'run-at': 'e.g. document-idle', // unreliable for now due to API bug: https://bugzilla.mozilla.org/show_bug.cgi?id=1583159
+    runAt: 'e.g. document-idle',    // runAt can be used instead of 'run-at'
+    namespace: null,
+    resources: null
+  }
+}</pre>
+
   <p>Following APIs are not supported at the moment:</p>
 
   <ul>
-    <li><b>GM.info/GM_info</b> (easy to add, but I have never found a use for it)</li>
     <li><b>GM.getResourceUrl/GM_getResourceURL</b> (besides security risks, saving large external data to storage can affect performance)</li>
   </ul>
 
@@ -443,15 +462,15 @@ onerror, ontimeout, onabort
 <pre>
 <span class="keyword">const</span> script = document.<span class="method">createElement</span>(<span class="string">'script'</span>);
 script.<span class="property">src</span> = <span class="string">'http://www.example.com/example.js'</span>;
-document.<span class="property">body</span>.<span class="method">appendChild</span>(script);  
+document.<span class="property">body</span>.<span class="method">appendChild</span>(script);
 </pre>
-  
+
 
   <h3>Forbidden header name</h3>
   <p>A <a href="https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name">forbidden header name</a> is the name of any <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers">HTTP header</a> that cannot be modified programmatically; specifically, an HTTP <b>request</b> header name (in contrast with a Forbidden response header name).</p>
-  
+
   <p>Modifying such headers is forbidden because the user agent retains full control over them. Names starting with `<code>Sec-</code>` are reserved for creating new headers safe from APIs using <code>fetch</code> that grant developers control over headers, such as <code>XMLHttpRequest</code>.</p>
-  
+
   <p>All Forbidden header names will be removed from the request by <i>FireMonkey</i> before sending.</p>
 
   <p>Forbidden header names start with <code>Proxy-</code> or <code>Sec-</code>, or are one of the following names:</p>
