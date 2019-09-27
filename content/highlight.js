@@ -105,11 +105,13 @@ const highlight = {
 
   process() {
 
+    if (this.box.classList.contains('plain')) { return; }   // disabled syntax highlighting 
+
     const box = this.box;
 
     const start = performance.now();
-    box.classList.remove('invalid');                          // reset
-    const text = box.innerText.trim();                        // innerText to keep new lines and igonre <br>
+    box.classList.remove('invalid');                        // reset
+    const text = box.innerText.trim();                      // innerText to keep new lines and igonre <br>
     if (!text) { return; }
 
     const metaRegex = /==(UserScript|UserCSS)==([\s\S]+)==\/\1==/i;
