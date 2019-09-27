@@ -581,6 +581,12 @@ div.menu {
   height: 60vh;
 }
 
+.script .box.plain {
+  color: #060;
+  width: calc(100vw - 18rem);
+}
+
+
 .box.invalid {
   box-shadow: none;
   background-color: #fff0f5;

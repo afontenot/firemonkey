@@ -419,17 +419,16 @@ onerror, ontimeout, onabort
   <span style="">GM.info/GM_info support is added in v1.16. For example:</span>
 <pre>{
   scriptHandler: 'FireMonkey',
-  version: '1.16',
+  version: 'e.g. 1.16',
   scriptMetaStr: null,
   script: {
     name: 'script name',
     version: 'script version',
     description: 'script description',
-    matches: array of match/matches/include,
-    includes: array of match/matches/include,
-    excludes: array of exclude/excludeMatches,
-    'run-at': 'e.g. document-idle', // unreliable for now due to API bug: https://bugzilla.mozilla.org/show_bug.cgi?id=1583159
-    runAt: 'e.g. document-idle',    // runAt can be used instead of 'run-at'
+    matches: [array of match/matches/include],
+    includes: [array of match/matches/include],
+    excludes: [array of exclude/excludeMatches],
+    'run-at': 'e.g. document-idle',
     namespace: null,
     resources: null
   }
@@ -438,7 +437,7 @@ onerror, ontimeout, onabort
   <p>Following APIs are not supported at the moment:</p>
 
   <ul>
-    <li><b>GM.getResourceUrl/GM_getResourceURL</b> (besides security risks, saving large external data to storage can affect performance)</li>
+    <li><b>GM.getResourceUrl/GM_getResourceURL</b>: besides security risks, saving large external data to storage can affect performance</li>
   </ul>
 
   <h3>GM_addStyle()</h3>

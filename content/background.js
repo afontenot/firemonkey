@@ -3,7 +3,7 @@
 // ----- global
 const registered = {};
 const update =[];
-const FMV = browser.runtime.getManifest().version;          // FireMOnkey version
+const FMV = browser.runtime.getManifest().version;          // FireMonkey version
 
 // ----------------- User Preference -----------------------
 chrome.storage.local.get(null, result => {
@@ -102,7 +102,6 @@ async function register(id) {
           includes: pref.content[id].matches,
           excludes: pref.content[id].excludeMatches,
           'run-at': pref.content[id].runAt.replace('_', '-'),
-          runAt: pref.content[id].runAt.replace('_', '-'),
           namespace: null,
           resources: null
         }
