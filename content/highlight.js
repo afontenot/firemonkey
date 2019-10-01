@@ -13,7 +13,7 @@ const highlight = {
     box.addEventListener('keydown', e => {
 
       switch (true) {
-      
+
         case e.ctrlKey && e.key === 's':                    // Ctrl + s
           e.preventDefault();
           saveScript();
@@ -23,15 +23,15 @@ const highlight = {
           const sel = window.getSelection();
           const range = sel.getRangeAt(0);
           e.preventDefault();
-    
+
           switch (true) {
-    
+
             case e.shiftKey && !!window.getSelection().toString():
               this.getSelected(sel).forEach(item =>
                 item.firstChild.nodeValue.substring(0, 2).trim() || (item.firstChild.nodeValue = item.firstChild.nodeValue.substring(2))
               );
               break;
-    
+
             case e.shiftKey:
               const startContainer = range.startContainer;
               const text = startContainer.nodeValue;
@@ -41,16 +41,16 @@ const highlight = {
                range.setStart(startContainer, startOffset-2);
               }
               break;
-    
+
             case !!window.getSelection().toString():
               this.getSelected(sel).forEach(item => item.firstChild.nodeValue = '  ' + item.firstChild.nodeValue);
               break;
-    
+
             default:
               document.execCommand('insertText', false, '  ');
           }
           break;
-      }      
+      }
 
     });
 
@@ -103,11 +103,13 @@ const highlight = {
     sel.addRange(range);
   },
 
-  process() {
-
-    if (this.box.classList.contains('plain')) { return; }   // disabled syntax highlighting 
+  process(disableHighlight) {
 
     const box = this.box;
+
+    // disabled syntax highlighting
+    box.classList.toggle('plain', disableHighlight);
+    if (disableHighlight) { return; }
 
     const start = performance.now();
     box.classList.remove('invalid');                        // reset
