@@ -4,6 +4,7 @@
 const registered = {};
 const update =[];
 const FMV = browser.runtime.getManifest().version;          // FireMonkey version
+const FMUrl = browser.runtime.getURL('');
 
 // ----------------- User Preference -----------------------
 chrome.storage.local.get(null, result => {
@@ -138,20 +139,48 @@ function processError(id, error) {
 // ----------------- /Register Content Script & CSS --------
 
 // ----------------- Content Message Handler ---------------
-function removeForbiddenHeaders(headers) {
+function processForbiddenHeaders(headers) {
 
   const forbiddenHeader = ['Accept-Charset', 'Accept-Encoding', 'Access-Control-Request-Headers',
-    'Access-Control-Request-Method', 'Connection', 'Content-Length', 'Cookie', 'Cookie2',
-    'Date', 'DNT', 'Expect', 'Host', 'Keep-Alive', 'Origin', 'Referer', 'TE',
+    'Access-Control-Request-Method', 'Connection', 'Content-Length', 'Cookie2',
+    'Date', 'DNT', 'Expect', 'Keep-Alive', 'TE',
     'Trailer', 'Transfer-Encoding', 'Upgrade', 'Via'];
 
+  const specialHeader = ['Cookie', 'Host', 'Origin', 'Referer'];
+
   // --- remove forbidden headers (Attempt to set a forbidden header was denied: Referer)
+  // --- allow specialHeader
   Object.keys(headers).forEach(item =>  {
     if (item.startsWith('Proxy-') || item.startsWith('Sec-') || forbiddenHeader.includes(item)) {
       delete headers[item];
     }
+    else if (specialHeader.includes(item)) { 
+      headers['FM-' + item] = headers[item];                // set a new FM header
+      delete headers[item];                                 // delete original header
+    }
   });
 }
+
+// --- allow specialHeader
+browser.webRequest.onBeforeSendHeaders.addListener(e => {  
+
+    let found = false;
+    e.originUrl && e.originUrl.startsWith(FMUrl) && e.requestHeaders.forEach((item, index) => {
+      if (item.name.startsWith('FM-')) {
+        e.requestHeaders.push({name: item.name.substring(3), value: item.value});
+        e.requestHeaders.splice(index, 1);
+        found = true;
+      }
+    });
+    if (found) { return {requestHeaders: e.requestHeaders}; }
+  },
+  {
+    urls: ['<all_urls>'],
+    types: ['xmlhttprequest']
+  },
+  ['blocking', 'requestHeaders']
+);
+
 
 browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
@@ -203,7 +232,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
         'integrity', 'keepalive', 'signal'].forEach(item => e.init.hasOwnProperty(item) && (init[item] = e.init[item]));
 
       // --- remove forbidden headers
-      init.headers && removeForbiddenHeaders(init.headers);
+      init.headers && processForbiddenHeaders(init.headers);
 
       return await fetch(url, init)
         .then(response => {
@@ -234,7 +263,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
         e.hasOwnProperty('withCredentials') && (xhr.withCredentials = e.withCredentials);
         if (e.headers) {
            // --- remove forbidden headers
-           removeForbiddenHeaders(e.headers);
+           processForbiddenHeaders(e.headers);
            Object.keys(e.headers).forEach(item => xhr.setRequestHeader(item, e.headers[item]));
         }
         xhr.send(e.data);
