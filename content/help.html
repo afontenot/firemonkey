@@ -27,8 +27,8 @@
 
   <h3>Toolbar Icon Context Menu</h3>
   <ul>
-    <li><b>Options</b><br>
-      Open Options page to manage Options and Scripts</li>
+    <li><img src="../image/gear.svg" width="16" alt=""> <b>Options</b><br>
+      Opens Options page to manage Options and Scripts</li>
   </ul>
 
   <h3>Toolbar Icon Pop-up</h3>
@@ -36,9 +36,11 @@
     <ul>
       <li>✔ shows Script/CSS is enabled. Disabled Script/CSS are greyed out and clicking that area toggles the enable/disable</li>
       <li><span style="color: #f00;">✘</span> shows that there was an error when registering the script & the Info page displays the error</li>
-      <li><img src="../image/gear.svg" width="16" alt=""> Options button opens the Options Page</li>
       <li><img src="../image/next.svg" width="16" alt=""> shows the Info for the Script/CSS</li>
-      <li>&#x1f58c; Edit button on Info page opens the Options Page and selects the current Script/CSS</li>
+      <li>&#x1f58c; edit button on Info page opens the Options Page and selects the current Script/CSS</li>
+      <li><img src="../image/gear.svg" width="16" alt=""> options button opens the Options Page</li>
+      <li>&#x2795; <img src="../image/js.svg" width="16" alt=""> display a new Script Template that you can edit and Save</li>
+      <li>&#x2795; <img src="../image/css.svg" width="16" alt=""> display a new CSS Template that you can edit and Save</li>
     </ul>
 
   <h2 id="options">Options</h2>
@@ -47,6 +49,9 @@
   <p>You can set the number of days between updates. Setting 0 (default) means there will be no auto-update.</p>
   <p>In order to minimise the impact on your browsing, auto-update is set to run when Firefox is idle and then 10 updates at a time (until the next idle time).</p>
   <p>Please note that updating each script can take around 4-5 seconds. If there are many scripts, that can add up to consider amount of time. I would suggest manually updating Scripts/CSS or enabling auto-update only on the ones that require regular update.</p>
+
+  <h3>Disable Syntax Highlighting</h3>
+  <p>Although the Syntax Highlighting is fairly fast (took 3 seconds for a 2.4mb 50,000+ lines script), Firefox takes much longer to render and display the result. You can disable Syntax Highlighting if needed.</p>
 
   <h3>Preferences: Import/Export</h3>
   <p>You can export/import Preferences (for backup or share) to/from a local file on your computer.</p>
@@ -444,29 +449,29 @@ onerror, ontimeout, onabort
   <p>GM_addStyle() was dropped in GM4 since it is easy to do in content scope without the need for costly asynchronous API calls to the extension.</p>
   <p>GM_addStyle() functionality can be easily added by adding the following to the script:</p>
 
-  <pre>
-<span class="keyword">function</span> GM_addStyle(css) {
-
-  <span class="keyword">const</span> <span class="property">head</span> = document.<span class="method">querySelector</span>(<span class="string">'head'</span>);
-  <span class="keyword">if</span> (<span class="property">head</span>) {
-    <span class="keyword">const</span> <span class="property">style</span> = document.<span class="method">createElement</span>(<span class="string">'style'</span>);
-    <span class="property">style</span>.<span class="property">textContent</span> = css;
-    <span class="property">head</span>.<span class="method">appendChild</span>(<span class="property">style</span>);
-  }
+  <pre><span class="keyword">function</span> GM_addStyle(css) {
+ 
+  <span class="keyword">const</span> <span class="property">style</span> = document.<span class="method">createElement</span>(<span class="string">'style'</span>);
+  <span class="property">style</span>.<span class="property">textContent</span> = css;
+  document.<span class="property">head</span>.<span class="method">appendChild</span>(<span class="property">style</span>);
 }</pre>
 
 
   <h3>@require</h3>
   <p><i>@require</i> functionality can be easily added by copy/pasting the remote code into the script OR by adding the following to the beginning of the script:</p>
-<pre>
-<span class="keyword">const</span> script = document.<span class="method">createElement</span>(<span class="string">'script'</span>);
+
+<pre><span class="keyword">const</span> script = document.<span class="method">createElement</span>(<span class="string">'script'</span>);
 script.<span class="property">src</span> = <span class="string">'http://www.example.com/example.js'</span>;
 document.<span class="property">body</span>.<span class="method">appendChild</span>(script);
-</pre>
+
+<span class="keyword">const</span> css = document.<span class="method">createElement</span>(<span class="string">'link'</span>);
+css.<span class="property">src</span> = <span class="string">'http://www.example.com/example.css'</span>;
+css.rel = <span class="string">'stylesheet'</span>;
+document.<span class="property">head</span>.<span class="method">appendChild</span>(css);</pre>
 
 
   <h3>Forbidden header name</h3>
-  <p>A <a href="https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name">forbidden header name</a> is the name of any <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers">HTTP header</a> that cannot be modified programmatically; specifically, an HTTP <b>request</b> header name (in contrast with a Forbidden response header name).</p>
+  <p>A <a href="https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name">forbidden header name</a> (also <a href="https://fetch.spec.whatwg.org/#forbidden-header-name">forbidden header name</a>) is the name of any <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers">HTTP header</a> that cannot be modified programmatically; specifically, an HTTP <b>request</b> header name (in contrast with a Forbidden response header name).</p>
 
   <p>Modifying such headers is forbidden because the user agent retains full control over them. Names starting with `<code>Sec-</code>` are reserved for creating new headers safe from APIs using <code>fetch</code> that grant developers control over headers, such as <code>XMLHttpRequest</code>.</p>
 
@@ -497,6 +502,14 @@ document.<span class="property">body</span>.<span class="method">appendChild</sp
     <li>Upgrade</li>
     <li>Via</li>
   </ul>
+
+  <p>After confirmation from AMO (ref 2019-09-28 Rob W), modification to the following Forbidden headers will be allowed:</p>
+  <ul>
+    <li>Cookie</li>
+    <li>Host</li>
+    <li>Origin</li>
+    <li>Referer</li>
+  </ul>  
 
   <h3>Match Patterns</h3>
   <p>FireMonkey uses <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/match_patterns">Match Patterns</a> for <i>@match</i> & <i>@excludeMatches</i> and <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts#globs">globs</a> for <i>@includeGlobs</i> & <i>@excludeGlobs</i></p>

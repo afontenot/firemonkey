@@ -122,9 +122,7 @@ function newScript(type) {
   legend.className = type;
   legend.textContent = chrome.i18n.getMessage(type === 'js' ? 'newJS' : 'newCSS');
   box.textContent = pref.template[type] || template[type];
-
-  box.classList.toggle('plain', pref.disableHighlight);
-  highlight.process();
+  highlight.process(pref.disableHighlight);
 }
 
 function saveTemplate() {
@@ -187,9 +185,7 @@ function showScript() {
   enable.checked = pref.content[id].enabled;
   autoUpdate.checked = pref.content[id].autoUpdate;
   box.textContent = pref.content[id].js || pref.content[id].css;
-
-  box.classList.toggle('plain', pref.disableHighlight);
-  highlight.process();
+  highlight.process(pref.disableHighlight);
 
   if (pref.content[id].error) {
     box.classList.add('invalid');

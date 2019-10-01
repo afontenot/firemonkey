@@ -3,7 +3,7 @@
 
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
-  "version": "1.17",
+  "version": "1.18",
   "default_locale": "en",
   "homepage_url": "https://addons.mozilla.org/user/azbb/",
   "author": "erosman",
@@ -41,6 +41,8 @@
     "tabs",
     "unlimitedStorage",
     "webNavigation",
+    "webRequest",
+    "webRequestBlocking",
     "<all_urls>"
   ],
 
