@@ -106,7 +106,6 @@ function processButtons() {
     case 'newJS|title': newScript('js'); break;
     case 'newCSS|title': newScript('css'); break;
     case 'saveTemplate': saveTemplate(); break;
-    case 'importScript':  break;
     case 'exportScript': exportScript(); break;
     case 'exportAllScript': exportAllScript(); break;
   }
