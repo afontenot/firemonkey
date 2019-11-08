@@ -288,7 +288,7 @@ const highlight = {
       "else", "enum", "export", "extends",
       "false", "final", "finally", "float", "for", "function", "goto", "if",
       "implements", "import", "in", "instanceof", "int", "interface",
-      "let", "long", "native", "new", "null",
+      "let", "long", "native", "new", "null", "of",
       "package", "private", "protected", "public",
       "return", "short", "static", "super", "switch", "synchronized", "this",
       "throw", "throws", "transient", "true", "try", "typeof",

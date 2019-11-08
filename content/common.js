@@ -17,9 +17,9 @@ function getMetaData(str) {
     name: '',
     author: '',
     description: '',
-    enabled: enable ? enable.checked : true,
+    enabled: typeof enable !== 'undefined' ? enable.checked : true, // enable is defined in options.js but not from background.js
     updateURL: '',
-    autoUpdate: autoUpdate ? autoUpdate.checked : false,
+    autoUpdate: typeof autoUpdate !== 'undefined'  ? autoUpdate.checked : false, // autoUpdate is defined in options.js but not from background.js
     version: '',
 
     // --- API related data
@@ -48,6 +48,10 @@ function getMetaData(str) {
         case 'match': prop = 'matches'; break;                // convert match to matches
         case 'include': prop = 'matches'; break;              // convert include to matches
         case 'exclude': prop = 'excludeMatches'; break;       // convert exclude to excludeMatches
+        case 'updateURL': if (value.endsWith('.meta.js')) { prop = 'updateURLnull'; } break; // disregarding .meta.js
+        case 'downloadURL': 
+        case 'installURL':
+          prop = 'updateURL'; break;                          // convert downloadURL/installURL to updateURL
         case 'run-at':                                        // convert run-at to runAt
         case 'runAt':
           prop = 'runAt';
@@ -75,7 +79,7 @@ function getMetaData(str) {
   data.matches = data.matches.map(checkPattern);
   data.excludeMatches = data.excludeMatches.map(checkPattern);
 
-  // --- remove dunplicates
+  // --- remove duplicates
   Object.keys(data).forEach(item => Array.isArray(data[item]) && (data[item] = [...new Set(data[item])]));
 
   return data;
@@ -103,7 +107,7 @@ function getUpdate(item) {
 
   fetch(item.updateURL)
   .then(response => response.text())
-  .then(text => processResponse(text, item.name))
+  .then(text => processResponse(text, item.name, item.updateURL))
   .catch(console.error);
 }
 
