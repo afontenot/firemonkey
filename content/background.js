@@ -21,7 +21,7 @@ chrome.storage.local.get(null, result => {
   });
 
   update[0] && browser.idle.onStateChanged.addListener(onIdle); // FF51+
-  
+
   // --- Script Counter
   browser.tabs.onUpdated.addListener(counter, {urls: ['http://*/*', 'https://*/*', 'file:///*']});
   browser.browserAction.setBadgeBackgroundColor({color: '#cd853f'});
@@ -34,6 +34,60 @@ chrome.storage.onChanged.addListener((changes, area) => {   // Change Listener
 
 function updatePref(result) {
   Object.keys(result).forEach(item => pref[item] = result[item]); // update pref
+}
+
+// ----------------- Web/Direct Install Listener ------------------
+browser.webRequest.onBeforeRequest.addListener(processWebInstall,
+  {
+    urls: [
+      'https://greasyfork.org/scripts/*.user.js'
+    ]
+    , types: ['main_frame']
+  },
+  ['blocking']
+);
+
+browser.tabs.onUpdated.addListener(processDirectInstall, 
+  {    
+    urls: [
+        'https://greasyfork.org/scripts/*.user.js',
+        'file:///*/*.user.js'
+      ]
+});
+
+function processWebInstall(e) {
+
+  switch (true) {
+
+    // --- Greasy Fork
+    case e.originUrl && e.originUrl.startsWith('https://greasyfork.org/') && e.url.startsWith('https://greasyfork.org/'):
+      const GF = String.raw`(() => {
+        const title = location.href.endsWith('/code') ? document.title.replace(/\s+-[\s\w]+$/, '') : document.title;
+        return confirm(chrome.i18n.getMessage('installConfirm', title)) ? title : null;
+      })();`;
+
+      chrome.tabs.executeScript({code: GF}, (result = []) => {
+        result[0] && getUpdate({updateURL: e.url, name: result[0]});
+      });
+      return {cancel: true};
+  }
+}
+
+function processDirectInstall(tabId, changeInfo, tab) {
+
+  if (changeInfo.status !== 'complete') { return; }        // end execution if not found
+
+  const DS = String.raw`(() => {
+    const pre = document.querySelector('pre');
+    if (!pre || !pre.textContent.trim()) { notify(chrome.i18n.getMessage('errorMeta')); return; }
+    const name = pre.textContent.match(/(?:\/\/)?\s*@name\s+([^\r\n]+)/);
+    if (!name) { notify(chrome.i18n.getMessage('errorMeta')); return; }
+    return confirm(chrome.i18n.getMessage('installConfirm', name[1])) ? [pre.textContent, name[1]] : null;
+  })();`;
+
+  chrome.tabs.executeScript({code: DS}, (result = []) => {
+    result[0] && processResponse(result[0][0], result[0][1], tab.url);
+  });
 }
 
 // ----------------- Context Menu --------------------------
@@ -84,8 +138,8 @@ async function register(id) {
 
   // --- add CSS & JS
   // Removing metaBlock since there would be an error with /* ... *://*/* ... */
-  if (pref.content[id].css) { 
-    options.css = [{code: pref.content[id].css.replace(metaRegEx, '')}]; 
+  if (pref.content[id].css) {
+    options.css = [{code: pref.content[id].css.replace(metaRegEx, '')}];
   }
   else if (pref.content[id].js) {
     options.js = [{code: pref.content[id].js.replace(metaRegEx, '')}];
@@ -154,7 +208,7 @@ function processForbiddenHeaders(headers) {
     if (item.startsWith('Proxy-') || item.startsWith('Sec-') || forbiddenHeader.includes(item)) {
       delete headers[item];
     }
-    else if (specialHeader.includes(item)) { 
+    else if (specialHeader.includes(item)) {
       headers['FM-' + item] = headers[item];                // set a new FM header
       delete headers[item];                                 // delete original header
     }
@@ -162,7 +216,7 @@ function processForbiddenHeaders(headers) {
 }
 
 // --- allow specialHeader
-browser.webRequest.onBeforeSendHeaders.addListener(e => {  
+browser.webRequest.onBeforeSendHeaders.addListener(e => {
 
     let found = false;
     e.originUrl && e.originUrl.startsWith(FMUrl) && e.requestHeaders.forEach((item, index) => {
@@ -335,16 +389,16 @@ function onIdle() {
   sect.forEach(item => pref.content.hasOwnProperty(item) && getUpdate(pref.content[item])); // check if script wasn't deleted
 }
 
-async function processResponse(text, name) {
+function processResponse(text, name, updateURL) {
 
   const data = getMetaData(text);
-  if (!data) { throw `${name}: Update Meta Data error`; }
+  if (!data) { throw `${name}: Meta Data error`; }
 
-  // --- check version
-  if (compareVersion(data.version, pref.content[name].version) !== '>') { return; }
+  // --- check version, if update existing
+  if (pref.content[name] && compareVersion(data.version, pref.content[name].version) !== '>') { return; }
 
-  // --- check name
-  if (data.name !== name) {                                 // name has changed
+  // --- check name, if update existing
+  if (pref.content[name] && data.name !== name) {           // name has changed
 
     if (pref.content[data.name]) { throw `${name}: Update new name already exists`; } // name already exists
     else {
@@ -356,17 +410,26 @@ async function processResponse(text, name) {
       }
       delete pref.content[name];
     }
+
+    unregister(name);                                       // --- unregister old name
   }
 
   // --- update from previous version
-  data.enabled = pref.content[data.name].enabled;
-  data.autoUpdate = pref.content[data.name].autoUpdate;
+  if (pref.content[data.name]) {
+    data.enabled = pref.content[data.name].enabled;
+    data.autoUpdate = pref.content[data.name].autoUpdate;
 
-  console.log(name, 'updated to version', data.version);
+    console.log(data.name, 'updated to version', data.version);
+  }
+
+  // --- check for Web Install, set install URL
+  if (!data.updateURL && updateURL.startsWith('https://greasyfork.org/scripts/')) {
+    data.updateURL = updateURL;
+    data.autoUpdate = true;
+  }
+
   pref.content[data.name] = data;                           // save to pref
   browser.storage.local.set({content: pref.content});       // update saved pref
-
-  if (data.name !== name) { bg.unregister(name); }          // --- unregister old name 
   data.enabled && register(data.name);
 }
 // ----------------- /Remote Update ------------------------
@@ -375,10 +438,10 @@ async function processResponse(text, name) {
 async function counter(tabId, changeInfo, tab) {
 
   if (changeInfo.status !== 'complete') { return; }        // end execution if not found
- 
+
   const frames = await browser.webNavigation.getAllFrames({tabId});
   const urls = [...new Set(frames.map(item => item.url).filter(item => /^(https?|wss?|ftp|file|about:blank)/.test(item)))];
-  const count = Object.keys(pref.content).filter(item => checkMatches(pref.content[item], urls));  
+  const count = Object.keys(pref.content).filter(item => checkMatches(pref.content[item], urls));
   browser.browserAction.setBadgeText({tabId, text: (count[0] ? count.length.toString() : '')});
 }
 // ----------------- /Script Counter -----------------------
