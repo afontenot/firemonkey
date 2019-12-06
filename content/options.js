@@ -357,6 +357,12 @@ async function saveScript() {
     notify(chrome.i18n.getMessage('errorMatches'));
     return;
   }
+  
+  // --- check for Web Install, set install URL
+  if (!data.updateURL && pref.content[data.name].updateURL.startsWith('https://greasyfork.org/scripts/')) {
+    data.updateURL = pref.content[data.name].updateURL;
+    data.autoUpdate = true;
+  }
 
   const bg = await browser.runtime.getBackgroundPage();
   pref.content[data.name] = data;                       // save to pref
