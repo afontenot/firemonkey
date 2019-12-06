@@ -225,6 +225,13 @@ browser.webRequest.onBeforeSendHeaders.addListener(e => {
         e.requestHeaders.splice(index, 1);
         found = true;
       }
+      // Webextension UUID leak via Fetch requests
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=1405971
+      else if (item.name === 'Origin' && item.value.includes('moz-extension://')) {
+        e.requestHeaders.push({name: item.name, value: 'null'});
+        e.requestHeaders.splice(index, 1);
+        found = true;        
+      }
     });
     if (found) { return {requestHeaders: e.requestHeaders}; }
   },
@@ -281,10 +288,11 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       const url = checkURL(e.url, e.base);
       if (!url) { return; }
 
+
       const init = {};
       ['method', 'headers', 'body', 'mode', 'credentials', 'cache', 'redirect', 'referrer', 'referrerPolicy',
         'integrity', 'keepalive', 'signal'].forEach(item => e.init.hasOwnProperty(item) && (init[item] = e.init[item]));
-
+      
       // --- remove forbidden headers
       init.headers && processForbiddenHeaders(init.headers);
 
