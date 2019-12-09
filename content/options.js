@@ -359,7 +359,7 @@ async function saveScript() {
   }
   
   // --- check for Web Install, set install URL
-  if (!data.updateURL && pref.content[data.name].updateURL.startsWith('https://greasyfork.org/scripts/')) {
+  if (!data.updateURL && pref.content[data.name] && pref.content[data.name].updateURL.startsWith('https://greasyfork.org/scripts/')) {
     data.updateURL = pref.content[data.name].updateURL;
     data.autoUpdate = true;
   }
