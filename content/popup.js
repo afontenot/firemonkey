@@ -33,6 +33,7 @@ function process() {
     case 'options': chrome.runtime.openOptionsPage(); window.close(); break;
     case 'newJS|title': editScript('new', 'js'); break;
     case 'newCSS|title': editScript('new', 'css'); break;
+    case 'help': editScript('help'); break;
   }
 }
 

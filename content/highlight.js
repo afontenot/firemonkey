@@ -109,7 +109,10 @@ const highlight = {
 
     // disabled syntax highlighting
     box.classList.toggle('plain', disableHighlight);
-    if (disableHighlight) { return; }
+    if (disableHighlight) { 
+      box.parentNode.replaceChild(box.cloneNode(true), box); // replacing it with its clone to remove listeners
+      return; 
+    }
 
     const start = performance.now();
     box.classList.remove('invalid');                        // reset

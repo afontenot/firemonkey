@@ -26,6 +26,9 @@ function processOptions() {                                 // set saved pref/de
   });
 
   this && chrome.storage.local.set(pref);                   // update saved pref
+  
+  // ----------------- Syntax Highlighter --------------------
+  pref.disableHighlight || highlight.init(box);
 }
 // ----------------- /Options ------------------------------
 
@@ -92,9 +95,6 @@ autoUpdateInterval.addEventListener('input', function() {
 ==/UserCSS==
 */`
 };
-
-// ----------------- Syntax Highlighter --------------------
-highlight.init(box);
 
 // ----------------- Buttons -------------------------------
 function processButtons() {
@@ -747,24 +747,34 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 function getEdit() {
 
+
+  
   const editID = localStorage.getItem('edit');
   const newSc = localStorage.getItem('new');
+  const help =  localStorage.getItem('help')
 
-  if (!editID && !newSc) { return; }                          // end execution if not found
+  if (!editID && !newSc && !help) { return; }               // end execution if not found
 
-  document.getElementById('nav4').checked = true;
+  
 
   switch (true) {
 
     case !!editID:
+      document.getElementById('nav4').checked = true;
       localStorage.removeItem('edit');
       document.getElementById(editID).click();
       break;
 
     case !!newSc:
+      document.getElementById('nav4').checked = true;
       localStorage.removeItem('new');
       newScript(newSc);
       break;
+  
+    case !!help:
+      document.getElementById('nav1').checked = true;
+      localStorage.removeItem('help');
+      break;  
   }
 }
 

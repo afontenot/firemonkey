@@ -225,7 +225,7 @@ browser.webRequest.onBeforeSendHeaders.addListener(e => {
         e.requestHeaders.splice(index, 1);
         found = true;
       }
-      // Webextension UUID leak via Fetch requests
+      // Webextension UUID leak via Fetch requests - Fixed mozilla73
       // https://bugzilla.mozilla.org/show_bug.cgi?id=1405971
       else if (item.name === 'Origin' && item.value.includes('moz-extension://')) {
         e.requestHeaders.push({name: item.name, value: 'null'});
