@@ -561,7 +561,7 @@ div.menu {
   position: absolute;
   top: 0;
   left: 50%;
-  height: 3px;
+  height: 1px;
   width: 0;
   background-color: #4284f3;
   transition: all 0.5s;
