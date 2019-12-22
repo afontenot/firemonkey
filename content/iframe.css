@@ -93,6 +93,45 @@ pre span {
   font-weight: bold;
 }
 
+blockquote {
+  background-color: #fdf5e6;
+  border-left: 4px solid #e9967a;
+  padding: 1em 2.5em;
+  font-style: italic;
+  position: relative;
+}
+
+blockquote::before {
+  content: '\201c';
+  color: #e9967a;
+  opacity: 0.6;
+  font-size: 4em;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+blockquote::after {
+  content: '\201d';
+  color: #e9967a;
+  opacity: 0.6;
+  font-size: 4em;
+  position: absolute;
+  bottom: -0.5em;
+  right: 0.2em; 
+}
+
+
+cite {
+  display: block;
+  margin-top: 1em;
+  color: #999;
+}
+
+cite::before {
+  content: '\2014\00A0source: ';   
+}
+
 code {
   background-color: #def;
   padding-left: 0.5em;
@@ -158,7 +197,8 @@ td p {
 }
 
 .pass::before {
-  content: "\2714\00A0"; font-weight: 900;
+  content: '\2714\00A0'; 
+  font-weight: 900;
 }
 
 .fail {
@@ -166,5 +206,6 @@ td p {
 }
 
 .fail::before {
-  content: "\2718\00A0"; font-weight: 900;
+  content: '\2718\00A0'; 
+  font-weight: 900;
 }
