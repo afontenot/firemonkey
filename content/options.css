@@ -548,7 +548,7 @@ div.menu {
   flex: 1;
   white-space: nowrap;
   position: relative;
-  user-select: none; -moz-user-select: none;
+  user-select: none;
 }
 
 .menu button:hover, .menu > label:hover {

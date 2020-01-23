@@ -32,7 +32,7 @@
   </ul>
 
   <h3>Toolbar Icon Pop-up</h3>
-    <p>The pop-up displays teh installed Scripts/CSS. "Tab Scripts & CSS" shows teh ones running on the active Tab.</p>
+    <p>The pop-up displays the installed Scripts/CSS. "Tab Scripts & CSS" shows the ones running on the active Tab.</p>
     <ul>
       <li>✔ shows Script/CSS is enabled. Disabled Script/CSS are greyed out and clicking that area toggles the enable/disable</li>
       <li><span style="color: #f00;">✘</span> shows that there was an error when registering the script & the Information page displays the error</li>
@@ -43,6 +43,8 @@
       <li>&#x2795; <img src="../image/css.svg" width="16" alt=""> display a new CSS Template that you can edit and Save</li>
       <li>Help: display Help document</li>
     </ul>
+
+
 
   <h3>Web Install</h3>
   <p>Web Install is available from <i>greasyfork.org</i>. Script install URL will be set for script update.</p>
@@ -213,8 +215,13 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
     <li><code>match</code> <i>(entries will be merged into <code>matches</code>)</i></li>
     <li><code>include</code> <i>(entries will be merged into <code>matches</code>, use <code>match</code>, <code>matches</code> or <code>includeGlobs</code> instead)</i></li>
-    <li><code>exclude</code> <i>(entries will be merged into <code>excludeMatches</code>)</i></li>
+    <li><code>exclude</code> <i>(entries will be merged into <code>excludeMatches</code>)</i><br><br></li>
+    
+    <li><code>@require</code> <i>(Optional)</i></li>
+           
   </ul>
+
+
 
   <h4>include/exclude</h4>
   <p>Entries under <code>@include/@exclude</code> will be merged into <code>@matches/@excludeMatches</code>. Some common incompatibilities with <code>matches</code> API are automatically converted e.g:</p>
@@ -610,13 +617,108 @@ onerror, ontimeout, onabort
   }
 }</pre>
 
+
+
+
+  <h3>@require</h3>
+    <p>The <code>@require</code> in <i>FireMonkey</i> was added (v1.23) to facilitate user-script developers, however please note that it differs from the <code>@require</code> in other script mangers.</p>
+    <p><code>@require</code> can be used to pre-include other existing scripts into a script (or other existing CSS into a CSS). For example:</p>
+<pre class="comment">
+@require       My Script
+</pre>
+
+  <h4>How to use FireMonkey @require</h4>
+    For example, user can save <code>jquery-3.4.1.min.js</code> as a script and name it <code>JQuery3</code>. It does not need to have match/matches/include/includeGlobs etc. It is best to keep the script DISABLED (not enabled) e.g.:
+<pre class="comment">// ==UserScript==
+// @name          JQuery3
+// @description   To be included
+// @version       3.4.1
+// ==/UserScript==
+
+..... jquery-3.4.1.min code.....</pre>
+
+  <p>Now, the JQuery3 can be included in other scripts. e.g.:</p>
+
+<pre class="comment">// ==UserScript==
+// @name          My Script
+// @description   Scripting is fun
+// @match         http://www.example.com/*
+// @match         http://www.example.org/*
+// @version       1.0
+// @require       JQuery3
+// ==/UserScript==
+
+..... code .....</pre>
+
+<p>Another use case would be to include some common functions, like <code>GM_addStyle()</code> etc.</p>
+
+<pre><div class="comment">// ==UserScript==
+// @name          HelperSet
+// @description   A set of helper functions
+// @version       1.0
+// ==/UserScript==</div>
+
+<span class="keyword">function</span> GM_addStyle(css) {
+
+  <span class="keyword">const</span> <span class="property">style</span> = document.<span class="method">createElement</span>(<span class="string">'style'</span>);
+  <span class="property">style</span>.<span class="property">textContent</span> = css;
+  document.<span class="property">head</span>.<span class="method">appendChild</span>(<span class="property">style</span>);
+}
+
+<span class="keyword">function</span> someFunc(id) {
+
+  <span class="comment">// some code </span>
+}</pre>
+
+  <p>Then include it in other scripts:</p>
+  
+<pre class="comment">// ==UserScript==
+// @name          My Script
+// @description   Scripting is fun
+// @match         http://www.example.com/*
+// @match         http://www.example.org/*
+// @version       1.0
+// @require       HelperSet
+// ==/UserScript==
+
+..... code .....</pre>
+
+  <p>Multiple scripts can be required and will be injected in order:</p>
+
+<pre class="comment">// ==UserScript==
+// @name          My Script
+// @description   Scripting is fun
+// @match         http://www.example.com/*
+// @match         http://www.example.org/*
+// @version       1.0
+// @require       JQuery3
+// @require       HelperSet
+// ==/UserScript==
+
+..... code .....</pre>
+
+  <p>You can use <code>@require</code> for CSS e.g.:</p>
+
+<pre class="comment">/*
+==UserCSS==
+@name          My CSS
+@description   CSS is fun
+@match         http://www.example.com/*
+@match         http://www.example.org/*
+@version       1.0
+@require       DefaultCSS
+==/UserCSS==
+*/</pre>
+
+
   <h3>@grant &#x26d4;</h3>
   <p>Scripts will have access to all available APIs and therefore <code>@grant</code> is not needed or used.</p>
 
   <h3>@connect & @icon &#x26d4;</h3>
   <p>At the moment, there is no plan to include them.</p>
 
-  <h3>@require & @resource & GM.getResourceUrl/GM_getResourceURL &#x26d4;</h3>
+  <h3>@require* & @resource & GM.getResourceUrl/GM_getResourceURL &#x26d4;</h3>
+  <p>* Please note that you can use <i>FireMonkey</i> <code>@require</code> as explained above.</p>
   <p>Besides security risks, saving large external data to storage affects performance.<br>
   In legacy Firefox, extensions were able to save files to their folder in Firefox profile on users' computer. Script managers would then download <code>@require</code> & <code>@resource</code> target, save it to users' HD and in case of <code>@require</code> inject it into content and in case of <code>@resource</code> provide a URL pointing to the file.<br>
   Firefox Quantum no longer allows extension to save fies to Fireofx profile folder. Script managers will have to use the storage assigned to the extension to save <code>@require</code> & <code>@resource</code> files in form of data.</p>
@@ -645,12 +747,14 @@ document.<span class="property">head</span>.<span class="method">appendChild</sp
   <p><code>GM_addStyle()</code> was dropped in GM4 since it is easy to do in content scope without the need for costly asynchronous API calls to the extension.</p>
   <p><code>GM_addStyle()</code> functionality can be easily added by adding the following to the script:</p>
 
-  <pre><span class="keyword">function</span> GM_addStyle(css) {
+<pre><span class="keyword">function</span> GM_addStyle(css) {
 
   <span class="keyword">const</span> <span class="property">style</span> = document.<span class="method">createElement</span>(<span class="string">'style'</span>);
   <span class="property">style</span>.<span class="property">textContent</span> = css;
   document.<span class="property">head</span>.<span class="method">appendChild</span>(<span class="property">style</span>);
 }</pre>
+
+  <p>Please note that you can use <i>FireMonkey</i> <code>@require</code> as explained above.</p>
 
 
 

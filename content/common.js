@@ -31,6 +31,8 @@ function getMetaData(str) {
     includeGlobs: [],
     excludeGlobs: [],
     matchAboutBlank: false,
+    
+    require: [],
 
     runAt: 'document_idle'                                  // "document_start" "document_end" "document_idle" (default)
   };
@@ -58,6 +60,9 @@ function getMetaData(str) {
           value = value.replace('-', '_');
           ['document_start', 'document_end'].includes(value) || (value = 'document_idle');
           break;
+        
+        // add @require
+        case 'require': break;
       }
 
       if(data.hasOwnProperty(prop) && value !== '') {
@@ -130,6 +135,9 @@ function checkMatches(item, urls) {
 
   switch (true) {
 
+    // scripts/css withoiut matches/includeGlobs
+    case !item.matches[0] && !item.includeGlobs[0]: return false;
+    
     // --- about:blank
     case urls.includes('about:blank') && item.matchAboutBlank: return true;
 
