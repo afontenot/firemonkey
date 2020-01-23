@@ -26,7 +26,7 @@ function processOptions() {                                 // set saved pref/de
   });
 
   this && chrome.storage.local.set(pref);                   // update saved pref
-  
+
   // ----------------- Syntax Highlighter --------------------
   pref.disableHighlight || highlight.init(box);
 }
@@ -353,11 +353,14 @@ async function saveScript() {
 
   // --- check matches
   if (!data.matches[0] && !data.includeGlobs[0]) {
+    data.enabled = false;                                   // allow no matches but disable
+/*
     box.classList.add('invalid');
     notify(chrome.i18n.getMessage('errorMatches'));
     return;
+*/
   }
-  
+
   // --- check for Web Install, set install URL
   if (!data.updateURL && pref.content[data.name] && pref.content[data.name].updateURL.startsWith('https://greasyfork.org/scripts/')) {
     data.updateURL = pref.content[data.name].updateURL;
@@ -748,14 +751,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 function getEdit() {
 
 
-  
+
   const editID = localStorage.getItem('edit');
   const newSc = localStorage.getItem('new');
   const help =  localStorage.getItem('help')
 
   if (!editID && !newSc && !help) { return; }               // end execution if not found
 
-  
+
 
   switch (true) {
 
@@ -770,11 +773,11 @@ function getEdit() {
       localStorage.removeItem('new');
       newScript(newSc);
       break;
-  
+
     case !!help:
       document.getElementById('nav1').checked = true;
       localStorage.removeItem('help');
-      break;  
+      break;
   }
 }
 
