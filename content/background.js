@@ -47,8 +47,8 @@ browser.webRequest.onBeforeRequest.addListener(processWebInstall,
   ['blocking']
 );
 
-browser.tabs.onUpdated.addListener(processDirectInstall, 
-  {    
+browser.tabs.onUpdated.addListener(processDirectInstall,
+  {
     urls: [
         'https://greasyfork.org/scripts/*.user.js',
         'file:///*/*.user.js'
@@ -139,10 +139,24 @@ async function register(id) {
   // --- add CSS & JS
   // Removing metaBlock since there would be an error with /* ... *://*/* ... */
   if (pref.content[id].css) {
-    options.css = [{code: pref.content[id].css.replace(metaRegEx, '')}];
+    
+    options.css = [];
+    if (pref.content[id].require && pref.content[id].require[0]) { // add @require
+      pref.content[id].require.forEach(item => pref.content[item] && pref.content[item].css &&
+        options.css.push({code: pref.content[item].css.replace(metaRegEx, '')}));
+    }
+    options.css.push({code: pref.content[id].css.replace(metaRegEx, '')});
   }
   else if (pref.content[id].js) {
-    options.js = [{code: pref.content[id].js.replace(metaRegEx, '')}];
+    
+    options.js = []
+    if (pref.content[id].require && pref.content[id].require[0]) { // add @require
+      pref.content[id].require.forEach(item => pref.content[item] && pref.content[item].js &&
+        options.js.unshift({code: pref.content[item].js.replace(metaRegEx, '')}));
+    }    
+    options.js.push({code: pref.content[id].js.replace(metaRegEx, '')});
+    
+
     options.scriptMetadata = {
       name: id,
       info: {                                               // GM.info data
@@ -230,7 +244,7 @@ browser.webRequest.onBeforeSendHeaders.addListener(e => {
       else if (item.name === 'Origin' && item.value.includes('moz-extension://')) {
         e.requestHeaders.push({name: item.name, value: 'null'});
         e.requestHeaders.splice(index, 1);
-        found = true;        
+        found = true;
       }
     });
     if (found) { return {requestHeaders: e.requestHeaders}; }
@@ -292,7 +306,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       const init = {};
       ['method', 'headers', 'body', 'mode', 'credentials', 'cache', 'redirect', 'referrer', 'referrerPolicy',
         'integrity', 'keepalive', 'signal'].forEach(item => e.init.hasOwnProperty(item) && (init[item] = e.init[item]));
-      
+
       // --- remove forbidden headers
       init.headers && processForbiddenHeaders(init.headers);
 
