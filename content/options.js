@@ -28,7 +28,7 @@ function processOptions() {                                 // set saved pref/de
   this && chrome.storage.local.set(pref);                   // update saved pref
 
   // ----------------- Syntax Highlighter --------------------
-  pref.disableHighlight || highlight.init(box);
+  pref.disableHighlight || highlight.init();
 }
 // ----------------- /Options ------------------------------
 
@@ -59,6 +59,7 @@ function checkOptions() {
 const liTemplate = document.querySelector('nav li.template');
 const legend = document.querySelector('.script legend');
 const box = document.querySelector('.script .box');
+highlight.box = box;
 const enable = document.querySelector('#enable');
 const autoUpdate = document.querySelector('#autoUpdate');
 

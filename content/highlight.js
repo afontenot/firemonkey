@@ -5,75 +5,79 @@ const highlight = {
   original: '',
   box: null,
 
-  init(box) {
+  init() {
 
-    this.box = box;
     this.original = box.textContent;
+    box.addEventListener('keydown', this.keydown.bind(this));
+    box.addEventListener('blur', this.blur.bind(this));
+    box.addEventListener('copy', this.copy.bind(this));
+    box.addEventListener('paste', this.paste.bind(this));
+  },
 
-    box.addEventListener('keydown', e => {
+  keydown(e) {
 
-      switch (true) {
+    switch (true) {
 
-        case e.ctrlKey && e.key === 's':                    // Ctrl + s
-          e.preventDefault();
-          saveScript();
-          break;
+      case e.ctrlKey && e.key === 's':                    // Ctrl + s
+        e.preventDefault();
+        saveScript();
+        break;
 
-        case e.key === 'Tab':                               // Tab key
-          const sel = window.getSelection();
-          const range = sel.getRangeAt(0);
-          e.preventDefault();
+      case e.key === 'Tab':                               // Tab key
+        const sel = window.getSelection();
+        const range = sel.getRangeAt(0);
+        e.preventDefault();
 
-          switch (true) {
+        switch (true) {
 
-            case e.shiftKey && !!window.getSelection().toString():
-              this.getSelected(sel).forEach(item =>
-                item.firstChild.nodeValue.substring(0, 2).trim() || (item.firstChild.nodeValue = item.firstChild.nodeValue.substring(2))
-              );
-              break;
+          case e.shiftKey && !!window.getSelection().toString():
+            this.getSelected(sel).forEach(item =>
+              item.firstChild.nodeValue.substring(0, 2).trim() || (item.firstChild.nodeValue = item.firstChild.nodeValue.substring(2))
+            );
+            break;
 
-            case e.shiftKey:
-              const startContainer = range.startContainer;
-              const text = startContainer.nodeValue;
-              const startOffset = range.startOffset;
-              if (startOffset > 1 && !text.substring(startOffset-2, startOffset).trim()) {
-               startContainer.nodeValue =  text.substring(0, startOffset-2) + text.substring(startOffset);
-               range.setStart(startContainer, startOffset-2);
-              }
-              break;
+          case e.shiftKey:
+            const startContainer = range.startContainer;
+            const text = startContainer.nodeValue;
+            const startOffset = range.startOffset;
+            if (startOffset > 1 && !text.substring(startOffset-2, startOffset).trim()) {
+             startContainer.nodeValue =  text.substring(0, startOffset-2) + text.substring(startOffset);
+             range.setStart(startContainer, startOffset-2);
+            }
+            break;
 
-            case !!window.getSelection().toString():
-              this.getSelected(sel).forEach(item => item.firstChild.nodeValue = '  ' + item.firstChild.nodeValue);
-              break;
+          case !!window.getSelection().toString():
+            this.getSelected(sel).forEach(item => item.firstChild.nodeValue = '  ' + item.firstChild.nodeValue);
+            break;
 
-            default:
-              document.execCommand('insertText', false, '  ');
-          }
-          break;
-      }
+          default:
+            document.execCommand('insertText', false, '  ');
+        }
+        break;
+    }
+  },
 
-    });
+  blur(e) {
+    // not when clicking save
+    this.box.textContent !== this.original &&
+      (!e.relatedTarget || e.relatedTarget.dataset.i18n !== 'saveScript') && this.process();
+  },
 
-    // --- not when clicking save
-    box.addEventListener('blur', e => box.textContent !== this.original &&
-      (!e.relatedTarget || e.relatedTarget.dataset.i18n !== 'saveScript') && this.process());
-
-    box.addEventListener('copy', e => {
+  copy(e) {
 
       e.preventDefault();
       const text = window.getSelection().toString().trim().replace(/[ ]*(\r?\n)/g, '$1');
       e.clipboardData.setData('text/plain', text);
-    });
+  },
 
-    box.addEventListener('paste', e => {
+  paste(e) {
 
-      e.preventDefault();
-      const index = this.getIndex(e.target);
-      const text = e.clipboardData.getData('text/plain');
-      document.execCommand('insertText', false, text);
-      this.process();
-      this.goto(index);
-    });
+    e.preventDefault();
+    const index = this.getIndex(e.target);
+    const text = e.clipboardData.getData('text/plain');
+    document.execCommand('insertText', false, text);
+    this.process();
+    this.goto(index);
   },
 
   getSelected(sel) {
@@ -109,9 +113,12 @@ const highlight = {
 
     // disabled syntax highlighting
     box.classList.toggle('plain', disableHighlight);
-    if (disableHighlight) { 
-      box.parentNode.replaceChild(box.cloneNode(true), box); // replacing it with its clone to remove listeners
-      return; 
+    if (disableHighlight) {
+      box.removeEventListener('keydown', this.keydown);
+      box.removeEventListener('blur', this.blur);
+      box.removeEventListener('copy', this.copy);
+      box.removeEventListener('paste', this.paste);
+      return;
     }
 
     const start = performance.now();
@@ -397,7 +404,8 @@ const highlight = {
       "GM", "deleteValue", "getResourceUrl", "getValue", "info", "listValues", "notification",
       "openInTab", "setClipboard", "setValue", "xmlHttpRequest",
       "GM_deleteValue", "GM_getResourceURL", "GM_getValue", "GM_info", "GM_listValues", "GM_notification",
-      "GM_openInTab", "GM_setClipboard", "GM_setValue", "GM_xmlhttpRequest", "GM_fetch"
+      "GM_openInTab", "GM_setClipboard", "GM_setValue", "GM_xmlhttpRequest", "GM_fetch",
+      "unsafeWindow"
     ]
   },
 

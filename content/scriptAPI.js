@@ -21,6 +21,7 @@ browser.userScripts.onBeforeScript.addListener(script => {
 
     async setValue(key, value) {
 
+      if (!['string', 'number', 'boolean'].includes(typeof value)) { throw `${name}: Unsupported value in setValue()`; }
       return await browser.runtime.sendMessage({
         name,
         api: 'setValue',
@@ -90,6 +91,7 @@ browser.userScripts.onBeforeScript.addListener(script => {
         api: 'fetch',
         data: {url, init, base: location.href}
       });
+
       // cloneInto() work around for https://bugzilla.mozilla.org/show_bug.cgi?id=1583159
       return response ? (typeof response === 'string' ? script.export(response) : cloneInto(response, window)) : null;
     },
@@ -118,16 +120,22 @@ browser.userScripts.onBeforeScript.addListener(script => {
 
       // only these 4 callback functions are processed
       // cloneInto() work around for https://bugzilla.mozilla.org/show_bug.cgi?id=1583159
-      callUserScriptCallback(init, 'onload',
-        !response.error ? (typeof response.response === 'string' ? script.export(response) : cloneInto(response, window)) : null);
-
-      ['onerror', 'onabort', 'ontimeout'].forEach(item => response.error &&
-        callUserScriptCallback(init, item, response.error === item ? script.export(response) : null)
-      );
+      const type = response.type;
+      delete response.type;
+      callUserScriptCallback(init, type,
+         typeof response.response === 'string' ? script.export(response) : cloneInto(response, window));
     },
 
     getResourceURL() {
       return null;
+    },
+
+    addStyle(css) {
+      try {
+        const style = document.createElement('style');
+        style.textContent = css;
+        (document.head || document.body || document.documentElement).appendChild(style);
+      } catch(error) { console.error(name, error.message); }
     },
 
     info: script.metadata.info
@@ -147,6 +155,7 @@ browser.userScripts.onBeforeScript.addListener(script => {
     GM_getResourceURL:  GM.getResourceUrl,
     GM_info:            GM.info,
 
+    GM_addStyle:        GM.addStyle,
     GM_fetch:           GM.fetch
   });
 });
