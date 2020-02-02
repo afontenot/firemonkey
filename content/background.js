@@ -139,7 +139,7 @@ async function register(id) {
   // --- add CSS & JS
   // Removing metaBlock since there would be an error with /* ... *://*/* ... */
   if (pref.content[id].css) {
-    
+
     options.css = [];
     if (pref.content[id].require && pref.content[id].require[0]) { // add @require
       pref.content[id].require.forEach(item => pref.content[item] && pref.content[item].css &&
@@ -148,14 +148,18 @@ async function register(id) {
     options.css.push({code: pref.content[id].css.replace(metaRegEx, '')});
   }
   else if (pref.content[id].js) {
-    
-    options.js = []
+
+    options.js = [{code: 'const unsafeWindow = window.wrappedJSObject;'}]; // unsafeWindow implementation
     if (pref.content[id].require && pref.content[id].require[0]) { // add @require
-      pref.content[id].require.forEach(item => pref.content[item] && pref.content[item].js &&
-        options.js.unshift({code: pref.content[item].js.replace(metaRegEx, '')}));
-    }    
+      pref.content[id].require.forEach(item => {
+      
+        if (item.startsWith('lib/')) { options.js.unshift({file: item}); }
+        else if (pref.content[item] && pref.content[item].js) {
+          options.js.unshift({code: pref.content[item].js.replace(metaRegEx, '')})
+        }
+      });
+    }
     options.js.push({code: pref.content[id].js.replace(metaRegEx, '')});
-    
 
     options.scriptMetadata = {
       name: id,
@@ -268,7 +272,6 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   switch (message.api) {
 
     case 'setValue':
-      if (!['string', 'number', 'boolean'].includes(typeof e.value)) { throw `${name}: Unsupported value in setValue()`; }
       pref[storage] || (pref[storage] = {});                // make one if didn't exist
       if (pref[storage][e.key] === e.value) { return true; } // return if value hasn't changed
       pref[storage][e.key] = e.value;
@@ -301,7 +304,6 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       // --- check url
       const url = checkURL(e.url, e.base);
       if (!url) { return; }
-
 
       const init = {};
       ['method', 'headers', 'body', 'mode', 'credentials', 'cache', 'redirect', 'referrer', 'referrerPolicy',
@@ -344,41 +346,34 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
         }
         xhr.send(e.data);
 
-        xhr.onload = () => resolve({
-          readyState:       xhr.readyState,
-          response:         xhr.response,
-          responseHeaders:  xhr.getAllResponseHeaders(),
-          responseText:     ['', 'text'].includes(xhr.responseType) ? xhr.responseText : '', // responseText is only available if responseType is '' or 'text'.
-          responseType:     xhr.responseType,
-          responseURL:      xhr.responseURL,
-          responseXML:      ['', 'document'].includes(xhr.responseType) ? xhr.responseXML : '', // responseXML is only available if responseType is '' or 'document'.
-          status:           xhr.status,
-          statusText:       xhr.statusText,
-          finalUrl:         xhr.responseURL
-        });
-        xhr.onerror = () => resolve({
-          error:            'error',
-          responseHeaders:  xhr.getAllResponseHeaders(),
-          status:           xhr.status,
-          statusText:       xhr.statusText
-        });
-        xhr.ontimeout = () => resolve({
-          error:            'timeout',
-          responseHeaders:  xhr.getAllResponseHeaders(),
-          status:           xhr.status,
-          statusText:       xhr.statusText
-        });
-        xhr.onabort = () => resolve({
-          error:            'abort',
-          responseHeaders:  xhr.getAllResponseHeaders(),
-          status:           xhr.status,
-          statusText:       xhr.statusText
-        });
-        xhr.onprogress = () => { };
+        xhr.onload =      () => resolve(makeResponse(xhr, 'onload'));
+        xhr.onerror =     () => resolve(makeResponse(xhr, 'onerror'));
+        xhr.ontimeout =   () => resolve(makeResponse(xhr, 'ontimeout'));
+        xhr.onabort =     () => resolve(makeResponse(xhr, 'onabort'));
+        xhr.onprogress =  () => { };
       });
       break;
   }
 });
+
+function makeResponse(xhr, type) {
+
+  return {
+    type,
+    readyState:       xhr.readyState,
+    response:         xhr.response,
+    responseHeaders:  xhr.getAllResponseHeaders(),
+    responseText:     ['', 'text'].includes(xhr.responseType) ? xhr.responseText : '', // responseText is only available if responseType is '' or 'text'.
+    responseType:     xhr.responseType,
+    responseURL:      xhr.responseURL,
+    responseXML:      ['', 'document'].includes(xhr.responseType) ? xhr.responseXML : '', // responseXML is only available if responseType is '' or 'document'.
+    status:           xhr.status,
+    statusText:       xhr.statusText,
+    timeout:          xhr.timeout,
+    withCredentials:  xhr.withCredentials,
+    finalUrl:         xhr.responseURL
+  };
+}
 
 function checkURL(url, base) {
 

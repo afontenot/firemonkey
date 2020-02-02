@@ -3,7 +3,7 @@
 
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
-  "version": "1.23",
+  "version": "1.24",
   "default_locale": "en",
   "homepage_url": "https://addons.mozilla.org/user/azbb/",
   "author": "erosman",

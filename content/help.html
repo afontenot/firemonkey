@@ -151,6 +151,40 @@
   <p>Auto-update will only update enabled Scripts/CSS but manual update can update both enabled and disabled ones.</p>
   <p><code>@downloadURL/@installURL</code>, if present, is used for Auto-update.</p>
 
+
+<table>
+  <thead>
+  <tr>
+    <th>Manager</th>
+    <th>@updateURL</th>
+    <th>@downloadURL</th>
+    <th>@installURL</th>
+    <th></th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr><td>FireMonkey</td><td>update target</td><td>sets @updateURL</td><td>sets @updateURL</td><td></td></tr>
+  <tr><td>GreaseMonkey</td><td class="fail"></td><td class="fail"></td><td class="fail"></td><td></td></tr>
+  <tr><td>TamperMonkey</td><td>JSON data</td><td>update target</td><td class="fail"></td><td></td></tr>  
+  <tr><td>ViolentMonkey</td><td class="fail"></td><td>update target</td><td class="fail"></td><td></td></tr>
+
+  <tr>
+    <th>Userscript repository</th>
+    <th></th>
+    <th></th>
+    <th></th>
+    <th>last-modified header</th>
+  </tr>   
+  
+  <tr><td>GreasyFork</td><td class="fail"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+  <tr><td>GitHub/Gist</td><td class="fail"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+  <tr><td>OpenUserJS</td><td class="pass"></td><td class="pass"></td><td class="fail"></td><td class="pass"></td></tr>
+  </tbody>
+</table>
+
+
+
+
   <h3>Syntax Highlighting</h3>
   <p>Syntax Highlighting requires considerably large libraries. Personally as a developer, I always use a dedicated application for coding and then copy/paste or import into user script/style manager etc. Therefore, for slimness and efficiency, I have written a basic Syntax Highlighting code. It does not have all the features of the large library scripts but it is still being improved.</p>
 
@@ -193,7 +227,6 @@
 contentScripts.register()</a> & <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/userScripts/register" target="_blank">
 userScripts.register()</a>. Each entry must be in the format of <code>@entry ...some space ... detail</code>. In case of matches & globes, repeat entry for each detail (as in <i>GreaseMonkey</i>). Match details must conform to the <b>Match Patterns</b>.</p>
   <p>Script/CSS developers are free to add any other <i>@entry</i> (e.g. <i>@homepage, @copyright, @support</i> etc) for reference or information.</p>
-  <br>
 
   <p><b>Note:</b> <i>FireMonkey</i> uses the <code>name</code> (case-sensitive) as ID for Scripts & CSS, therefore names must be unique. A shorter & concise name is recommended.</p>
 
@@ -216,9 +249,9 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
     <li><code>match</code> <i>(entries will be merged into <code>matches</code>)</i></li>
     <li><code>include</code> <i>(entries will be merged into <code>matches</code>, use <code>match</code>, <code>matches</code> or <code>includeGlobs</code> instead)</i></li>
     <li><code>exclude</code> <i>(entries will be merged into <code>excludeMatches</code>)</i><br><br></li>
-    
-    <li><code>@require</code> <i>(Optional)</i></li>
-           
+
+    <li><code>require</code> <i>(Optional)</i></li>
+
   </ul>
 
 
@@ -229,16 +262,16 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 <table>
   <thead>
   <tr>
-    <th style="width: 10em;" scope="col">From</th>
-    <th style="width: 10em;" scope="col">To</th>
+    <th>From</th>
+    <th>To</th>
   </tr>
   </thead>
   <tbody>
-  <tr><td><p>*</p></td><td><p>*://*/*</p></td></tr>
-  <tr><td><p>http://*</p></td><td><p>http://*/*</p></td></tr>
-  <tr><td><p>https://*</p></td><td><p>https://*/*</p></td></tr>
-  <tr><td><p>http*://*</p></td><td><p>*://*/*</p></td></tr>
-  <tr><td><p>http*://a.b.c/*</p></td><td><p>*://a.b.c/*</p></td></tr>
+  <tr><td>*</td><td>*://*/*</td></tr>
+  <tr><td>http://*</td><td>http://*/*</td></tr>
+  <tr><td>https://*</td><td>https://*/*</td></tr>
+  <tr><td>http*://*</td><td>*://*/*</td></tr>
+  <tr><td>http*://a.b.c/*</td><td>*://a.b.c/*</td></tr>
   </tbody>
 </table>
 
@@ -247,29 +280,28 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <p><i>FireMonkey</i>  default <code>run-at</code> is <code>document_idle</code>, therefore there is no need for event listeners such as <code>'load'</code> or <code>'DOMContentLoaded'</code> as they will not apply. If script has to run earlier, then the <code>run-at</code> has to be set accordingly.</p>
   <p><i>GreaseMonkey</i> uses hyphen separated words (<code>document-start|document-end|document-idle</code>), while the API uses underscore separated words (<code>document_start|document_end|document_idle</code>). <i>FireMonkey</i> converts the hyphen so both can be used.</p>
 
-  <p><i>FireMonkey</i> accepts both GM style <code>run-at</code> and MDN API style <code>runAt</code>.</p>
-  <br>
+  <p><i>FireMonkey</i> accepts both GM style <code>run-at</code> and browser API style <code>runAt</code>.</p>
+  
   <p><b>N.B.</b> CSS mangers like Stylus tend to inject CSS at <code>document-start</code>.</p>
 
 
   <h4>defaults</h4>
-  <p><i>FireMonkey</i> conforms to the Firefox <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts" target="_blank">content_scripts</a> API defaults.</p>
+  <p><i>FireMonkey</i> conforms to the Firefox  (& Chrome) <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts" target="_blank">content_scripts</a> API defaults.</p>
 
 <table>
   <thead>
   <tr>
-    <th style="width: 10em;" scope="col">Manager</th>
-    <th style="width: 10em;" scope="col">run-at</th>
-    <th style="width: 10em;" scope="col">allFrames</th>
-    <th style="width: 10em;" scope="col">matchAboutBlank</th>
+    <th>Manager</th>
+    <th>run-at</th>
+    <th>allFrames</th>
+    <th>matchAboutBlank</th>
   </tr>
   </thead>
   <tbody>
   <tr><td>FireMonkey</td><td>document-idle</td><td>false</td><td>false</td></tr>
-  <tr><td>GreaseMonkey</td><td>document-end</td><td>true</td><td>?</td></tr>
-  <tr><td>ViolentMonkey</td><td>document-end</td><td>true</td><td>?</td></tr>
+  <tr><td>GreaseMonkey</td><td>document-end</td><td>true</td><td>via @include &nbsp;&nbsp;&nbsp;about:blank</td></tr>
   <tr><td>TamperMonkey</td><td>document-idle</td><td>true</td><td>?</td></tr>
-
+  <tr><td>ViolentMonkey</td><td>document-end</td><td>true</td><td>?</td></tr>
   </tbody>
 </table>
 
@@ -277,7 +309,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <h3>Match Patterns</h3>
   <p><i>FireMonkey</i> uses <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/match_patterns" target="_blank">Match Patterns</a> for <code>@matches/@match</code> & <code>@excludeMatches</code> and <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts#globs" target="_blank">globs</a> for <code>@includeGlobs</code> & <code>@excludeGlobs</code></p>
   <p>Note: Paths are case-sensitive.</p>
-  <br>
+  
   <p>A <b>glob</b> is just a string that may contain wildcards. There are two types of wildcard, and you can combine them in the same glob:</p>
 
     <ul>
@@ -292,8 +324,8 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 <table>
   <thead>
   <tr>
-    <th style="width: 30%;" scope="col">Pattern</th>
-    <th style="width: 70%;" scope="col">URL</th>
+    <th>Pattern</th>
+    <th>URL</th>
   </tr>
   </thead>
   <tbody>
@@ -369,7 +401,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
 
   <h3>Script API</h3>
-  <p><i>FireMonkey</i> supports both GM4 & GM3 style APIs (e.g. GM.*** & GM_***) via asynchronous <code>Promise</code>. Therefore if scripts requires a <code>return</code>, it must wait for the <code>Promise</code> to resolve.</p>
+  <p><i>FireMonkey</i> supports both GM4 & GM3 style APIs (e.g. GM.*** & GM_***) via mostly asynchronous <code>Promise</code>. Therefore if scripts requires a <code>return</code>, it must wait for the <code>Promise</code> to resolve.</p>
   <p>Following APIs (similar to <i>GreaseMonkey</i>) are provided to the user scripts (<i>more may be added later</i>)</p>
 
 <pre>(<span class="keyword">async</span> () =&gt; {
@@ -399,32 +431,42 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
   <span class="comment">// usually there is no need to wait for the following, but if needed you must use await</span>
   <span class="gm">GM</span>.<span class="gm">setValue</span>(key, <span class="property">value</span>);
-  <span class="gm">GM_setValue</span>(key, <span class="property">value</span>);
+  <span class="gm">GM_setValue</span>(key, <span class="property">value</span>)
 
-  <span class="gm">GM</span>.<span class="gm">deleteValue</span>(key);
+  <span class="gm">GM</span>.<span class="gm">deleteValue</span>(key)
   <span class="gm">GM_deleteValue</span>(key);
 
-  <span class="gm">GM</span>.<span class="gm">openInTab</span>(url, open_in_background);
-  <span class="gm">GM_openInTab</span>(url, open_in_background);
+  <span class="gm">GM</span>.<span class="gm">openInTab</span>(url, open_in_background)
+  <span class="gm">GM_openInTab</span>(url, open_in_background)
 
-  <span class="gm">GM</span>.<span class="gm">setClipboard</span>(text);
+  <span class="gm">GM</span>.<span class="gm">setClipboard</span>(text)
   <span class="gm">GM_setClipboard</span>(text);
 
-  <span class="gm">GM</span>.<span class="gm">notification</span>(text);
+  <span class="gm">GM</span>.<span class="gm">notification</span>(text)
   <span class="gm">GM_notification</span>(text);
+
+
+  <span class="comment">// synchronous functions</span>
+  <span class="gm">GM</span>.<span class="gm">addStyle</span>(css)
+  <span class="gm">GM_addStyle</span>(css)
+
+  <span class="gm">GM</span>.<span class="gm">info</span>
+  <span class="gm">GM_info</span>
+  
+  <span class="gm">unsafeWindow</span>
 })();</pre>
 
 
   <h3>fetch</h3>
   <p><i>FireMonkey</i> <code>fetch</code> API is based on the JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch" target="_blank">Fetch API</a> which provides the new Promise based interface for fetching resources (including across the network). It will seem familiar to anyone who has used <code>XMLHttpRequest</code>, but it provides a more powerful and flexible feature set.</p>
   <p>For simplicity and compatibility, the same GM style naming is kept for <code>fetch</code> API although it is not available in <i>GreaseMonkey</i>.</p>
-  <p><i>FireMonkey</i> <code>fetch</code> returns response object/string or <code>null</code>.</p>
+  <p><i>FireMonkey</i> <code>fetch</code> returns response object/string or <code>null</code> (check console for errors e.g.: <i>TypeError: "NetworkError when attempting to fetch resource.</i>").</p>
 
 
 <pre>GM.fetch(url[, init]);
 GM_fetch(url[, init]);</pre>
 
-    <p><b>init</b> <i>(Optional)</i></p>
+    <h4>init <span>(Optional)</span></h4>
 
     <p>An options object containing any custom settings that you want to apply to the request. The possible options are:</p>
 
@@ -497,9 +539,9 @@ GM_fetch(url[, init]);</pre>
 });</pre>
 
 
-  <p><b>Callback Response:</b> returns response object or <code>null</code></p>
+  <p><b>Callback Response:</b> returns response object</p>
 
-<pre>onload
+<pre>onload, onerror, ontimeout, onabort
 {
   readyState
   response
@@ -510,16 +552,9 @@ GM_fetch(url[, init]);</pre>
   responseXML
   status
   statusText
-  finalUrl                  // clone of responseURL for GreaseMonkey compatibility
+  finalUrl                  // clone of responseURL for GM/TM/VM compatibility
 }
-
-onerror, ontimeout, onabort
-{
-  error                     // 'error' or 'timeout' or 'abort'
-  responseHeaders           // if any
-  status
-  statusText
-}</pre>
+</pre>
 
   <h4>Examples</h4>
   <pre><span class="comment">// simplest</span>
@@ -598,8 +633,7 @@ onerror, ontimeout, onabort
   </ul>
 
 
-  <h3>GM.info/GM_info</h3>
-  <span style="">GM.info/GM_info support is added in v1.16. For example:</span>
+  <h3>GM.info/GM_info <span>(v1.16+)</span></h3>
 <pre>{
   scriptHandler: 'FireMonkey',
   version: 'e.g. 1.16',
@@ -620,37 +654,15 @@ onerror, ontimeout, onabort
 
 
 
-  <h3>@require</h3>
-    <p>The <code>@require</code> in <i>FireMonkey</i> was added (v1.23) to facilitate user-script developers, however please note that it differs from the <code>@require</code> in other script mangers.</p>
-    <p><code>@require</code> can be used to pre-include other existing scripts into a script (or other existing CSS into a CSS). For example:</p>
+  <h3>@require <span>(v1.23+)</span></h3>
+  <p>The <code>@require</code> in <i>FireMonkey</i> was added to facilitate user-script developers, however please note that it differs from the <code>@require</code> in other script mangers.</p>
+
+  <h4>@require script-name <span>(v1.23+)</span></h4>
+  <p><code>@require</code> can be used to pre-include other existing scripts into a script (or other existing CSS into a CSS). For example:</p>
 <pre class="comment">
 @require       My Script
 </pre>
-
-  <h4>How to use FireMonkey @require</h4>
-    For example, user can save <code>jquery-3.4.1.min.js</code> as a script and name it <code>JQuery3</code>. It does not need to have match/matches/include/includeGlobs etc. It is best to keep the script DISABLED (not enabled) e.g.:
-<pre class="comment">// ==UserScript==
-// @name          JQuery3
-// @description   To be included
-// @version       3.4.1
-// ==/UserScript==
-
-..... jquery-3.4.1.min code.....</pre>
-
-  <p>Now, the JQuery3 can be included in other scripts. e.g.:</p>
-
-<pre class="comment">// ==UserScript==
-// @name          My Script
-// @description   Scripting is fun
-// @match         http://www.example.com/*
-// @match         http://www.example.org/*
-// @version       1.0
-// @require       JQuery3
-// ==/UserScript==
-
-..... code .....</pre>
-
-<p>Another use case would be to include some common functions, like <code>GM_addStyle()</code> etc.</p>
+    <p>For example, user/developer can save some code as a script and name it <code>HelperSet</code>. It does not need to have <code>match/matches/include/includeGlobs</code> etc. It is best to keep the script DISABLED (not enabled) e.g.:</p>
 
 <pre><div class="comment">// ==UserScript==
 // @name          HelperSet
@@ -658,20 +670,18 @@ onerror, ontimeout, onabort
 // @version       1.0
 // ==/UserScript==</div>
 
-<span class="keyword">function</span> GM_addStyle(css) {
+<span class="keyword">function</span> someFunc(id) {
 
-  <span class="keyword">const</span> <span class="property">style</span> = document.<span class="method">createElement</span>(<span class="string">'style'</span>);
-  <span class="property">style</span>.<span class="property">textContent</span> = css;
-  document.<span class="property">head</span>.<span class="method">appendChild</span>(<span class="property">style</span>);
+  <span class="comment">// some code </span>
 }
 
-<span class="keyword">function</span> someFunc(id) {
+<span class="keyword">function</span> otherFunc(text) {
 
   <span class="comment">// some code </span>
 }</pre>
 
   <p>Then include it in other scripts:</p>
-  
+
 <pre class="comment">// ==UserScript==
 // @name          My Script
 // @description   Scripting is fun
@@ -685,17 +695,10 @@ onerror, ontimeout, onabort
 
   <p>Multiple scripts can be required and will be injected in order:</p>
 
-<pre class="comment">// ==UserScript==
-// @name          My Script
-// @description   Scripting is fun
-// @match         http://www.example.com/*
-// @match         http://www.example.org/*
-// @version       1.0
-// @require       JQuery3
+<pre class="comment">
+// @require       jquery3
 // @require       HelperSet
-// ==/UserScript==
-
-..... code .....</pre>
+</pre>
 
   <p>You can use <code>@require</code> for CSS e.g.:</p>
 
@@ -710,57 +713,75 @@ onerror, ontimeout, onabort
 ==/UserCSS==
 */</pre>
 
+  <h4>@require URL <span>(v1.24+)</span></h4>
+  <p>Few libraries have been packed with <i>FireMonkey</i> which will be injected for user-scripts using <code>@require</code> to get jQuery from original sources. A shorthand <code>jquery1/jquery2/jquery3/jquery-ui1</code> (case-insensitive) can also be used.</p>
+  
+  <p>Folowing sources are processed: jQuery/jQuery UI</p>
 
-  <h3>@grant &#x26d4;</h3>
-  <p>Scripts will have access to all available APIs and therefore <code>@grant</code> is not needed or used.</p>
-
-  <h3>@connect & @icon &#x26d4;</h3>
-  <p>At the moment, there is no plan to include them.</p>
-
-  <h3>@require* & @resource & GM.getResourceUrl/GM_getResourceURL &#x26d4;</h3>
-  <p>* Please note that you can use <i>FireMonkey</i> <code>@require</code> as explained above.</p>
-  <p>Besides security risks, saving large external data to storage affects performance.<br>
-  In legacy Firefox, extensions were able to save files to their folder in Firefox profile on users' computer. Script managers would then download <code>@require</code> & <code>@resource</code> target, save it to users' HD and in case of <code>@require</code> inject it into content and in case of <code>@resource</code> provide a URL pointing to the file.<br>
-  Firefox Quantum no longer allows extension to save fies to Fireofx profile folder. Script managers will have to use the storage assigned to the extension to save <code>@require</code> & <code>@resource</code> files in form of data.</p>
-  <br>
-
-  <p>Besides the risk of using <code>@require</code> to inject unknown code, known Libraries often are 100+KB to 1+MB.<br>
-  For example: <i>jquery-3.4.1.js 273MB,jquery-3.4.1.min.js 86KB, jquery-ui-1.12.1.js 508KB, jquery-ui-1.12.1.min.js 247KB, angular-1.7.6.js 1.3MB</i> etc</p>
-  <br>
-
-  <p>In case of <code>@resource</code>, images for example can be many megabytes of data.<br>
-  Saving large volume of data to storage impact memory and CPU resource usage of the extension, slows down read/write to the extension storage and generally impact the browser performance.</p>
-  <br>
-
-  <p>Considering that a user may have many user-Scripts and they may have many <code>@require</code> & <code>@resource</code>, the size of storage can get extremely large and its effect quite considerable.</p>
-  <br>
-
-  <p><code>@require</code> functionality can be added by copy/pasting the remote code into the script OR by adding the following to the beginning of the script:</p>
-
-<pre><span class="keyword">const</span> css = document.<span class="method">createElement</span>(<span class="string">'link'</span>);
-css.<span class="property">src</span> = <span class="string">'http://www.example.com/example.css'</span>;
-css.rel = <span class="string">'stylesheet'</span>;
-document.<span class="property">head</span>.<span class="method">appendChild</span>(css);</pre>
+  <ul>
+    <li>code.jquery.com</li>
+    <li>ajax.googleapis.com</li>
+    <li>unpkg.com</li>
+    <li>cdnjs.com</li>
+    <li>www.jsdelivr.com</li>
+  </ul>
 
 
-  <h3>GM_addStyle() &#x26d4;</h3>
-  <p><code>GM_addStyle()</code> was dropped in GM4 since it is easy to do in content scope without the need for costly asynchronous API calls to the extension.</p>
-  <p><code>GM_addStyle()</code> functionality can be easily added by adding the following to the script:</p>
+  <p>All the following will result in injection of the latest jQuery v3 (e.g. 3.4.1):</p>
+<pre class="comment">
+// @require       jquery3
+// @require       https://code.jquery.com/jquery-3.*.*.js
+// @require       https://code.jquery.com/jquery-3.*.*.min.js
+// @require       https://code.jquery.com/jquery-3.*.*.slim.js
+// @require       https://code.jquery.com/jquery-3.*.*.slim.min.js
+// @require       https://ajax.googleapis.com/ajax/libs/jquery/3.*.*/jquery.js
+  ... etc
+// @require       https://unpkg.com/jquery@3.*.*/dist/jquery.js
+  ... etc
+</pre>
 
-<pre><span class="keyword">function</span> GM_addStyle(css) {
+  <p>All the following will result in injection of jQuery v2.2.4:</p>
+<pre class="comment">
+// @require       jquery2
+// @require       https://code.jquery.com/jquery-2.*.*.js
+  ... etc
+</pre>
 
-  <span class="keyword">const</span> <span class="property">style</span> = document.<span class="method">createElement</span>(<span class="string">'style'</span>);
-  <span class="property">style</span>.<span class="property">textContent</span> = css;
-  document.<span class="property">head</span>.<span class="method">appendChild</span>(<span class="property">style</span>);
-}</pre>
+  <p>All the following will result in injection of jQuery v1.12.4:</p>
+<pre class="comment">
+// @require       jquery1
+// @require       https://code.jquery.com/jquery-1.*.*.js
+  ... etc
+</pre>
 
-  <p>Please note that you can use <i>FireMonkey</i> <code>@require</code> as explained above.</p>
+  <p>All the following will result in injection of jQuery UI v1.12.1:</p>
+<pre class="comment">
+// @require       jquery-ui1
+// @require       https://code.jquery.com/ui/1.*.*/jquery-ui.js
+  ... etc
+</pre>
+
+  <p>On popular demand, more libraries may be added in future.</p>
 
 
+  <h3>&#x26A0;&#xFE0F; unsafeWindow <span>(v1.24+)</span></h3>
+  
+  <p>You can also use <code>window.wrappedJSObject</code> to access page JavaScript <b>globals</b> e.g.:</p>
 
+<pre>
+<span class="comment">// page-script.js</span>
+<span class="keyword">var</span> foo = <span class="string">"I'm defined in a page script!"</span>;
+<span class="keyword">function</span> runTest() {
+  <span class="property">console</span>.<span class="method">log</span>(foo);
+}
 
-  <h3>unsafeWindow &#x26d4;</h3>
-  <blockquote>This API object allows a User script to access "custom" properties--variable and functions defined in the page--set by the web page. The unsafeWindow object is shorthand for <code>window.wrappedJSObject</code>. It is the raw window object inside the <code>XPCNativeWrapper</code> provided by the Greasemonkey Sandbox.<br><br>
+<span class="comment">// content-script.js</span>
+<span class="property">console</span>.<span class="method">log</span>(window.foo); <span class="comment">// undefined</span>
+<span class="property">console</span>.<span class="method">log</span>(window.wrappedJSObject.foo); <span class="comment">// "I'm defined in a page script!"</span>
+window.wrappedJSObject.runTest(); <span class="comment">// "I'm defined in a page script!"</span>
+</pre>
+
+  <blockquote>This API object allows a User script to access "custom" properties--variable and functions defined in the page--set by the web page. The <code>unsafeWindow</code> object is shorthand for <code>window.wrappedJSObject</code>. It is the raw window object inside the <code>XPCNativeWrapper</code> provided by the Greasemonkey Sandbox.<br><br>
 
   <b>USE OF UNSAFEWINDOW IS INSECURE, AND IT SHOULD BE AVOIDED WHENEVER POSSIBLE.</b>
   <cite><a href="https://sourceforge.net/p/greasemonkey/wiki/unsafeWindow/" target="_blank">unsafeWindow</a></cite></blockquote>
@@ -774,37 +795,51 @@ document.<span class="property">head</span>.<span class="method">appendChild</sp
   <cite><a href="https://wiki.greasespot.net/UnsafeWindow" target="_blank">unsafeWindow</a></cite></blockquote>
 
 
-  <h4>More Information:</h4>
-    <p><a href="https://stackoverflow.com/questions/10824697/why-is-window-and-unsafewindow-not-the-same-from-a-userscript-as-from-a-scrip"  target="_blank">Why is window (and unsafeWindow) not the same from a userscript as from a &lt;script&gt; tag?</a></p>
+  <h3>&#x26d4; Unsupported</h3>
+  
+  <h4>@grant</h4>
+  <p>Scripts will have access to all available APIs and therefore <code>@grant</code> is not needed or used.</p>
 
-    <ul style="list-style-type: circle;">
-      <li><a href="https://github.com/Tampermonkey/tampermonkey/blob/07f668cd1cabb2939220045839dec4d95d2db0c8/src/content.js#L519" target="_blank">TemperMonkey <code>unsafeWindow</code></a> seems to be implemented via injecting <code>&lt;script&gt;...&lt;/script&gt;</code></li>
-      <li><a href="https://github.com/greasemonkey/greasemonkey/blob/8afcc32d13c4843842922efade99f3c67e728fa8/src/user-script-obj.js#L325" target="_blank">GreaseMonkey <code>unsafeWindow</code></a> seems to be implemented via <code>eval()</code> & <code>window.wrappedJSObject</code></li>
-      <li><a href="https://github.com/violentmonkey/violentmonkey/blob/60104c645951b554d37b05b0926c9015961a3c26/src/injected/web/gm-wrapper.js" target="_blank">ViolentMonkey <code>unsafeWindow</code></a> seems to be implemented via <code>eval()</code></li>
-    </ul>
+  <h4>@resource (getResourceUrl/getResourceText) & @require<sup>1</sup></h4>
 
+  <p>In legacy Firefox, extensions were able to save files to their folder in Firefox profile on users' computer. Script managers would then download <code>@require</code> & <code>@resource</code> targets, save it to users' HD and in case of <code>@require</code> inject it into content and in case of <code>@resource</code> provide a URL pointing to the file.</p>
+  
+  <p>Firefox Quantum no longer allows extension to save fies to Fireofx profile folder. Script managers will have to use the storage assigned to the extension to save <code>@require</code> & <code>@resource</code> files in form of data.</p>
 
-  <h3>Sharing objects with page scripts</h3>
+  <p>Besides the security risks of using <code>@require</code> to inject unknown code, saving large volumes of data to storage considerably affects browser performance. Known Libraries often are 100+KB to 1+MB e.g. <i>jquery-3.4.1.js 273MB,jquery-3.4.1.min.js 86KB, jquery-ui-1.12.1.js 508KB, jquery-ui-1.12.1.min.js 247KB, angular-1.7.6.js 1.3MB</i> etc</p>
 
-  <p>Keywords: Xray vision in Firefox, <code>exportFunction()</code>, <code>cloneInto()</code>, Constructors from the page context</p>
+  <p>In case of <code>@resource</code>, images for example can be many megabytes of data.<br>
+  Saving large volume of data to storage impact memory and CPU resource usage of the extension, slows down read/write to the extension storage and generally impact the browser performance.</p>
 
-  <h4><a href="https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Xray_vision" target="_blank">Xray Vision</a> & JavaScript Scopes</h4>
+  <p>Considering that a user may have many user-Scripts and they may have many <code>@require</code> & <code>@resource</code>, the size of storage can get extremely large and its effect quite considerable.</p>
+
+  <p><code>@require</code> functionality can be added by copy/pasting the remote code into the script OR by adding the following to the beginning of the script:</p>
+
+<pre><span class="keyword">const</span> css = document.<span class="method">createElement</span>(<span class="string">'link'</span>);
+css.<span class="property">src</span> = <span class="string">'http://www.example.com/example.css'</span>;
+css.rel = <span class="string">'stylesheet'</span>;
+document.<span class="property">head</span>.<span class="method">appendChild</span>(css);</pre>
+
+  <p><sup>1</sup> Please note <i>FireMonkey</i> <code>@require</code> as explained above.</p>
+
+  <h3>&#x2139;&#xFE0F; Xray Vision & Sharing objects with page scripts</h3>
+
+  <p><i>Keywords: <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Xray_vision" target="_blank">Xray Vision</a> in Firefox, <code>exportFunction()</code>, <code>cloneInto()</code>, Constructors from the page context</i></p>
+
+  <h4>Browser JavaScript Context/Scope</h4>
   <ol style="list-style-type: upper-roman;">
-    <li> Browser Scope (Trusted privileged code to interact with browser)</li>
-    <li> Extension Content Scope (Trusted extension JS injected into web page with API privileges)</li>
-    <li> User-Script Scope (Untrusted unverified 3rd party JS injected into web page without direct API privileges)</li>
-    <li> Page Scope (JS injected in a web page by the website)</li>
+    <li>Browser Scope: Trusted privileged code to interact with browser</li>
+    <li>Extension Content Scope: Trusted extension JS injected into web page with API privileges</li>
+    <li>User-Script Scope: Untrusted unverified 3rd party JS injected into web page without direct API privileges</li>
+    <li>Page Scope: JS injected in a web page by the website</li>
   </ol>
-
 
   <blockquote>As an extension developer you should consider that scripts running in arbitrary web pages are hostile code whose aim is to steal the user's personal information, damage their computer, or attack them in some other way.<br><br>
 
   The isolation between content scripts and scripts loaded by web pages is intended to make it more difficult for hostile web pages to do this.<br><br>
 
-  Since the techniques described in this section break down that isolation, they are inherently dangerous and should be used with great care.<br><br>
-
-  ...<br><br>
-
+  Since the techniques described in this section break down that isolation, they are inherently dangerous and should be used with great care.<br>
+  ...<br>
   Note that once you do this, you can no longer rely on any of this object's properties or functions being, or doing, what you expect. Any of them, even setters and getters, could have been redefined by untrusted code.
 
   <cite><a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts" target="_blank">Sharing objects with page scripts</a></cite></blockquote>
@@ -814,7 +849,7 @@ document.<span class="property">head</span>.<span class="method">appendChild</sp
 
   <cite><a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#Communicating_with_the_web_page" target="_blank">Communicating with the web page</a></cite></blockquote>
 
-  <blockquote>In Chrome, <code>eval()</code> always runs code in the context of the content script, not in the context of the page.<br><br>
+  <blockquote>In Chrome, <code>eval()</code> always runs code in the context of the content script, not in the context of the page.<br>
 
   In Firefox:
       <ul>
@@ -822,7 +857,7 @@ document.<span class="property">head</span>.<span class="method">appendChild</sp
         <li>If you call <code>window.eval()</code>, it runs code in the context of the page.</li>
       </ul>
 
-  <cite><a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#Using_eval_in_content_scripts" target="_blank">Using <code>eval()</code> in content scripts</a></cite></blockquote>
+  <cite><a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#Using_eval_in_content_scripts" target="_blank">Using eval() in content scripts</a></cite></blockquote>
 
 
 
@@ -839,7 +874,7 @@ document.<span class="property">head</span>.<span class="method">appendChild</sp
 
   <p>Above process is considerably resource intensive in comparison to using a dedicated API to inject Style/CSS.</p>
 
-  <h4>Conversion Guide:</h4>
+  <h4>Conversion Guide</h4>
   <p>The following 3 are quite straight forward and easy to convert:</p>
 <pre>
 @-moz-document domain('images.example.com')
