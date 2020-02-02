@@ -42,8 +42,20 @@ h3 {
   margin-bottom: 0
 }
 
+h4 {
+  margin-bottom: 0
+}
+
+h3 span, h4 span {
+  margin-left: 0.5em;
+  color: #777;
+  font-style: italic;
+  font-weight: normal;
+  font-size: 0.8em;
+}
+
 p {
-  margin: 0 auto auto 2em;
+  margin: 0 auto 0.5em 2em;
 }
 
 ul {
@@ -99,6 +111,8 @@ blockquote {
   padding: 1em 2.5em;
   font-style: italic;
   position: relative;
+  margin-left: 2em;
+  margin-right: 0;
 }
 
 blockquote::before {
@@ -159,6 +173,7 @@ table {
   border: 1px solid #eaeff2;
   margin: 1em auto 2.5em 2em;
   border-collapse: collapse;
+  min-width: 70%;
 }
 
 th {
