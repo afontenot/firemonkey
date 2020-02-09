@@ -22,7 +22,7 @@
      <h3 data-i18n="options"><img src="../image/icon.svg" alt=""> </h3>
         <label for="nav3" data-i18n="settings"></label>
 
-    <h3 data-i18n="help"><img src="../image/help32.png" alt=""> </h3>
+  <h3 data-i18n="help"><img src="../image/help32.png" alt=""> </h3>
       <label for="nav1" style="cursor: help;">English</label>
 
     <h3><label for="nav2" data-i18n="about"></label></h3>
@@ -74,10 +74,22 @@
                 <input type="range" id="autoUpdateInterval" min="0" max="30"> <output></output>
             </div>
           </div>
-          
+
+          <div class="flex" style="margin-top: 1em;">
+            <div>
+              <label data-i18n="globalScriptExcludeMatches"></label>
+              <p class="description" data-i18n="globalScriptExcludeMatchesDescription"></p>
+            </div>
+            <div>
+                <textarea id="globalScriptExcludeMatches" rows="8" spellcheck="false" placeholder="*://*.example.com/*"></textarea>
+            </div>
+          </div>          
+
           <div style="margin-top: 1em;">
             <input type="checkbox" id="disableHighlight"><label for="disableHighlight" data-i18n="disableHighlight"></label>
           </div>
+          
+
         </fieldset>
 
         <div style="display: flex;">
@@ -94,8 +106,6 @@
 
       <section class="script">
         <fieldset>
-          <legend data-i18n="script"></legend>
-
           <div class="menu">
             <button type="button" data-i18n="saveScript">&#x1f4be; </button>
             <input type="checkbox" id="enable" checked><label for="enable" data-i18n="enable"></label>
@@ -112,9 +122,27 @@
             <span style="flex: 1;"></span>
             <img class="bin" src="../image/bin.svg" data-i18n="delete|title" alt="">
           </div>
-          <pre id="" class="box" data-type="css" spellcheck="false" contenteditable="true"></pre>
+          
+          <fieldset>
+            <legend data-i18n="script"></legend>          
+            
+            <pre id="" class="box" data-type="css" spellcheck="false" contenteditable="true"></pre>
+              
+            <details> 
+              <summary data-i18n="userMatchesExcludeMatches|title">&#x2630;</summary>
+             
+              <div class="flex">
+                <span data-i18n="userMatches"></span><span data-i18n="userExcludeMatches"></span>
+              </div>            
+              <div class="flex">
+                <textarea id="userMatches" rows="2" spellcheck="false" placeholder="*://*.example.com/*"></textarea>
+                <textarea id="userExcludeMatches" rows="2" spellcheck="false" placeholder="*://*.example.com/*"></textarea>
+              </div>
+            </details>
+          </fieldset>          
+        
+          <footer></footer>
         </fieldset>
-        <footer></footer>
       </section>
 
     </article>

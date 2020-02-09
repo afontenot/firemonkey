@@ -448,7 +448,7 @@ nav li.on {
 }
 
 nav li.error::after {
-  content: "\2718"; 
+  content: "\2718";
   font-weight: 900;
   display: inline-block;
   vertical-align: text-bottom;
@@ -503,13 +503,22 @@ nav div label[for="fileScript"]::before {
 /* ----- Scripts ----- */
 section.script {
   height: 100%;
+  padding: 0;
 }
 
 .script fieldset {
   height: 100%;
   display: flex;
   flex-direction: column;
-  margin-bottom: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  border-radius: 0;
+}
+
+.script > fieldset {
+  margin-left: 0.8em;
+  padding: 0.5em;
 }
 
 legend.js::before, legend.css::before {
@@ -532,17 +541,17 @@ legend.css::before {
 
 div.menu {
   display: flex;
-  margin: 0.5em 0;
+  margin-bottom: 0.5em;
+  border-bottom: 1px solid #eee;
 }
 
 .menu button, .menu > label {
   background-color: transparent;
   padding: 0.4em;
-  margin: 0 0.3em 0 0;
   font-size: 0.8em;
   text-align: center;
-  border: 1px solid #eee;
-  border-radius: 5px;
+  border: 0;
+  border-bottom: 2px solid transparent;
   transition: all 0.5s ease-in-out;
   cursor: pointer;
   color: #4284f3;
@@ -555,7 +564,7 @@ div.menu {
 .menu button:hover, .menu > label:hover {
   background-color: #f4f6f8;
   color: #4284f3 !important;
-  border-color: #ddd;
+  border-color: #4284f3;
 }
 
 .script .box {
@@ -574,7 +583,6 @@ div.menu {
   width: calc(100vw - 18rem);
 }
 
-
 .box.invalid {
   box-shadow: none;
   background-color: #fff0f5;
@@ -586,5 +594,50 @@ footer {
   font-size: 0.7em;
   text-align: right;
   height: 1em;
+}
+
+details  {
+  position: relative;
+  margin-top: 1.5em;
+}
+
+details[open]  {
+  margin-top: 0.5em;
+}
+
+details > div  {
+  margin-left: 1.5em;
+}
+
+summary {
+  list-style: none;
+  cursor: pointer;
+  color: #aaa;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  transition: all 0.5s ease;
+}
+
+summary:hover {
+  color: #000;
+}
+
+details textarea {
+  font-size: 0.9em;
+  color: #555;
+}
+
+details textarea:nth-of-type(1) {
+  margin-right: 0.4em;
+}
+
+details[open] summary ~ * {
+  animation: fade 0.5s ease-in-out;
+}
+
+@keyframes fade {
+  0%    { opacity: 0; }
+  100%  { opacity: 1; }
 }
 /* ----- /Scripts ----- */

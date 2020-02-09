@@ -154,8 +154,8 @@ browser.userScripts.onBeforeScript.addListener(script => {
     GM_xmlhttpRequest:  GM.xmlHttpRequest,
     GM_getResourceURL:  GM.getResourceUrl,
     GM_info:            GM.info,
-
     GM_addStyle:        GM.addStyle,
+    
     GM_fetch:           GM.fetch
   });
 });

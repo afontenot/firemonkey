@@ -181,6 +181,12 @@ th {
   text-align: left;
   padding: 0.5em;
   border-top: 1px solid #abc;
+  border-bottom: 1px solid #fff;
+}
+
+tbody th {
+  border-top: 0;
+  font-weight: normal;
 }
 
 tr:nth-child(odd) td {
@@ -203,6 +209,13 @@ td p {
   margin: 0;
 }
 
+td code {
+  background-color: transparent;
+  padding: 0; 
+  font-size: 1.2em;
+  white-space: pre;
+}
+
 .pass, .fail {
  font-family: monospace;
 }
@@ -223,4 +236,11 @@ td p {
 .fail::before {
   content: '\2718\00A0'; 
   font-weight: 900;
+}
+
+
+h3 sup {
+  background-color: #cd853f;
+  color: #fff;
+  padding: 0.1em 0.4em;
 }

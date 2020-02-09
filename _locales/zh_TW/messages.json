@@ -13,6 +13,12 @@
   
   "disableHighlight": { "message": "停用語法突顯" },
 
+  "globalScriptExcludeMatches": { "message": "Global Script Exclude Matches" },
+  "globalScriptExcludeMatchesDescription": { "message": "Exclude Match pattens (one per line) to prevent all scripts from running on them." },
+  "userMatches": { "message": "User Matches" },
+  "userExcludeMatches": { "message": "User Exclude Matches" },
+  "userMatchesExcludeMatches": { "message": "User Matches & Exclude Matches" },
+
   "script": { "message": "指令稿與 CSS" },
 
   "saveScript": { "message": "儲存" },

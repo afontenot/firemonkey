@@ -3,7 +3,7 @@
 
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
-  "version": "1.24",
+  "version": "1.25",
   "default_locale": "en",
   "homepage_url": "https://addons.mozilla.org/user/azbb/",
   "author": "erosman",
@@ -56,7 +56,7 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "firemonkey@eros.man",
-      "strict_min_version": "65.0"
+      "strict_min_version": "68.0"
     }
   }
 }
