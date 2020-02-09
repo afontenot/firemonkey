@@ -42,9 +42,9 @@ async function processScript() {
   const tabs = await browser.tabs.query({currentWindow: true, active: true});
   const frames = await browser.webNavigation.getAllFrames({tabId: tabs[0].id});
   const urls = [...new Set(frames.map(item => item.url).filter(item => /^(https?|wss?|ftp|file|about:blank)/.test(item)))];
-
+  const gExclude = pref.globalScriptExcludeMatches ? pref.globalScriptExcludeMatches.split(/\s+/) : []; // cache the array
   Object.keys(pref.content).sort(Intl.Collator().compare).forEach(item =>
-    addScript(pref.content[item], checkMatches(pref.content[item], urls))
+    addScript(pref.content[item], checkMatches(pref.content[item], urls, gExclude))
   );
 }
 
@@ -92,21 +92,24 @@ function showInfo() {
   dl.textContent = '';                                      // clearing previous content
   const dtTemp = document.createElement('dt');
   const ddTemp = document.createElement('dd');
-  const infoArray = ['name', 'description', 'author', 'version', 'matches', 'require'];
+  const infoArray = ['name', 'description', 'author', 'version', 'matches', 'excludeMatches', 'require', 'userMatches', 'userExcludeMatches'];
   pref.content[id].error && infoArray.push('error');
 
   infoArray.forEach(item => {
 
-    const dt = dtTemp.cloneNode();
-    item === 'error' && dt.classList.add('error');
-    dt.textContent = item;
-    dl.appendChild(dt);
     const arr = Array.isArray(pref.content[id][item]) ? pref.content[id][item] : [pref.content[id][item]];
-    arr.forEach(item => {
-      const dd = ddTemp.cloneNode();
-      dd.textContent = item || ' ... ';
-      dl.appendChild(dd);
-    });
+    if (arr[0]) {
+      const dt = dtTemp.cloneNode();
+      item === 'error' && dt.classList.add('error');
+      dt.textContent = item;
+      dl.appendChild(dt);
+      
+      arr.forEach(item => {
+        const dd = ddTemp.cloneNode();
+        dd.textContent = item;
+        dl.appendChild(dd);
+      });
+    }
   });
 
   document.querySelector('button.edit').id = id;

@@ -6,6 +6,7 @@ let pref = {                                                // global default
   autoUpdateLast: 0,
   disableHighlight: false,
   content: {},
+  globalScriptExcludeMatches: '',
   template: {
    css: '',
    js: ''

@@ -3,6 +3,7 @@
 // ----- global
 let OS = 'win';
 browser.runtime.getPlatformInfo().then(info => OS = info.os); // mac, win, android, cros, linux, openbsd
+let bg;
 
 // ----------------- Internationalization ------------------
 document.querySelectorAll('[data-i18n]').forEach(node => {
@@ -16,6 +17,7 @@ document.querySelectorAll('[data-i18n]').forEach(node => {
 const prefNode = document.querySelectorAll('#'+Object.keys(pref).join(',#')); // global, get all the preference elements
 const submit = document.querySelector('button[type="submit"]'); // submit button
 submit && submit.addEventListener('click', checkOptions);
+const globalScriptExcludeMatches = document.querySelector('#globalScriptExcludeMatches');
 
 function processOptions() {                                 // set saved pref/defaults OR update saved pref
   // 'this' is ony set when clicking the button to save options
@@ -33,8 +35,9 @@ function processOptions() {                                 // set saved pref/de
 // ----------------- /Options ------------------------------
 
 // ----------------- User Preference -----------------------
-chrome.storage.local.get(null, result => { // global default set in pref.js
+chrome.storage.local.get(null, async result => { // global default set in pref.js
   Object.keys(result).forEach(item => pref[item] = result[item]); // update pref with the saved version
+  bg = await browser.runtime.getBackgroundPage();
   processOptions();                                         // run after the async operation
   processScript();
 
@@ -45,6 +48,9 @@ chrome.storage.local.get(null, result => { // global default set in pref.js
 // ----------------- /User Preference ----------------------
 
 function checkOptions() {
+
+  // --- check Global Script Exclude Matches
+  if(hasInvalidPattern(globalScriptExcludeMatches)) { return; }
 
   // --- progress bar
   progressBar();
@@ -62,6 +68,8 @@ const box = document.querySelector('.script .box');
 highlight.box = box;
 const enable = document.querySelector('#enable');
 const autoUpdate = document.querySelector('#autoUpdate');
+const userMatches = document.querySelector('#userMatches');
+const userExcludeMatches = document.querySelector('#userExcludeMatches');
 
 document.querySelectorAll('.script button[type="button"][data-i18n], nav button[type="button"][data-i18n]').forEach(item =>
   item.addEventListener('click', processButtons));
@@ -114,6 +122,7 @@ function processButtons() {
 
 function newScript(type) {
 
+  box.classList.remove('invalid');
   const last = document.querySelector('nav li.on');
   last && last.classList.remove('on');
   if(unsavedChanges()) { return; }
@@ -172,6 +181,8 @@ function showScript() {
 
   // --- reset
   box.classList.remove('invalid');
+  userMatches.classList.remove('invalid');
+  userExcludeMatches.classList.remove('invalid');
 
   const last = document.querySelector('nav li.on');
   last && last.classList.remove('on');
@@ -191,6 +202,9 @@ function showScript() {
     box.classList.add('invalid');
     notify(pref.content[id].error, null,id);
   }
+  
+  userMatches.value = pref.content[id].userMatches || '';
+  userExcludeMatches.value = pref.content[id].userExcludeMatches || '';
 }
 
 function noSpace(str) {
@@ -209,6 +223,8 @@ function unsavedChanges() {
     case !box.id && text === noSpace(pref.template.js):
     case !box.id && text === noSpace(pref.template.css):
     case box.id &&  text === noSpace(pref.content[box.id].js + pref.content[box.id].css):
+    case box.id && pref.content[box.id] && userMatches.value.trim() === pref.content[box.id].userExcludeMatches:
+    case box.id && pref.content[box.id] && userExcludeMatches.value.trim() === pref.content[box.id].userExcludeMatches:
       return false;
 
     default:
@@ -223,8 +239,6 @@ async function toggleEnable() {
 
     const li = getMulti();
     if (li[0]) {
-
-      const bg = await browser.runtime.getBackgroundPage();
 
       li.forEach(item => {
 
@@ -251,7 +265,6 @@ async function toggleEnable() {
   browser.storage.local.set({content: pref.content});       // update saved pref
 
   // --- register/unregister
-  const bg = await browser.runtime.getBackgroundPage();
   bg.updatePref(pref);
   pref.content[id].enabled ? bg.register(id) : bg.unregister(id);
 }
@@ -287,7 +300,7 @@ async function deleteScript() {
   if (li[0] ? !confirm(chrome.i18n.getMessage('deleteMultiConfirm', li.length)) :
               !confirm(chrome.i18n.getMessage('deleteConfirm', box.id))) { return; }
 
-  const bg = await browser.runtime.getBackgroundPage();
+
   const deleted = [];
 
 
@@ -334,8 +347,12 @@ async function saveScript() {
   // --- reset
   box.classList.remove('invalid');
 
+  // --- check User Matches User Exclude Matches
+  if(hasInvalidPattern(userMatches)) { return; }
+  if(hasInvalidPattern(userExcludeMatches)) { return; }
+
   // --- chcek meta data
-  const data = getMetaData(box.innerText.trim());
+  const data = getMetaData(box.innerText.trim(), userMatches.value, userExcludeMatches.value);
   if (!data) { throw 'Meta Data Error'; }
   else if (data.error) {
     box.classList.add('invalid');
@@ -368,16 +385,16 @@ async function saveScript() {
     data.autoUpdate = true;
   }
 
-  const bg = await browser.runtime.getBackgroundPage();
+
   pref.content[data.name] = data;                       // save to pref
   bg.updatePref(pref);                                  // update bg pref
   bg.register(data.name);                               // add new registers
+
 
   switch (true) {
 
     // --- new script
     case !box.id:
-      box.id = data.name;
       addScript(data);
       break;
 
@@ -397,11 +414,11 @@ async function saveScript() {
       const li = document.querySelector('nav li.on');
       li.textContent = data.name;
       li.id = data.name;
-      box.id = data.name;
-      legend.textContent = data.name;
       break;
   }
-
+  
+  box.id = data.name;
+  legend.textContent = data.name;
 
   browser.storage.local.set({content: pref.content});       // update saved pref
 
@@ -465,7 +482,6 @@ async function processResponse(text, name) {
 
   if (data.enabled) {
 
-    const bg = await browser.runtime.getBackgroundPage();
     if (data.name !== name) { bg.unregister(name); }        // --- unregister old name
     bg.updatePref(pref);
     bg.register(data.name);
@@ -516,7 +532,6 @@ async function processFileSelectScript(e) {
   browser.storage.local.set({content: pref.content});       // update saved pref
 
   // --- register/unregister
-  const bg = await browser.runtime.getBackgroundPage();
   bg.updatePref(pref);
   multiCache.forEach(id => bg.register(id));
 }
@@ -570,7 +585,7 @@ function processFileSelectStylus(e) {
   reader.readAsText(file);
 }
 
-async function prepareStylus(data) {
+function prepareStylus(data) {
 
   let importData;
   try { importData = JSON.parse(data); }                    // Parse JSON
@@ -644,7 +659,6 @@ async function prepareStylus(data) {
   if (!cache[0]) { return; }
 
   // --- register/unregister
-  const bg = await browser.runtime.getBackgroundPage();
   bg.updatePref(pref);
   cache.forEach(id => bg.register(id));
 }
@@ -781,6 +795,7 @@ function getEdit() {
       break;
   }
 }
+
 
 // ----------------- Progress Bar --------------------------
 function progressBar() {
