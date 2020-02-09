@@ -30,6 +30,9 @@ chrome.storage.local.get(null, result => {
 
 chrome.storage.onChanged.addListener((changes, area) => {   // Change Listener
   Object.keys(changes).forEach(item => pref[item] = changes[item].newValue); // update pref with the saved version
+  changes.globalScriptExcludeMatches && 
+    changes.globalScriptExcludeMatches.oldValue !== changes.globalScriptExcludeMatches.newValue &&
+      Object.keys(pref.content).forEach(register);
 });
 
 function updatePref(result) {
@@ -135,6 +138,13 @@ async function register(id) {
   ['matches', 'excludeMatches', 'includeGlobs', 'excludeGlobs'].forEach(item => {
     pref.content[id][item][0] && (options[item] = pref.content[id][item]);
   });
+  
+  // --- add Global Script Exclude Matches
+  if (pref.globalScriptExcludeMatches) { 
+    console.log(pref.content[id].excludeMatches);
+    options.excludeMatches = [... pref.content[id].excludeMatches, ...pref.globalScriptExcludeMatches.split(/\s+/)];
+    console.log(options.excludeMatches);
+  }
 
   // --- add CSS & JS
   // Removing metaBlock since there would be an error with /* ... *://*/* ... */
@@ -408,7 +418,7 @@ function onIdle() {
 
 function processResponse(text, name, updateURL) {
 
-  const data = getMetaData(text);
+  const data = getMetaData(text, pref.content[name].userMatches, pref.content[name].userExcludeMatches);
   if (!data) { throw `${name}: Meta Data error`; }
 
   // --- check version, if update existing

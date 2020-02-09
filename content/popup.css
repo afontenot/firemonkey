@@ -177,15 +177,14 @@ dl {
 dt {
   color: #004080;
   font-weight: bold;
-  width: 6em;
-  float: left;
-  clear: left;
-  text-align: right;
+  width: 10em;
+  border-bottom: 1px solid #add8e6;
+  margin-top: 0.5em;
 }
 
 dd {
-  margin: 0 0 0 7em;
-  padding: 0 0 0.4em 0;
+  margin-left: 2em;
+  color: #777;
 }
 
 dt.error {

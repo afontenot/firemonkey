@@ -30,6 +30,9 @@
     <li><img src="../image/gear.svg" width="16" alt=""> <b>Options</b><br>
       Opens Options page to manage Options and Scripts</li>
   </ul>
+  
+  <h3><sup>5</sup> Toolbar Icon Badge</h3>
+    <p>Badge indicates the number of Script/CSS that apply to the tab (and all its iframes) whether enabled or disabled. If the number does not match the listed items under Tab Script/CSS, it shows that those items are affected by <b>Global Script Exclude Matches</b>.</p>
 
   <h3>Toolbar Icon Pop-up</h3>
     <p>The pop-up displays the installed Scripts/CSS. "Tab Scripts & CSS" shows the ones running on the active Tab.</p>
@@ -63,6 +66,11 @@
 
   <h3>Disable Syntax Highlighting</h3>
   <p>Although the Syntax Highlighting is fairly fast (took 3 seconds for a 2.4mb 50,000+ lines script), Firefox takes much longer to render and display the result. You can disable Syntax Highlighting if needed.</p>
+  
+  <h3>Global Script Exclude Matches</h3>
+  <p>Exclude Match pattens (one per line) to prevent all scripts (not CSS) from running on them.</p>
+  <p>Changes to Global Script Exclude Matches will unregister all running script. Once tab is reloaded or on new tab, new settings will take effect.</p>
+  <p>Note: Invalid match pattern will cause all scripts to fail and thus get disabled.</p>
 
   <h3>Preferences: Import/Export</h3>
   <p>You can export/import Preferences (for backup or share) to/from a local file on your computer.</p>
@@ -156,29 +164,29 @@
   <thead>
   <tr>
     <th>Manager</th>
-    <th>@updateURL</th>
-    <th>@downloadURL</th>
-    <th>@installURL</th>
-    <th></th>
+    <th>updateURL</th>
+    <th>downloadURL</th>
+    <th>installURL</th>
+    <th>last-modified header</th>
   </tr>
   </thead>
   <tbody>
-  <tr><td>FireMonkey</td><td>update target</td><td>sets @updateURL</td><td>sets @updateURL</td><td></td></tr>
-  <tr><td>GreaseMonkey</td><td class="fail"></td><td class="fail"></td><td class="fail"></td><td></td></tr>
-  <tr><td>TamperMonkey</td><td>JSON data</td><td>update target</td><td class="fail"></td><td></td></tr>  
-  <tr><td>ViolentMonkey</td><td class="fail"></td><td>update target</td><td class="fail"></td><td></td></tr>
+  <tr><th>FireMonkey</th><td>update target</td><td>sets updateURL</td><td>sets updateURL</td><td></td></tr>
+  <tr><th>GreaseMonkey</th><td class="fail"></td><td>update target</td><td class="fail"></td><td></td></tr>
+  <tr><th>TamperMonkey</th><td>JSON data ?</td><td>update target</td><td class="fail"></td><td></td></tr>  
+  <tr><th>ViolentMonkey</th><td class="fail"></td><td>update target</td><td class="fail"></td><td></td></tr>
 
   <tr>
-    <th>Userscript repository</th>
-    <th></th>
-    <th></th>
-    <th></th>
-    <th>last-modified header</th>
+    <th><b>Repository</b></th>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
   </tr>   
   
-  <tr><td>GreasyFork</td><td class="fail"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
-  <tr><td>GitHub/Gist</td><td class="fail"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
-  <tr><td>OpenUserJS</td><td class="pass"></td><td class="pass"></td><td class="fail"></td><td class="pass"></td></tr>
+  <tr><th>GreasyFork</th><td class="fail"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+  <tr><th>GitHub/Gist</th><td class="fail"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+  <tr><th>OpenUserJS</th><td class="pass"></td><td class="pass"></td><td class="fail"></td><td class="pass"></td></tr>
   </tbody>
 </table>
 
@@ -248,8 +256,9 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
     <li><code>match</code> <i>(entries will be merged into <code>matches</code>)</i></li>
     <li><code>include</code> <i>(entries will be merged into <code>matches</code>, use <code>match</code>, <code>matches</code> or <code>includeGlobs</code> instead)</i></li>
-    <li><code>exclude</code> <i>(entries will be merged into <code>excludeMatches</code>)</i><br><br></li>
-
+    <li><code>exclude</code> <i>(entries will be merged into <code>excludeMatches</code>)</i></li>
+    <li><code>exclude-match</code> <i>(entries will be merged into <code>excludeMatches</code>)</i><br><br></li>
+    
     <li><code>require</code> <i>(Optional)</i></li>
 
   </ul>
@@ -257,7 +266,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
 
   <h4>include/exclude</h4>
-  <p>Entries under <code>@include/@exclude</code> will be merged into <code>@matches/@excludeMatches</code>. Some common incompatibilities with <code>matches</code> API are automatically converted e.g:</p>
+  <p>Entries under <code>@include/@exclude</code> will be merged into <code>@matches/@excludeMatches</code> (duplicates removed). Some common incompatibilities with <code>matches</code> API are automatically converted e.g:</p>
 
 <table>
   <thead>
@@ -267,11 +276,11 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   </tr>
   </thead>
   <tbody>
-  <tr><td>*</td><td>*://*/*</td></tr>
-  <tr><td>http://*</td><td>http://*/*</td></tr>
-  <tr><td>https://*</td><td>https://*/*</td></tr>
-  <tr><td>http*://*</td><td>*://*/*</td></tr>
-  <tr><td>http*://a.b.c/*</td><td>*://a.b.c/*</td></tr>
+  <tr><td><code>*</code></td><td><code>*://*/*</code></td></tr>
+  <tr><td><code>http://*</code></td><td><code>http://*/*</code></td></tr>
+  <tr><td><code>https://*</code></td><td><code>https://*/*</code></td></tr>
+  <tr><td><code>http*://*</code></td><td><code>*://*/*</code></td></tr>
+  <tr><td><code>http*://a.b.c/*</code></td><td><code>*://a.b.c/*</code></td></tr>
   </tbody>
 </table>
 
@@ -298,13 +307,19 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   </tr>
   </thead>
   <tbody>
-  <tr><td>FireMonkey</td><td>document-idle</td><td>false</td><td>false</td></tr>
-  <tr><td>GreaseMonkey</td><td>document-end</td><td>true</td><td>via @include &nbsp;&nbsp;&nbsp;about:blank</td></tr>
-  <tr><td>TamperMonkey</td><td>document-idle</td><td>true</td><td>?</td></tr>
-  <tr><td>ViolentMonkey</td><td>document-end</td><td>true</td><td>?</td></tr>
+  <tr><th>FireMonkey</th><td>document-idle</td><td>false</td><td>false</td></tr>
+  <tr><th>GreaseMonkey</th><td>document-end</td><td>true</td><td>via @include &nbsp;&nbsp;&nbsp;about:blank</td></tr>
+  <tr><th>TamperMonkey</th><td>document-idle</td><td>true</td><td>?</td></tr>
+  <tr><th>ViolentMonkey</th><td>document-end</td><td>true</td><td>?</td></tr>
   </tbody>
 </table>
 
+
+  <h3>&#x2630; User Matches & Exclude Matches <span>(v1.25+)</span></h3>
+  <p>Persistent user matches & excludeMatches (one per line using Match Patterns) can be set for each script to supplement script's matches & excludeMatches.</p>
+  <p>Please note that invalid match pattern will cause the script to fail and thus get disabled.</p>
+  
+  
 
   <h3>Match Patterns</h3>
   <p><i>FireMonkey</i> uses <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/match_patterns" target="_blank">Match Patterns</a> for <code>@matches/@match</code> & <code>@excludeMatches</code> and <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts#globs" target="_blank">globs</a> for <code>@includeGlobs</code> & <code>@excludeGlobs</code></p>
@@ -331,7 +346,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <tbody>
   <tr>
     <td>
-      <p>&lt:all_urls&gt;</p>
+      <code>&lt;all_urls&gt;</code>
       <p>Match all URLs</p>
     </td>
     <td>
@@ -343,7 +358,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
   <tr>
     <td>
-      <p>*://*/*</p>
+      <code>*://*/*</code>
       <p>Match all HTTP, HTTPS</p>
     </td>
     <td>
@@ -355,7 +370,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
   <tr>
     <td>
-      <p>*://*.example.org/*</p>
+      <code>*://*.example.org/*</code>
     </td>
     <td>
       <p class="pass">http://example.org/</p>
@@ -366,7 +381,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
   <tr>
     <td>
-      <p>*://example.org/</p>
+      <code>*://example.org/</code>
     </td>
     <td>
       <p class="pass">http://example.org/</p>
@@ -377,7 +392,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
   <tr>
     <td>
-      <p>https://*/path</p>
+      <code>https://*/path</code>
     </td>
     <td>
       <p class="fail">http://example.org/</p>
@@ -388,7 +403,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
   <tr>
     <td>
-      <p>file:///blah/*</p>
+      <code>file:///blah/*</code>
     </td>
     <td>
       <p class="pass">file:///blah/</p>
@@ -398,6 +413,340 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   </tr>
   </tbody>
 </table>
+
+
+  <h4>Invalid Match Patterns</h4>
+<table>
+  <thead>
+  <tr>
+    <th>Invalid Pattern</th>
+    <th>Reason</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr><td><code>resource://path/</code></td><td>Unsupported scheme</td></tr>
+  <tr><td><code>https://mozilla.org</code></td><td>No path</td></tr>
+  <tr><td><code>https://mozilla.*.org/</code></td><td>"*" in host must be at the start</td></tr>
+  <tr><td><code>https://*zilla.org/</code></td><td>"*" in host must be the only character or be followed by "."</td></tr>
+  <tr><td><code>http*://mozilla.org/</code></td><td>"*" in scheme must be the only character</td></tr>
+  <tr><td><code>https://mozilla.org:80/</code></td><td>Host must not include a port number</td></tr>
+  <tr><td><code>*://*</code></td><td>Empty path: this should be "*://*/*"</td></tr>
+  <tr><td><code>file://*</code></td><td>Empty path: this should be "file:///*"</td></tr>
+  </tbody>
+</table>  
+
+
+  <h4>Content scripts are blocked by Firefox on the following domains</h4>
+<pre class="comment" style="columns: 3;">accounts-static.cdn.mozilla.net
+accounts.firefox.com
+addons.cdn.mozilla.net
+addons.mozilla.org
+api.accounts.firefox.com
+content.cdn.mozilla.net
+content.cdn.mozilla.net
+discovery.addons.mozilla.org
+input.mozilla.org
+install.mozilla.org
+oauth.accounts.firefox.com
+profile.accounts.firefox.com
+support.mozilla.org
+sync.services.mozilla.com
+testpilot.firefox.com</pre> 
+
+  <h3>TLD <span>(v1.25+)</span></h3>
+  <p>A TLD (case-insensitive) wildcard can be used and <i>FireMonkey</i> will automatically generate a list of most common country TLD <code>@matches</code>. Due to the extra Firefox API processing for many <code>@matches</code>, it is best to use it only when necessary.</p>
+
+<pre class="comment" style="columns: 5;">.com
+.au
+.br
+.ca
+.ch
+.cn
+.co.uk
+.de
+.es
+.fr
+.in
+.it
+.jp
+.mx
+.nl
+.no
+.pl
+.ru
+.se
+.uk
+.us</pre>
+
+  <h4>*://*.example.TLD/* <span>(general use)</span></h4>
+<pre class="comment" style="columns: 5;">*://*.example.com/*
+*://*.example.au/*
+*://*.example.br/*
+*://*.example.ca/*
+*://*.example.ch/*
+*://*.example.cn/*
+*://*.example.co.uk/*
+*://*.example.de/*
+*://*.example.es/*
+*://*.example.fr/*
+*://*.example.in/*
+*://*.example.it/*
+*://*.example.jp/*
+*://*.example.mx/*
+*://*.example.nl/*
+*://*.example.no/*
+*://*.example.pl/*
+*://*.example.ru/*
+*://*.example.se/*
+*://*.example.uk/*
+*://*.example.us/*</pre>
+
+  <h4>.amazon.TLD <span>(domain specific)</span></h4>
+<pre class="comment" style="columns: 5;">.amazon.ca
+.amazon.cn
+.amazon.co.jp
+.amazon.co.uk
+.amazon.com
+.amazon.com.au
+.amazon.com.br
+.amazon.com.mx
+.amazon.com.sg
+.amazon.com.tr
+.amazon.de
+.amazon.es
+.amazon.fr
+.amazon.in
+.amazon.it
+.amazon.nl</pre>
+
+  <h4>.ebay.TLD <span>(domain specific)</span></h4>
+<pre class="comment" style="columns: 5;">.ebay.at
+.ebay.be
+.ebay.ca
+.ebay.ch
+.ebay.cn
+.ebay.co.th
+.ebay.co.uk
+.ebay.com.au
+.ebay.com.cn
+.ebay.com.hk
+.ebay.com.my
+.ebay.com.sg
+.ebay.com.tw
+.ebay.com
+.ebay.de
+.ebay.dk
+.ebay.es
+.ebay.fi
+.ebay.fr
+.ebay.gr
+.ebay.hu
+.ebay.ie
+.ebay.in
+.ebay.it
+.ebay.nl
+.ebay.no
+.ebay.ph
+.ebay.ph
+.ebay.pl
+.ebay.ru
+.ebay.vn</pre>
+
+  <h4>.google.TLD <span>(domain specific)</span></h4>
+<pre class="comment" style="columns: 5;">.google.ae
+.google.al
+.google.am
+.google.as
+.google.at
+.google.az
+.google.ba
+.google.be
+.google.bf
+.google.bg
+.google.bi
+.google.bj
+.google.bs
+.google.bt
+.google.by
+.google.ca
+.google.cat
+.google.cd
+.google.cf
+.google.cg
+.google.ch
+.google.ci
+.google.cl
+.google.cm
+.google.cn
+.google.co.ao
+.google.co.bw
+.google.co.ck
+.google.co.cr
+.google.co.id
+.google.co.il
+.google.co.in
+.google.co.jp
+.google.co.ke
+.google.co.kr
+.google.co.ls
+.google.co.ma
+.google.co.mz
+.google.co.nz
+.google.co.th
+.google.co.tz
+.google.co.ug
+.google.co.uk
+.google.co.uz
+.google.co.ve
+.google.co.vi
+.google.co.za
+.google.co.zm
+.google.co.zw
+.google.com
+.google.com.af
+.google.com.ag
+.google.com.ai
+.google.com.ar
+.google.com.au
+.google.com.bd
+.google.com.bh
+.google.com.bn
+.google.com.bo
+.google.com.br
+.google.com.bz
+.google.com.co
+.google.com.cu
+.google.com.cy
+.google.com.do
+.google.com.ec
+.google.com.eg
+.google.com.et
+.google.com.fj
+.google.com.gh
+.google.com.gi
+.google.com.gt
+.google.com.hk
+.google.com.jm
+.google.com.kh
+.google.com.kw
+.google.com.lb
+.google.com.ly
+.google.com.mm
+.google.com.mt
+.google.com.mx
+.google.com.my
+.google.com.na
+.google.com.nf
+.google.com.ng
+.google.com.ni
+.google.com.np
+.google.com.om
+.google.com.pa
+.google.com.pe
+.google.com.pg
+.google.com.ph
+.google.com.pk
+.google.com.pr
+.google.com.py
+.google.com.qa
+.google.com.sa
+.google.com.sb
+.google.com.sg
+.google.com.sl
+.google.com.sv
+.google.com.tj
+.google.com.tr
+.google.com.tw
+.google.com.ua
+.google.com.uy
+.google.com.vc
+.google.com.vn
+.google.cv
+.google.cz
+.google.de
+.google.dj
+.google.dk
+.google.dm
+.google.dz
+.google.ee
+.google.es
+.google.fi
+.google.fm
+.google.fr
+.google.ga
+.google.ge
+.google.gg
+.google.gl
+.google.gm
+.google.gp
+.google.gr
+.google.gy
+.google.hn
+.google.hr
+.google.ht
+.google.hu
+.google.ie
+.google.im
+.google.iq
+.google.is
+.google.it
+.google.je
+.google.jo
+.google.kg
+.google.ki
+.google.kz
+.google.la
+.google.li
+.google.lk
+.google.lt
+.google.lu
+.google.lv
+.google.md
+.google.me
+.google.mg
+.google.mk
+.google.ml
+.google.mn
+.google.ms
+.google.mu
+.google.mv
+.google.mw
+.google.ne
+.google.ng
+.google.nl
+.google.no
+.google.nr
+.google.nu
+.google.pl
+.google.pn
+.google.ps
+.google.pt
+.google.ro
+.google.rs
+.google.ru
+.google.rw
+.google.sc
+.google.se
+.google.sh
+.google.si
+.google.sk
+.google.sm
+.google.sn
+.google.so
+.google.sr
+.google.st
+.google.td
+.google.tg
+.google.tk
+.google.tl
+.google.tm
+.google.tn
+.google.to
+.google.tt
+.google.vg
+.google.vu
+.google.ws</pre>
+
 
 
   <h3>Script API</h3>
@@ -719,13 +1068,13 @@ GM_fetch(url[, init]);</pre>
   <p>Folowing sources are processed: jQuery/jQuery UI</p>
 
   <ul>
-    <li>code.jquery.com</li>
     <li>ajax.googleapis.com</li>
+    <li>cdn.bootcss.com</li>
+    <li>cdn.jsdelivr.net</li>
+    <li>cdnjs.cloudflare.com</li>
+    <li>code.jquery.com</li>
     <li>unpkg.com</li>
-    <li>cdnjs.com</li>
-    <li>www.jsdelivr.com</li>
   </ul>
-
 
   <p>All the following will result in injection of the latest jQuery v3 (e.g. 3.4.1):</p>
 <pre class="comment">
@@ -751,6 +1100,8 @@ GM_fetch(url[, init]);</pre>
 <pre class="comment">
 // @require       jquery1
 // @require       https://code.jquery.com/jquery-1.*.*.js
+// @require       http://code.jquery.com/jquery-latest.js         (links to v1.11.1)
+// @require       http://code.jquery.com/jquery-latest.min.js     (links to v1.11.1)
   ... etc
 </pre>
 
@@ -765,8 +1116,7 @@ GM_fetch(url[, init]);</pre>
 
 
   <h3>&#x26A0;&#xFE0F; unsafeWindow <span>(v1.24+)</span></h3>
-  
-  <p>You can also use <code>window.wrappedJSObject</code> to access page JavaScript <b>globals</b> e.g.:</p>
+  <p><code>unsafeWindow</code> in <i>FireMonkey</i> is an alias for <code>window.wrappedJSObject</code>. You can also use <code>window.wrappedJSObject</code> or <code>window.eval()</code> to access page JavaScript <b>globals</b>. Please note that <code>window.eval()</code> makes the object available to the page script as well while <code>unsafeWindow</code>, <code>window.wrappedJSObject</code> do not.</p>
 
 <pre>
 <span class="comment">// page-script.js</span>
@@ -777,7 +1127,9 @@ GM_fetch(url[, init]);</pre>
 
 <span class="comment">// content-script.js</span>
 <span class="property">console</span>.<span class="method">log</span>(window.foo); <span class="comment">// undefined</span>
+<span class="property">console</span>.<span class="method">log</span>(<span class="gm">unsafeWindow</span>.foo); <span class="comment">// "I'm defined in a page script!"</span>
 <span class="property">console</span>.<span class="method">log</span>(window.wrappedJSObject.foo); <span class="comment">// "I'm defined in a page script!"</span>
+<span class="gm">unsafeWindow</span>.runTest(); <span class="comment">// "I'm defined in a page script!"</span>
 window.wrappedJSObject.runTest(); <span class="comment">// "I'm defined in a page script!"</span>
 </pre>
 
@@ -787,12 +1139,29 @@ window.wrappedJSObject.runTest(); <span class="comment">// "I'm defined in a pag
   <cite><a href="https://sourceforge.net/p/greasemonkey/wiki/unsafeWindow/" target="_blank">unsafeWindow</a></cite></blockquote>
 
   <p>Safer alternatives to <code>unsafeWindow</code> are also listed in above page.</p>
+  <p>More: <a href="https://stackoverflow.com/questions/9515704/insert-code-into-the-page-context-using-a-content-script/9517879#9517879">Insert code into the page context using a content script</a> by Rob W</p>
 
   <blockquote>This command can open certain security holes in your user script, and it is recommended to use this command sparingly.<br>
 
   Please be sure to read the entire article and understand it before using it in a script.
 
   <cite><a href="https://wiki.greasespot.net/UnsafeWindow" target="_blank">unsafeWindow</a></cite></blockquote>
+
+
+  
+
+  
+  <h4>exportFunction() & cloneInto()</h4>
+  <p><code>unsafeWindow</code>, <code>window.wrappedJSObject</code> or <code>window.eval()</code> can be used to create function & objects.</p>
+  
+<pre><span class="gm">unsafeWindow</span>.testFunc = <span class="keyword">function</span>() { <span class="property">console</span>.<span class="method">log</span>(location.<span class="property">href</span>); }
+<span class="gm">unsafeWindow</span>.testFunc(); <span class="comment">// https://example.com/</span>
+
+
+<span class="gm">unsafeWindow</span>.obj = {text: <span class="string">'hello from user-script'</span>};
+<span class="property">console</span>.<span class="method">log</span>(<span class="gm">unsafeWindow</span>.obj.text); <span class="comment">// hello from user-script</span></pre>  
+
+
 
 
   <h3>&#x26d4; Unsupported</h3>
@@ -806,10 +1175,9 @@ window.wrappedJSObject.runTest(); <span class="comment">// "I'm defined in a pag
   
   <p>Firefox Quantum no longer allows extension to save fies to Fireofx profile folder. Script managers will have to use the storage assigned to the extension to save <code>@require</code> & <code>@resource</code> files in form of data.</p>
 
-  <p>Besides the security risks of using <code>@require</code> to inject unknown code, saving large volumes of data to storage considerably affects browser performance. Known Libraries often are 100+KB to 1+MB e.g. <i>jquery-3.4.1.js 273MB,jquery-3.4.1.min.js 86KB, jquery-ui-1.12.1.js 508KB, jquery-ui-1.12.1.min.js 247KB, angular-1.7.6.js 1.3MB</i> etc</p>
+  <p>Besides the security risks of using <code>@require</code> to inject unknown code, saving large volume of data to storage impact memory and CPU resource usage of the extension, slows down read/write to the extension storage and generally impact the browser performance. Known Libraries often are 100+KB to 1+MB e.g. <i>jquery-3.4.1.js 273MB,jquery-3.4.1.min.js 86KB, jquery-ui-1.12.1.js 508KB, jquery-ui-1.12.1.min.js 247KB, angular-1.7.6.js 1.3MB</i> ... etc</p>
 
-  <p>In case of <code>@resource</code>, images for example can be many megabytes of data.<br>
-  Saving large volume of data to storage impact memory and CPU resource usage of the extension, slows down read/write to the extension storage and generally impact the browser performance.</p>
+  <p>In case of <code>@resource</code>, images for example can be many megabytes of data.</p>
 
   <p>Considering that a user may have many user-Scripts and they may have many <code>@require</code> & <code>@resource</code>, the size of storage can get extremely large and its effect quite considerable.</p>
 
@@ -822,9 +1190,7 @@ document.<span class="property">head</span>.<span class="method">appendChild</sp
 
   <p><sup>1</sup> Please note <i>FireMonkey</i> <code>@require</code> as explained above.</p>
 
-  <h3>&#x2139;&#xFE0F; Xray Vision & Sharing objects with page scripts</h3>
-
-  <p><i>Keywords: <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Xray_vision" target="_blank">Xray Vision</a> in Firefox, <code>exportFunction()</code>, <code>cloneInto()</code>, Constructors from the page context</i></p>
+  <h3>&#x2139;&#xFE0F; <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Xray_vision" target="_blank">Xray Vision</a> & Sharing objects with page scripts</h3>
 
   <h4>Browser JavaScript Context/Scope</h4>
   <ol style="list-style-type: upper-roman;">
