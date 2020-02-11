@@ -79,7 +79,6 @@ function getMetaData(str, userMatches = '', userExcludeMatches = '') {
             case url.startsWith('https://cdnjs.cloudflare.com/ajax/libs/jquery/3.'):
             case url.startsWith('https://code.jquery.com/jquery-3.'):
             case url.startsWith('https://unpkg.com/jquery@3.'):
-
               value = 'lib/jquery-3.4.1.min.jsm';
               break;
 
@@ -270,7 +269,37 @@ function invalidPattern(pattern) {
 // ----------------- /Match Pattern Tester -----------------
 
 // ----------------- Remote Update -------------------------
-function getUpdate(item) {
+function getUpdate(item, manual) {
+
+  
+  switch (true) {
+    // --- get meta.js
+    case item.updateURL.startsWith('https://greasyfork.org/scripts/'):
+    case item.updateURL.startsWith('https://openuserjs.org/install/'):
+      getMeta(item, manual);
+      break;
+    // --- direct update
+    default:
+      getScript(item);
+  }
+}
+
+function getMeta(item, manual) {
+
+  const url = item.updateURL.replace(/\.user\.js/i, '.meta.js');
+  fetch(url)
+  .then(response => response.text())
+  .then(text => needUpdate(text, item) ? getScript(item) : manual && notify(chrome.i18n.getMessage('noNewUpdate'), name))
+  .catch(console.error);
+}
+
+function needUpdate(text, item) {
+  // --- check version
+  const version = text.match(/@version\s+(\S+)/);
+  return version && compareVersion(version[1], item.version) === '>';
+}
+
+function getScript(item) {
 
   fetch(item.updateURL)
   .then(response => response.text())
@@ -341,3 +370,15 @@ function prepareMatches(arr, glob) {
   return glob ? str.replace(/\?/g, '.') : str;
 }
 // ----------------- /Match Pattern Check ------------------
+
+// ----------------- Helper functions ----------------------
+function notify(message, title = chrome.i18n.getMessage('extensionName'), id = '') {
+
+  chrome.notifications.create(id, {
+    type: 'basic',
+    iconUrl: 'image/icon.svg',
+    title,
+    message
+  });
+}
+// ----------------- /Helper functions ---------------------

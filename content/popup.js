@@ -92,7 +92,8 @@ function showInfo() {
   dl.textContent = '';                                      // clearing previous content
   const dtTemp = document.createElement('dt');
   const ddTemp = document.createElement('dd');
-  const infoArray = ['name', 'description', 'author', 'version', 'matches', 'excludeMatches', 'require', 'userMatches', 'userExcludeMatches'];
+  const infoArray = ['name', 'description', 'author', 'version', 'matches', 
+                      'excludeMatches', 'require', 'userMatches', 'userExcludeMatches'];
   pref.content[id].error && infoArray.push('error');
 
   infoArray.forEach(item => {

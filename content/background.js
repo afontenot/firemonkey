@@ -30,7 +30,7 @@ chrome.storage.local.get(null, result => {
 
 chrome.storage.onChanged.addListener((changes, area) => {   // Change Listener
   Object.keys(changes).forEach(item => pref[item] = changes[item].newValue); // update pref with the saved version
-  changes.globalScriptExcludeMatches && 
+  changes.globalScriptExcludeMatches &&
     changes.globalScriptExcludeMatches.oldValue !== changes.globalScriptExcludeMatches.newValue &&
       Object.keys(pref.content).forEach(register);
 });
@@ -43,7 +43,8 @@ function updatePref(result) {
 browser.webRequest.onBeforeRequest.addListener(processWebInstall,
   {
     urls: [
-      'https://greasyfork.org/scripts/*.user.js'
+      'https://greasyfork.org/scripts/*.user.js',
+      'https://openuserjs.org/install/*.user.js'
     ]
     , types: ['main_frame']
   },
@@ -54,23 +55,39 @@ browser.tabs.onUpdated.addListener(processDirectInstall,
   {
     urls: [
         'https://greasyfork.org/scripts/*.user.js',
+        'https://openuserjs.org/install/*.user.js',
         'file:///*/*.user.js'
       ]
 });
 
 function processWebInstall(e) {
 
+  let q;
   switch (true) {
 
-    // --- Greasy Fork
-    case e.originUrl && e.originUrl.startsWith('https://greasyfork.org/') && e.url.startsWith('https://greasyfork.org/'):
-      const GF = String.raw`(() => {
-        const title = location.href.endsWith('/code') ? document.title.replace(/\s+-[\s\w]+$/, '') : document.title;
+    case !e.originUrl: return;                              // end execution if not Web Install
+
+    // --- GreasyFork
+    case e.originUrl.startsWith('https://greasyfork.org/') && e.url.startsWith('https://greasyfork.org/'):
+      q = 'header h2';
+      break;
+
+    // --- OpenUserJS
+    case e.originUrl.startsWith('https://openuserjs.org/') && e.url.startsWith('https://openuserjs.org/'):
+      q = 'a[class="script-name"]';
+      break;
+  }
+
+  if (q) {
+
+      const code = `(() => {
+        let title = document.querySelector('${q}');
+        title = title ? title.textContent : 'Unknown';
         return confirm(chrome.i18n.getMessage('installConfirm', title)) ? title : null;
       })();`;
 
-      chrome.tabs.executeScript({code: GF}, (result = []) => {
-        result[0] && getUpdate({updateURL: e.url, name: result[0]});
+      chrome.tabs.executeScript({code}, (result = []) => {
+        result[0] && getScript({updateURL: e.url, name: result[0]});
       });
       return {cancel: true};
   }
@@ -100,12 +117,12 @@ const contextMenus = [
 ];
 
 
-for (const item of contextMenus) {
+contextMenus.forEach(item => {
 
   if (item.id && !item.title) { item.title = chrome.i18n.getMessage(item.id); } // always use the same ID for i18n
   if (item.id) { item.onclick = process; }
   chrome.contextMenus.create(item);
-}
+});
 
 function process(info, tab, command){
 
@@ -138,9 +155,9 @@ async function register(id) {
   ['matches', 'excludeMatches', 'includeGlobs', 'excludeGlobs'].forEach(item => {
     pref.content[id][item][0] && (options[item] = pref.content[id][item]);
   });
-  
+
   // --- add Global Script Exclude Matches
-  if (pref.globalScriptExcludeMatches) { 
+  if (pref.globalScriptExcludeMatches) {
     console.log(pref.content[id].excludeMatches);
     options.excludeMatches = [... pref.content[id].excludeMatches, ...pref.globalScriptExcludeMatches.split(/\s+/)];
     console.log(options.excludeMatches);
@@ -162,7 +179,7 @@ async function register(id) {
     options.js = [{code: 'const unsafeWindow = window.wrappedJSObject;'}]; // unsafeWindow implementation
     if (pref.content[id].require && pref.content[id].require[0]) { // add @require
       pref.content[id].require.forEach(item => {
-      
+
         if (item.startsWith('lib/')) { options.js.unshift({file: item}); }
         else if (pref.content[item] && pref.content[item].js) {
           options.js.unshift({code: pref.content[item].js.replace(metaRegEx, '')})
@@ -308,7 +325,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       .catch(error => { console.error(error); notify(chrome.i18n.getMessage('errorClipboard')); }); // failed copy notification
       break;
 
-    case 'notification': notify(e.text, null, name); break;
+    case 'notification': notify(e.text, name); break;
 
     case 'fetch':
       // --- check url
@@ -418,7 +435,10 @@ function onIdle() {
 
 function processResponse(text, name, updateURL) {
 
-  const data = getMetaData(text, pref.content[name].userMatches, pref.content[name].userExcludeMatches);
+  const userMatches = pref.content[name] ? pref.content[name].userMatches : '';
+  const userExcludeMatches = pref.content[name] ? pref.content[name].userExcludeMatches : '';
+  
+  const data = getMetaData(text, userMatches, userExcludeMatches);
   if (!data) { throw `${name}: Meta Data error`; }
 
   // --- check version, if update existing
@@ -450,7 +470,8 @@ function processResponse(text, name, updateURL) {
   }
 
   // --- check for Web Install, set install URL
-  if (!data.updateURL && updateURL.startsWith('https://greasyfork.org/scripts/')) {
+  if (updateURL.startsWith('https://greasyfork.org/scripts/') ||
+      updateURL.startsWith('https://openuserjs.org/install/')) {
     data.updateURL = updateURL;
     data.autoUpdate = true;
   }
@@ -472,15 +493,3 @@ async function counter(tabId, changeInfo, tab) {
   browser.browserAction.setBadgeText({tabId, text: (count[0] ? count.length.toString() : '')});
 }
 // ----------------- /Script Counter -----------------------
-
-// ----------------- Helper functions ----------------------
-function notify(message, id = '', title = chrome.i18n.getMessage('extensionName')) {
-
-  chrome.notifications.create(id, {
-    type: 'basic',
-    iconUrl: 'image/icon.svg',
-    title,
-    message
-  });
-}
-// ----------------- /Helper functions ---------------------

@@ -50,11 +50,11 @@
 
 
   <h3>Web Install</h3>
-  <p>Web Install is available from <i>greasyfork.org</i>. Script install URL will be set for script update.</p>
+  <p>Web Install is available from <i>greasyfork.org</i> & <i>openuserjs.org</i>. Script install URL will be set for script update.</p>
 
   <h3>Direct Install</h3>
-  <p>Scripts can be directly installed from <i>greasyfork.org</i> (e.g. <code>https://greasyfork.org/scripts/*.user.js</code>) or local file system (e.g. <code>file:///*/*.user.js</code>) if loaded into a tab (Open or Drag & Drop)</p>
-  <p>In case of <i>greasyfork.org</i> links, the same link will be set for script update.</p>
+  <p>Scripts can be directly installed from <i>greasyfork.org</i> (e.g. <code>https://greasyfork.org/scripts/*.user.js</code>), <i>openuserjs.org</i> (e.g. <code>https://openuserjs.org/install/*.user.js</code>) or local file system (e.g. <code>file:///*/*.user.js</code>) if loaded into a tab (Open or Drag & Drop)</p>
+  <p>In case of <i>greasyfork.org</i> & <i>openuserjs.org</i> links, the same link will be set for script update.</p>
 
 
   <h2 id="options">Options</h2>
@@ -155,26 +155,27 @@
   <h3>Update & Auto-update</h3>
   <p>Any target can be set for <code>@updateURL</code> as long it directly leads to the final file and it is in plain text. The <code>.js</code> or <code>.css</code> file extensions are not necessary although it makes sense to have them. The <code>.user.</code> is not necessary.</p>
   <p><i>FireMonkey</i> uses <code>@version</code> for the update process and both the current file and the update file must have <code>@version</code> and the version of the target file must be higher.</p>
+  <p>In case of <i>GreasyFork</i> & <i>OpenUserJS</i>, the <code>@version</code> via Metadata Block in <code>https://...../*.meta.js</code> is verified first. <i>(v1.26)</i></p>
   <p>Update will fail if the new version has a different name which already exists among user's installed Scripts/CSS.</p>
   <p>Auto-update will only update enabled Scripts/CSS but manual update can update both enabled and disabled ones.</p>
-  <p><code>@downloadURL/@installURL</code>, if present, is used for Auto-update.</p>
-
+  <p><code>@downloadURL/@installURL</code>, if present, is set for script update.</p>
 
 <table>
   <thead>
   <tr>
     <th>Manager</th>
-    <th>updateURL</th>
-    <th>downloadURL</th>
-    <th>installURL</th>
+    <th>@updateURL</th>
+    <th>@downloadURL</th>
+    <th>install source</th>
+    <th>meta.js</th>
     <th>last-modified header</th>
   </tr>
   </thead>
   <tbody>
-  <tr><th>FireMonkey</th><td>update target</td><td>sets updateURL</td><td>sets updateURL</td><td></td></tr>
-  <tr><th>GreaseMonkey</th><td class="fail"></td><td>update target</td><td class="fail"></td><td></td></tr>
-  <tr><th>TamperMonkey</th><td>JSON data ?</td><td>update target</td><td class="fail"></td><td></td></tr>  
-  <tr><th>ViolentMonkey</th><td class="fail"></td><td>update target</td><td class="fail"></td><td></td></tr>
+  <tr><th>FireMonkey</th><td>update target</td><td>sets updateURL</td><td>GreasyFork/OpenUserJS</td><td class="pass">Metadata</td><td class="fail"></td></tr>
+  <tr><th>GreaseMonkey</th><td class="fail"></td><td class="fail"></td><td>update target <a href="https://github.com/greasemonkey/greasemonkey/issues/3057" title="Auto-Update Scripts" target="_blank">[*]</a></td><td class="fail"></td><td class="fail"></td></tr>
+  <tr><th>TamperMonkey</th><td>JSON</td><td>update target</td><td>?</td><td class="pass">Metadata</td><td>?</td></tr>  
+  <tr><th>ViolentMonkey</th><td class="fail"></td><td>update target <a href="https://violentmonkey.github.io/api/metadata-block/#downloadurl" title="Metadata Block @downloadURL" target="_blank">[*]</a></td><td>update target <a href="https://violentmonkey.github.io/api/metadata-block/#downloadurl" title="Automatically added when using 'Install from URL.'" target="_blank">[*]</a></td><td class="pass">Metadata</td><td>?</td></tr>
 
   <tr>
     <th><b>Repository</b></th>
@@ -182,11 +183,12 @@
     <td></td>
     <td></td>
     <td></td>
+    <td></td>
   </tr>   
   
-  <tr><th>GreasyFork</th><td class="fail"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
-  <tr><th>GitHub/Gist</th><td class="fail"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
-  <tr><th>OpenUserJS</th><td class="pass"></td><td class="pass"></td><td class="fail"></td><td class="pass"></td></tr>
+  <tr><th>GreasyFork</th><td class="fail"><a href="https://greasyfork.org/en/help/meta-keys" title="@updateURL, @installURL, @downloadURL: Describe how user script managers should get updates. Greasy Fork will strip these keys, which makes any script installed from Greasy Fork only update from Greasy Fork." target="_blank">[*]</a></td><td class="fail"></td><td></td><td class="pass">Metadata</td><td class="fail"></td></tr>
+  <tr><th>GitHub/Gist</th><td class="fail"></td><td class="fail"></td><td></td><td class="fail"></td><td class="fail"></td></tr>
+  <tr><th>OpenUserJS</th><td class="pass"></td><td class="pass"></td><td></td><td class="pass">Metadata</td><td class="pass"></td></tr>
   </tbody>
 </table>
 
@@ -1139,7 +1141,7 @@ window.wrappedJSObject.runTest(); <span class="comment">// "I'm defined in a pag
   <cite><a href="https://sourceforge.net/p/greasemonkey/wiki/unsafeWindow/" target="_blank">unsafeWindow</a></cite></blockquote>
 
   <p>Safer alternatives to <code>unsafeWindow</code> are also listed in above page.</p>
-  <p>More: <a href="https://stackoverflow.com/questions/9515704/insert-code-into-the-page-context-using-a-content-script/9517879#9517879">Insert code into the page context using a content script</a> by Rob W</p>
+  <p>More: <a href="https://stackoverflow.com/questions/9515704/insert-code-into-the-page-context-using-a-content-script/9517879#9517879" target="_blank">Insert code into the page context using a content script</a> by Rob W</p>
 
   <blockquote>This command can open certain security holes in your user script, and it is recommended to use this command sparingly.<br>
 
