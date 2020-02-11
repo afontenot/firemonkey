@@ -200,7 +200,7 @@ function showScript() {
 
   if (pref.content[id].error) {
     box.classList.add('invalid');
-    notify(pref.content[id].error, null,id);
+    notify(pref.content[id].error, id);
   }
   
   userMatches.value = pref.content[id].userMatches || '';
@@ -360,7 +360,6 @@ async function saveScript() {
     return;
   }
 
-
   // --- check name
   if (!data.name) {
     notify(chrome.i18n.getMessage('errorNoName'));
@@ -380,7 +379,9 @@ async function saveScript() {
   }
 
   // --- check for Web Install, set install URL
-  if (!data.updateURL && pref.content[data.name] && pref.content[data.name].updateURL.startsWith('https://greasyfork.org/scripts/')) {
+  if (!data.updateURL && pref.content[data.name] && 
+      (pref.content[data.name].updateURL.startsWith('https://greasyfork.org/scripts/') || 
+        pref.content[data.name].updateURL.startsWith('https://openuserjs.org/install/')) ) {
     data.updateURL = pref.content[data.name].updateURL;
     data.autoUpdate = true;
   }
@@ -438,7 +439,7 @@ function updateScript() {                                   // manual update, al
     return;
   }
 
-  getUpdate(pref.content[id]);
+  getUpdate(pref.content[id], true);
 }
 
 async function processResponse(text, name) {
@@ -448,7 +449,7 @@ async function processResponse(text, name) {
 
   // --- check version
   if (compareVersion(data.version, pref.content[name].version) !== '>') {
-    notify(chrome.i18n.getMessage('noNewUpdate'), null, name);
+    notify(chrome.i18n.getMessage('noNewUpdate'), name);
     return;
   }
 
@@ -472,7 +473,7 @@ async function processResponse(text, name) {
   }
 
   //console.log(name, 'updated to version', data.version);
-  notify(chrome.i18n.getMessage('scriptUpdated', data.version), null, name);
+  notify(chrome.i18n.getMessage('scriptUpdated', data.version), name);
   pref.content[data.name] = data;                           // save to pref
   browser.storage.local.set({content: pref.content});       // update saved pref
 
@@ -806,14 +807,3 @@ function progressBar() {
 }
 // ----------------- /Progress Bar -------------------------
 
-// ----------------- Helper functions ----------------------
-function notify(message, id = '', title = chrome.i18n.getMessage('extensionName')) {
-
-  chrome.notifications.create(id, {
-    type: 'basic',
-    iconUrl: 'image/icon.svg',
-    title,
-    message
-  });
-}
-// ----------------- /Helper functions ---------------------
