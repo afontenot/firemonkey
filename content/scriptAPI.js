@@ -137,7 +137,7 @@ browser.userScripts.onBeforeScript.addListener(script => {
       try {
         const style = document.createElement('style');
         style.textContent = css;
-        (document.head || document.body || document.documentElement).appendChild(style);
+        (document.head || document.body || document.documentElement || document).appendChild(style);
       } catch(error) { console.error(name, error.message); }
     },
 
@@ -166,6 +166,7 @@ browser.userScripts.onBeforeScript.addListener(script => {
       });
     },
 
+    log(...text) { console.log(...text); },
     info: script.metadata.info
   };
 
@@ -186,6 +187,7 @@ browser.userScripts.onBeforeScript.addListener(script => {
     GM_getResourceText:     GM.getResourceText,
     GM_getResourceURL:      GM.getResourceUrl,
     GM_registerMenuCommand: GM.registerMenuCommand,
+    GM_log:                 GM.log,
 
     GM_fetch:               GM.fetch
   });
