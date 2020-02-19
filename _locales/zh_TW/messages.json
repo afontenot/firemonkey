@@ -5,6 +5,7 @@
 
   "tabScript": { "message": "分頁指令稿與 CSS" },
   "otherScript": { "message": "其他指令稿與 CSS" },
+  "scriptCommands": { "message": "Script Commands" },
   "back": { "message": "返回" },
   "edit": { "message": "編輯" },
 
@@ -12,6 +13,8 @@
   "autoUpdateIntervalDescription": { "message": "更新間的天數（0 = 不更新）" },
   
   "disableHighlight": { "message": "停用語法突顯" },
+  "enableSync": { "message": "Enable Storage Sync" },
+  "errorSync": { "message": "Unable to sync\nStorage ($1KB) is larger than 100KB. Sync will be turned off." },
 
   "globalScriptExcludeMatches": { "message": "Global Script Exclude Matches" },
   "globalScriptExcludeMatchesDescription": { "message": "Exclude Match pattens (one per line) to prevent all scripts from running on them." },

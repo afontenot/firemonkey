@@ -3,6 +3,13 @@
 browser.userScripts.onBeforeScript.addListener(script => {
 
   const name = script.metadata.name;
+  const resource = script.metadata.resource;
+
+  // --- Script Commands
+  const scriptCommand = {};
+  function execScriptCommand(message, sender) {
+    message.hasOwnProperty('cmd') && (scriptCommand[message.cmd])();
+  }
 
   /*
     Ref: robwu (Rob Wu)
@@ -126,10 +133,6 @@ browser.userScripts.onBeforeScript.addListener(script => {
          typeof response.response === 'string' ? script.export(response) : cloneInto(response, window));
     },
 
-    getResourceURL() {
-      return null;
-    },
-
     addStyle(css) {
       try {
         const style = document.createElement('style');
@@ -138,24 +141,52 @@ browser.userScripts.onBeforeScript.addListener(script => {
       } catch(error) { console.error(name, error.message); }
     },
 
+
+    async getResourceText(resourceName) { 
+      
+      const response = await browser.runtime.sendMessage({
+        name,
+        api: 'fetch',
+        data: {url: resource[resourceName], init: {}, base: ''}
+      });
+
+      return response ? script.export(response) : null;
+    },
+    
+    getResourceURL(resourceName) { return resource[resourceName]; },
+
+    registerMenuCommand(text, onclick, accessKey) {
+
+      scriptCommand[text] = onclick;
+      browser.runtime.onMessage.hasListener(execScriptCommand) || browser.runtime.onMessage.addListener(execScriptCommand);
+      return browser.runtime.sendMessage({
+        name,
+        api: 'registerMenuCommand',
+        data: {text}
+      });
+    },
+
     info: script.metadata.info
   };
 
   script.defineGlobals({
 
     GM,
-    GM_setValue:        GM.setValue,
-    GM_getValue:        GM.getValue,
-    GM_deleteValue:     GM.deleteValue,
-    GM_listValues:      GM.listValues,
-    GM_openInTab:       GM.openInTab,
-    GM_setClipboard:    GM.setClipboard,
-    GM_notification:    GM.notification,
-    GM_xmlhttpRequest:  GM.xmlHttpRequest,
-    GM_getResourceURL:  GM.getResourceUrl,
-    GM_info:            GM.info,
-    GM_addStyle:        GM.addStyle,
-    
-    GM_fetch:           GM.fetch
+    GM_setValue:            GM.setValue,
+    GM_getValue:            GM.getValue,
+    GM_deleteValue:         GM.deleteValue,
+    GM_listValues:          GM.listValues,
+    GM_openInTab:           GM.openInTab,
+    GM_setClipboard:        GM.setClipboard,
+    GM_notification:        GM.notification,
+    GM_xmlhttpRequest:      GM.xmlHttpRequest,
+    GM_info:                GM.info,
+    GM_addStyle:            GM.addStyle,
+
+    GM_getResourceText:     GM.getResourceText,
+    GM_getResourceURL:      GM.getResourceUrl,
+    GM_registerMenuCommand: GM.registerMenuCommand,
+
+    GM_fetch:               GM.fetch
   });
 });

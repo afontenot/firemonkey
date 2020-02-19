@@ -55,11 +55,12 @@ h3 span, h4 span {
 }
 
 p {
-  margin: 0 auto 0.5em 2em;
+  margin: 0.2em auto 0.2em 2em;
 }
 
 ul {
-  /*margin-top: 0;*/
+  margin-top: 0;
+  margin-left: 1.5em;
 }
 
 a {
@@ -100,9 +101,30 @@ pre {
   margin-left: 2.5em;
 }
 
-pre span {
-  color: #905;
-  font-weight: bold;
+pre div {
+  padding: 0.5em;
+  background-color: #f5fffa;
+  position: relative;
+}
+
+pre div::after {
+  content: '\263a';
+  color: #0d0;
+  opacity: 0.6;
+  font-size: 2.5em;
+  position: absolute;
+  bottom: 0;
+  right: 0.2em; 
+}
+
+pre div.deprecated {
+  background-color: #fff5f5;
+}
+
+pre div.deprecated::after {
+  content: '\2639';
+  color: #f70;
+  font-size: 2.1em;
 }
 
 blockquote {
@@ -236,6 +258,11 @@ td code {
 .fail::before {
   content: '\2718\00A0'; 
   font-weight: 900;
+}
+
+.unknown::before {
+  content: '\2753\00A0'; 
+  font-weight: 900; 
 }
 
 
