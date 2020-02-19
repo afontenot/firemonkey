@@ -795,4 +795,3 @@ function progressBar() {
   setTimeout(() => { pBar.classList.toggle('on'); }, 2000);
 }
 // ----------------- /Progress Bar -------------------------
-

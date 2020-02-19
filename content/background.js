@@ -60,6 +60,11 @@ chrome.storage.local.get(null, async result => {
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {   // Change Listener
+  
+  const hasChanged = Object.keys(changes).find(item => 
+            JSON.stringify(changes[item].oldValue) !== JSON.stringify(changes[item].newValue));
+  if (!hasChanged) { return; }
+  
   Object.keys(changes).forEach(item => pref[item] = changes[item].newValue); // update pref with the saved version
   changes.globalScriptExcludeMatches &&
     changes.globalScriptExcludeMatches.oldValue !== changes.globalScriptExcludeMatches.newValue &&
@@ -181,6 +186,7 @@ function process(info, tab, command){
 
     case 'help':
       localStorage.setItem('nav', 'help');
+      browser.runtime.sendMessage({nav: 'help'});
       chrome.runtime.openOptionsPage();
       break;
   }

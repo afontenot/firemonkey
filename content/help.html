@@ -559,6 +559,7 @@ testpilot.firefox.com
 </pre>
 
   <h4>.google.TLD <span>(domain specific)</span></h4>
+  <div class="scroll">
 <pre class="gm" style="columns: 6;">
 .ae
 .al
@@ -754,7 +755,7 @@ testpilot.firefox.com
 .vu
 .ws
 </pre>
-
+</div>
 
 
   <h3>@require <span>(v1.23+)</span></h3>
@@ -848,11 +849,11 @@ testpilot.firefox.com
   </tr>
   </thead>
   <tbody>
-  <tr><td>jquery 3.*</td><td>jquery3</td><td>3.4.1</td></tr>
-  <tr><td>jquery 2.*</td><td>jquery2</td><td>2.2.4</td></tr>
-  <tr><td>jquery 1.*</td><td>jquery1</td><td>1.12.4</td></tr>
-  <tr><td>jquery-ui 1.*</td><td>jquery-ui1</td><td>1.12.1</td></tr>
   <tr><td>bootstrap</td><td></td><td>4.4.1</td></tr>
+  <tr><td>jquery 1.*</td><td>jquery1</td><td>1.12.4</td></tr>
+  <tr><td>jquery 2.*</td><td>jquery2</td><td>2.2.4</td></tr>
+  <tr><td>jquery 3.*</td><td>jquery3</td><td>3.4.1</td></tr>
+  <tr><td>jquery-ui 1.*</td><td>jquery-ui1</td><td>1.12.1</td></tr>
   <tr><td>moment</td><td></td><td>2.24.0</td></tr>
   <tr><td>underscore</td><td></td><td>1.9.2</td></tr>
   
@@ -1000,6 +1001,9 @@ document.<span class="property">head</span>.<span class="method">appendChild</sp
 
   <span class="gm">GM</span>.<span class="gm">info</span>
   <span class="gm">GM_info</span>
+
+  <span class="gm">GM</span>.<span class="gm">log</span>(text [, text2, ..., textN])
+  <span class="gm">GM_log</span>(text [, text2, ..., textN])
   
   <span class="gm">unsafeWindow</span>
 })();</pre>
@@ -1222,6 +1226,10 @@ GM_fetch(url[, init]);</pre>
   }
 }</pre>
 
+  <h3>log</h3>
+  <p>The API is added for convenience and compatibility and is no longer supproted by GreaseMonkey or ViolentMonkey but TamperMonkey still has it. Multiple parameters can be passed e.g. <code>GM_log('one', 'two', 'three')</code>. You can also use <code>console.log()</code> instead.</p>
+  
+
 
   <h3>&#x26A0;&#xFE0F; unsafeWindow <span>(v1.24+)</span></h3>
   <p><code>unsafeWindow</code> in <i>FireMonkey</i> is an alias for <code>window.wrappedJSObject</code>. You can also use <code>window.wrappedJSObject</code> or <code>window.eval()</code> to access page JavaScript <b>globals</b>. Please note that <code>window.eval()</code> makes the object available to the page script as well while <code>unsafeWindow</code>, <code>window.wrappedJSObject</code> does not.</p>
@@ -1279,10 +1287,6 @@ window.wrappedJSObject.runTest(); <span class="comment">// "I'm defined in a pag
 
 <span class="gm">unsafeWindow</span>.obj = {text: <span class="string">'hello from user-script'</span>};
 <span class="property">console</span>.<span class="method">log</span>(<span class="gm">unsafeWindow</span>.obj.text); <span class="comment">// hello from user-script</span></pre>
-
-
-  
-  
 
 
   <h3>&#x2139;&#xFE0F; <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Xray_vision" target="_blank">Xray Vision</a> & Sharing objects with page scripts</h3>
