@@ -6,9 +6,40 @@ const update =[];
 const FMV = browser.runtime.getManifest().version;          // FireMonkey version
 const FMUrl = browser.runtime.getURL('');
 
+// ----------------- Script Commands -----------------------
+const scriptCommand = {};
+function getScriptCommand(tabId) { return scriptCommand[tabId]; }
+
+// --- clear scriptCommand cache
+browser.tabs.onRemoved.addListener(tabId => { delete scriptCommand[tabId];});
+
+browser.webNavigation.onBeforeNavigate.addListener(details => {
+  if (scriptCommand[details.tabId] && scriptCommand[details.tabId].url !== details.url) {
+    delete scriptCommand[details.tabId];
+  }
+});
+
+/*
+browser.tabs.onUpdated.addListener((tabId, changeInfo, tabInfo) => {
+
+  if (changeInfo.status !== 'complete') { return; }        // end execution if not found
+  console.log('onUpdated called', tabId, changeInfo, tabInfo);
+  // delete scriptCommand[tabId]
+});*/
+// ----------------- /Script Commands ----------------------
+
 // ----------------- User Preference -----------------------
-chrome.storage.local.get(null, result => {
+chrome.storage.local.get(null, async result => {
   Object.keys(result).forEach(item => pref[item] = result[item]); // update pref with the saved version
+
+  // --- storage sync check
+  if (pref.sync) {
+
+    await browser.storage.sync.get(null, result => {
+      Object.keys(result).forEach(item => pref[item] = result[item]); // update pref with the saved version
+    });
+    browser.storage.local.set(pref);                   // update local saved pref
+  }
 
   const days = pref.autoUpdateInterval *1;
   const doUpdate =  days && Date.now() > pref.autoUpdateLast + (days + 86400000); // 86400 * 1000 = 24hr
@@ -33,6 +64,17 @@ chrome.storage.onChanged.addListener((changes, area) => {   // Change Listener
   changes.globalScriptExcludeMatches &&
     changes.globalScriptExcludeMatches.oldValue !== changes.globalScriptExcludeMatches.newValue &&
       Object.keys(pref.content).forEach(register);
+
+  // --- storage sync update
+  if (pref.sync) {
+    const size = JSON.stringify(pref).length;
+    if (size > 102400) {
+      notify(chrome.i18n.getMessage('errorSync', (size/1024).toFixed(1)));
+      pref.sync = false;
+      browser.storage.local.set({sync: false});
+    }
+    else { browser.storage.sync.set(pref); }
+  }
 });
 
 function updatePref(result) {
@@ -40,8 +82,7 @@ function updatePref(result) {
 }
 
 // ----------------- Web/Direct Install Listener ------------------
-browser.webRequest.onBeforeRequest.addListener(processWebInstall,
-  {
+browser.webRequest.onBeforeRequest.addListener(processWebInstall, {
     urls: [
       'https://greasyfork.org/scripts/*.user.js',
       'https://openuserjs.org/install/*.user.js'
@@ -51,13 +92,8 @@ browser.webRequest.onBeforeRequest.addListener(processWebInstall,
   ['blocking']
 );
 
-browser.tabs.onUpdated.addListener(processDirectInstall,
-  {
-    urls: [
-        'https://greasyfork.org/scripts/*.user.js',
-        'https://openuserjs.org/install/*.user.js',
-        'file:///*/*.user.js'
-      ]
+browser.tabs.onUpdated.addListener(processDirectInstall,{
+  urls: ['*://*/*.user.js', 'file:///*.user.js' ]
 });
 
 function processWebInstall(e) {
@@ -80,32 +116,42 @@ function processWebInstall(e) {
 
   if (q) {
 
-      const code = `(() => {
-        let title = document.querySelector('${q}');
-        title = title ? title.textContent : 'Unknown';
-        return confirm(chrome.i18n.getMessage('installConfirm', title)) ? title : null;
-      })();`;
+    const code = `(() => {
+      let title = document.querySelector('${q}');
+      title = title ? title.textContent : 'Unknown';
+      return confirm(chrome.i18n.getMessage('installConfirm', title)) ? title : null;
+    })();`;
 
-      chrome.tabs.executeScript({code}, (result = []) => {
-        result[0] && getScript({updateURL: e.url, name: result[0]});
-      });
-      return {cancel: true};
+    chrome.tabs.executeScript({code}, (result = []) => {
+      result[0] && getScript({updateURL: e.url, name: result[0]});
+    });
+    return {cancel: true};
   }
 }
 
 function processDirectInstall(tabId, changeInfo, tab) {
 
   if (changeInfo.status !== 'complete') { return; }        // end execution if not found
+  if (tab.url.startsWith('https://github.com/')) { return; } // not on https://github.com/*/*.user.js
 
-  const DS = String.raw`(() => {
-    const pre = document.querySelector('pre');
-    if (!pre || !pre.textContent.trim()) { notify(chrome.i18n.getMessage('errorMeta')); return; }
+  // work-around for https://bugzilla.mozilla.org/show_bug.cgi?id=1411641
+  // using https://cdn.jsdelivr.net mirror
+  if (tab.url.startsWith('https://raw.githubusercontent.com/')) {
+    // https://raw.githubusercontent.com/<username>/<repo>/<branch>/path/to/file.js
+    const p = tab.url.split(/:?\/+/);
+    browser.tabs.update({url: `https://cdn.jsdelivr.net/gh/${p[2]}/${p[3]}@${p[4]}/${p.slice(5).join('/')}` })
+    return;
+  }
+
+  const code = String.raw`(() => {
+    const pre = document.body;
+    if (!pre || !pre.textContent.trim()) { alert(chrome.i18n.getMessage('errorMeta')); return; }
     const name = pre.textContent.match(/(?:\/\/)?\s*@name\s+([^\r\n]+)/);
-    if (!name) { notify(chrome.i18n.getMessage('errorMeta')); return; }
+    if (!name) { alert(chrome.i18n.getMessage('errorMeta')); return; }
     return confirm(chrome.i18n.getMessage('installConfirm', name[1])) ? [pre.textContent, name[1]] : null;
   })();`;
 
-  chrome.tabs.executeScript({code: DS}, (result = []) => {
+  chrome.tabs.executeScript({code}, (result = []) => {
     result[0] && processResponse(result[0][0], result[0][1], tab.url);
   });
 }
@@ -113,7 +159,8 @@ function processDirectInstall(tabId, changeInfo, tab) {
 // ----------------- Context Menu --------------------------
 const contextMenus = [
 
-  { id: 'options', contexts: ['browser_action'], icons: {16: 'image/gear.svg'} } // FF53+
+  { id: 'options', contexts: ['browser_action'], icons: {16: 'image/gear.svg'} }, // FF53+
+  { id: 'help', contexts: ['browser_action'], icons: {16: 'image/help32.png'} }
 ];
 
 
@@ -128,7 +175,14 @@ function process(info, tab, command){
 
   switch (info.menuItemId) {
 
-    case 'options': chrome.runtime.openOptionsPage(); break;
+    case 'options':
+      chrome.runtime.openOptionsPage();
+      break;
+
+    case 'help':
+      localStorage.setItem('nav', 'help');
+      chrome.runtime.openOptionsPage();
+      break;
   }
 }
 
@@ -158,9 +212,7 @@ async function register(id) {
 
   // --- add Global Script Exclude Matches
   if (pref.globalScriptExcludeMatches) {
-    console.log(pref.content[id].excludeMatches);
     options.excludeMatches = [... pref.content[id].excludeMatches, ...pref.globalScriptExcludeMatches.split(/\s+/)];
-    console.log(options.excludeMatches);
   }
 
   // --- add CSS & JS
@@ -176,20 +228,36 @@ async function register(id) {
   }
   else if (pref.content[id].js) {
 
-    options.js = [{code: 'const unsafeWindow = window.wrappedJSObject;'}]; // unsafeWindow implementation
-    if (pref.content[id].require && pref.content[id].require[0]) { // add @require
-      pref.content[id].require.forEach(item => {
+    // --- unsafeWindow implementation
+    options.js = [{code: 'const unsafeWindow = window.wrappedJSObject;'}];
 
-        if (item.startsWith('lib/')) { options.js.unshift({file: item}); }
-        else if (pref.content[item] && pref.content[item].js) {
-          options.js.unshift({code: pref.content[item].js.replace(metaRegEx, '')})
-        }
-      });
+    // --- add @require
+    const require = pref.content[id].require || [];
+    require.forEach(item => {
+
+      if (item.startsWith('lib/')) { options.js.push({file: item}); }
+      else if (pref.content[item] && pref.content[item].js) {
+        options.js.push({code: pref.content[item].js.replace(metaRegEx, '')});
+      }
+    });
+
+    // --- add @requireRemote
+    const requireRemote = pref.content[id].requireRemote || [];
+    if (requireRemote [0]) {
+
+      await Promise.all(requireRemote.map(url =>
+        fetch(url).then(response => response.text())
+        .then(code => options.js.push({code}))
+        .catch(() => null)
+      ));
     }
+
+    // --- add code
     options.js.push({code: pref.content[id].js.replace(metaRegEx, '')});
 
     options.scriptMetadata = {
       name: id,
+      resource: pref.content[id].resource || {},
       info: {                                               // GM.info data
         scriptHandler: 'FireMonkey',
         version: FMV,
@@ -203,7 +271,7 @@ async function register(id) {
           excludes: pref.content[id].excludeMatches,
           'run-at': pref.content[id].runAt.replace('_', '-'),
           namespace: null,
-          resources: null
+          resources: pref.content[id].resource || {}
         }
       }
     };
@@ -288,7 +356,7 @@ browser.webRequest.onBeforeSendHeaders.addListener(e => {
 );
 
 
-browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((message, sender) => {
 
   const e = message.data;
   const name = message.name;
@@ -302,7 +370,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       pref[storage] || (pref[storage] = {});                // make one if didn't exist
       if (pref[storage][e.key] === e.value) { return true; } // return if value hasn't changed
       pref[storage][e.key] = e.value;
-      return await browser.storage.local.set({[storage]: pref[storage]});
+      return browser.storage.local.set({[storage]: pref[storage]});
 
     case 'getValue':
       return hasProperty(e.key) ? pref[storage][e.key] : e.defaultValue;
@@ -313,7 +381,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     case 'deleteValue':
       if (!hasProperty(e.key)) { return true; }             // return if nothing to delete
       delete pref[storage][e.key];
-      return await browser.storage.local.set({[storage]: pref[storage]});
+      return browser.storage.local.set({[storage]: pref[storage]});
 
     case 'openInTab':
       browser.tabs.create({url: e.url, active: e.active});
@@ -327,6 +395,13 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
     case 'notification': notify(e.text, name); break;
 
+    case 'registerMenuCommand':
+      scriptCommand[sender.tab.id] || (scriptCommand[sender.tab.id] = {}); // create if not present
+      scriptCommand[sender.tab.id][name] || (scriptCommand[sender.tab.id][name] = []);
+      scriptCommand[sender.tab.id].url = sender.tab.url;
+      scriptCommand[sender.tab.id][name].includes(e.text) || scriptCommand[sender.tab.id][name].push(e.text);
+      break;
+
     case 'fetch':
       // --- check url
       const url = checkURL(e.url, e.base);
@@ -339,7 +414,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       // --- remove forbidden headers
       init.headers && processForbiddenHeaders(init.headers);
 
-      return await fetch(url, init)
+      return fetch(url, init)
         .then(response => {
 
           switch (e.init.responseType) {
@@ -358,7 +433,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       const xhrUrl = checkURL(e.url, e.base);
       if (!xhrUrl) { return; }
 
-      return await new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
 
         const xhr = new XMLHttpRequest();
         xhr.open(e.method, xhrUrl, true, e.user, e.password);
@@ -437,7 +512,7 @@ function processResponse(text, name, updateURL) {
 
   const userMatches = pref.content[name] ? pref.content[name].userMatches : '';
   const userExcludeMatches = pref.content[name] ? pref.content[name].userExcludeMatches : '';
-  
+
   const data = getMetaData(text, userMatches, userExcludeMatches);
   if (!data) { throw `${name}: Meta Data error`; }
 

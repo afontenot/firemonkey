@@ -7,6 +7,7 @@ let pref = {                                                // global default
   disableHighlight: false,
   content: {},
   globalScriptExcludeMatches: '',
+  sync: false,
   template: {
    css: '',
    js: ''

@@ -5,6 +5,7 @@
 
   "tabScript": { "message": "标签页的脚本和样式" },
   "otherScript": { "message": "其他脚本和样式" },
+  "scriptCommands": { "message": "Script Commands" },
   "back": { "message": "返回" },
   "edit": { "message": "编辑" },
 
@@ -12,6 +13,8 @@
   "autoUpdateIntervalDescription": { "message": "更新间隔天数 (0 = 不更新)" },
 
   "disableHighlight": { "message": "停用語法突顯" },
+  "enableSync": { "message": "Enable Storage Sync" },
+  "errorSync": { "message": "Unable to sync\nStorage ($1KB) is larger than 100KB. Sync will be turned off." },
 
   "globalScriptExcludeMatches": { "message": "Global Script Exclude Matches" },
   "globalScriptExcludeMatchesDescription": { "message": "Exclude Match pattens (one per line) to prevent all scripts from running on them." },
