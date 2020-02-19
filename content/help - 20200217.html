@@ -23,11 +23,10 @@
 
 
   <h2 id="how_to">How to Use</h2>
-  
+  <p></p>
 
 
   <h3>Toolbar Icon Context Menu</h3>
-  <p>Right-clik on Toolbar Icon:</p>
   <ul>
     <li><img src="../image/gear.svg" width="16" alt=""> Options: open the Options Page</li>
     <li><img src="../image/help32.png" width="16" alt=""> Help: display Help document</li>
@@ -77,7 +76,7 @@
 
 
   <h3>Enable Storage Sync</h3>
-  <p>Enable to sync storage if it is under 100KB. If the storage is over 100KB, there will be a notification and the Sync will be turned off automatically to avoid repeated errors.</p>
+  <p>Enable to sync storage if it is under 100KB.</p>
   
   <blockquote>For Firefox a user must have Add-ons checked under the "Sync Settings" options in "about:preferences".
   <br><br>
@@ -758,8 +757,7 @@ testpilot.firefox.com
 
 
   <h3>@require <span>(v1.23+)</span></h3>
-  <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers.</p>
-
+  <p>The <code>@require</code> in <i>FireMonkey</i> was added to facilitate user-script developers, however please note that it differs from the <code>@require</code> in other script mangers.</p>
 
   <h4>@require &nbsp;&nbsp;&nbsp; name <span>(v1.23+)</span></h4>
   <p><code>@require</code> can be used to pre-include other existing scripts into a script (or other existing CSS into a CSS). For example:</p>
@@ -817,50 +815,24 @@ testpilot.firefox.com
 ==/UserCSS==
 */</pre>
 
-  <h4>@require &nbsp;&nbsp;&nbsp; specific-library<span>(v1.24+)</span></h4>
-  <p>Few libraries have been packed with <i>FireMonkey</i> which will be injected for user-scripts using <code>@require</code>. A shorthand <code>jquery1/jquery2/jquery3/jquery-ui1</code> (case-insensitive) can also be used.</p>
-  <p>Based on data provided by <i>GreasyFork</i>, 8,011/31,170 (26%) use <code>@require</code> and from those 7,082/11,236 (63%) entries relate to those libraries (& <i>gm4-polyfill</i>).</p>
+  <h4>@require &nbsp;&nbsp;&nbsp; (some) URL <span>(v1.24+)</span></h4>
+  <p>Few libraries have been packed with <i>FireMonkey</i> which will be injected for user-scripts using <code>@require</code> to get jQuery from original sources. A shorthand <code>jquery1/jquery2/jquery3/jquery-ui1</code> (case-insensitive) can also be used.</p>
 
-  <p>Folowing CDN sources are processed:</p>
+  <p>Folowing sources are processed: <i>jQuery, jQuery UI</i></p>
 
   <ul style="columns: 2;">
     <li>ajax.aspnetcdn.com</li>
     <li>ajax.googleapis.com</li>
-    <li>apps.bdimg.com</li>
     <li>cdn.bootcss.com</li>
     <li>cdn.jsdelivr.net</li>
     <li>cdn.staticfile.org</li>
     <li>cdnjs.cloudflare.com</li>
     <li>code.jquery.com</li>
-    <li>lib.baomitu.com</li>
-    <li>libs.baidu.com</li>
     <li>pagecdn.io</li>
     <li>unpkg.com</li>
   </ul>
 
-                     
-<table>
-  <thead>
-  <tr>
-    <th>CDN Links to</th>
-    <th>Shorthand</th>
-    <th>Injected Library Version</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr><td>jquery 3.*</td><td>jquery3</td><td>3.4.1</td></tr>
-  <tr><td>jquery 2.*</td><td>jquery2</td><td>2.2.4</td></tr>
-  <tr><td>jquery 1.*</td><td>jquery1</td><td>1.12.4</td></tr>
-  <tr><td>jquery-ui 1.*</td><td>jquery-ui1</td><td>1.12.1</td></tr>
-  <tr><td>bootstrap</td><td></td><td>4.4.1</td></tr>
-  <tr><td>moment</td><td></td><td>2.24.0</td></tr>
-  <tr><td>underscore</td><td></td><td>1.9.2</td></tr>
-  
-  </tbody>
-</table>
-
-
-For example:
+  <p>All the following will result in injection of the latest jQuery v3 (e.g. 3.4.1):</p>
 <pre class="comment">
 // @require       jquery3
 // @require       https://code.jquery.com/jquery-3.*.*.js
@@ -873,16 +845,38 @@ For example:
   ... etc
 </pre>
 
+  <p>All the following will result in injection of jQuery v2.2.4:</p>
+<pre class="comment">
+// @require       jquery2
+// @require       https://code.jquery.com/jquery-2.*.*.js
+  ... etc
+</pre>
+
+  <p>All the following will result in injection of jQuery v1.12.4:</p>
+<pre class="comment">
+// @require       jquery1
+// @require       https://code.jquery.com/jquery-1.*.*.js
+// @require       http://code.jquery.com/jquery-latest.js         (links to v1.11.1)
+// @require       http://code.jquery.com/jquery-latest.min.js     (links to v1.11.1)
+  ... etc
+</pre>
+
+  <p>All the following will result in injection of jQuery UI v1.12.1:</p>
+<pre class="comment">
+// @require       jquery-ui1
+// @require       https://code.jquery.com/ui/1.*.*/jquery-ui.js
+  ... etc
+</pre>
+
+
+
   <p>On popular demand, more libraries may be added in future.</p>
 
-  <h4>&#x26A0;&#xFE0F; @require &nbsp;&nbsp;&nbsp; other-URL <span>(v1.27+)</span></h4>
-  <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers as the target is not not stored. It uses <code>fetch()</code> to get the target the first time but on subsequently <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request/cache" target="_blank">Request.cache</a> will be used by the browser.</p>
-  <p><b>Note:</b> 
-  <ul>
-    <li>Processing many scripts with many <code>@require</code> can take time when registering scripts (i.e. browser start-up, disabling/re-enabling <i>FireMonkey</i>)</li>
-    <li><i>gm4-polyfill</i> is not applicable (and may cause conflict) & therefore it is not processed</li>
-  </ul>
-  
+
+
+
+  <h3>&#x26d4; @grant</h3>
+  <p>Scripts will have access to all available APIs and therefore <code>@grant</code> is not needed or used.</p>
 
 
   <h3>&#x26d4; Storing @require & @resource Targets</h3>
@@ -890,7 +884,7 @@ For example:
 
   <p>Firefox Quantum no longer allows extension to save fies to Fireofx profile folder. Script managers will have to use the storage assigned to the extension to save <code>@require</code> & <code>@resource</code> files in form of data.</p>
 
-  <p>Saving large volume of data to storage impact RAM and CPU resource usage of the extension, slows down read/write to the extension storage and generally impact the browser performance. Known Libraries often are 100+KB to 1+MB e.g. <i>jquery-3.4.1.js 273MB,jquery-3.4.1.min.js 86KB, jquery-ui-1.12.1.js 508KB, jquery-ui-1.12.1.min.js 247KB, angular-1.7.6.js 1.3MB</i> ... etc. In case of <code>@resource</code>, images for example could be many megabytes of data.</p>
+  <p>Besides the security risks of using <code>@require</code> to inject unknown code, saving large volume of data to storage impact RAM and CPU resource usage of the extension, slows down read/write to the extension storage and generally impact the browser performance. Known Libraries often are 100+KB to 1+MB e.g. <i>jquery-3.4.1.js 273MB,jquery-3.4.1.min.js 86KB, jquery-ui-1.12.1.js 508KB, jquery-ui-1.12.1.min.js 247KB, angular-1.7.6.js 1.3MB</i> ... etc. In case of <code>@resource</code>, images for example could be many megabytes of data.</p>
 
   <p>Considering that a user may have many user-Scripts and they may have many <code>@require</code> & <code>@resource</code>, the size of storage can get extremely large and its effect on browser performance quite considerable.</p>
 
@@ -934,8 +928,7 @@ document.<span class="property">head</span>.<span class="method">appendChild</sp
 img.<span class="property">src</span> = <span class="string">'http://www.example.com/logo.jpg'</span>;
 document.<span class="property">head</span>.<span class="method">appendChild</span>(img);</div></pre>
 
-  <h3>&#x26d4; @grant</h3>
-  <p>Scripts will have access to all available APIs and therefore <code>@grant</code> is not needed or used.</p>
+
 
   <h2>Script API</h2>
   <p><i>FireMonkey</i> supports both GM4 & GM3 style APIs (e.g. GM.*** & GM_***) via mostly asynchronous <code>Promise</code>. Therefore if scripts requires a <code>return</code>, it must wait for the <code>Promise</code> to resolve.</p>
@@ -1198,10 +1191,10 @@ GM_fetch(url[, init]);</pre>
 
 
   <h3>getResourceText(resourceName) <span>(v1.27+)</span></h3>
-  <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers as the target is not not stored. It uses <code>fetch()</code> to get the target the first time but on subsequently <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request/cache" target="_blank">Request.cache</a> will be used by the browser.</p>
+  <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers as the resource target is not not stored. It uses <code>fetch()</code> to get the text the first time it is called in a session but on subsequent calls <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request/cache" target="_blank">Request.cache</a> will be used by the browser.</p>
 
   <h3>getResourceUrl(resourceName) <span>(v1.27+)</span></h3>
-  <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers as the target is not not stored. It maps directly to the <i>resourceURL</i> and returns the URL, or <code>undefined</code>.</p>
+  <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers as the resource target is not not stored. It maps directly to the <i>resourceURL</i> and returns the URL, or <code>undefined</code>.</p>
 
 
   <h3>info <span>(v1.16+)</span></h3>
@@ -1224,7 +1217,7 @@ GM_fetch(url[, init]);</pre>
 
 
   <h3>&#x26A0;&#xFE0F; unsafeWindow <span>(v1.24+)</span></h3>
-  <p><code>unsafeWindow</code> in <i>FireMonkey</i> is an alias for <code>window.wrappedJSObject</code>. You can also use <code>window.wrappedJSObject</code> or <code>window.eval()</code> to access page JavaScript <b>globals</b>. Please note that <code>window.eval()</code> makes the object available to the page script as well while <code>unsafeWindow</code>, <code>window.wrappedJSObject</code> does not.</p>
+  <p><code>unsafeWindow</code> in <i>FireMonkey</i> is an alias for <code>window.wrappedJSObject</code>. You can also use <code>window.wrappedJSObject</code> or <code>window.eval()</code> to access page JavaScript <b>globals</b>. Please note that <code>window.eval()</code> makes the object available to the page script as well while <code>unsafeWindow</code>, <code>window.wrappedJSObject</code> do not.</p>
 
 <pre>
 <span class="comment">// page-script.js</span>
@@ -1240,17 +1233,6 @@ GM_fetch(url[, init]);</pre>
 <span class="gm">unsafeWindow</span>.runTest(); <span class="comment">// "I'm defined in a page script!"</span>
 window.wrappedJSObject.runTest(); <span class="comment">// "I'm defined in a page script!"</span>
 </pre>
-
-<pre>
-<span class="comment">// overriding window functions</span>
-<span class="keyword">let</span> <span class="method">hasFocus</span> = <span class="keyword">new</span> window.<span class="object">Function</span>(<span class="string">'return true'</span>);
-<span class="gm">unsafeWindow</span>.document.<span class="method">hasFocus</span> = <span class="method">hasFocus</span>;
- 
-<span class="comment">// another example</span>
-<span class="object">Object</span>.defineProperty(<span class="gm">unsafeWindow</span>.document, <span class="string">'hidden'</span>, {<span class="property">value</span>: <span class="keyword">false</span>});
-</pre>
-
-
 
   <blockquote>This API object allows a User script to access "custom" properties--variable and functions defined in the page--set by the web page. The <code>unsafeWindow</code> object is shorthand for <code>window.wrappedJSObject</code>. It is the raw window object inside the <code>XPCNativeWrapper</code> provided by the Greasemonkey Sandbox.<br><br>
 

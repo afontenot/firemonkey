@@ -1,5 +1,5 @@
 ﻿/* ----- General ----- */
-pre div {
+pre[contenteditable] div {
   max-width: 100vmin;
 }
 

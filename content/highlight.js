@@ -402,10 +402,10 @@ const highlight = {
     ],
     gm: [
       "GM", "deleteValue", "getResourceUrl", "getValue", "info", "listValues", "notification",
-      "openInTab", "setClipboard", "setValue", "xmlHttpRequest",
+      "openInTab", "setClipboard", "setValue", "xmlHttpRequest", "registerMenuCommand",
       "GM_deleteValue", "GM_getResourceURL", "GM_getValue", "GM_info", "GM_listValues", "GM_notification",
       "GM_openInTab", "GM_setClipboard", "GM_setValue", "GM_xmlhttpRequest", "GM_fetch",
-      "unsafeWindow"
+      "GM_registerMenuCommand", "unsafeWindow"
     ]
   },
 

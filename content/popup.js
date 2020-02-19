@@ -25,21 +25,50 @@ const liTemplate = document.querySelector('li.template');
 const ulTab = document.querySelector('ul.tab');
 const ulOther = document.querySelector('ul.other');
 
-
 function process() {
 
   switch (this.dataset.i18n) {
-    case 'edit': editScript('edit', this.id); break;
-    case 'options': chrome.runtime.openOptionsPage(); window.close(); break;
-    case 'newJS|title': editScript('new', 'js'); break;
-    case 'newCSS|title': editScript('new', 'css'); break;
-    case 'help': editScript('help'); break;
+
+    case 'options':
+      break;
+
+    case 'newJS|title':
+      localStorage.setItem('nav', 'js');
+      browser.runtime.sendMessage({nav: 'js'});
+      break;
+    case 'newCSS|title':
+      localStorage.setItem('nav', 'css');
+      browser.runtime.sendMessage({nav: 'css'});
+      break;
+    case 'help':
+      localStorage.setItem('nav', 'help');
+      browser.runtime.sendMessage({nav: 'help'});
+      break;
+
+    case 'edit':
+      localStorage.setItem(nav, this.id);
+      browser.runtime.sendMessage({nav: this.id});
+      break;
   }
+  browser.runtime.openOptionsPage();
+  window.close();
+}
+
+function editScript(edit, id) {
+
+  localStorage.setItem(edit, id);
+  chrome.runtime.openOptionsPage();
+  chrome.runtime.sendMessage({edit, id});                    // in case Option page is already open
+  window.close();
 }
 
 async function processScript() {
 
   const tabs = await browser.tabs.query({currentWindow: true, active: true});
+  browser.runtime.getBackgroundPage()                       // add Script Commands for this tab
+  .then(bg => addCommand(tabs[0].id, bg.getScriptCommand(tabs[0].id)))
+  .catch(console.error);
+
   const frames = await browser.webNavigation.getAllFrames({tabId: tabs[0].id});
   const urls = [...new Set(frames.map(item => item.url).filter(item => /^(https?|wss?|ftp|file|about:blank)/.test(item)))];
   const gExclude = pref.globalScriptExcludeMatches ? pref.globalScriptExcludeMatches.split(/\s+/) : []; // cache the array
@@ -92,7 +121,7 @@ function showInfo() {
   dl.textContent = '';                                      // clearing previous content
   const dtTemp = document.createElement('dt');
   const ddTemp = document.createElement('dd');
-  const infoArray = ['name', 'description', 'author', 'version', 'matches', 
+  const infoArray = ['name', 'description', 'author', 'version', 'matches',
                       'excludeMatches', 'require', 'userMatches', 'userExcludeMatches'];
   pref.content[id].error && infoArray.push('error');
 
@@ -104,7 +133,7 @@ function showInfo() {
       item === 'error' && dt.classList.add('error');
       dt.textContent = item;
       dl.appendChild(dt);
-      
+
       arr.forEach(item => {
         const dd = ddTemp.cloneNode();
         dd.textContent = item;
@@ -117,10 +146,31 @@ function showInfo() {
   info.parentNode.style.transform = 'translateX(-50%)';
 }
 
-function editScript(edit, id) {
 
-  localStorage.setItem(edit, id);
-  chrome.runtime.openOptionsPage();
-  chrome.runtime.sendMessage({edit, id});                    // in case Option page is already open
-  window.close();
+
+// ----------------- Script Commands -----------------------
+const command = document.querySelector('h3.command');
+const ulCommand = command.nextElementSibling;
+
+function addCommand(tabId, cmd = {}) {
+
+  Object.keys(cmd).forEach(name => {
+
+    if (name === 'url') { return; }                         // skip url
+
+    command.classList.toggle('on', true);
+    const li = liTemplate.cloneNode();
+    li.classList.replace('template', 'head');
+    li.textContent = name;
+    ulCommand.appendChild(li);
+
+    cmd[name].forEach(item => {
+
+      const li = liTemplate.cloneNode();
+      li.classList.remove('template');
+      li.textContent = item;
+      li.addEventListener('click', () => browser.tabs.sendMessage(tabId, {cmd: item}));
+      ulCommand.appendChild(li);
+    });
+  });
 }

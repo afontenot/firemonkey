@@ -92,69 +92,93 @@ function getMetaData(str, userMatches = '', userExcludeMatches = '') {
         // --- add @require
         case 'require':
           const url = value.toLowerCase().replace(/^(http:)?\/\//, 'https://'); // change starting http:// & Protocol-relative URL //
-          const [protocol, host,] = url.split(/:?\/+/);
-          const cdnHosts = ['ajax.aspnetcdn.com', 'ajax.googleapis.com', 'apps.bdimg.com', 'cdn.bootcss.com',
-                            'cdn.jsdelivr.net', 'cdn.staticfile.org', 'cdnjs.cloudflare.com', 'code.jquery.com',
-                            'lib.baomitu.com', 'libs.baidu.com', 'pagecdn.io', 'unpkg.com'];
-          const cdn = host && cdnHosts.includes(host);
           switch (true) {
 
             case url === 'jquery3':
-            case cdn && url.includes('/jquery-3.'):
-            case cdn && url.includes('/jquery/3.'):
-            case cdn && url.includes('/jquery@3'):
+            case url.startsWith('https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.'):      // Microsoft CDN   
+            case url.startsWith('https://ajax.googleapis.com/ajax/libs/jquery/3.'):       // Google CDN      
+            case url.startsWith('https://cdn.bootcss.com/jquery/3.'):                     // China           
+            case url.startsWith('https://cdn.jsdelivr.net/jquery/3.'):
+            case url.startsWith('https://cdn.jsdelivr.net/npm/jquery@3.'):
+            case url.startsWith('https://cdn.staticfile.org/jquery/3.'):
+            case url.startsWith('https://cdnjs.cloudflare.com/ajax/libs/jquery/3.'):
+            case url.startsWith('https://code.jquery.com/jquery-3.'):
+            case url.startsWith('https://pagecdn.io/lib/jquery/3.'):
+            case url.startsWith('https://unpkg.com/jquery@3'):
+            case url.startsWith('https://lib.baomitu.com/jquery/3.'):
             case url.startsWith('https://lib.baomitu.com/jquery/latest/'):
               value = 'lib/jquery-3.4.1.min.jsm';
               break;
 
             case url === 'jquery2':
-            case cdn && url.includes('/jquery-2.'):
-            case cdn && url.includes('/jquery/2.'):
-            case cdn && url.includes('/jquery@2'):
+            case url.startsWith('https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.'):
+            case url.startsWith('https://ajax.googleapis.com/ajax/libs/jquery/2.'):
+            case url.startsWith('https://cdn.bootcss.com/jquery/2.'):
+            case url.startsWith('https://cdn.jsdelivr.net/jquery/2.'):
+            case url.startsWith('https://cdn.jsdelivr.net/npm/jquery@2.'):
+            case url.startsWith('https://cdn.staticfile.org/jquery/2.'):
+            case url.startsWith('https://cdnjs.cloudflare.com/ajax/libs/jquery/2.'):
+            case url.startsWith('https://code.jquery.com/jquery-2.'):
+            case url.startsWith('https://pagecdn.io/lib/jquery/2.'):
+            case url.startsWith('https://unpkg.com/jquery@2'):
+            case url.startsWith('https://apps.bdimg.com/libs/jquery/2.'):
+            case url.startsWith('https://libs.baidu.com/jquery/2.'):
+            case url.startsWith('https://lib.baomitu.com/jquery/2.'):
               value = 'lib/jquery-2.2.4.min.jsm';
               break;
 
             case url === 'jquery1':
-            case cdn && url.includes('/jquery-1.'):
-            case cdn && url.includes('/jquery/1.'):
-            case cdn && url.includes('/jquery@1'):
+            case url.startsWith('https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.'):
+                                         
             case url.startsWith('https://ajax.googleapis.com/ajax/libs/jquery/1'):
+            case url.startsWith('https://cdn.bootcss.com/jquery/1.'):
+            case url.startsWith('https://cdn.jsdelivr.net/jquery/1.'):
+            case url.startsWith('https://cdn.jsdelivr.net/npm/jquery@1.'):
+            case url.startsWith('https://cdn.staticfile.org/jquery/1.'):
+            case url.startsWith('https://cdnjs.cloudflare.com/ajax/libs/jquery/1.'):
+            case url.startsWith('https://code.jquery.com/jquery-1.'):
             case url.startsWith('https://code.jquery.com/jquery-latest.'):
             case url.startsWith('https://code.jquery.com/jquery.'):
+            case url.startsWith('https://pagecdn.io/lib/jquery/1.'):
+            case url.startsWith('https://unpkg.com/jquery@1'):
+            case url.startsWith('https://apps.bdimg.com/libs/jquery/1.'):
+            case url.startsWith('https://libs.baidu.com/jquery/1.'):
+            case url.startsWith('https://lib.baomitu.com/jquery/1.'):
               value = 'lib/jquery-1.12.4.min.jsm';
               break;
 
             case url === 'jquery-ui1':
-            case cdn && url.includes('/jqueryui/1.'):
-            case cdn && url.includes('/jquery.ui/1.'):
+            case url.startsWith('https://ajax.aspnetcdn.com/ajax/jquery.ui/1.'):         
+            case url.startsWith('https://ajax.googleapis.com/ajax/libs/jqueryui/1.'):   
+            case url.startsWith('https://cdn.bootcss.com/jqueryui/1.'):
             case url.startsWith('https://cdn.jsdelivr.net/npm/jquery-ui-dist@1.'):
-            case url.startsWith('https://code.jquery.com/ui/1.'):
+            case url.startsWith('https://cdn.staticfile.org/jqueryui/1.'):
+            case url.startsWith('https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.'):
+            case url.startsWith('https://pagecdn.io/lib/jqueryui/1.'):
+            case url.startsWith('https://code.jquery.com/ui/1.'):  
+            case url.startsWith('https://apps.bdimg.com/libs/jqueryui/1.'):   
+            case url.startsWith('https://libs.baidu.com/jqueryui/1.'):       
               value = 'lib/jquery-ui-1.12.1.min.jsm';
               break;
 
-            case cdn && url.includes('/bootstrap.min.js'):
-            case cdn && url.endsWith('/bootstrap.js'):
-              value = 'lib/bootstrap-4.4.1.min.jsm';
-              break;
 
-            case cdn && url.includes('/moment.min.js'):
-            case cdn && url.endsWith('/moment.js'):
-              value = 'lib/moment-2.24.0.min.jsm';
-              break;
-
-            case cdn && url.includes('/underscore.js'):
-            case cdn && url.includes('/underscore-min.js'):
+            case url.includes('/underscore-min.js'): 
+            case url.includes('/underscore.js'):           
               value = 'lib/underscore-1.9.2.min.jsm';
               break;
 
 
             case url.includes('/gm4-polyfill.'):            // not applicable
-            case url.startsWith('lib/'):                    // disallowed value
               value = '';
               break;
-
+              
+            
             case url.startsWith('https://'):                // unsupported URL
               prop = 'requireRemote';
+              break;
+              
+            case url.startsWith('lib/'):                    // disallowed value
+              value = '';
               break;
           }
           break;
@@ -206,7 +230,8 @@ function checkPattern(p) {
   }
 
   // --- process TLD
-  const TLD = ['.com', '.au', '.br', '.ca', '.ch', '.cn', '.co.uk', '.de', '.es', '.fr',
+  const TLD = ['.com',
+              '.au', '.br', '.ca', '.ch', '.cn', '.co.uk', '.de', '.es', '.fr',
               '.in', '.it', '.jp', '.mx', '.nl', '.no', '.pl', '.ru', '.se', '.uk', '.us'];
   const amazon = ['.ca', '.cn', '.co.jp', '.co.uk', '.com', '.com.au', '.com.br', '.com.mx',
     '.com.sg', '.com.tr', '.de', '.es', '.fr', '.in', '.it', '.nl'];

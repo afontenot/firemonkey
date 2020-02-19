@@ -155,7 +155,7 @@ function processScript() {
     box.textContent = '';
     document.getElementById(box.id).click();
   }
-  getEdit();                                                // run after scripts are loaded
+  getNav();                                                 // run after scripts are loaded
 }
 
 function addScript(item) {
@@ -202,7 +202,7 @@ function showScript() {
     box.classList.add('invalid');
     notify(pref.content[id].error, id);
   }
-  
+
   userMatches.value = pref.content[id].userMatches || '';
   userExcludeMatches.value = pref.content[id].userExcludeMatches || '';
 }
@@ -300,7 +300,6 @@ async function deleteScript() {
   if (li[0] ? !confirm(chrome.i18n.getMessage('deleteMultiConfirm', li.length)) :
               !confirm(chrome.i18n.getMessage('deleteConfirm', box.id))) { return; }
 
-
   const deleted = [];
 
 
@@ -379,8 +378,8 @@ async function saveScript() {
   }
 
   // --- check for Web Install, set install URL
-  if (!data.updateURL && pref.content[data.name] && 
-      (pref.content[data.name].updateURL.startsWith('https://greasyfork.org/scripts/') || 
+  if (!data.updateURL && pref.content[data.name] &&
+      (pref.content[data.name].updateURL.startsWith('https://greasyfork.org/scripts/') ||
         pref.content[data.name].updateURL.startsWith('https://openuserjs.org/install/')) ) {
     data.updateURL = pref.content[data.name].updateURL;
     data.autoUpdate = true;
@@ -417,7 +416,7 @@ async function saveScript() {
       li.id = data.name;
       break;
   }
-  
+
   box.id = data.name;
   legend.textContent = data.name;
 
@@ -758,42 +757,32 @@ function exportData(data, ext) {
 
 
 // ----------------- Edit from browser pop-up --------------
-// ----- message listeners from popup page, in case Option page is already open
+// ----- message listeners from popup page
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  message.hasOwnProperty('edit') && getEdit();
-
+  message.hasOwnProperty('nav') && getNav(message.nav);
 });
 
-function getEdit() {
+function getNav(nav) {
 
+  nav = nav || localStorage.getItem('nav');
+  localStorage.removeItem('nav');
+  if (!nav) { return; }                                     // end execution if not found
 
+  switch (nav) {
 
-  const editID = localStorage.getItem('edit');
-  const newSc = localStorage.getItem('new');
-  const help =  localStorage.getItem('help')
-
-  if (!editID && !newSc && !help) { return; }               // end execution if not found
-
-
-
-  switch (true) {
-
-    case !!editID:
+    case 'js':
+    case 'css':
       document.getElementById('nav4').checked = true;
-      localStorage.removeItem('edit');
-      document.getElementById(editID).click();
+      newScript(nav);
       break;
 
-    case !!newSc:
-      document.getElementById('nav4').checked = true;
-      localStorage.removeItem('new');
-      newScript(newSc);
-      break;
-
-    case !!help:
+    case 'help':
       document.getElementById('nav1').checked = true;
-      localStorage.removeItem('help');
       break;
+      
+    default:
+      document.getElementById('nav4').checked = true;
+      document.getElementById(message.nav).click();
   }
 }
 
