@@ -10,12 +10,68 @@
     <article>
 
   <nav>
-    <a href="#Preamble">Preamble</a>
-    <a href="#how_to">How to Use</a>
-    <a href="#options">Options</a>
-    <a href="#Script-CSS">Script & CSS</a>
-    <a href="#support">Support</a>
+    <span><a href="#Preamble">Preamble</a></span>
+    <span><a href="#how_to">How to Use</a>
+      <ul>
+        <li><a href="#toolbar-menu">Toolbar Icon Context Menu</a></li>
+        <li><a href="#toolbar-badge">Toolbar Icon Badge</a></li>
+        <li><a href="#toolbar-popup">Toolbar Icon Pop-up</a></li>
+        <li><a href="#web-install">Web Install</a></li>
+        <li><a href="#direct-install">Direct Install</a></li>
+      </ul>
+    </span>
+    <span><a href="#options">Options</a>
+      <ul>
+        <li><a href="#auto-update-interval">Auto-Update Interval</a></li>
+        <li><a href="#global-script-exclude">Global Script Exclude Matches</a></li>
+        <li><a href="#disable-syntax-highlight">Disable Syntax Highlighting</a></li>
+        <li><a href="#enable-storage">Enable Storage Sync</a></li>
+        <li><a href="#import-export">Preferences: Import/Export</a></li>
+        <li><a href="#save">Save</a></li>
+      </ul>
+    </span>
+    <span><a href="#Script-CSS">Script & CSS</a>
+      <ul>
+        <li><a href="#editing">Editing</a></li>
+        <li><a href="#auto-update">Update & Auto-update</a></li>
+        <li><a href="#user-matches-exclude">User Matches & Exclude Matches</a></li>
+        <li><a href="#syntax-highlighting">Syntax Highlighting</a></li>
+        <li class="arrow"><a href="#metadata-block">Metadata Block</a>
+          <ul>
+            <li><a href="#match-patterns">Match Patterns</a></li>
+            <li><a href="#tld">TLD</a></li>
+            <li><a href="#require">require</a></li>
+            <li><a href="#storing-require-resource">Storing require & resource Targets</a></li>
+            <li><a href="#grant">grant</a></li>
+          </ul>
+        </li>
+
+        <li class="arrow"><a href="#script-api">Script API</a>
+          <ul>
+            <li><a href="#fetch">fetch</a></li>
+            <li><a href="#xmlHttpRequest">xmlHttpRequest</a></li>
+            <li><a href="#forbidden-header-name">Forbidden header name</a></li>
+            <li><a href="#registerMenuCommand">registerMenuCommand</a></li>
+            <li><a href="#unregisterMenuCommand">unregisterMenuCommand</a></li>
+            <li><a href="#getResourceText">getResourceText</a></li>
+            <li><a href="#getResourceUrl">getResourceUrl</a></li>        
+            <li><a href="#addValueChangeListener">addValueChangeListener</a></li>
+            <li><a href="#removeValueChangeListener">removeValueChangeListener</a></li>
+            <li><a href="#download">download</a></li>
+            <li><a href="#info">info</a></li>
+            <li><a href="#log">log</a></li>
+            <li><a href="#unsafeWindow">unsafeWindow</a></li>
+          </ul>
+        </li>
+        <li><a href="#xray-vision">Xray Vision & Sharing objects with page scripts</a></li>
+        <li><a href="#stylish-stylus">Stylish/Stylus Type CSS</a></li>
+
+      </ul>
+    </span>
+    <span><a href="#support">Support</a></span>
   </nav>
+
+  
 
 
   <h2 id="Preamble">Preamble</h2>
@@ -23,20 +79,20 @@
 
 
   <h2 id="how_to">How to Use</h2>
-  
 
 
-  <h3>Toolbar Icon Context Menu</h3>
+
+  <h3 id="toolbar-menu">Toolbar Icon Context Menu</h3>
   <p>Right-clik on Toolbar Icon:</p>
   <ul>
     <li><img src="../image/gear.svg" width="16" alt=""> Options: open the Options Page</li>
     <li><img src="../image/help32.png" width="16" alt=""> Help: display Help document</li>
   </ul>
 
-  <h3><sup>5</sup> Toolbar Icon Badge</h3>
-    <p>Badge indicates the number of Script/CSS that apply to the tab (and all its iframes) whether enabled or disabled. If the number does not match the listed items under Tab Script/CSS, it shows that those items are affected by <b>Global Script Exclude Matches</b>.</p>
+  <h3 id="toolbar-badge"><sup>5</sup> Toolbar Icon Badge</h3>
+    <p>Badge indicates the number of Script/CSS that are active in the tab (and all its iframes).</p>
 
-  <h3>Toolbar Icon Pop-up</h3>
+  <h3 id="toolbar-popup">Toolbar Icon Pop-up</h3>
     <p>The pop-up displays the installed Scripts/CSS. "Tab Scripts & CSS" shows the ones running on the active Tab.</p>
     <ul>
       <li>✔ shows Script/CSS is enabled. Disabled Script/CSS are greyed out and clicking that area toggles the enable/disable</li>
@@ -51,10 +107,10 @@
 
 
 
-  <h3>Web Install</h3>
+  <h3 id="web-install">Web Install</h3>
   <p>Web Install is available from <i>greasyfork.org</i> & <i>openuserjs.org</i>. Script install URL will be set for script update.</p>
 
-  <h3>Direct Install</h3>
+  <h3 id="direct-install">Direct Install</h3>
   <p>Scripts can be directly installed from any script ending in <code>.user.js </code> (remote or local file system) if loaded into a tab (open or drag & drop)</p>
   <p>In case of <i>greasyfork.org</i> & <i>openuserjs.org</i> links, the same link will be set for script update.</p>
   <p>Due to sandbox CSP header on <code>https://raw.githubusercontent.com/........uers.js</code> tab is forwarded to <code>cdn.jsdelivr.net</code> mirror. (ref: <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1411641" target="_blank">Bug 1411641</a>)</p>
@@ -62,34 +118,34 @@
 
   <h2 id="options">Options</h2>
 
-  <h3>Auto-Update Interval</h3>
+  <h3 id="auto-update-interval">Auto-Update Interval</h3>
   <p>You can set the number of days between updates. Setting 0 (default) means there will be no auto-update.</p>
   <p>In order to minimise the impact on your browsing, auto-update is set to run when Firefox is idle and then 10 updates at a time (until the next idle time).</p>
   <p>Please note that updating each script can take around 4-5 seconds. If there are many scripts, that can add up to consider amount of time. I would suggest manually updating Scripts/CSS or enabling auto-update only on the ones that require regular update.</p>
 
-  <h3>Global Script Exclude Matches</h3>
+  <h3 id="global-script-exclude">Global Script Exclude Matches</h3>
   <p>Exclude Match pattens (one per line) to prevent all scripts (not CSS) from running on them.</p>
   <p>Changes to Global Script Exclude Matches will unregister all running script. Once tab is reloaded or on new tab, new settings will take effect.</p>
   <p>Note: Invalid match pattern will cause all scripts to fail and thus get disabled.</p>
 
-  <h3>Disable Syntax Highlighting</h3>
+  <h3 id="disable-syntax-highlight">Disable Syntax Highlighting</h3>
   <p>Although the Syntax Highlighting is fairly fast (took 3 seconds for a 2.4mb 50,000+ lines script), Firefox takes much longer to render and display the result. You can disable Syntax Highlighting if needed.</p>
 
 
-  <h3>Enable Storage Sync</h3>
+  <h3 id="enable-storage">Enable Storage Sync</h3>
   <p>Enable to sync storage if it is under 100KB. If the storage is over 100KB, there will be a notification and the Sync will be turned off automatically to avoid repeated errors.</p>
-  
+
   <blockquote>For Firefox a user must have Add-ons checked under the "Sync Settings" options in "about:preferences".
   <br><br>
   The main use case of this API is to store preferences about your extension and allow the user to sync them to different profiles. You can store up to 100KB of data using this API. If you try to store more than this, the call will fail with an error message. The API is provided without any guarantees about uptime or performance.
-  
+
   <cite><a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/storage/sync" target="_blank">storage.sync</a></cite></blockquote>
 
 
-  <h3>Preferences: Import/Export</h3>
+  <h3 id="import-export">Preferences: Import/Export</h3>
   <p>You can export/import Preferences (for backup or share) to/from a local file on your computer.</p>
 
-  <h3>Save</h3>
+  <h3 id="save">Save</h3>
   <p>Please note that changes will not take effect until they are saved.</p>
 
 
@@ -109,7 +165,7 @@
   </ul>
 
 
-  <h3>Editing</h3>
+  <h3 id="editing">Editing</h3>
 
     <ul>
       <li><kbd>Tab</kbd> will be converted to 2 spaces. If there is a selection it will be applied to every line in the selection.</li>
@@ -166,7 +222,7 @@
       Make a selection of (highlight with mouse) items listed under Script & CSS to multiple Delete (after confirmation) or multiple Enable/Disable the selected items.</li>
   </ul>
 
-  <h3>Update & Auto-update</h3>
+  <h3 id="auto-update">Update & Auto-update</h3>
   <p>Any target can be set for <code>@updateURL</code> as long it directly leads to the final file and it is in plain text. The <code>.js</code> or <code>.css</code> file extensions are not necessary although it makes sense to have them. The <code>.user.</code> is not necessary.</p>
   <p><i>FireMonkey</i> uses <code>@version</code> for the update process and both the current file and the update file must have <code>@version</code> and the version of the target file must be higher.</p>
   <p>In case of <i>GreasyFork</i> & <i>OpenUserJS</i>, the <code>@version</code> via Metadata Block in <code>https://...../*.meta.js</code> is verified first. <i>(v1.26)</i></p>
@@ -203,26 +259,26 @@
 </table>
 
 
-  <h3>&#x2630; User Matches & Exclude Matches <span>(v1.25+)</span></h3>
+  <h3 id="user-matches-exclude">&#x2630; User Matches & Exclude Matches <span>(v1.25+)</span></h3>
   <p>Persistent user matches & excludeMatches (one per line using Match Patterns) can be set for each script to supplement script's matches & excludeMatches.</p>
   <p>Please note that invalid match pattern will cause the script to fail and thus get disabled.</p>
 
 
-  <h3>Syntax Highlighting</h3>
+  <h3 id="syntax-highlighting">Syntax Highlighting</h3>
   <p>Syntax Highlighting requires considerably large libraries. Personally as a developer, I always use a dedicated application for coding and then copy/paste or import into user script/style manager etc. Therefore, for slimness and efficiency, I have written a basic Syntax Highlighting code. It does not have all the features of the large library scripts but it is still being improved.</p>
 
-  <h2>Metadata Block</h2>
+  <h2 id="metadata-block">Metadata Block</h2>
   <p>For easier compatibility, format is similar to <i>GreaseMonkey</i> Metadata Block for UserScripts. The commenting is different for CSS and as a result a uniform commenting for Metadata Block can be used. The Metadata Block identifier (case-insensitive e.g. ==userscript== etc) for UserScript is <code>==UserScript== ... ==/UserScript==</code> and for UserCSS is <code>==UserCSS== ... ==/UserCSS==</code>. For clarity, it is best to have the Metadata Block on top (or after <code>'use strict';</code> if wanted, but <i>FireMonkey</i> can pick it up from anywhere within the code.</p>
 
   <h4>Examples:</h4>
 
 <pre class="comment">
 // ==UserScript==
-// @name          My Script
-// @description   Scripting is fun
-// @match         http://www.example.com/*
-// @match         http://www.example.org/*
-// @version       1.0
+// @name            My Script
+// @description     Scripting is fun
+// @match           http://www.example.com/*
+// @match           http://www.example.org/*
+// @version         1.0
 // ==/UserScript==
 </pre>
 
@@ -230,11 +286,11 @@
 <pre class="comment">
 /*
 ==UserScript==
-@name          My Script
-@description   Scripting is fun
-@match         http://www.example.com/*
-@match         http://www.example.org/*
-@version       1.0
+@name               My Script
+@description        Scripting is fun
+@match              http://www.example.com/*
+@match              http://www.example.org/*
+@version            1.0
 ==/UserScript==
 */
 </pre>
@@ -242,11 +298,11 @@
 <pre class="comment">
 /*
 ==UserCSS==
-@name          My CSS
-@description   CSS is fun
-@match         http://www.example.com/*
-@match         http://www.example.org/*
-@version       1.0
+@name               My CSS
+@description        CSS is fun
+@match              http://www.example.com/*
+@match              http://www.example.org/*
+@version            1.0
 ==/UserCSS==
 */
 </pre>
@@ -262,25 +318,26 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 <pre class="comment">
 @name
 @matches
-@version            <i>(Optional, but needed for updates)</i>
-@updateURL          <i>(Optional, but needed for updates)</i>
+@version            <i>(needed for updates)</i>
+@updateURL          <i>(needed for updates)</i>
 
-@author             <i>(Optional)</i>
-@description        <i>(Optional)</i>
-@excludeMatches     <i>(Optional)</i>
-@includeGlobs       <i>(Optional)</i>
-@excludeGlobs       <i>(Optional)</i>
-@allFrames          <i>(Optional, true or false (default))</i>
-@matchAboutBlank    <i>(Optional, true or false (default))</i>
-@run-at             <i>(Optional, document_start or document_end or document_idle (default))</i>
+@author
+@description
+@excludeMatches
+@includeGlobs
+@excludeGlobs
+@allFrames          <i>(true or false (default))</i>
+@matchAboutBlank    <i>(true or false (default))</i>
+@run-at             <i>(document_start or document_end or document_idle (default))</i>
 
-@require            <i>(Optional)</i>
-@resource           <i>resourceName resourceURL (Optional)</i>
+@require            <i>(script-name, specific-library, other-URL)</i>
+@resource           <i>resourceName resourceURL</i>
 
 @match              <i>(entries will be merged into matches)</i>
 @include            <i>(entries will be merged into matches, use match, matches or includeGlobs instead)</i>
 @exclude            <i>(entries will be merged into excludeMatches)</i>
 @exclude-match      <i>(entries will be merged into excludeMatches)</i>
+@noframes           <i>(if present will set @allFrames to false (default))</i>
 </pre>
 
 
@@ -319,13 +376,13 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
 
   <h4>include/exclude</h4>
-  <p>Entries under <code>@include/@exclude</code> will be merged into <code>@matches/@excludeMatches</code> (duplicates removed). Some common incompatibilities with <code>matches</code> API are automatically converted e.g:</p>
+  <p>Entries under <code>@include/@exclude</code> will be merged into <code>@matches/@excludeMatches</code> (duplicates removed). Some common incompatibilities with <code>matches</code> API are automatically converted.</p>
 
 <table>
   <thead>
   <tr>
-    <th>From</th>
-    <th>To</th>
+    <th>From include</th>
+    <th>To match</th>
   </tr>
   </thead>
   <tbody>
@@ -334,13 +391,15 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <tr><td><code>https://*</code></td><td><code>https://*/*</code></td></tr>
   <tr><td><code>http*://*</code></td><td><code>*://*/*</code></td></tr>
   <tr><td><code>http*://a.b.c/*</code></td><td><code>*://a.b.c/*</code></td></tr>
+  <tr><td><code>*://google.*<br>http*://www.google.*</code></td><td><code>*://*.google.TLD/*</code></td></tr>
+  <tr><td><code>*.example.com/*</code></td><td><code>*://*.example.com/*</code></td></tr>
   </tbody>
 </table>
 
 
 
 
-  <h3>Match Patterns</h3>
+  <h3 id="match-patterns">Match Patterns</h3>
   <p><i>FireMonkey</i> uses <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/match_patterns" target="_blank">Match Patterns</a> for <code>@matches/@match</code> & <code>@excludeMatches</code> and <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts#globs" target="_blank">globs</a> for <code>@includeGlobs</code> & <code>@excludeGlobs</code></p>
   <p>Note: Paths are case-sensitive.</p>
 
@@ -474,7 +533,7 @@ sync.services.mozilla.com
 testpilot.firefox.com
 </pre>
 
-  <h3>TLD <span>(v1.25+)</span></h3>
+  <h3 id="tld">TLD <span>(v1.25+)</span></h3>
   <p>A TLD (case-insensitive) wildcard can be used and <i>FireMonkey</i> will automatically generate a list of most common country TLD <code>@matches</code>. Due to the extra Firefox API processing for many <code>@matches</code>, it is best to use it only when necessary.</p>
 
 
@@ -758,21 +817,21 @@ testpilot.firefox.com
 </div>
 
 
-  <h3>@require <span>(v1.23+)</span></h3>
+  <h3 id="require">require <span>(v1.23+)</span></h3>
   <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers.</p>
 
 
-  <h4>@require &nbsp;&nbsp;&nbsp; name <span>(v1.23+)</span></h4>
+  <h4>require &nbsp;&nbsp;&nbsp; script-name <span>(v1.23+)</span></h4>
   <p><code>@require</code> can be used to pre-include other existing scripts into a script (or other existing CSS into a CSS). For example:</p>
 <pre class="comment">
-@require       My Script
+@require            My Script
 </pre>
     <p>For example, user/developer can save some code as a script and name it <code>HelperSet</code>. It does not need to have <code>match/matches/include/includeGlobs</code> etc. It is best to keep the script DISABLED (not enabled) e.g.:</p>
 
 <pre><span class="comment">// ==UserScript==
-// @name          HelperSet
-// @description   A set of helper functions
-// @version       1.0
+// @name            HelperSet
+// @description     A set of helper functions
+// @version         1.0
 // ==/UserScript==</span>
 
 <span class="keyword">function</span> someFunc(id) {
@@ -788,12 +847,12 @@ testpilot.firefox.com
   <p>Then include it in other scripts:</p>
 
 <pre class="comment">// ==UserScript==
-// @name          My Script
-// @description   Scripting is fun
-// @match         http://www.example.com/*
-// @match         http://www.example.org/*
-// @version       1.0
-// @require       HelperSet
+// @name            My Script
+// @description     Scripting is fun
+// @match           http://www.example.com/*
+// @match           http://www.example.org/*
+// @version         1.0
+// @require         HelperSet
 // ==/UserScript==
 
 ..... code .....</pre>
@@ -801,24 +860,24 @@ testpilot.firefox.com
   <p>Multiple scripts can be required and will be injected in order:</p>
 
 <pre class="comment">
-// @require       jquery3
-// @require       HelperSet
+// @require         jquery3
+// @require         HelperSet
 </pre>
 
   <p>You can use <code>@require</code> for CSS e.g.:</p>
 
 <pre class="comment">/*
 ==UserCSS==
-@name          My CSS
-@description   CSS is fun
-@match         http://www.example.com/*
-@match         http://www.example.org/*
-@version       1.0
-@require       DefaultCSS
+@name               My CSS
+@description        CSS is fun
+@match              http://www.example.com/*
+@match              http://www.example.org/*
+@version            1.0
+@require            DefaultCSS
 ==/UserCSS==
 */</pre>
 
-  <h4>@require &nbsp;&nbsp;&nbsp; specific-library<span>(v1.24+)</span></h4>
+  <h4>require &nbsp;&nbsp;&nbsp; specific-library<span>(v1.24+)</span></h4>
   <p>Few libraries have been packed with <i>FireMonkey</i> which will be injected for user-scripts using <code>@require</code>. A shorthand <code>jquery1/jquery2/jquery3/jquery-ui1</code> (case-insensitive) can also be used.</p>
   <p>Based on data provided by <i>GreasyFork</i>, 8,011/31,170 (26%) use <code>@require</code> and from those 7,082/11,236 (63%) entries relate to those libraries (& <i>gm4-polyfill</i>).</p>
 
@@ -839,7 +898,7 @@ testpilot.firefox.com
     <li>unpkg.com</li>
   </ul>
 
-                     
+
 <table>
   <thead>
   <tr>
@@ -849,44 +908,44 @@ testpilot.firefox.com
   </tr>
   </thead>
   <tbody>
-  <tr><td>bootstrap</td><td></td><td>4.4.1</td></tr>
+  <tr><td>bootstrap</td><td>bootstrap4</td><td>4.4.1</td></tr>
   <tr><td>jquery 1.*</td><td>jquery1</td><td>1.12.4</td></tr>
   <tr><td>jquery 2.*</td><td>jquery2</td><td>2.2.4</td></tr>
   <tr><td>jquery 3.*</td><td>jquery3</td><td>3.4.1</td></tr>
   <tr><td>jquery-ui 1.*</td><td>jquery-ui1</td><td>1.12.1</td></tr>
-  <tr><td>moment</td><td></td><td>2.24.0</td></tr>
-  <tr><td>underscore</td><td></td><td>1.9.2</td></tr>
-  
+  <tr><td>moment</td><td>moment2</td><td>2.24.0</td></tr>
+  <tr><td>underscore</td><td>underscore1</td><td>1.9.2</td></tr>
+
   </tbody>
 </table>
 
 
 For example:
 <pre class="comment">
-// @require       jquery3
-// @require       https://code.jquery.com/jquery-3.*.*.js
-// @require       https://code.jquery.com/jquery-3.*.*.min.js
-// @require       https://code.jquery.com/jquery-3.*.*.slim.js
-// @require       https://code.jquery.com/jquery-3.*.*.slim.min.js
-// @require       https://ajax.googleapis.com/ajax/libs/jquery/3.*.*/jquery.js
+// @require         jquery3
+// @require         https://code.jquery.com/jquery-3.*.*.js
+// @require         https://code.jquery.com/jquery-3.*.*.min.js
+// @require         https://code.jquery.com/jquery-3.*.*.slim.js
+// @require         https://code.jquery.com/jquery-3.*.*.slim.min.js
+// @require         https://ajax.googleapis.com/ajax/libs/jquery/3.*.*/jquery.js
   ... etc
-// @require       https://unpkg.com/jquery@3.*.*/dist/jquery.js
+// @require         https://unpkg.com/jquery@3.*.*/dist/jquery.js
   ... etc
 </pre>
 
   <p>On popular demand, more libraries may be added in future.</p>
 
-  <h4>&#x26A0;&#xFE0F; @require &nbsp;&nbsp;&nbsp; other-URL <span>(v1.27+)</span></h4>
+  <h4>&#x26A0;&#xFE0F; require &nbsp;&nbsp;&nbsp; other-URL <span>(v1.27+)</span></h4>
   <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers as the target is not not stored. It uses <code>fetch()</code> to get the target the first time but on subsequently <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request/cache" target="_blank">Request.cache</a> will be used by the browser.</p>
-  <p><b>Note:</b> 
+  <p><b>Note:</b>
   <ul>
     <li>Processing many scripts with many <code>@require</code> can take time when registering scripts (i.e. browser start-up, disabling/re-enabling <i>FireMonkey</i>)</li>
     <li><i>gm4-polyfill</i> is not applicable (and may cause conflict) & therefore it is not processed</li>
   </ul>
-  
 
 
-  <h3>&#x26d4; Storing @require & @resource Targets</h3>
+
+  <h3 id="storing-require-resource">&#x26d4; Storing require & resource Targets</h3>
   <p>In legacy Firefox, extensions were able to save files to their folder in Firefox profile. Script managers would download <code>@require</code> & <code>@resource</code> targets, save it to users' HD and inject it when called.</p>
 
   <p>Firefox Quantum no longer allows extension to save fies to Fireofx profile folder. Script managers will have to use the storage assigned to the extension to save <code>@require</code> & <code>@resource</code> files in form of data.</p>
@@ -896,12 +955,13 @@ For example:
   <p>Considering that a user may have many user-Scripts and they may have many <code>@require</code> & <code>@resource</code>, the size of storage can get extremely large and its effect on browser performance quite considerable.</p>
 
 
-<pre><span class="comment">// ==UserScript==</span>
-<span class="comment">// @name        GM.getResourceUrl test</span>
-<span class="comment">// @description GM.getResourceUrl() API method</span>
-<span class="comment">// @resource    CSS http://www.example.com/example.css</span>
-<span class="comment">// @grant       GM.getResourceUrl</span>
-<span class="comment">// ==/UserScript==</span>
+<pre>
+<span class="comment">// ==UserScript==
+// @name            GM.getResourceUrl test
+// @description     GM.getResourceUrl() API method
+// @resource        CSS http://www.example.com/example.css
+// ==/UserScript==</span>
+
 
 <div class="deprecated"><span class="comment">// instead of this code</span>
 (<span class="keyword">async</span> () =&gt; {
@@ -917,12 +977,12 @@ link.rel = <span class="string">'stylesheet'</span>;
 document.<span class="property">head</span>.<span class="method">appendChild</span>(link);</div></pre>
 
 
-<pre><span class="comment">// ==UserScript==</span>
-<span class="comment">// @name        GM.getResourceUrl test</span>
-<span class="comment">// @description GM.getResourceUrl() API method</span>
-<span class="comment">// @resource    logo http://www.example.com/logo.jpg</span>
-<span class="comment">// @grant       GM.getResourceUrl</span>
-<span class="comment">// ==/UserScript==</span>
+<pre><span class="comment">// ==UserScript==
+// @name            GM.getResourceUrl test
+// @description     GM.getResourceUrl() API method
+// @resource        logo http://www.example.com/logo.jpg
+// ==/UserScript==</span>
+
 
 <div class="deprecated"><span class="comment">// instead of this code</span>
 (<span class="keyword">async</span> () =&gt; {
@@ -935,15 +995,17 @@ document.<span class="property">head</span>.<span class="method">appendChild</sp
 img.<span class="property">src</span> = <span class="string">'http://www.example.com/logo.jpg'</span>;
 document.<span class="property">head</span>.<span class="method">appendChild</span>(img);</div></pre>
 
-  <h3>&#x26d4; @grant</h3>
+  <h3 id="grant">&#x26d4; grant</h3>
   <p>Scripts will have access to all available APIs and therefore <code>@grant</code> is not needed or used.</p>
 
-  <h2>Script API</h2>
+  <h2 id="script-api">Script API</h2>
   <p><i>FireMonkey</i> supports both GM4 & GM3 style APIs (e.g. GM.*** & GM_***) via mostly asynchronous <code>Promise</code>. Therefore if scripts requires a <code>return</code>, it must wait for the <code>Promise</code> to resolve.</p>
   <p>Following APIs (similar to <i>GreaseMonkey</i>) are provided to the user scripts (<i>more may be added later</i>)</p>
 
 <pre>(<span class="keyword">async</span> () =&gt; {
 <span class="string">'use strict'</span>;
+
+  <span class="comment">// ----- Promise</span>
 
   <span class="comment">// stored value for key OR default</span>
   <span class="keyword">const</span> <span class="property">value</span> = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="gm">getValue</span>(key, default);
@@ -963,7 +1025,8 @@ document.<span class="property">head</span>.<span class="method">appendChild</sp
 
 
 
-  <span class="comment">// callback function</span>
+  <span class="comment">// ----- Callback Function</span>
+
   <span class="gm">GM</span>.<span class="gm">xmlHttpRequest</span>({
     url: <span class="string">'https://example.com/etc'</span>,
     <span class="property">onload</span>: response =&gt; {
@@ -972,7 +1035,15 @@ document.<span class="property">head</span>.<span class="method">appendChild</sp
   });
 
 
-  <span class="comment">// usually there is no need to wait for the following, but if needed you must use await</span>
+  <span class="comment">// note: listenerId = key (not necessary in FireMonkey)</span>
+  <span class="keyword">const</span> listenerId = <span class="gm">GM</span>.<span class="gm">addValueChangeListener</span>(key, callback);
+
+  <span class="gm">GM</span>.<span class="gm">addValueChangeListener</span>(key, callback)
+  <span class="gm">GM_addValueChangeListener</span>(key, callback)
+
+
+  <span class="comment">// ----- usually there is no need to wait for the following, but if needed you must use await</span>
+
   <span class="gm">GM</span>.<span class="gm">setValue</span>(key, <span class="property">value</span>)
   <span class="gm">GM_setValue</span>(key, <span class="property">value</span>)
 
@@ -988,28 +1059,38 @@ document.<span class="property">head</span>.<span class="method">appendChild</sp
   <span class="gm">GM</span>.<span class="gm">notification</span>(text)
   <span class="gm">GM_notification</span>(text)
 
-  <span class="gm">GM</span>.<span class="gm">registerMenuCommand</span>(name, onclick)
-  <span class="gm">GM_registerMenuCommand</span>(name, onclick)
+  <span class="gm">GM</span>.<span class="gm">download</span>(url, fielname)
+  <span class="gm">GM_download</span>(url, fielname)
 
 
-  <span class="comment">// synchronous functions</span>
+  <span class="comment">// ----- Synchronous Functions</span>
+
   <span class="gm">GM</span>.<span class="gm">addStyle</span>(css)
   <span class="gm">GM_addStyle</span>(css)
 
   <span class="gm">GM</span>.<span class="gm">getResourceUrl</span>(resourceName)
   <span class="gm">GM_getResourceUrl</span>(resourceName)
 
+  <span class="gm">GM</span>.<span class="gm">registerMenuCommand</span>(name, onclick)
+  <span class="gm">GM_registerMenuCommand</span>(name, onclick)
+
+  <span class="gm">GM</span>.<span class="gm">unregisterMenuCommand</span>(name)
+  <span class="gm">GM_unregisterMenuCommand</span>(name)
+
+  <span class="gm">GM</span>.<span class="gm">removeValueChangeListener</span>(key)
+  <span class="gm">GM_removeValueChangeListener</span>(key)
+
   <span class="gm">GM</span>.<span class="gm">info</span>
   <span class="gm">GM_info</span>
 
   <span class="gm">GM</span>.<span class="gm">log</span>(text [, text2, ..., textN])
   <span class="gm">GM_log</span>(text [, text2, ..., textN])
-  
+
   <span class="gm">unsafeWindow</span>
 })();</pre>
 
 
-  <h3>fetch</h3>
+  <h3 id="fetch">fetch</h3>
   <p><i>FireMonkey</i> <code>fetch</code> API is based on the JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch" target="_blank">Fetch API</a> which provides the new Promise based interface for fetching resources (including across the network). It will seem familiar to anyone who has used <code>XMLHttpRequest</code>, but it provides a more powerful and flexible feature set.</p>
   <p>For simplicity and compatibility, the same GM style naming is kept for <code>fetch</code> API although it is not available in <i>GreaseMonkey</i>.</p>
   <p><i>FireMonkey</i> <code>fetch</code> returns response object/string or <code>null</code> (check console for errors e.g.: <i>TypeError: "NetworkError when attempting to fetch resource.</i>").</p>
@@ -1018,8 +1099,10 @@ document.<span class="property">head</span>.<span class="method">appendChild</sp
 <pre>GM.fetch(url[, init]);
 GM_fetch(url[, init]);</pre>
 
-    <h4>init <span>(Optional)</span></h4>
+    <h4>url</h4>
+    <p>http, https, ftp, ftps, (file not allowed), can be relative to the web page</p>
 
+    <h4>init <span>(Optional)</span></h4>
     <p>An options object containing any custom settings that you want to apply to the request. The possible options are:</p>
 
     <ul>
@@ -1064,7 +1147,7 @@ GM_fetch(url[, init]);</pre>
 .<span class="method">then</span>(response =&gt; callback(response))
 .<span class="keyword">catch</span>(<span class="method">error</span> =&gt; <span class="property">console</span>.<span class="method">error</span>(<span class="method">error</span>.message));</pre>
 
-  <h3>xmlHttpRequest</h3>
+  <h3 id="xmlHttpRequest">xmlHttpRequest</h3>
   <p><code>GM.xmlHttpRequest/GM_xmlhttpRequest</code> is the xmlHttpRequest interface and mostly compatible with <i>GreaseMonkey</i> API.</p>
   <p>All requests are <code>asynchronous</code>, therefore <i>GreaseMonkey</i> <code>synchronous</code> is not supported.</p>
 
@@ -1077,7 +1160,7 @@ GM_fetch(url[, init]);</pre>
   overrideMimeType,         // optional, MIME type to send with the request
   user,                     // optional, username to send with the request
   password,                 // optional, password to send with the request
-  timeout,                  // optional, number of milliseconds before terminating the request 
+  timeout,                  // optional, number of milliseconds before terminating the request
                                (default 0 = no timeout)
   withCredentials,          // optional, Boolean, for cross-site Access-Control
                                e.g. cookies, authorization headers or TLS client certificates,
@@ -1144,7 +1227,7 @@ GM_fetch(url[, init]);</pre>
 });</pre>
 
 
-  <h3>Forbidden header name</h3>
+  <h3 id="forbidden-header-name">Forbidden header name</h3>
   <p>A <a href="https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name" target="_blank">forbidden header name</a> (also <a href="https://fetch.spec.whatwg.org/#forbidden-header-name" target="_blank">forbidden header name</a>) is the name of any <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers" target="_blank">HTTP header</a> that cannot be modified programmatically; specifically, an HTTP <b>request</b> header name (in contrast with a Forbidden response header name).</p>
 
   <p>Modifying such headers is forbidden because the user agent retains full control over them. Names starting with `<code>Sec-</code>` are reserved for creating new headers safe from APIs using <code>fetch</code> that grant developers control over headers, such as <code>XMLHttpRequest</code>.</p>
@@ -1186,7 +1269,7 @@ GM_fetch(url[, init]);</pre>
   </ul>
 
 
-  <h3>registerMenuCommand(name, onclick) <span>(v1.27+)</span></h3>
+  <h3 id="registerMenuCommand">registerMenuCommand(name, onclick) <span>(v1.27+)</span></h3>
   <p>If there are Script Commands for a tab, they will be listed at the bottom of toolbar pop-up under their user-script name. Please note that <i>onclick</i> must be a <i>function</i>.</p>
 
 <pre><div class="deprecated"><span class="comment">// direct method -> error: alert runs immediately</span>
@@ -1200,38 +1283,105 @@ GM_fetch(url[, init]);</pre>
 </pre>
 
 
+  <h3 id="unregisterMenuCommand">unregisterMenuCommand(name) <span>(v1.29+)</span></h3>
+  <p>Unregistered the previously created script menu.</p>
+<pre>
+<span class="gm">GM.unregisterMenuCommand</span>(<span class="string">"Hello, world (named)"</span>);
+</pre>
 
-  <h3>getResourceText(resourceName) <span>(v1.27+)</span></h3>
+  <h3 id="getResourceText">getResourceText(resourceName) <span>(v1.27+)</span></h3>
   <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers as the target is not not stored. It uses <code>fetch()</code> to get the target the first time but on subsequently <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request/cache" target="_blank">Request.cache</a> will be used by the browser.</p>
 
-  <h3>getResourceUrl(resourceName) <span>(v1.27+)</span></h3>
+<pre>
+<span class="keyword">const</span> text = <span class="keyword">await</span> <span class="gm">GM_getResourceText</span>(<span class="string">'resourceName'</span>);
+</pre>
+
+
+  <h3 id="getResourceUrl">getResourceUrl(resourceName) <span>(v1.27+)</span></h3>
   <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers as the target is not not stored. It maps directly to the <i>resourceURL</i> and returns the URL, or <code>undefined</code>.</p>
 
+<pre>
+<span class="keyword">const</span> url = <span class="gm">GM_getResourceUrl</span>(<span class="string">'resourceName'</span>);
+</pre>
 
-  <h3>info <span>(v1.16+)</span></h3>
+
+  <h3 id="addValueChangeListener">addValueChangeListener(key, callback) <span>(v1.29+)</span></h3>
+  <p>Script storage change listener that returns the key as listener ID (although not necessary in FireMonkey).</p>
+  <p><code>(key, oldValue, newValue, remote)</code> are passed to the callback function.</p>
+
+  <ul>
+    <li><b>key</b>: the storage key</li>
+    <li><b>oldValue</b>: original value or <code>undefined</code> if it was created</li>
+    <li><b>newValue</b>: new value or or <code>undefined</code> if it was deleted</li>
+    <li><b>remote</b>: <code>true</code> if change came from another tab or <code>false</code> if from the same tab</li>
+  </ul>
+
+<pre>
+<span class="comment">// anonymous function</span>
+<span class="gm">GM_addValueChangeListener</span>(<span class="string">'test-key'</span>, <span class="keyword">function</span>(...arg) { <span class="property">console</span>.<span class="method">log</span>(...arg); });
+
+<span class="comment">// anonymous arrow function</span>
+<span class="gm">GM_addValueChangeListener</span>(<span class="string">'test-key'</span>, (key, oldValue, newValue, remote) => { <span class="property">console</span>.<span class="method">log</span>(key, oldValue, newValue, remote); });
+</pre>
+
+
+
+  <h3 id="removeValueChangeListener">removeValueChangeListener(key) <span>(v1.29+)</span></h3>
+  <p>Remove listener for <code>key</code></p>
+
+<pre>
+<span class="gm">GM_removeValueChangeListener</span>(<span class="string">'test-key'</span>);
+</pre>
+
+
+  <h3 id="download">download(url <i>[, filename]</i>) <span>(v1.29+)</span></h3>
+  <p>Simple file download from the Internet. <code>url</code> must be valid but <code>filename</code> is optional.</p>
+  <p><code>url</code>: http, https, ftp, ftps, (file not allowed), can be relative to the web page</p>
+  <p>If the specified <code>url</code> uses the HTTP or HTTPS protocol, then the request will include all cookies currently set for its hostname.</p>
+
+<pre>
+<span class="gm">GM_download</span>(<span class="string">'https;//www.example.com/icon.jpg'</span>);
+<span class="gm">GM_download</span>(<span class="string">'https;//www.example.com/icon.jpg'</span>, <span class="string">'new-name.jpg'</span>);
+</pre>
+
+  <h3 id="info">info <span>(v1.16+)</span></h3>
 <pre>{
-  scriptHandler: 'FireMonkey',
-  version: 'e.g. 1.16',
-  scriptMetaStr: null,
+  scriptHandler:    'FireMonkey',
+  version:          'e.g. 1.29',
+  scriptMetaStr:    null,
+  platform: {
+    os:             'e.g. mac win android cros linux openbsd',
+    arch            'e.g. arm x86-32 x86-64'
+  },
+  browser: {
+    name:           'e.g. Firefox',
+    vendor:         'e.g. Mozilla',
+    version:        'e.g. 75.0a1'.
+    buildID:        'e.g. 20200220224950'
+  },
   script: {
-    name: 'script name',
-    version: 'script version',
-    description: 'script description',
-    matches: [array of match/matches/include],
-    includes: [array of match/matches/include],
-    excludes: [array of exclude/excludeMatches],
-    'run-at': 'e.g. document-idle',
-    namespace: null,
-    resources: {object of name: url}
+    name:           'script name',
+    version:        'script version',
+    description:    'script description',
+    matches:        [array of match/matches/include],
+    includes:       [array of match/matches/include],
+    excludes:       [array of exclude/excludeMatches],
+    'run-at':       'e.g. document-idle',
+    namespace:      null,
+    resources:      {object of name: url}
   }
 }</pre>
 
-  <h3>log</h3>
+  <h3 id="log">log</h3>
   <p>The API is added for convenience and compatibility and is no longer supproted by GreaseMonkey or ViolentMonkey but TamperMonkey still has it. Multiple parameters can be passed e.g. <code>GM_log('one', 'two', 'three')</code>. You can also use <code>console.log()</code> instead.</p>
-  
 
+<pre>
+<span class="gm">GM_log</span>(<span class="string">'one'</span>);
+<span class="gm">GM.log</span>(<span class="string">'one'</span>, <span class="string">'two'</span>, <span class="string">'three'</span>);
+<span class="gm">GM_log</span>(<span class="gm">GM_info</span>);
+</pre>
 
-  <h3>&#x26A0;&#xFE0F; unsafeWindow <span>(v1.24+)</span></h3>
+  <h3 id="unsafeWindow">&#x26A0;&#xFE0F; unsafeWindow <span>(v1.24+)</span></h3>
   <p><code>unsafeWindow</code> in <i>FireMonkey</i> is an alias for <code>window.wrappedJSObject</code>. You can also use <code>window.wrappedJSObject</code> or <code>window.eval()</code> to access page JavaScript <b>globals</b>. Please note that <code>window.eval()</code> makes the object available to the page script as well while <code>unsafeWindow</code>, <code>window.wrappedJSObject</code> does not.</p>
 
 <pre>
@@ -1253,7 +1403,7 @@ window.wrappedJSObject.runTest(); <span class="comment">// "I'm defined in a pag
 <span class="comment">// overriding window functions</span>
 <span class="keyword">let</span> <span class="method">hasFocus</span> = <span class="keyword">new</span> window.<span class="object">Function</span>(<span class="string">'return true'</span>);
 <span class="gm">unsafeWindow</span>.document.<span class="method">hasFocus</span> = <span class="method">hasFocus</span>;
- 
+
 <span class="comment">// another example</span>
 <span class="object">Object</span>.defineProperty(<span class="gm">unsafeWindow</span>.document, <span class="string">'hidden'</span>, {<span class="property">value</span>: <span class="keyword">false</span>});
 </pre>
@@ -1289,12 +1439,12 @@ window.wrappedJSObject.runTest(); <span class="comment">// "I'm defined in a pag
 <span class="property">console</span>.<span class="method">log</span>(<span class="gm">unsafeWindow</span>.obj.text); <span class="comment">// hello from user-script</span></pre>
 
 
-  <h3>&#x2139;&#xFE0F; <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Xray_vision" target="_blank">Xray Vision</a> & Sharing objects with page scripts</h3>
+  <h3 id="xray-vision">&#x2139;&#xFE0F; <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Tech/Xray_vision" target="_blank">Xray Vision</a> & Sharing objects with page scripts</h3>
 
-  <h4>Browser JavaScript Context/Scope</h4>
+  <h4>Extension JavaScript Context/Scope</h4>
   <ol style="list-style-type: upper-roman;">
     <li>Browser Scope: Trusted privileged code to interact with browser</li>
-    <li>Extension Content Scope: Trusted extension JS injected into web page with API privileges</li>
+    <li>Content Scope: Trusted extension JS injected into web page with API privileges</li>
     <li>User-Script Scope: Untrusted unverified 3rd party JS injected into web page without direct API privileges</li>
     <li>Page Scope: JS injected in a web page by the website</li>
   </ol>
@@ -1326,7 +1476,7 @@ window.wrappedJSObject.runTest(); <span class="comment">// "I'm defined in a pag
 
 
 
-  <h3 id="Stylish">&#x2139;&#xFE0F; Stylish/Stylus Type CSS</h3>
+  <h3 id="stylish-stylus">&#x2139;&#xFE0F; Stylish/Stylus Type CSS</h3>
   <p>Ref: <a href="https://github.com/erosman/support/issues/111" target="_blank">Implement Stylus style Compatibility</a></p>
   <p>After verifying from Mozilla engineers, it seems extensions can not apply Stylish/Stylus type <code>@-moz-document</code>. In Firefox Quantum, to implement any such style extensions would have to:</p>
 

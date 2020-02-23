@@ -402,10 +402,12 @@ const highlight = {
     ],
     gm: [
       "GM", "deleteValue", "getResourceUrl", "getValue", "info", "listValues", "notification",
-      "openInTab", "setClipboard", "setValue", "xmlHttpRequest", "registerMenuCommand",
-      "GM_deleteValue", "GM_getResourceURL", "GM_getValue", "GM_info", "GM_listValues", "GM_notification",
-      "GM_openInTab", "GM_setClipboard", "GM_setValue", "GM_xmlhttpRequest", "GM_fetch",
-      "GM_registerMenuCommand", "unsafeWindow"
+      "openInTab", "setClipboard", "setValue", "xmlHttpRequest", "registerMenuCommand", "unregisterMenuCommand",
+      "addValueChangeListener", "removeValueChangeListener", "download",
+      "GM_deleteValue", "GM_getResourceURL", "GM_getValue", "GM_info", "GM_listValues", 
+      "GM_openInTab", "GM_setClipboard", "GM_setValue", "GM_xmlhttpRequest", "GM_fetch", "GM_download",
+      "GM_registerMenuCommand", "GM_unregisterMenuCommand", "GM_addValueChangeListener", "GM_removeValueChangeListener", 
+      "GM_notification", "unsafeWindow"
     ]
   },
 

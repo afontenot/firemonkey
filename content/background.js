@@ -5,28 +5,8 @@ const registered = {};
 const update =[];
 const FMV = browser.runtime.getManifest().version;          // FireMonkey version
 const FMUrl = browser.runtime.getURL('');
-
-// ----------------- Script Commands -----------------------
-const scriptCommand = {};
-function getScriptCommand(tabId) { return scriptCommand[tabId]; }
-
-// --- clear scriptCommand cache
-browser.tabs.onRemoved.addListener(tabId => { delete scriptCommand[tabId];});
-
-browser.webNavigation.onBeforeNavigate.addListener(details => {
-  if (scriptCommand[details.tabId] && scriptCommand[details.tabId].url !== details.url) {
-    delete scriptCommand[details.tabId];
-  }
-});
-
-/*
-browser.tabs.onUpdated.addListener((tabId, changeInfo, tabInfo) => {
-
-  if (changeInfo.status !== 'complete') { return; }        // end execution if not found
-  console.log('onUpdated called', tabId, changeInfo, tabInfo);
-  // delete scriptCommand[tabId]
-});*/
-// ----------------- /Script Commands ----------------------
+let browserInfo = {};
+let platformInfo = {};
 
 // ----------------- User Preference -----------------------
 chrome.storage.local.get(null, async result => {
@@ -40,15 +20,18 @@ chrome.storage.local.get(null, async result => {
     });
     browser.storage.local.set(pref);                   // update local saved pref
   }
-
+  
+  platformInfo = await browser.runtime.getPlatformInfo();
+  browserInfo = await browser.runtime.getBrowserInfo();
+  
   const days = pref.autoUpdateInterval *1;
   const doUpdate =  days && Date.now() > pref.autoUpdateLast + (days + 86400000); // 86400 * 1000 = 24hr
 
-  Object.keys(pref.content).forEach(name => {
+  Object.keys(pref.content).forEach(item => {
 
-    register(name);
-    doUpdate && pref[name].enabled && pref[name].autoUpdate && pref[name].updateURL &&
-      pref[name].version && update.puch(name);
+    register(item);
+    doUpdate && pref.content[item].enabled && pref.content[item].autoUpdate && pref.content[item].updateURL &&
+      pref.content[item].version && update.push(item);
   });
 
   update[0] && browser.idle.onStateChanged.addListener(onIdle); // FF51+
@@ -64,11 +47,21 @@ chrome.storage.onChanged.addListener((changes, area) => {   // Change Listener
   const hasChanged = Object.keys(changes).find(item => 
             JSON.stringify(changes[item].oldValue) !== JSON.stringify(changes[item].newValue));
   if (!hasChanged) { return; }
-  
+
   Object.keys(changes).forEach(item => pref[item] = changes[item].newValue); // update pref with the saved version
-  changes.globalScriptExcludeMatches &&
-    changes.globalScriptExcludeMatches.oldValue !== changes.globalScriptExcludeMatches.newValue &&
-      Object.keys(pref.content).forEach(register);
+  
+  // find changed scripts
+  if (changes.globalScriptExcludeMatches &&
+    changes.globalScriptExcludeMatches.oldValue !== changes.globalScriptExcludeMatches.newValue) {
+    Object.keys(pref.content).forEach(register);            // re-register all
+  }
+  else if (changes.hasOwnProperty('content') && 
+    JSON.stringify(changes.content.oldValue) !== JSON.stringify(changes.content.newValue)) {
+      
+    Object.keys(changes.content.oldValue).forEach(item => 
+      JSON.stringify(changes.content.oldValue[item]) !== JSON.stringify(changes.content.newValue[item]) &&
+        register(item));
+  }
 
   // --- storage sync update
   if (pref.sync) {
@@ -82,17 +75,10 @@ chrome.storage.onChanged.addListener((changes, area) => {   // Change Listener
   }
 });
 
-function updatePref(result) {
-  Object.keys(result).forEach(item => pref[item] = result[item]); // update pref
-}
-
 // ----------------- Web/Direct Install Listener ------------------
 browser.webRequest.onBeforeRequest.addListener(processWebInstall, {
-    urls: [
-      'https://greasyfork.org/scripts/*.user.js',
-      'https://openuserjs.org/install/*.user.js'
-    ]
-    , types: ['main_frame']
+    urls: ['https://greasyfork.org/scripts/*.user.js', 'https://openuserjs.org/install/*.user.js'],
+    types: ['main_frame']
   },
   ['blocking']
 );
@@ -268,6 +254,8 @@ async function register(id) {
         scriptHandler: 'FireMonkey',
         version: FMV,
         scriptMetaStr: null,
+        platform: platformInfo,
+        browser: browserInfo,
         script: {
           name: id,
           version: pref.content[id].version,
@@ -364,17 +352,24 @@ browser.webRequest.onBeforeSendHeaders.addListener(e => {
 
 browser.runtime.onMessage.addListener((message, sender) => {
 
+  if (!message.api) { return; }
+  
   const e = message.data;
   const name = message.name;
   const storage = '_' + name;
   const hasProperty = (p) => pref[storage] && Object.prototype.hasOwnProperty.call(pref[storage], p);
-
+  let oldValue;
 
   switch (message.api) {
 
     case 'setValue':
       pref[storage] || (pref[storage] = {});                // make one if didn't exist
       if (pref[storage][e.key] === e.value) { return true; } // return if value hasn't changed
+      oldValue = pref[storage][e.key];                      // need to cache it due to async processes
+      e.broadcast && browser.tabs.query({}).then(tabs => {
+        tabs.forEach(tab => browser.tabs.sendMessage(tab.id, 
+          {name, valueChange: {key: e.key, oldValue, newValue: e.value, remote: tab.id !== sender.tab.id}}));
+      });
       pref[storage][e.key] = e.value;
       return browser.storage.local.set({[storage]: pref[storage]});
 
@@ -386,6 +381,11 @@ browser.runtime.onMessage.addListener((message, sender) => {
 
     case 'deleteValue':
       if (!hasProperty(e.key)) { return true; }             // return if nothing to delete
+      oldValue = pref[storage][e.key];                      // need to cache it due to async processes
+      e.broadcast && browser.tabs.query({}).then(tabs => {
+        tabs.forEach(tab => browser.tabs.sendMessage(tab.id, 
+          {name, valueChange: {key: e.key, oldValue, newValue: e.value, remote: tab.id !== sender.tab.id}}));
+      });
       delete pref[storage][e.key];
       return browser.storage.local.set({[storage]: pref[storage]});
 
@@ -400,13 +400,22 @@ browser.runtime.onMessage.addListener((message, sender) => {
       break;
 
     case 'notification': notify(e.text, name); break;
+    
+    case 'download':
+      // --- check url
+      const dUrl = checkURL(e.url, e.base);
+      if (!dUrl) { return; }
 
-    case 'registerMenuCommand':
-      scriptCommand[sender.tab.id] || (scriptCommand[sender.tab.id] = {}); // create if not present
-      scriptCommand[sender.tab.id][name] || (scriptCommand[sender.tab.id][name] = []);
-      scriptCommand[sender.tab.id].url = sender.tab.url;
-      scriptCommand[sender.tab.id][name].includes(e.text) || scriptCommand[sender.tab.id][name].push(e.text);
+      browser.downloads.download({
+        url: dUrl,
+        filename: e.filename ? e.filename : null,
+        saveAs: true,
+        conflictAction: 'uniquify'
+      })
+      .then(() => {})
+      .catch(error => notify(error.message, name));                 // failed notification
       break;
+
 
     case 'fetch':
       // --- check url
@@ -570,7 +579,9 @@ async function counter(tabId, changeInfo, tab) {
 
   const frames = await browser.webNavigation.getAllFrames({tabId});
   const urls = [...new Set(frames.map(item => item.url).filter(item => /^(https?|wss?|ftp|file|about:blank)/.test(item)))];
-  const count = Object.keys(pref.content).filter(item => checkMatches(pref.content[item], urls));
+  const gExclude = pref.globalScriptExcludeMatches ? pref.globalScriptExcludeMatches.split(/\s+/) : []; // cache the array
+  const count = Object.keys(pref.content).filter(item => 
+    pref.content[item].enabled && checkMatches(pref.content[item], urls, gExclude));
   browser.browserAction.setBadgeText({tabId, text: (count[0] ? count.length.toString() : '')});
 }
 // ----------------- /Script Counter -----------------------
