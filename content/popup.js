@@ -46,7 +46,7 @@ function process() {
       break;
 
     case 'edit':
-      localStorage.setItem(nav, this.id);
+      localStorage.setItem('nav', this.id);
       browser.runtime.sendMessage({nav: this.id});
       break;
   }
@@ -65,17 +65,19 @@ function editScript(edit, id) {
 async function processScript() {
 
   const tabs = await browser.tabs.query({currentWindow: true, active: true});
-  browser.runtime.getBackgroundPage()                       // add Script Commands for this tab
-  .then(bg => addCommand(tabs[0].id, bg.getScriptCommand(tabs[0].id)))
-  .catch(console.error);
+  const tabId = tabs[0].id;                                 // active tab id
+  
+  browser.runtime.onMessage.addListener((message, sender) => sender.tab.id === tabId && addCommand(tabId, message));
+  browser.tabs.sendMessage(tabId, {listCommand: []});
 
-  const frames = await browser.webNavigation.getAllFrames({tabId: tabs[0].id});
+  const frames = await browser.webNavigation.getAllFrames({tabId});
   const urls = [...new Set(frames.map(item => item.url).filter(item => /^(https?|wss?|ftp|file|about:blank)/.test(item)))];
   const gExclude = pref.globalScriptExcludeMatches ? pref.globalScriptExcludeMatches.split(/\s+/) : []; // cache the array
   Object.keys(pref.content).sort(Intl.Collator().compare).forEach(item =>
     addScript(pref.content[item], checkMatches(pref.content[item], urls, gExclude))
   );
 }
+
 
 function addScript(item, tab) {
 
@@ -106,11 +108,6 @@ async function toggleState() {
 
   pref.content[id].enabled = !li.classList.contains('disabled');
   browser.storage.local.set({content: pref.content});       // update saved pref
-
-  // --- register/unregister
-  const bg = await browser.runtime.getBackgroundPage();
-  bg.updatePref(pref);
-  pref.content[id].enabled ? bg.register(id) : bg.unregister(id);
 }
 
 function showInfo() {
@@ -152,25 +149,23 @@ function showInfo() {
 const command = document.querySelector('h3.command');
 const ulCommand = command.nextElementSibling;
 
-function addCommand(tabId, cmd = {}) {
+function addCommand(tabId, message) {
 
-  Object.keys(cmd).forEach(name => {
+  //{name, command: Object.keys(command)}
+  if (!message.command[0]) { return; }
+  
+  command.classList.toggle('on', true);
+  const li = liTemplate.cloneNode();
+  li.classList.replace('template', 'head');
+  li.textContent = message.name;
+  ulCommand.appendChild(li);  
+  
+  message.command.forEach(item => {
 
-    if (name === 'url') { return; }                         // skip url
-
-    command.classList.toggle('on', true);
     const li = liTemplate.cloneNode();
-    li.classList.replace('template', 'head');
-    li.textContent = name;
+    li.classList.remove('template');
+    li.textContent = item;
+    li.addEventListener('click', () => browser.tabs.sendMessage(tabId, {name: message.name, command: item}));
     ulCommand.appendChild(li);
-
-    cmd[name].forEach(item => {
-
-      const li = liTemplate.cloneNode();
-      li.classList.remove('template');
-      li.textContent = item;
-      li.addEventListener('click', () => browser.tabs.sendMessage(tabId, {cmd: item}));
-      ulCommand.appendChild(li);
-    });
   });
 }
