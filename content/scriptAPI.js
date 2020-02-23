@@ -4,11 +4,39 @@ browser.userScripts.onBeforeScript.addListener(script => {
 
   const name = script.metadata.name;
   const resource = script.metadata.resource;
+  const scriptOptions = {
+    command: {},
+    valueChange: {}
+  };
 
-  // --- Script Commands
-  const scriptCommand = {};
-  function execScriptCommand(message, sender) {
-    message.hasOwnProperty('cmd') && (scriptCommand[message.cmd])();
+  function scriptListener(message, sender) {
+
+    switch (true) {
+
+      // --- to popup.js for registerMenuCommand
+      case message.hasOwnProperty('listCommand'):
+        browser.runtime.sendMessage({name, command: Object.keys(scriptOptions.command)});
+        break;
+
+      // from popup.js for registerMenuCommand
+      case message.name === name && message.hasOwnProperty('command'):
+        (scriptOptions.command[message.command])();
+        break;
+
+      // from script for addValueChangeListener
+      case message.name === name && message.hasOwnProperty('valueChange'):
+        const e = message.valueChange;
+        (scriptOptions.valueChange[e.key])(e.key, e.oldValue, e.newValue, e.remote);
+        break;
+    }
+  }
+
+  function checkListener() {
+
+    if (Object.keys(scriptOptions.command)[0] || Object.keys(scriptOptions.valueChange)[0]) {
+      browser.runtime.onMessage.hasListener(scriptListener) || browser.runtime.onMessage.addListener(scriptListener);
+    }
+    else { browser.runtime.onMessage.removeListener(scriptListener); }
   }
 
   /*
@@ -29,10 +57,11 @@ browser.userScripts.onBeforeScript.addListener(script => {
     async setValue(key, value) {
 
       if (!['string', 'number', 'boolean'].includes(typeof value)) { throw `${name}: Unsupported value in setValue()`; }
+      checkListener();
       return await browser.runtime.sendMessage({
         name,
         api: 'setValue',
-        data: {key, value}
+        data: {key, value, broadcast: scriptOptions.valueChange.hasOwnProperty(key)}
       });
     },
 
@@ -57,10 +86,11 @@ browser.userScripts.onBeforeScript.addListener(script => {
 
     async deleteValue(key) {
 
+     checkListener();
      return await browser.runtime.sendMessage({
         name,
         api: 'deleteValue',
-        data: {key}
+        data: {key, broadcast: scriptOptions.valueChange.hasOwnProperty(key)}
       });
     },
 
@@ -142,8 +172,8 @@ browser.userScripts.onBeforeScript.addListener(script => {
     },
 
 
-    async getResourceText(resourceName) { 
-      
+    async getResourceText(resourceName) {
+
       const response = await browser.runtime.sendMessage({
         name,
         api: 'fetch',
@@ -152,43 +182,71 @@ browser.userScripts.onBeforeScript.addListener(script => {
 
       return response ? script.export(response) : null;
     },
-    
+
     getResourceURL(resourceName) { return resource[resourceName]; },
 
     registerMenuCommand(text, onclick, accessKey) {
 
-      scriptCommand[text] = onclick;
-      browser.runtime.onMessage.hasListener(execScriptCommand) || browser.runtime.onMessage.addListener(execScriptCommand);
+      scriptOptions.command[text] = onclick;
+      checkListener();
+    },
+
+    unregisterMenuCommand(text) {
+
+      delete scriptOptions.command[text];
+      checkListener();
+    },
+
+    addValueChangeListener(key, callback) {
+
+      scriptOptions.valueChange[key] = callback;
+      checkListener();
+      return key;
+    },
+
+    removeValueChangeListener(key) {
+
+      delete scriptOptions.valueChange[key];
+      checkListener();
+    },
+
+    download(url, filename) {
+
       return browser.runtime.sendMessage({
         name,
-        api: 'registerMenuCommand',
-        data: {text}
+        api: 'download',
+        data: {url, filename, base: location.href}
       });
     },
 
-    log(...text) { console.log(...text); },
+    log(...text) { console.log(name + ':', ...text); },
     info: script.metadata.info
   };
 
   script.defineGlobals({
 
     GM,
-    GM_setValue:            GM.setValue,
-    GM_getValue:            GM.getValue,
-    GM_deleteValue:         GM.deleteValue,
-    GM_listValues:          GM.listValues,
-    GM_openInTab:           GM.openInTab,
-    GM_setClipboard:        GM.setClipboard,
-    GM_notification:        GM.notification,
-    GM_xmlhttpRequest:      GM.xmlHttpRequest,
-    GM_info:                GM.info,
-    GM_addStyle:            GM.addStyle,
+    GM_setValue:                  GM.setValue,
+    GM_getValue:                  GM.getValue,
+    GM_deleteValue:               GM.deleteValue,
+    GM_listValues:                GM.listValues,
+    GM_openInTab:                 GM.openInTab,
+    GM_setClipboard:              GM.setClipboard,
+    GM_notification:              GM.notification,
+    GM_xmlhttpRequest:            GM.xmlHttpRequest,
+    GM_info:                      GM.info,
+    GM_addStyle:                  GM.addStyle,
 
-    GM_getResourceText:     GM.getResourceText,
-    GM_getResourceURL:      GM.getResourceUrl,
-    GM_registerMenuCommand: GM.registerMenuCommand,
-    GM_log:                 GM.log,
+    GM_getResourceText:           GM.getResourceText,
+    GM_getResourceURL:            GM.getResourceUrl,
+    GM_registerMenuCommand:       GM.registerMenuCommand,
+    GM_unregisterMenuCommand:     GM.unregisterMenuCommand,
+    GM_log:                       GM.log,
 
-    GM_fetch:               GM.fetch
+    GM_addValueChangeListener:    GM.addValueChangeListener,
+    GM_removeValueChangeListener: GM.removeValueChangeListener,
+    GM_download:                  GM.download,
+
+    GM_fetch:                     GM.fetch
   });
 });

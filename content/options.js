@@ -3,7 +3,7 @@
 // ----- global
 let OS = 'win';
 browser.runtime.getPlatformInfo().then(info => OS = info.os); // mac, win, android, cros, linux, openbsd
-let bg;
+
 
 // ----------------- Internationalization ------------------
 document.querySelectorAll('[data-i18n]').forEach(node => {
@@ -35,9 +35,8 @@ function processOptions() {                                 // set saved pref/de
 // ----------------- /Options ------------------------------
 
 // ----------------- User Preference -----------------------
-chrome.storage.local.get(null, async result => { // global default set in pref.js
+chrome.storage.local.get(null, result => { // global default set in pref.js
   Object.keys(result).forEach(item => pref[item] = result[item]); // update pref with the saved version
-  bg = await browser.runtime.getBackgroundPage();
   processOptions();                                         // run after the async operation
   processScript();
 
@@ -245,9 +244,6 @@ async function toggleEnable() {
         const id = item.id;
         pref.content[id].enabled = this.checked;
         item.classList.toggle('disabled', !this.checked);
-
-        bg.updatePref(pref);
-        pref.content[id].enabled ? bg.register(id) : bg.unregister(id);
       });
 
       browser.storage.local.set({content: pref.content});   // update saved pref
@@ -263,10 +259,6 @@ async function toggleEnable() {
   last && last.classList.toggle('disabled', !this.checked);
 
   browser.storage.local.set({content: pref.content});       // update saved pref
-
-  // --- register/unregister
-  bg.updatePref(pref);
-  pref.content[id].enabled ? bg.register(id) : bg.unregister(id);
 }
 
 function toggleAutoUpdate() {
@@ -311,7 +303,6 @@ async function deleteScript() {
       const id = item.id;
       item.remove();                                        // remove from menu list
       delete pref.content[id];
-      bg.unregister(id);                                    // remove old registers
       deleted.push(id);
     });
   }
@@ -324,7 +315,6 @@ async function deleteScript() {
     // --- remove from menu list
     document.querySelector('nav li.on').remove();
     delete pref.content[id];
-    bg.unregister(id);                                      // remove old registers
     deleted.push(id);
   }
 
@@ -387,9 +377,6 @@ async function saveScript() {
 
 
   pref.content[data.name] = data;                       // save to pref
-  bg.updatePref(pref);                                  // update bg pref
-  bg.register(data.name);                               // add new registers
-
 
   switch (true) {
 
@@ -402,8 +389,7 @@ async function saveScript() {
     case data.name !== box.id:
       // remove old registers
       const oldName = box.id;
-      delete pref.content[oldName]
-      bg.unregister(oldName);
+      delete pref.content[oldName];
       if (pref.hasOwnProperty('_' + oldName)) {                   // move script storage
 
         pref['_' + data.name] = pref['_' + oldName];
@@ -479,13 +465,6 @@ async function processResponse(text, name) {
   processScript();                                          // update page display
   const on = document.getElementById(data.name);
   on && on.click();                                         // reload the new script
-
-  if (data.enabled) {
-
-    if (data.name !== name) { bg.unregister(name); }        // --- unregister old name
-    bg.updatePref(pref);
-    bg.register(data.name);
-  }
 }
 // ----------------- /Remote Update ------------------------
 
@@ -530,10 +509,6 @@ async function processFileSelectScript(e) {
   if(!multiCache[0]) { return; }
   processScript();                                          // update page display
   browser.storage.local.set({content: pref.content});       // update saved pref
-
-  // --- register/unregister
-  bg.updatePref(pref);
-  multiCache.forEach(id => bg.register(id));
 }
 
 function readDataScript(text) {
@@ -594,7 +569,7 @@ function prepareStylus(data) {
     return;
   }
 
-  const cache = [];
+
   for (const item of importData) {
 
     // --- test validity
@@ -649,18 +624,11 @@ function prepareStylus(data) {
       '==/UserCSS==\n*/\n\n' + data.css;
 
       pref.content[data.name] = data;                       // save to pref
-      cache.push(data.name);
     });
   }
 
   processScript();                                          // update page display
   browser.storage.local.set({content: pref.content});       // update saved pref
-
-  if (!cache[0]) { return; }
-
-  // --- register/unregister
-  bg.updatePref(pref);
-  cache.forEach(id => bg.register(id));
 }
 
 function exportScript() {
@@ -758,7 +726,7 @@ function exportData(data, ext) {
 
 // ----------------- Edit from browser pop-up --------------
 // ----- message listeners from popup page
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender) => {
   message.hasOwnProperty('nav') && getNav(message.nav);
 });
 
@@ -782,7 +750,7 @@ function getNav(nav) {
       
     default:
       document.getElementById('nav4').checked = true;
-      document.getElementById(message.nav).click();
+      document.getElementById(nav).click();
   }
 }
 

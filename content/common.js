@@ -132,16 +132,19 @@ function getMetaData(str, userMatches = '', userExcludeMatches = '') {
               value = 'lib/jquery-ui-1.12.1.min.jsm';
               break;
 
+            case url === 'bootstrap4':
             case cdn && url.includes('/bootstrap.min.js'):
             case cdn && url.endsWith('/bootstrap.js'):
               value = 'lib/bootstrap-4.4.1.min.jsm';
               break;
 
+            case url === 'moment2':
             case cdn && url.includes('/moment.min.js'):
             case cdn && url.endsWith('/moment.js'):
               value = 'lib/moment-2.24.0.min.jsm';
               break;
-
+            
+            case url === 'underscore1':
             case cdn && url.includes('/underscore.js'):
             case cdn && url.includes('/underscore-min.js'):
               value = 'lib/underscore-1.9.2.min.jsm';
@@ -195,15 +198,29 @@ function checkPattern(p) {
 
   // --- convert some common incompatibilities with matches API
   switch (true) {
-
-    case p === '*': p = '*://*/*'; break;
+    // fix complete pattern
+    case p === '*': case '<all_urls>': p = '*://*/*'; break;
     case p === 'http://*': p = 'http://*/*'; break;
     case p === 'https://*': p = 'https://*/*'; break;
     case p === 'http*://*': p = '*://*/*'; break;
+    
+    // fix protocol/scheme
     case p.startsWith('http*'): p = p.substring(4); break;  // *://.....
     case p.startsWith('*//'): p = '*:' + p.substring(1); break; // bad protocol wildcard
     case p.startsWith('//'): p = '*:' + p; break;           // Protocol-relative URL
+    case !p.includes('://'): p = '*://' + p.substring(1); break; // no protocol
   }
+
+  let [scheme, host, ...path] = p.split(/:?\/+/);
+  
+  if (!['http', 'https', 'file', '*'].includes(scheme)) { scheme = '*'; } // bad scheme
+  if (host.includes(':')) { host = host.replace(/:.+/, ''); } // host with port
+  if (host.endsWith('.*')) { host = host.slice(0, -2) + '.TLD'; } // TLD wildcard google.*
+  if (host.startsWith('*') && host[1] && host[1] !== '.') { host = '*.' + host.substring(1); } // starting wildcard *google.com  
+  p = scheme + '://' + [host, ...path].join('/');           // rebuild pattern
+  
+  if (scheme !== 'file' && !path[0] && !p.endsWith('/')) { p += '/'; } // fix trailing slash
+
 
   // --- process TLD
   const TLD = ['.com', '.au', '.br', '.ca', '.ch', '.cn', '.co.uk', '.de', '.es', '.fr',
