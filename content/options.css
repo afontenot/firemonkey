@@ -613,6 +613,7 @@ summary {
   list-style: none;
   cursor: pointer;
   color: #aaa;
+  font-weight: 900;
   position: absolute;
   left: 0;
   bottom: 0;

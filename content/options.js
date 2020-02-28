@@ -1,10 +1,5 @@
 ﻿'use strict';
 
-// ----- global
-let OS = 'win';
-browser.runtime.getPlatformInfo().then(info => OS = info.os); // mac, win, android, cros, linux, openbsd
-
-
 // ----------------- Internationalization ------------------
 document.querySelectorAll('[data-i18n]').forEach(node => {
   let [text, attr] = node.dataset.i18n.split('|');
@@ -64,7 +59,7 @@ function checkOptions() {
 const liTemplate = document.querySelector('nav li.template');
 const legend = document.querySelector('.script legend');
 const box = document.querySelector('.script .box');
-highlight.box = box;
+const highlight = new Highlight(box);
 const enable = document.querySelector('#enable');
 const autoUpdate = document.querySelector('#autoUpdate');
 const userMatches = document.querySelector('#userMatches');
@@ -457,7 +452,6 @@ async function processResponse(text, name) {
     }
   }
 
-  //console.log(name, 'updated to version', data.version);
   notify(chrome.i18n.getMessage('scriptUpdated', data.version), name);
   pref.content[data.name] = data;                           // save to pref
   browser.storage.local.set({content: pref.content});       // update saved pref
@@ -652,8 +646,6 @@ function exportAllScript() {
 }
 
 function exportfile(data, ext, id, saveAs = true) {
-
-  if (OS === 'win') { data = data.replace(/\n/g, '\r\n'); }
 
   const blob = new Blob([data], {type : 'text/plain;charset=utf-8'});
   const filename = id + ext;
