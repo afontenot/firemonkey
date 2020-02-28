@@ -183,7 +183,7 @@ function getMetaData(str, userMatches = '', userExcludeMatches = '') {
   data.userExcludeMatches = userExcludeMatches;
   userMatches && (data.matches = [...data.matches, ...userMatches.split(/\s+/)]);
   userExcludeMatches && (data.excludeMatches = [...data.excludeMatches, ...userExcludeMatches.split(/\s+/)]);
-
+  
   // --- convert to match pattern
   data.matches = data.matches.flatMap(checkPattern);        // flatMap() FF62
   data.excludeMatches = data.excludeMatches.flatMap(checkPattern);
@@ -198,13 +198,18 @@ function checkPattern(p) {
 
   // --- convert some common incompatibilities with matches API
   switch (true) {
+    
+    // No change
+    case p[0] === '/' && p[1] !== '/': return p;            // RegEx: can't fix
+    case p === '<all_urls>': return p;
+    
     // fix complete pattern
-    case p === '*': case '<all_urls>': p = '*://*/*'; break;
+    case p === '*':  p = '*://*/*'; break;
     case p === 'http://*': p = 'http://*/*'; break;
     case p === 'https://*': p = 'https://*/*'; break;
     case p === 'http*://*': p = '*://*/*'; break;
     
-    // fix protocol/scheme
+    // fix scheme
     case p.startsWith('http*'): p = p.substring(4); break;  // *://.....
     case p.startsWith('*//'): p = '*:' + p.substring(1); break; // bad protocol wildcard
     case p.startsWith('//'): p = '*:' + p; break;           // Protocol-relative URL

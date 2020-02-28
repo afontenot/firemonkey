@@ -67,8 +67,12 @@ async function processScript() {
   const tabs = await browser.tabs.query({currentWindow: true, active: true});
   const tabId = tabs[0].id;                                 // active tab id
   
-  browser.runtime.onMessage.addListener((message, sender) => sender.tab.id === tabId && addCommand(tabId, message));
-  browser.tabs.sendMessage(tabId, {listCommand: []});
+  browser.browserAction.getBadgeText({tabId}).then(text => { // check if there are active scripts in tab
+    if(text) {
+      browser.runtime.onMessage.addListener((message, sender) => sender.tab.id === tabId && addCommand(tabId, message));
+      browser.tabs.sendMessage(tabId, {listCommand: []});
+    }
+  });
 
   const frames = await browser.webNavigation.getAllFrames({tabId});
   const urls = [...new Set(frames.map(item => item.url).filter(item => /^(https?|wss?|ftp|file|about:blank)/.test(item)))];
