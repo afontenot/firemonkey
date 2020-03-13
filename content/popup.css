@@ -159,7 +159,6 @@ ul.command li:not(.head) {
   cursor: pointer;
 }
 
-
 ul.command li:not(.head)::before {
   content: '\25B6';
   margin-right: 0.4em;
@@ -265,6 +264,65 @@ button + button {
 }
 
 section:first-of-type button:first-of-type {
-  flex: 3;
+  flex: 2;
 }
 /* ----- /Buttons ----- */
+
+/* ----- Dark Theme ----- */
+body.dark {
+  color: #fff;
+  background-color: #123;
+}
+
+.dark h3 {
+  border-color: #9ab;
+  background: #123 linear-gradient(to right, #123, #789 20%, #123);
+}
+
+.dark ul {
+  scrollbar-color: #567 #234;
+}
+
+.dark li:hover {
+  background-color: #678;
+}
+
+.dark li span.enable {
+  color: #0cf;
+}
+
+.dark li.head {
+  color: #0cf;
+}
+
+.dark li img {
+  filter: invert(1);
+}
+
+.dark section.info img {
+  filter: invert(1);
+}
+
+.dark dl {
+  scrollbar-color: #567 #234;
+}
+
+.dark dt {
+  color: #0cf;
+  border-color: #789;
+}
+
+.dark dd {
+  color: #fff;
+}
+
+.dark button {
+  color: #fff;
+  background-color: #000;
+  border-color: #345;
+}
+
+.dark button:hover {
+  background-color: #456;
+}
+

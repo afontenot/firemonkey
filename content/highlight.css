@@ -1,37 +1,55 @@
-﻿/* ----- General ----- */
-pre[contenteditable] div {
-  max-width: 100vmin;
-}
+﻿/* ----- Light Theme ----- */
+.plain { color: black; }
 
-.plain {color: black; }
 .comment { color: forestgreen; }
-.keyword { color: blue; }
-.object { color: red; }
+.keyword, .html { color: blue; }
+.object, .font { color: red; }
 .string { color: gray; }
 .method { color: darkviolet; }
 .gm { color: maroon; }
 
-.property { color: red; }
+.property { color: darkorange; }
 .value { color: dodgerblue; }
-.html { color: blue; }
 .pseudo { color: darkgreen; }
-.important { color: darkorange; }
-.font { color: gray; }
+.important { color: brown; }
 .color { color: orchid; }
 
 /* ----- Counter ----- */
-.box { counter-reset: n; }
+.box { counter-reset: n;  }
 
-.box div::before {
-   display: inline-block;
-   color: #777;
-   min-width: 2.5em;
-   text-align: right;
-   vertical-align: middle;
-   margin-right: 1em;
-   pointer-events: none;
-   counter-increment: n;              /* Increment the section counter*/
-   content: counter(n);               /* Display the counter */
+.box div {
+  display: list-item;
+  margin-left: 3em;
+  counter-increment: n;              /* Increment the section counter*/
+}
+
+.box div:hover {
+  background-color: #eee;
+}
+
+.box div::marker {                  /* FF68+ */
+  color: #aaa;
+  content: counter(n) ' ';          /* Display the counter */
+}
+
+.box div:hover::marker {
+  color: #f50;
+  font-weight: bold;
 }
 /* ----- /Counter ----- */
 
+/* ----- Dark Theme ----- */
+.dark .box div:hover {
+  background-color: #555;
+}
+
+.dark .plain { color: white; }
+.dark .comment { color: limegreen; }
+.dark .keyword, .dark .html { color: deepskyblue; }
+.dark .string, .dark .font { color: darkgray; }
+.dark .method { color: violet; }
+.dark .gm { color: gold; }
+.dark .value { color: aqua; }
+.dark .pseudo { color: lightgreen; }
+.dark .important { color: bisque; }
+/* ----- /Dark Theme ----- */

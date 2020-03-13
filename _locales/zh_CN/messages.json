@@ -28,6 +28,8 @@
   "enable": { "message": "启用" },
   "update": { "message": "更新" },
   "autoUpdate": { "message": "自动更新" },
+  "syntax": { "message": "Syntax" },
+  "dark": { "message": "Dark" },
 
   "newJS": { "message": "新建用户脚本" },
   "newCSS": { "message": "新建用户样式" },

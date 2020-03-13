@@ -6,15 +6,26 @@
     <title>About</title>
   </head>
   <body>
-    <article>
-
+    
     <nav>
       <span><a href="#changelog">Changelog</a></span>
       <span><a href="#credits">Credits</a></span>
-    </nav>
+    </nav>    
+    
+    <article>
 
     <h2 id="changelog">Changelog</h2>
     <dl>
+
+      <dt>1.31</dt>
+        <dd>Improved Syntax Highlight rendering speed & style</dd>
+        <dd>Added Dark Theme to the script code section & popup (saved locally)</dd>
+        <dd>Changed the Disable Syntax process (now saved locally)</dd>
+        <dd>Added '.user' to file-names in export for compatibility with other manager</dd>
+        <dd>Fixed an issue in conversion process with <code>file:///</code> (from v1.29)</dd>
+        <dd>Fixed an issue with User Matches & User Exclude Matches</dd>
+        <dd>Added the same <code>@require</code> features of UserScript, to UserCSS as well</dd>
+        
 
       <dt>1.30</dt>
         <dd>Fixed an encoding issue with Export function</dd>
@@ -75,7 +86,7 @@
         <dd>Added <code>@exclude-match</code> processing</dd>
         <dd>Added persistent User Matches & User Exclude Matches</dd>
         <dd>Added Global Script Exclude Matches</dd>
-        <dd>Minimum version increased to Firefox 68 (2019-07-09, official release of userScript API)</dd>
+        <dd>Minimum version increased to Firefox 68 (released 2019-07-09, official release of userScript API)</dd>
 
       <dt>1.24</dt>
         <dd>Fixed a XMLHttpRequest returning <i>null</i></dd>
@@ -191,7 +202,7 @@
         <dd><b>es</b>: </dd>
         <dd><b>it:</b> </dd>
         <dd><b>zh_CN:</b> yfdyh000</dd>
-        <dd><b>zh_TW:</b>  s8321414</dd>
+        <dd><b>zh_TW:</b> s8321414</dd>
 
     </dl>
     </article>

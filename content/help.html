@@ -7,7 +7,6 @@
     <title>Help</title>
   </head>
   <body>
-    <article>
 
   <nav>
     <span><a href="#Preamble">Preamble</a></span>
@@ -24,7 +23,6 @@
       <ul>
         <li><a href="#auto-update-interval">Auto-Update Interval</a></li>
         <li><a href="#global-script-exclude">Global Script Exclude Matches</a></li>
-        <li><a href="#disable-syntax-highlight">Disable Syntax Highlighting</a></li>
         <li><a href="#enable-storage">Enable Storage Sync</a></li>
         <li><a href="#import-export">Preferences: Import/Export</a></li>
         <li><a href="#save">Save</a></li>
@@ -33,9 +31,9 @@
     <span><a href="#Script-CSS">Script & CSS</a>
       <ul>
         <li><a href="#editing">Editing</a></li>
+        <li><a href="#syntax-highlighting">Syntax Highlighting</a></li>
         <li><a href="#auto-update">Update & Auto-update</a></li>
         <li><a href="#user-matches-exclude">User Matches & Exclude Matches</a></li>
-        <li><a href="#syntax-highlighting">Syntax Highlighting</a></li>
         <li class="arrow"><a href="#metadata-block">Metadata Block</a>
           <ul>
             <li><a href="#match-patterns">Match Patterns</a></li>
@@ -54,7 +52,7 @@
             <li><a href="#registerMenuCommand">registerMenuCommand</a></li>
             <li><a href="#unregisterMenuCommand">unregisterMenuCommand</a></li>
             <li><a href="#getResourceText">getResourceText</a></li>
-            <li><a href="#getResourceUrl">getResourceUrl</a></li>        
+            <li><a href="#getResourceUrl">getResourceUrl</a></li>
             <li><a href="#addValueChangeListener">addValueChangeListener</a></li>
             <li><a href="#removeValueChangeListener">removeValueChangeListener</a></li>
             <li><a href="#download">download</a></li>
@@ -71,7 +69,7 @@
     <span><a href="#support">Support</a></span>
   </nav>
 
-  
+  <article>
 
 
   <h2 id="Preamble">Preamble</h2>
@@ -81,7 +79,6 @@
   <h2 id="how_to">How to Use</h2>
 
 
-
   <h3 id="toolbar-menu">Toolbar Icon Context Menu</h3>
   <p>Right-clik on Toolbar Icon:</p>
   <ul>
@@ -89,7 +86,7 @@
     <li><img src="../image/help32.png" width="16" alt=""> Help: display Help document</li>
   </ul>
 
-  <h3 id="toolbar-badge"><sup>5</sup> Toolbar Icon Badge</h3>
+  <h3 id="toolbar-badge">Toolbar Icon Badge <sup>5</sup></h3>
     <p>Badge indicates the number of Script/CSS that are active in the tab (and all its iframes).</p>
 
   <h3 id="toolbar-popup">Toolbar Icon Pop-up</h3>
@@ -128,8 +125,7 @@
   <p>Changes to Global Script Exclude Matches will unregister all running script. Once tab is reloaded or on new tab, new settings will take effect.</p>
   <p>Note: Invalid match pattern will cause all scripts to fail and thus get disabled.</p>
 
-  <h3 id="disable-syntax-highlight">Disable Syntax Highlighting</h3>
-  <p>Although the Syntax Highlighting is fairly fast (took 3 seconds for a 2.4mb 50,000+ lines script), Firefox takes much longer to render and display the result. You can disable Syntax Highlighting if needed.</p>
+
 
 
   <h3 id="enable-storage">Enable Storage Sync</h3>
@@ -189,6 +185,7 @@
       Note: Not perfect (but helps), RegEx patterns are ignored, sections are separated into different files (<a href="#Stylish">Stylish/Stylus Type CSS</a>)</li>
   </ul>
 
+
   <h4>Edit Area Buttons</h4>
   <ul>
     <li><b>&#x1f4be; Save</b><br>
@@ -215,12 +212,29 @@
     <li><b>&#x1f4e4; Export</b><br>
       Export the currently displaying Script/CSS to file</li>
 
+
+
     <li><img src="../image/bin.svg" width="16" alt=""><br>
       Delete the currently displaying Script/CSS after confirmation<br><br></li>
 
-    <li>Multiple Enable/Disable & Delete<br>
+    <li><b>Multiple Enable/Disable & Delete</b><br>
       Make a selection of (highlight with mouse) items listed under Script & CSS to multiple Delete (after confirmation) or multiple Enable/Disable the selected items.</li>
   </ul>
+
+  <h4><img src="../image/menu-dot.svg" width="16" alt=""> Menu</h4>
+
+  <ul>
+    <li><b>Syntax</b><br>
+      Enable/Disable the Syntax Highlighting. Data is saved locally only and not as a preference (not passed to sync).</li>
+
+    <li><b>Dark</b><br>
+      Enable/Disable the Dark Theme for the script section only. Data is saved locally only and not as a preference (not passed to sync).</li>
+  </ul>
+
+  <h3 id="syntax-highlighting">Syntax Highlighting</h3>
+  <p>Syntax Highlighting requires considerably large libraries. Personally as a developer, I always use a dedicated application for coding and then copy/paste or import into user script/style manager etc. Therefore, for slimness and efficiency, I have written a basic Syntax Highlighting code. It does not have all the features of the large library scripts but it is still being improved.</p>
+  <p>Although the Syntax Highlighting is fairly fast (took 3 seconds for a 2.4mb 50,000+ lines script), Firefox takes much longer to render and display the result. You can disable Syntax Highlighting if needed.</p>
+  
 
   <h3 id="auto-update">Update & Auto-update</h3>
   <p>Any target can be set for <code>@updateURL</code> as long it directly leads to the final file and it is in plain text. The <code>.js</code> or <code>.css</code> file extensions are not necessary although it makes sense to have them. The <code>.user.</code> is not necessary.</p>
@@ -231,6 +245,7 @@
   <p><code>@downloadURL/@installURL</code>, if present, is set for script update.</p>
 
 <table>
+  <caption>Comparison</caption>
   <thead>
   <tr>
     <th>Manager</th>
@@ -259,19 +274,16 @@
 </table>
 
 
-  <h3 id="user-matches-exclude">&#x2630; User Matches & Exclude Matches <span>(v1.25+)</span></h3>
+  <h3 id="user-matches-exclude">User Matches & Exclude Matches <img src="../image/menu.svg" width="16" alt=""> <span>(v1.25+)</span></h3>
   <p>Persistent user matches & excludeMatches (one per line using Match Patterns) can be set for each script to supplement script's matches & excludeMatches.</p>
   <p>Please note that invalid match pattern will cause the script to fail and thus get disabled.</p>
 
 
-  <h3 id="syntax-highlighting">Syntax Highlighting</h3>
-  <p>Syntax Highlighting requires considerably large libraries. Personally as a developer, I always use a dedicated application for coding and then copy/paste or import into user script/style manager etc. Therefore, for slimness and efficiency, I have written a basic Syntax Highlighting code. It does not have all the features of the large library scripts but it is still being improved.</p>
-
   <h2 id="metadata-block">Metadata Block</h2>
   <p>For easier compatibility, format is similar to <i>GreaseMonkey</i> Metadata Block for UserScripts. The commenting is different for CSS and as a result a uniform commenting for Metadata Block can be used. The Metadata Block identifier (case-insensitive e.g. ==userscript== etc) for UserScript is <code>==UserScript== ... ==/UserScript==</code> and for UserCSS is <code>==UserCSS== ... ==/UserCSS==</code>. For clarity, it is best to have the Metadata Block on top (or after <code>'use strict';</code> if wanted, but <i>FireMonkey</i> can pick it up from anywhere within the code.</p>
 
-  <h4>Examples:</h4>
-
+   <figure>
+    <figcaption>JS Single-line Comment</figcaption>
 <pre class="comment">
 // ==UserScript==
 // @name            My Script
@@ -281,8 +293,10 @@
 // @version         1.0
 // ==/UserScript==
 </pre>
+  </figure>
 
-
+  <figure>
+    <figcaption>JS Multi-line Comment</figcaption>
 <pre class="comment">
 /*
 ==UserScript==
@@ -294,7 +308,10 @@
 ==/UserScript==
 */
 </pre>
+  </figure>
 
+  <figure>
+    <figcaption>CSS Multi-line Comment</figcaption>
 <pre class="comment">
 /*
 ==UserCSS==
@@ -306,7 +323,7 @@
 ==/UserCSS==
 */
 </pre>
-
+  </figure>
 
   <p><i>FireMonkey</i> supports the following entries based on <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/contentScripts/register" target="_blank">
 contentScripts.register()</a> & <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/userScripts/register" target="_blank">
@@ -315,6 +332,9 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
   <p><b>Note:</b> <i>FireMonkey</i> uses the <code>name</code> (case-sensitive) as ID for Scripts & CSS, therefore names must be unique. A shorter & concise name is recommended.</p>
 
+
+  <figure>
+    <figcaption>Metadata Block</figcaption>
 <pre class="comment">
 @name
 @matches
@@ -339,6 +359,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 @exclude-match      <i>(entries will be merged into excludeMatches)</i>
 @noframes           <i>(if present will set @allFrames to false (default))</i>
 </pre>
+  </figure>
 
 
 
@@ -357,6 +378,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <p><i>FireMonkey</i> conforms to the Firefox (& Chrome) <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts" target="_blank">content_scripts</a> API defaults.</p>
 
 <table>
+  <caption>Default Comparison</caption>
   <thead>
   <tr>
     <th>Manager</th>
@@ -379,6 +401,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <p>Entries under <code>@include/@exclude</code> will be merged into <code>@matches/@excludeMatches</code> (duplicates removed). Some common incompatibilities with <code>matches</code> API are automatically converted.</p>
 
 <table>
+  <caption>Conversation Examples</caption>
   <thead>
   <tr>
     <th>From include</th>
@@ -412,13 +435,13 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
 <p>For example: <code>"*na?i"</code> would match <code>"illuminati"</code> and <code>"annunaki"</code>, but not <code>"sagnarelli"</code>.</p>
 
-<h4>Examples</h4>
-
 <table>
+  <caption>Examples</caption>
   <thead>
   <tr>
     <th>Pattern</th>
-    <th>URL</th>
+    <th>match</th>
+    <th>no-match</th>
   </tr>
   </thead>
   <tbody>
@@ -432,6 +455,8 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
       <p class="pass">https://files.example.org/</p>
       <p class="pass">ftp://example.org/some/path/</p>
     </td>
+    <td>
+    </td>
   </tr>
 
   <tr>
@@ -442,6 +467,9 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
     <td>
       <p class="pass">http://example.org/</p>
       <p class="pass">https://www.example.org/aaa/</p>
+
+    </td>
+    <td>
       <p class="fail">ftp://www.example.org/aaa/</p>
     </td>
   </tr>
@@ -455,6 +483,8 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
       <p class="pass">https://www.example.org/</p>
       <p class="pass">http://www.sub.example.org/aaa/</p>
     </td>
+    <td>
+    </td>
   </tr>
 
   <tr>
@@ -463,6 +493,10 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
     </td>
     <td>
       <p class="pass">http://example.org/</p>
+
+
+    </td>
+    <td>
       <p class="fail">https://www.example.org/</p>
       <p class="fail">http://example.org/aaa/</p>
     </td>
@@ -473,9 +507,12 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
       <code>https://*/path</code>
     </td>
     <td>
+
+      <p class="pass">https://www.example.org/path</p>
+    </td>
+    <td>
       <p class="fail">http://example.org/</p>
       <p class="fail">http://example.org/path</p>
-      <p class="pass">https://www.example.org/path</p>
     </td>
   </tr>
 
@@ -486,15 +523,16 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
     <td>
       <p class="pass">file:///blah/</p>
       <p class="pass">file:///blah/bleh</p>
+    </td>
+    <td>
       <p class="fail">file:///bleh/</p>
     </td>
   </tr>
   </tbody>
 </table>
 
-
-  <h4>Invalid Match Patterns</h4>
 <table>
+    <caption>Invalid Match Patterns</caption>
   <thead>
   <tr>
     <th>Invalid Pattern</th>
@@ -502,42 +540,48 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   </tr>
   </thead>
   <tbody>
-  <tr><td><code>resource://path/</code></td><td>Unsupported scheme</td></tr>
-  <tr><td><code>https://mozilla.org</code></td><td>No path</td></tr>
-  <tr><td><code>https://mozilla.*.org/</code></td><td>"*" in host must be at the start</td></tr>
-  <tr><td><code>https://*zilla.org/</code></td><td>"*" in host must be the only character or be followed by "."</td></tr>
-  <tr><td><code>http*://mozilla.org/</code></td><td>"*" in scheme must be the only character</td></tr>
-  <tr><td><code>https://mozilla.org:80/</code></td><td>Host must not include a port number</td></tr>
-  <tr><td><code>*://*</code></td><td>Empty path: this should be "*://*/*"</td></tr>
-  <tr><td><code>file://*</code></td><td>Empty path: this should be "file:///*"</td></tr>
+  <tr><td><code class="fail">resource://path/</code></td><td>Unsupported scheme</td></tr>
+  <tr><td><code class="fail">https://mozilla.org</code></td><td>No path</td></tr>
+  <tr><td><code class="fail">https://mozilla.*.org/</code></td><td><code>"*"</code> in host must be at the start</td></tr>
+  <tr><td><code class="fail">https://*zilla.org/</code></td><td><code>"*"</code> in host must be the only character or be followed by <code>"."</code></td></tr>
+  <tr><td><code class="fail">http*://mozilla.org/</code></td><td><code>"*"</code> in scheme must be the only character</td></tr>
+  <tr><td><code class="fail">https://mozilla.org:80/</code></td><td>Host must not include a port number</td></tr>
+  <tr><td><code class="fail">*://*</code></td><td>Empty path: this should be <code>"*://*/*"</code></td></tr>
+  <tr><td><code class="fail">file://*</code></td><td>Empty path: this should be <code>"file:///*"</code></td></tr>
   </tbody>
 </table>
 
 
-  <h4>Content scripts are blocked by Firefox on the following domains</h4>
-<pre class="comment1" style="columns: 3;">
-accounts-static.cdn.mozilla.net
-accounts.firefox.com
-addons.cdn.mozilla.net
-addons.mozilla.org
-api.accounts.firefox.com
-content.cdn.mozilla.net
-content.cdn.mozilla.net
-discovery.addons.mozilla.org
-input.mozilla.org
-install.mozilla.org
-oauth.accounts.firefox.com
-profile.accounts.firefox.com
-support.mozilla.org
-sync.services.mozilla.com
-testpilot.firefox.com
-</pre>
+
+
+  <p><b>Note:</b> Content scripts are blocked by Firefox on the following domains:</p>
+
+  <ul style="columns: 2;">
+    <li>accounts-static.cdn.mozilla.net</li>
+    <li>accounts.firefox.com</li>
+    <li>addons.cdn.mozilla.net</li>
+    <li>addons.mozilla.org</li>
+    <li>api.accounts.firefox.com</li>
+    <li>content.cdn.mozilla.net</li>
+    <li>content.cdn.mozilla.net</li>
+    <li>discovery.addons.mozilla.org</li>
+    <li>input.mozilla.org</li>
+    <li>install.mozilla.org</li>
+    <li>oauth.accounts.firefox.com</li>
+    <li>profile.accounts.firefox.com</li>
+    <li>support.mozilla.org</li>
+    <li>sync.services.mozilla.com</li>
+    <li>testpilot.firefox.com</li>
+  </ul>
+
+
 
   <h3 id="tld">TLD <span>(v1.25+)</span></h3>
   <p>A TLD (case-insensitive) wildcard can be used and <i>FireMonkey</i> will automatically generate a list of most common country TLD <code>@matches</code>. Due to the extra Firefox API processing for many <code>@matches</code>, it is best to use it only when necessary.</p>
 
 
-  <h4>*://*.example.TLD/* <span>(general use)</span></h4>
+  <figure>
+    <figcaption>*://*.example.TLD/* <span>(general use)</span></figcaption>
 <pre class="gm" style="columns: 6;">
 .com
 .au
@@ -561,8 +605,10 @@ testpilot.firefox.com
 .uk
 .us
 </pre>
+  </figure>
 
-  <h4>.amazon.TLD <span>(domain specific)</span></h4>
+  <figure>
+    <figcaption>.amazon.TLD <span>(domain specific)</span></figcaption>
 <pre class="gm" style="columns: 6;">
 .ca
 .cn
@@ -581,8 +627,10 @@ testpilot.firefox.com
 .it
 .nl
 </pre>
+  </figure>
 
-  <h4>.ebay.TLD <span>(domain specific)</span></h4>
+  <figure>
+    <figcaption>.ebay.TLD <span>(domain specific)</span></figcaption>
 <pre class="gm" style="columns: 6;">
 .at
 .be
@@ -616,8 +664,10 @@ testpilot.firefox.com
 .ru
 .vn
 </pre>
+  </figure>
 
-  <h4>.google.TLD <span>(domain specific)</span></h4>
+  <figure>
+    <figcaption>.google.TLD <span>(domain specific)</span></figcaption>
   <div class="scroll">
 <pre class="gm" style="columns: 6;">
 .ae
@@ -815,7 +865,7 @@ testpilot.firefox.com
 .ws
 </pre>
 </div>
-
+  </figure>
 
   <h3 id="require">require <span>(v1.23+)</span></h3>
   <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers.</p>
@@ -828,6 +878,8 @@ testpilot.firefox.com
 </pre>
     <p>For example, user/developer can save some code as a script and name it <code>HelperSet</code>. It does not need to have <code>match/matches/include/includeGlobs</code> etc. It is best to keep the script DISABLED (not enabled) e.g.:</p>
 
+  <figure>
+    <figcaption>Script Example</figcaption>
 <pre><span class="comment">// ==UserScript==
 // @name            HelperSet
 // @description     A set of helper functions
@@ -843,9 +895,11 @@ testpilot.firefox.com
 
   <span class="comment">// some code </span>
 }</pre>
+  </figure>
 
-  <p>Then include it in other scripts:</p>
 
+  <figure>
+    <figcaption>Include in Other Scripts</figcaption>
 <pre class="comment">// ==UserScript==
 // @name            My Script
 // @description     Scripting is fun
@@ -856,16 +910,19 @@ testpilot.firefox.com
 // ==/UserScript==
 
 ..... code .....</pre>
+  </figure>
 
-  <p>Multiple scripts can be required and will be injected in order:</p>
 
+  <figure>
+    <figcaption>Multiple require <span>injected in order</span></figcaption>
 <pre class="comment">
 // @require         jquery3
 // @require         HelperSet
 </pre>
+  </figure>
 
-  <p>You can use <code>@require</code> for CSS e.g.:</p>
-
+  <figure>
+    <figcaption>CSS require</figcaption>
 <pre class="comment">/*
 ==UserCSS==
 @name               My CSS
@@ -876,10 +933,11 @@ testpilot.firefox.com
 @require            DefaultCSS
 ==/UserCSS==
 */</pre>
+  </figure>
 
   <h4>require &nbsp;&nbsp;&nbsp; specific-library<span>(v1.24+)</span></h4>
   <p>Few libraries have been packed with <i>FireMonkey</i> which will be injected for user-scripts using <code>@require</code>. A shorthand <code>jquery1/jquery2/jquery3/jquery-ui1</code> (case-insensitive) can also be used.</p>
-  <p>Based on data provided by <i>GreasyFork</i>, 8,011/31,170 (26%) use <code>@require</code> and from those 7,082/11,236 (63%) entries relate to those libraries (& <i>gm4-polyfill</i>).</p>
+  <p>Based on data provided by <i>GreasyFork</i>, 8,011/31,170 (26%) use <code>@require</code> and from those 7,082/11,236 (63%) entries relate to these libraries (& <i>gm4-polyfill</i>).</p>
 
   <p>Folowing CDN sources are processed:</p>
 
@@ -900,6 +958,7 @@ testpilot.firefox.com
 
 
 <table>
+  <caption>Bundled Libraries<caption>
   <thead>
   <tr>
     <th>CDN Links to</th>
@@ -920,7 +979,8 @@ testpilot.firefox.com
 </table>
 
 
-For example:
+  <figure>
+    <figcaption>Example</figcaption>
 <pre class="comment">
 // @require         jquery3
 // @require         https://code.jquery.com/jquery-3.*.*.js
@@ -932,20 +992,21 @@ For example:
 // @require         https://unpkg.com/jquery@3.*.*/dist/jquery.js
   ... etc
 </pre>
+</figure>
+
 
   <p>On popular demand, more libraries may be added in future.</p>
 
-  <h4>&#x26A0;&#xFE0F; require &nbsp;&nbsp;&nbsp; other-URL <span>(v1.27+)</span></h4>
-  <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers as the target is not not stored. It uses <code>fetch()</code> to get the target the first time but on subsequently <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request/cache" target="_blank">Request.cache</a> will be used by the browser.</p>
-  <p><b>Note:</b>
+  <h4>require &nbsp;&nbsp;&nbsp; other-URL &#x26A0;&#xFE0F; <span>(v1.27+)</span></h4>
+  <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers as the target is not not stored. It uses <code>fetch()</code> to get the target the first time but on subsequently <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request/cache" target="_blank">Request.cache</a> will be used by the browser. Please note:</p>
   <ul>
-    <li>Processing many scripts with many <code>@require</code> can take time when registering scripts (i.e. browser start-up, disabling/re-enabling <i>FireMonkey</i>)</li>
-    <li><i>gm4-polyfill</i> is not applicable (and may cause conflict) & therefore it is not processed</li>
+    <li>Processing many scripts with many <code>@require</code> can take time when registering scripts (i.e. browser start-up, disabling & re-enabling <i>FireMonkey</i>)</li>
+    <li><i>gm4-polyfill</i> is not applicable (and may cause conflict) and therefore is not processed</li>
   </ul>
 
 
 
-  <h3 id="storing-require-resource">&#x26d4; Storing require & resource Targets</h3>
+  <h3 id="storing-require-resource">Storing require & resource Targets &#x26d4;</h3>
   <p>In legacy Firefox, extensions were able to save files to their folder in Firefox profile. Script managers would download <code>@require</code> & <code>@resource</code> targets, save it to users' HD and inject it when called.</p>
 
   <p>Firefox Quantum no longer allows extension to save fies to Fireofx profile folder. Script managers will have to use the storage assigned to the extension to save <code>@require</code> & <code>@resource</code> files in form of data.</p>
@@ -954,7 +1015,8 @@ For example:
 
   <p>Considering that a user may have many user-Scripts and they may have many <code>@require</code> & <code>@resource</code>, the size of storage can get extremely large and its effect on browser performance quite considerable.</p>
 
-
+  <figure>
+    <figcaption>getResourceUrl Alternative for CSS</figcaption>
 <pre>
 <span class="comment">// ==UserScript==
 // @name            GM.getResourceUrl test
@@ -966,7 +1028,7 @@ For example:
 <div class="deprecated"><span class="comment">// instead of this code</span>
 (<span class="keyword">async</span> () =&gt; {
   <span class="keyword">const</span> link = document.<span class="method">createElement</span>(<span class="string">'link'</span>);
-  link.<span class="property">href</span> = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="gm">getResourceUrl</span>(<span class="string">'CSS'</span>);
+  link.<span class="property">href</span> = <span class="keyword">await</span> <span class="gm">GM.getResourceUrl</span>(<span class="string">'CSS'</span>);
   link.rel = <span class="string">'stylesheet'</span>;
   document.<span class="property">body</span>.<span class="method">appendChild</span>(<span class="property">style</span>);
 })();</div>
@@ -975,8 +1037,10 @@ For example:
 link.<span class="property">href</span> = <span class="string">'http://www.example.com/example.css'</span>;
 link.rel = <span class="string">'stylesheet'</span>;
 document.<span class="property">head</span>.<span class="method">appendChild</span>(link);</div></pre>
+  </figure>
 
-
+  <figure>
+    <figcaption>getResourceUrl Alternative for image</figcaption>
 <pre><span class="comment">// ==UserScript==
 // @name            GM.getResourceUrl test
 // @description     GM.getResourceUrl() API method
@@ -987,47 +1051,51 @@ document.<span class="property">head</span>.<span class="method">appendChild</sp
 <div class="deprecated"><span class="comment">// instead of this code</span>
 (<span class="keyword">async</span> () =&gt; {
   <span class="keyword">const</span> img = document.<span class="method">createElement</span>(<span class="string">'img'</span>);
-  img.<span class="property">src</span> = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="gm">getResourceUrl</span>(<span class="string">'logo'</span>);
+  img.<span class="property">src</span> = <span class="keyword">await</span> <span class="gm">GM.getResourceUrl</span>(<span class="string">'logo'</span>);
   document.<span class="property">body</span>.<span class="method">appendChild</span>(<span class="property">img</span>);
 })();</div>
 <div><span class="comment">// you can use this one</span>
 <span class="keyword">const</span> img = document.<span class="method">createElement</span>(<span class="string">'img'</span>);
 img.<span class="property">src</span> = <span class="string">'http://www.example.com/logo.jpg'</span>;
 document.<span class="property">head</span>.<span class="method">appendChild</span>(img);</div></pre>
+  </figure>
 
-  <h3 id="grant">&#x26d4; grant</h3>
+
+  <h3 id="grant">grant &#x26d4;</h3>
   <p>Scripts will have access to all available APIs and therefore <code>@grant</code> is not needed or used.</p>
 
   <h2 id="script-api">Script API</h2>
   <p><i>FireMonkey</i> supports both GM4 & GM3 style APIs (e.g. GM.*** & GM_***) via mostly asynchronous <code>Promise</code>. Therefore if scripts requires a <code>return</code>, it must wait for the <code>Promise</code> to resolve.</p>
   <p>Following APIs (similar to <i>GreaseMonkey</i>) are provided to the user scripts (<i>more may be added later</i>)</p>
 
+  <figure>
+    <figcaption>API Examples</figcaption>
 <pre>(<span class="keyword">async</span> () =&gt; {
 <span class="string">'use strict'</span>;
 
   <span class="comment">// ----- Promise</span>
 
   <span class="comment">// stored value for key OR default</span>
-  <span class="keyword">const</span> <span class="property">value</span> = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="gm">getValue</span>(key, default);
+  <span class="keyword">const</span> <span class="property">value</span> = <span class="keyword">await</span> <span class="gm">GM.getValue</span>(key, default);
   <span class="keyword">const</span> <span class="property">value</span> = <span class="keyword">await</span> <span class="gm">GM_getValue</span>(key, default);
 
   <span class="comment">// an array of keys set by script OR []</span>
-  <span class="keyword">const</span> <span class="method">keys</span> = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="gm">listValues</span>();
+  <span class="keyword">const</span> <span class="method">keys</span> = <span class="keyword">await</span> <span class="gm">GM.listValues</span>();
   <span class="keyword">const</span> <span class="method">keys</span> = <span class="keyword">await</span> <span class="gm">GM_listValues</span>();
 
   <span class="comment">// Response Object</span>
-  <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="gm">fetch</span>(url[, init]);
+  <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM.fetch</span>(url[, init]);
   <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM_fetch</span>(url[, init]);
 
   <span class="comment">// Response Text</span>
-  <span class="keyword">const</span> text = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="gm">getResourceText</span>(resourceName);
+  <span class="keyword">const</span> text = <span class="keyword">await</span> <span class="gm">GM.getResourceText</span>(resourceName);
   <span class="keyword">const</span> text = <span class="keyword">await</span> <span class="gm">GM_getResourceText</span>(resourceName);
 
 
 
   <span class="comment">// ----- Callback Function</span>
 
-  <span class="gm">GM</span>.<span class="gm">xmlHttpRequest</span>({
+  <span class="gm">GM.xmlHttpRequest</span>({
     url: <span class="string">'https://example.com/etc'</span>,
     <span class="property">onload</span>: response =&gt; {
       <span class="property">console</span>.<span class="method">log</span>(response.<span class="property">responseText</span>);
@@ -1036,58 +1104,59 @@ document.<span class="property">head</span>.<span class="method">appendChild</sp
 
 
   <span class="comment">// note: listenerId = key (not necessary in FireMonkey)</span>
-  <span class="keyword">const</span> listenerId = <span class="gm">GM</span>.<span class="gm">addValueChangeListener</span>(key, callback);
+  <span class="keyword">const</span> listenerId = <span class="gm">GM.addValueChangeListener</span>(key, callback);
 
-  <span class="gm">GM</span>.<span class="gm">addValueChangeListener</span>(key, callback)
+  <span class="gm">GM.addValueChangeListener</span>(key, callback)
   <span class="gm">GM_addValueChangeListener</span>(key, callback)
 
 
-  <span class="comment">// ----- usually there is no need to wait for the following, but if needed you must use await</span>
+  <span class="comment">// ----- usually there is no need to wait for the following, but if needed, use await</span>
 
-  <span class="gm">GM</span>.<span class="gm">setValue</span>(key, <span class="property">value</span>)
+  <span class="gm">GM.setValue</span>(key, <span class="property">value</span>)
   <span class="gm">GM_setValue</span>(key, <span class="property">value</span>)
 
-  <span class="gm">GM</span>.<span class="gm">deleteValue</span>(key)
+  <span class="gm">GM.deleteValue</span>(key)
   <span class="gm">GM_deleteValue</span>(key)
 
-  <span class="gm">GM</span>.<span class="gm">openInTab</span>(url, open_in_background)
+  <span class="gm">GM.openInTab</span>(url, open_in_background)
   <span class="gm">GM_openInTab</span>(url, open_in_background)
 
-  <span class="gm">GM</span>.<span class="gm">setClipboard</span>(text)
+  <span class="gm">GM.setClipboard</span>(text)
   <span class="gm">GM_setClipboard</span>(text)
 
-  <span class="gm">GM</span>.<span class="gm">notification</span>(text)
+  <span class="gm">GM.notification</span>(text)
   <span class="gm">GM_notification</span>(text)
 
-  <span class="gm">GM</span>.<span class="gm">download</span>(url, fielname)
+  <span class="gm">GM.download</span>(url, fielname)
   <span class="gm">GM_download</span>(url, fielname)
 
 
   <span class="comment">// ----- Synchronous Functions</span>
 
-  <span class="gm">GM</span>.<span class="gm">addStyle</span>(css)
+  <span class="gm">GM.addStyle</span>(css)
   <span class="gm">GM_addStyle</span>(css)
 
-  <span class="gm">GM</span>.<span class="gm">getResourceUrl</span>(resourceName)
+  <span class="gm">GM.getResourceUrl</span>(resourceName)
   <span class="gm">GM_getResourceUrl</span>(resourceName)
 
-  <span class="gm">GM</span>.<span class="gm">registerMenuCommand</span>(name, onclick)
+  <span class="gm">GM.registerMenuCommand</span>(name, onclick)
   <span class="gm">GM_registerMenuCommand</span>(name, onclick)
 
-  <span class="gm">GM</span>.<span class="gm">unregisterMenuCommand</span>(name)
+  <span class="gm">GM.unregisterMenuCommand</span>(name)
   <span class="gm">GM_unregisterMenuCommand</span>(name)
 
-  <span class="gm">GM</span>.<span class="gm">removeValueChangeListener</span>(key)
+  <span class="gm">GM.removeValueChangeListener</span>(key)
   <span class="gm">GM_removeValueChangeListener</span>(key)
 
-  <span class="gm">GM</span>.<span class="gm">info</span>
-  <span class="gm">GM_info</span>
-
-  <span class="gm">GM</span>.<span class="gm">log</span>(text [, text2, ..., textN])
+  <span class="gm">GM.log</span>(text [, text2, ..., textN])
   <span class="gm">GM_log</span>(text [, text2, ..., textN])
+
+  <span class="gm">GM.info</span>
+  <span class="gm">GM_info</span>
 
   <span class="gm">unsafeWindow</span>
 })();</pre>
+</figure>
 
 
   <h3 id="fetch">fetch</h3>
@@ -1125,9 +1194,8 @@ GM_fetch(url[, init]);</pre>
 
 
 
-
-
-  <h4>Examples</h4>
+  <figure>
+    <figcaption>Example</figcaption>
   <pre><span class="comment">// simplest, returns response text</span>
 <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="method">fetch</span>(<span class="string">'https://example.com/etc'</span>);
 
@@ -1146,11 +1214,15 @@ GM_fetch(url[, init]);</pre>
 <span class="gm">GM</span>.<span class="method">fetch</span>(<span class="string">'https://example.com/etc'</span>)
 .<span class="method">then</span>(response =&gt; callback(response))
 .<span class="keyword">catch</span>(<span class="method">error</span> =&gt; <span class="property">console</span>.<span class="method">error</span>(<span class="method">error</span>.message));</pre>
+  </figure>
+
 
   <h3 id="xmlHttpRequest">xmlHttpRequest</h3>
   <p><code>GM.xmlHttpRequest/GM_xmlhttpRequest</code> is the xmlHttpRequest interface and mostly compatible with <i>GreaseMonkey</i> API.</p>
   <p>All requests are <code>asynchronous</code>, therefore <i>GreaseMonkey</i> <code>synchronous</code> is not supported.</p>
 
+  <figure>
+    <figcaption>Request</figcaption>
 <pre>GM.xmlHttpRequest({
   url,                      // http, https, ftp, ftps, (file not allowed), can be relative to the web page
 
@@ -1173,10 +1245,11 @@ GM_fetch(url[, init]);</pre>
   onabort,                  // callback function
   ontimeout,                // callback function
 });</pre>
+  </figure>
 
 
-  <p><b>Callback Response:</b> returns response object</p>
-
+  <figure>
+    <figcaption>Callback Response <span>returns response object</span></figcaption>
 <pre>onload, onerror, ontimeout, onabort
 {
   readyState
@@ -1191,10 +1264,13 @@ GM_fetch(url[, init]);</pre>
   finalUrl                  // clone of responseURL for GM/TM/VM compatibility
 }
 </pre>
+  </figure>
 
-  <h4>Examples</h4>
+
+  <figure>
+    <figcaption>Example</figcaption>
   <pre><span class="comment">// simplest</span>
-<span class="gm">GM</span>.<span class="gm">xmlHttpRequest</span>({
+<span class="gm">GM.xmlHttpRequest</span>({
   url: <span class="string">'https://example.com/etc'</span>,
   <span class="property">onload</span>: response =&gt; {
     <span class="property">console</span>.<span class="method">log</span>(response.<span class="property">responseText</span>);
@@ -1202,7 +1278,7 @@ GM_fetch(url[, init]);</pre>
 });
 
 <span class="comment">// POST request</span>
-<span class="gm">GM</span>.<span class="gm">xmlHttpRequest</span>({
+<span class="gm">GM.xmlHttpRequest</span>({
   url: <span class="string">'https://example.com/etc'</span>,
   method: <span class="string">'POST'</span>,
   data: <span class="object">JSON</span>.<span class="method">stringify</span>(data), <span class="comment">// data can be `string` or {object}!</span>
@@ -1213,18 +1289,44 @@ GM_fetch(url[, init]);</pre>
     <span class="property">console</span>.<span class="method">log</span>(response.<span class="property">responseText</span>);
   },
   <span class="property">onerror</span>: response =&gt; {
-    <span class="property">console</span>.<span class="method">log</span>(${xhr.<span class="property">status</span>}  ${xhr.<span class="property">statusText</span>}`);
+    <span class="property">console</span>.<span class="method">log</span>(`${response.<span class="property">status</span>}  ${response.<span class="property">statusText</span>}`);
   },
 );
 
 <span class="comment">// HEAD request</span>
-<span class="gm">GM</span>.<span class="gm">xmlHttpRequest</span>({
+<span class="gm">GM.xmlHttpRequest</span>({
   url: <span class="string">'https://example.com/etc'</span>,
   method: <span class="string">'HEAD'</span>,
   <span class="property">onload</span>: response =&gt; {
     <span class="property">console</span>.<span class="method">log</span>(response.<span class="property">responseHeaders</span>);
   }
 });</pre>
+  </figure>
+
+
+  <h4>xmlHttpRequest withCredentials</h4>
+  <p><code>GM.xmlHttpRequest/GM_xmlhttpRequest</code> are sent from background script where credentials are not available. Sometimes it is necessary to send <code>xmlHttpRequest</code> from the page scope.</p>
+
+
+  <figure>
+    <figcaption>xmlHttpRequest from Page Scope</figcaption>
+<pre>
+<span class="keyword">const</span> xhr = XPCNativeWrapper(<span class="keyword">new</span> <span class="object">window</span>.wrappedJSObject.XMLHttpRequest());
+xhr.<span class="method">open</span>(<span class="string">'GET'</span>, <span class="string">'https://example.com/etc'</span>);
+xhr.withCredentials = <span class="keyword">true</span>;
+xhr.<span class="property">onload</span> = response =&gt; {
+ <span class="property">console</span>.<span class="method">log</span>(response.<span class="property">responseText</span>);
+},
+xhr.<span class="property">onerror</span> = response =&gt; {
+ <span class="property">console</span>.<span class="method">log</span>(`${response.<span class="property">status</span>}  ${response.<span class="property">statusText</span>}`);
+}
+xhr.send(<span class="keyword">null</span>);
+</pre>
+
+
+  </figure>
+
+
 
 
   <h3 id="forbidden-header-name">Forbidden header name</h3>
@@ -1272,6 +1374,8 @@ GM_fetch(url[, init]);</pre>
   <h3 id="registerMenuCommand">registerMenuCommand(name, onclick) <span>(v1.27+)</span></h3>
   <p>If there are Script Commands for a tab, they will be listed at the bottom of toolbar pop-up under their user-script name. Please note that <i>onclick</i> must be a <i>function</i>.</p>
 
+  <figure>
+    <figcaption>Example</figcaption>
 <pre><div class="deprecated"><span class="comment">// direct method -> error: alert runs immediately</span>
 <span class="gm">GM_registerMenuCommand</span>(<span class="string">'Hello, world (direct)'</span>, <span class="method">alert</span>(<span class="string">'Hello, world! (direct)'</span>));</div>
 <span class="comment">// anonymous function</span>
@@ -1279,14 +1383,14 @@ GM_fetch(url[, init]);</pre>
 
 <span class="comment">// named function</span>
 <span class="keyword">function</span> sayHello() { <span class="method">alert</span>(<span class="string">'Hello, world! (named)'</span>); }
-<span class="gm">GM.registerMenuCommand</span>(<span class="string">"Hello, world (named)"</span>, sayHello);
+<span class="gm">GM.registerMenuCommand</span>(<span class="string">'Hello, world (named)'</span>, sayHello);
 </pre>
-
+  </figure>
 
   <h3 id="unregisterMenuCommand">unregisterMenuCommand(name) <span>(v1.29+)</span></h3>
   <p>Unregistered the previously created script menu.</p>
 <pre>
-<span class="gm">GM.unregisterMenuCommand</span>(<span class="string">"Hello, world (named)"</span>);
+<span class="gm">GM.unregisterMenuCommand</span>(<span class="string">'Hello, world (named)'</span>);
 </pre>
 
   <h3 id="getResourceText">getResourceText(resourceName) <span>(v1.27+)</span></h3>
@@ -1315,6 +1419,7 @@ GM_fetch(url[, init]);</pre>
     <li><b>newValue</b>: new value or or <code>undefined</code> if it was deleted</li>
     <li><b>remote</b>: <code>true</code> if change came from another tab or <code>false</code> if from the same tab</li>
   </ul>
+
 
 <pre>
 <span class="comment">// anonymous function</span>
@@ -1381,9 +1486,11 @@ GM_fetch(url[, init]);</pre>
 <span class="gm">GM_log</span>(<span class="gm">GM_info</span>);
 </pre>
 
-  <h3 id="unsafeWindow">&#x26A0;&#xFE0F; unsafeWindow <span>(v1.24+)</span></h3>
+  <h3 id="unsafeWindow">unsafeWindow &#x26A0;&#xFE0F; <span>(v1.24+)</span></h3>
   <p><code>unsafeWindow</code> in <i>FireMonkey</i> is an alias for <code>window.wrappedJSObject</code>. You can also use <code>window.wrappedJSObject</code> or <code>window.eval()</code> to access page JavaScript <b>globals</b>. Please note that <code>window.eval()</code> makes the object available to the page script as well while <code>unsafeWindow</code>, <code>window.wrappedJSObject</code> does not.</p>
 
+  <figure>
+    <figcaption>Example</figcaption>
 <pre>
 <span class="comment">// page-script.js</span>
 <span class="keyword">var</span> foo = <span class="string">"I'm defined in a page script!"</span>;
@@ -1396,17 +1503,18 @@ GM_fetch(url[, init]);</pre>
 <span class="property">console</span>.<span class="method">log</span>(<span class="gm">unsafeWindow</span>.foo); <span class="comment">// "I'm defined in a page script!"</span>
 <span class="property">console</span>.<span class="method">log</span>(window.wrappedJSObject.foo); <span class="comment">// "I'm defined in a page script!"</span>
 <span class="gm">unsafeWindow</span>.runTest(); <span class="comment">// "I'm defined in a page script!"</span>
-window.wrappedJSObject.runTest(); <span class="comment">// "I'm defined in a page script!"</span>
-</pre>
+<span class="object">window</span>.wrappedJSObject.runTest(); <span class="comment">// "I'm defined in a page script!"</span>
 
-<pre>
+
+
 <span class="comment">// overriding window functions</span>
-<span class="keyword">let</span> <span class="method">hasFocus</span> = <span class="keyword">new</span> window.<span class="object">Function</span>(<span class="string">'return true'</span>);
-<span class="gm">unsafeWindow</span>.document.<span class="method">hasFocus</span> = <span class="method">hasFocus</span>;
+<span class="keyword">let</span> <span class="method">hasFocus</span> = <span class="keyword">new</span> <span class="object">window</span>.<span class="object">Function</span>(<span class="string">'return true'</span>);
+<span class="gm">unsafeWindow</span>.<span class="property">document</span>.<span class="method">hasFocus</span> = <span class="method">hasFocus</span>;
 
 <span class="comment">// another example</span>
-<span class="object">Object</span>.defineProperty(<span class="gm">unsafeWindow</span>.document, <span class="string">'hidden'</span>, {<span class="property">value</span>: <span class="keyword">false</span>});
+<span class="object">Object</span>.defineProperty(<span class="gm">unsafeWindow</span>.<span class="property">document</span>, <span class="string">'hidden'</span>, {<span class="property">value</span>: <span class="keyword">false</span>});
 </pre>
+</figure>
 
 
 
@@ -1488,33 +1596,37 @@ window.wrappedJSObject.runTest(); <span class="comment">// "I'm defined in a pag
   </ul>
 
   <p>Above process is considerably resource intensive in comparison to using a dedicated API to inject Style/CSS.</p>
-
-  <h4>Conversion Guide</h4>
-  <p>The following 3 are quite straight forward and easy to convert:</p>
-<pre>
-@-moz-document domain('images.example.com')
-↓↓↓
-@match        *://images.example.com/*
-</pre>
-<pre>
-@-moz-document url-prefix("http://www.example.com")
-↓↓↓
-@match        http://www.example.com/*
-</pre>
-<pre>
-@-moz-document url(http://www.example.com/test.html)
-↓↓↓
-@match        http://www.example.com/test.html
-</pre>
+  <p>The first 3 are quite straight forward and easy to convert. The only difficulty is with the <code>regex()</code>. The more complex the RegEx (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions" target="_blank">Regular Expressions</a>), the more <code>@match</code> may be needed, but once done, it is easy to read and maintain.</p>
 
 
-<p>The only difficulty is with the regex(). The more complex the RegEx (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions" target="_blank">Regular Expressions</a>), the more <code>@match</code> may be needed but once done, it is easy to read and maintain.</p>
-<pre>
-@-moz-document regexp('http://www\\.example\\.(com|de)/images/.*')
-↓↓↓
-@match        http://www.example.com/images/*
-@match        http://www.example.de/images/*
-</pre>
+<table>
+  <caption>Conversion Guide<caption>
+  <thead>
+  <tr>
+    <th>From</th>
+    <th>To</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td><code>@-moz-document <strong>domain</strong>('images.example.com')</code></td>
+    <td><code>@match      *://images.example.com/*</code></td>
+  </tr>
+  <tr>
+    <td><code>@-moz-document <strong>url-prefix</strong>("http://www.example.com")</code></td>
+    <td><code>@match      http://www.example.com/*</code></td>
+  </tr>
+  <tr>
+    <td><code>@-moz-document <strong>url</strong>(http://www.example.com/test.html)</code></td>
+    <td><code>@match      http://www.example.com/test.html</code></td>
+  </tr>
+  <tr>
+    <td><code>@-moz-document <strong>regexp</strong>('http://www\\.example\\.(com|de)/images/.*')</code></td>
+    <td><code>@match      http://www.example.com/images/*
+@match      http://www.example.de/images/*</code></td>
+  </tr>
+  </tbody>
+</table>
 
 
 
