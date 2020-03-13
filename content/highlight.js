@@ -2,14 +2,172 @@
 
 class Highlight {
 
-  constructor(box) {
+  constructor(box, footer) {
     this.box = box;
-    this.original = '';
+    this.footer = footer;
+    this.original = this.box.textContent;
+    box.addEventListener('keydown', e => this.keydown(e));
+    box.addEventListener('blur', e => this.blur(e));
+    box.addEventListener('copy', e => this.copy(e));
+    box.addEventListener('paste', e => this.paste(e));
+  }
+
+  keydown(e) {
+
+    switch (true) {
+
+      case e.ctrlKey && e.key === 's':                    // Ctrl + s
+        e.preventDefault();
+        saveScript();
+        break;
+
+      case e.key === 'Tab':                               // Tab key
+        const sel = window.getSelection();
+        const range = sel.getRangeAt(0);
+        e.preventDefault();
+
+        const str = sel + '';
+
+        switch (true) {
+
+          case e.shiftKey && !!str:
+            this.getSelected(sel).forEach(item =>
+              item.firstChild.nodeValue.substring(0, 2).trim() || (item.firstChild.nodeValue = item.firstChild.nodeValue.substring(2))
+            );
+            break;
+
+          case e.shiftKey:
+            const startContainer = range.startContainer;
+            const text = startContainer.nodeValue;
+            const startOffset = range.startOffset;
+            if (startOffset > 1 && !text.substring(startOffset-2, startOffset).trim()) {
+             startContainer.nodeValue =  text.substring(0, startOffset-2) + text.substring(startOffset);
+             range.setStart(startContainer, startOffset-2);
+            }
+            break;
+
+          case !!str:
+            this.getSelected(sel).forEach(item => item.firstChild.nodeValue = '  ' + item.firstChild.nodeValue);
+            break;
+
+          default:
+            document.execCommand('insertText', false, '  ');
+        }
+        break;
+    }
+  }
+
+  blur(e) {
+    // not when clicking save
+    this.box.textContent !== this.original &&
+      (!e.relatedTarget || e.relatedTarget.dataset.i18n !== 'saveScript') && this.process();
+  }
+
+  copy(e) {
+      // convert to plain text
+      e.preventDefault();
+      const text = window.getSelection().toString();
+      e.clipboardData.setData('text/plain', text);
+  }
+
+  paste(e) {
+    // convert to plain text
+    e.preventDefault();
+    const text = e.clipboardData.getData('text/plain');
+    const selection = window.getSelection() + '';
+    document.execCommand('insertText', false, text);
+  }
+
+  getSelected(sel) {
+
+    return [...document.querySelectorAll('pre div')].filter(item => sel.containsNode(item, true));
+  }
+
+
+  process() {
+
+    if (!this.box.classList.contains('syntax')) {
+      return;
+    }
+
+    const box = this.box;
+    const start = performance.now();
+    box.classList.remove('invalid');                        // reset
+
+    const nl = /\r\n/.test(box.textContent) ? '\r\n' : '\n';
+    box.querySelectorAll('br').forEach(item => item.replaceWith(nl));
+    const text = box.textContent.trim();
+    if (!text) { return; }
+
+    const metaRegex = /==(UserScript|UserCSS)==([\s\S]+)==\/\1==/i;
+    const metaData = text.match(metaRegex);
+
+    if (!metaData) {
+
+      box.classList.add('invalid');
+      notify(chrome.i18n.getMessage('errorMeta'));
+      return;
+    }
+
+    box.textContent = '';                                     // clear box
+    const type = metaData[1].toLowerCase() === 'userscript' ? 'js' : 'css';
+    const docfrag = document.createDocumentFragment();
+    const line = document.createElement('div');
+
+    // --- convert each line to DOM
+    text.split(/\r?\n/).forEach(item => {
+      const node = line.cloneNode();
+      node.textContent = item.trimEnd() + nl;
+      item.trim() && this.domify(node, type);
+      docfrag.appendChild(node);
+    });
+
+    // --- search for multi-line comments
+    this.getMultiLineComment(docfrag);
+    box.appendChild(docfrag);
+
+    this.original = box.textContent;
+    this.footer.textContent = `Syntax Highlight ${performance.now() - start} ms`;
+  }
+
+  domify(node, type) {
+
+    const regex = {
+      css: /\/\*.*\*\/|::?[\w-]+|!important|[^\s!:;~+>(){}\[\]]+/g,
+      js:  /GM[._]\w+|\/\/.+|\/\*.*?\*\/|`.*?`|'.*?'|".*?"|[^\s!,:;.(){}\[\]]+|[:;]/g
+    }
+
+    const match = node.textContent.match(regex[type]);
+    if (!match) { return; }                                   // end execution if not found
+
+    const text = node.textContent.split(regex[type]);
+    node.textContent = '';                                    // clear content
+    const span = document.createElement('span');
+
+    for (let i = 0, len = text.length; i < len; i++) {
+
+      node.append(text[i]);
+      if (!match[i]) { continue; }                            // continue if not found
+
+      const [aClass, startEnd] = this.processWord(match[i], type) || [];
+
+      if (!aClass) { node.append(match[i]); }
+      else {
+        const sp = span.cloneNode();
+        sp.textContent = match[i];
+        startEnd ? sp.classList.add(aClass, startEnd) : sp.classList.add(aClass);
+        node.appendChild(sp);
+      }
+    }
+  }
+
+  processWord(text, type) {
+
     // ----------------- Word List -------------------------------
-    this.js = {
-  
+    const js = {
+
       keyword: [
-        'abstract', 'arguments', 'await', 'boolean', 'break', 'byte',
+        'abstract', 'arguments', 'async', 'await', 'boolean', 'break', 'byte',
         'case', 'catch', 'char', 'class', 'const', 'continue',
         'debugger', 'default', 'delete', 'do', 'double',
         'else', 'enum', 'export', 'extends',
@@ -19,13 +177,12 @@ class Highlight {
         'package', 'private', 'protected', 'public',
         'return', 'short', 'static', 'super', 'switch', 'synchronized', 'this',
         'throw', 'throws', 'transient', 'true', 'try', 'typeof',
-        'var', 'void', 'volatile', 'while', 'with', 'yield',
-        'async', 'await'
+        'var', 'void', 'volatile', 'while', 'with', 'yield'
       ],
-  
+
       objects: [
         'arguments', 'Array', 'ArrayBuffer', 'Boolean', 'DataView', 'Date', 'decodeURI', 'decodeURIComponent',
-        'encodeURI', 'encodeURIComponent', 'Error', 'eval', 'EvalError', 'Float32Array', 'Float64Array',
+        'encodeURI', 'encodeURIComponent', 'Error', 'EvalError', 'Float32Array', 'Float64Array',
         'Function', 'Generator', 'GeneratorFunction', 'Infinity', 'Int16Array', 'Int32Array', 'Int8Array',
         'InternalError', 'Intl', 'Collator', 'DateTimeFormat', 'NumberFormat', 'isFinite',
         'isNaN', 'JSON', 'Map', 'Math', 'NaN', 'null', 'Number', 'Object', 'parseFloat', 'parseInt',
@@ -33,9 +190,10 @@ class Highlight {
         'TypeError', 'Uint16Array', 'Uint32Array', 'Uint8Array', 'Uint8ClampedArray', 'undefined',
         'URIError', 'WeakMap', 'WeakSet',
         'WebAssembly', 'WebAssembly.CompileError', 'WebAssembly.Instance', 'WebAssembly.LinkError',
-        'WebAssembly.Memory', 'WebAssembly.Module', 'WebAssembly.RuntimeError', 'WebAssembly.Table'
+        'WebAssembly.Memory', 'WebAssembly.Module', 'WebAssembly.RuntimeError', 'WebAssembly.Table',
+        'window'
       ],
-  
+
       property: [
         'accessKey', 'activeElement', 'alt', 'altKey', 'anchors', 'appCodeName', 'appName',
         'appVersion', 'applets', 'attributes', 'availHeight', 'availWidth', 'baseURI',
@@ -45,12 +203,12 @@ class Highlight {
         'className', 'clientHeight', 'clientLeft', 'clientTop', 'clientWidth', 'clientX', 'clientY',
         'closed', 'color', 'colorDepth', 'compatMode', 'console', 'constructor', 'contentType', 'cookie',
         'cookieEnabled', 'cssRules', 'cssText', 'ctrlKey', 'currentScript', 'currentTarget', 'dataset',
-        'defaultStatus', 'defaultView', 'designMode', 'disabled', 'display', 'doctype', 'documentElement',
+        'defaultStatus', 'defaultView', 'designMode', 'disabled', 'display', 'doctype', 'document', 'documentElement',
         'documentURI', 'documentURIObject', 'domain', 'embeds', 'eventPhase', 'firstChild', 'firstElementChild',
         'form', 'forms', 'frameElement', 'frames', 'hash', 'head', 'height', 'hidden', 'host', 'hostname',
         'href', 'id', 'images', 'implementation', 'innerHTML', 'innerHeight', 'innerText', 'innerWidth',
         'keyIdentifier', 'keyLocation', 'label', 'language', 'lastChild', 'lastElementChild', 'lastModified',
-        'lastStyleSheetSet', 'length', 'links', 'localName', 'marginBottom', 'marginLeft', 'marginRight',
+        'lastStyleSheetSet', 'length', 'links', 'localName', 'location', 'marginBottom', 'marginLeft', 'marginRight',
         'marginTop', 'metaKey', 'mozFullScreen', 'mozFullScreenElement', 'mozFullScreenEnabled',
         'mozSyntheticdocument', 'multiple', 'name', 'namespaceURI', 'naturalHeight', 'naturalWidth',
         'nextElementSibling', 'nextSibling', 'nodeName', 'nodePrincipal', 'nodeType', 'nodeValue',
@@ -72,7 +230,7 @@ class Highlight {
         'tagName', 'target', 'textContent', 'textDecoration', 'timeStamp', 'title',
         'tooltipNode', 'top', 'type', 'userAgent', 'value', 'verticalAlign', 'visibility', 'width'
       ],
-  
+
       method: [
         'abs', 'acos', 'add', 'addEventListener', 'adoptNode', 'alert', 'appendChild', 'apply',
         'asin', 'assign', 'atan', 'atan2', 'atob', 'back', 'bind', 'blur', 'btoa', 'bound',
@@ -118,18 +276,20 @@ class Highlight {
         'valueOf', 'warn', 'write', 'writeln'
       ],
       gm: [
-        'GM', 'deleteValue', 'getResourceUrl', 'getValue', 'info', 'listValues', 'notification',
-        'openInTab', 'setClipboard', 'setValue', 'xmlHttpRequest', 'registerMenuCommand', 'unregisterMenuCommand',
-        'addValueChangeListener', 'removeValueChangeListener', 'download',
-        'GM_deleteValue', 'GM_getResourceURL', 'GM_getValue', 'GM_info', 'GM_listValues',
-        'GM_openInTab', 'GM_setClipboard', 'GM_setValue', 'GM_xmlhttpRequest', 'GM_fetch', 'GM_download',
+        'GM.getValue', 'GM.setValue', 'GM.listValues', 'GM.deleteValue', 'GM.fetch', 'GM.xmlHttpRequest',
+        'GM.openInTab', 'GM.setClipboard','GM.info', 'GM.notification', 'GM.download',
+        'GM.getResourceText', 'GM.getResourceUrl',
+        'GM.registerMenuCommand', 'GM.unregisterMenuCommand', 'GM.addValueChangeListener', 'GM.removeValueChangeListener',
+        'GM_getValue', 'GM_setValue', 'GM_listValues', 'GM_deleteValue',  'GM_fetch', 'GM_xmlhttpRequest',
+        'GM_openInTab', 'GM_setClipboard', 'GM_info', 'GM_notification', 'GM_download',
+        'GM_getResourceText', 'GM_getResourceURL',
         'GM_registerMenuCommand', 'GM_unregisterMenuCommand', 'GM_addValueChangeListener', 'GM_removeValueChangeListener',
-        'GM_notification', 'unsafeWindow'
+        'unsafeWindow'
       ]
     };
-  
-    this.css = {
-  
+
+    const css = {
+
       property: [
         'align-content', 'align-items', 'align-self', 'all', 'animation', 'animation-delay', 'animation-direction',
         'animation-duration', 'animation-fill-mode', 'animation-iteration-count', 'animation-name', 'animation-play-state',
@@ -171,7 +331,7 @@ class Highlight {
         'unicode-bidi', 'user-select', 'vertical-align', 'visibility', 'white-space', 'widows', 'width',
         'word-break', 'word-spacing', 'word-wrap', 'writing-mode', 'z-index'
       ],
-  
+
       value: [
         'absolute', 'after-edge', 'after', 'all-scroll', 'all', 'alphabetic', 'always', 'antialiased', 'armenian',
         'auto', 'avoid-column', 'avoid-page', 'avoid', 'balance', 'baseline', 'before-edge', 'before', 'below',
@@ -202,7 +362,7 @@ class Highlight {
         'upper-roman', 'uppercase', 'use-script', 'vertical-ideographic', 'vertical-text', 'visible',
         'w-resize', 'wait', 'whitespace', 'z-index', 'zero', 'zoom'
       ],
-  
+
       html: [
         'a', 'abbr', 'address', 'area', 'article', 'aside', 'audio',
         'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button',
@@ -217,13 +377,13 @@ class Highlight {
         'table', 'tbody', 'td', 'template', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track',
         'u', 'ul', 'var', 'video', 'wbr'
       ],
-  
+
       font: [
         'arial', 'century', 'comic', 'courier', 'cursive', 'fantasy', 'garamond', 'georgia',
         'helvetica', 'impact', 'lucida', 'symbol', 'system', 'tahoma', 'times', 'trebuchet',
         'utopia', 'verdana', 'webdings', 'sans-serif', 'serif', 'monospace'
       ],
-  
+
       color: [
         'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure',
         'beige', 'bisque', 'black', 'blanchedalmond', 'blue', 'blueviolet', 'brown', 'burlywood',
@@ -253,7 +413,7 @@ class Highlight {
         'tan', 'teal', 'thistle', 'tomato', 'turquoise',
         'violet', 'wheat', 'white', 'whitesmoke', 'yellow', 'yellowgreen'
       ],
-  
+
       pseudo: [
         '::after', '::before', '::first-letter', '::first-line', '::selection',
         ':active', ':checked', ':disabled', ':empty', ':enabled', ':first-child', ':first-of-type',
@@ -264,202 +424,6 @@ class Highlight {
       ]
     };
 
-  }
-
-  init() {
-
-    this.original = box.textContent;
-    box.addEventListener('keydown', this.keydown.bind(this));
-    box.addEventListener('blur', this.blur.bind(this));
-    box.addEventListener('copy', this.copy.bind(this));
-    box.addEventListener('paste', this.paste.bind(this));
-  }
-
-  keydown(e) {
-
-    switch (true) {
-
-      case e.ctrlKey && e.key === 's':                    // Ctrl + s
-        e.preventDefault();
-        saveScript();
-        break;
-
-      case e.key === 'Tab':                               // Tab key
-        const sel = window.getSelection();
-        const range = sel.getRangeAt(0);
-        e.preventDefault();
-
-        switch (true) {
-
-          case e.shiftKey && !!window.getSelection().toString():
-            this.getSelected(sel).forEach(item =>
-              item.firstChild.nodeValue.substring(0, 2).trim() || (item.firstChild.nodeValue = item.firstChild.nodeValue.substring(2))
-            );
-            break;
-
-          case e.shiftKey:
-            const startContainer = range.startContainer;
-            const text = startContainer.nodeValue;
-            const startOffset = range.startOffset;
-            if (startOffset > 1 && !text.substring(startOffset-2, startOffset).trim()) {
-             startContainer.nodeValue =  text.substring(0, startOffset-2) + text.substring(startOffset);
-             range.setStart(startContainer, startOffset-2);
-            }
-            break;
-
-          case !!window.getSelection().toString():
-            this.getSelected(sel).forEach(item => item.firstChild.nodeValue = '  ' + item.firstChild.nodeValue);
-            break;
-
-          default:
-            document.execCommand('insertText', false, '  ');
-        }
-        break;
-    }
-  }
-
-  blur(e) {
-    // not when clicking save
-    this.box.textContent !== this.original &&
-      (!e.relatedTarget || e.relatedTarget.dataset.i18n !== 'saveScript') && this.process();
-  }
-
-  copy(e) {
-
-      e.preventDefault();
-      const text = window.getSelection().toString().trim().replace(/[ ]*(\r?\n)/g, '$1');
-      e.clipboardData.setData('text/plain', text);
-  }
-
-  paste(e) {
-
-    e.preventDefault();
-    const index = this.getIndex(e.target);
-    const text = e.clipboardData.getData('text/plain');
-    document.execCommand('insertText', false, text);
-    this.process();
-    this.goto(index);
-  }
-
-  getSelected(sel) {
-
-    return [...document.querySelectorAll('pre div')].filter(item => sel.containsNode(item, true));
-  }
-
-  getIndex(node) {
-
-    const box = this.box;
-    switch (true) {
-      case node.nodeName === 'PRE': return 0;
-      case node.nodeName === 'DIV': return [...box.children].indexOf(node);
-      case node.parentNode.nodeName === 'DIV': return [...box.children].indexOf(node.parentNode);
-      case node.parentNode.parentNode.nodeName === 'DIV': return [...box.children].indexOf(node.parentNode.parentNode);
-    }
-  }
-
-  goto(index) {
-
-    const box = this.box;
-    const range = document.createRange();
-    const sel = window.getSelection();
-    range.setStart(box.children[index], 0);
-    range.collapse(true);
-    sel.removeAllRanges();
-    sel.addRange(range);
-  }
-
-  process(disableHighlight) {
-
-    const box = this.box;
-
-    // disabled syntax highlighting
-    box.classList.toggle('plain', disableHighlight);
-    if (disableHighlight) {
-      box.removeEventListener('keydown', this.keydown);
-      box.removeEventListener('blur', this.blur);
-      box.removeEventListener('copy', this.copy);
-      box.removeEventListener('paste', this.paste);
-      return;
-    }
-
-    const start = performance.now();
-    box.classList.remove('invalid');                        // reset
-    const text = box.innerText.trim();                      // innerText to keep new lines and igonre <br>
-    if (!text) { return; }
-
-    const metaRegex = /==(UserScript|UserCSS)==([\s\S]+)==\/\1==/i;
-    const metaData = text.match(metaRegex);
-
-    if (!metaData) {
-
-      box.classList.add('invalid');
-      notify(chrome.i18n.getMessage('errorMeta'));
-      return;
-    }
-
-    box.textContent = '';                                     // clear box
-    const type = metaData[1].toLowerCase() === 'userscript' ? 'js' : 'css';
-    const docfrag = document.createDocumentFragment();
-    const line = document.createElement('div');
-
-    // --- convert each line to DOM
-    text.split(/\r?\n/).forEach(item => {
-      const node = line.cloneNode();
-      node.textContent = item;
-      this.domify(node, type);
-      docfrag.appendChild(node);
-    });
-
-    // --- search for multi-line comments
-    this.getMultiLineComment(docfrag);
-    box.appendChild(docfrag);
-
-    this.original = box.textContent;
-    box.parentNode.nextElementSibling.textContent = `Syntax Highlight ${performance.now() - start} ms`;
-  }
-
-  domify(node, type) {
-
-    node.textContent = node.textContent.trimEnd();            // FF61+
-    if(!node.textContent) {                                   // for better display
-      node.textContent = ' ';                                 // fix copy not recognising newline
-      return;
-    }
-
-    const regex = {
-      css: /\/\*.*\*\/|::?[\w-]+|!important|[^\s!:;~+>(){}\[\]]+/g,
-      js:  /\/\/.+|\/\*.*\*\/|'[^']*'|"[^"]*"|[^\s!,:;.(){}\[\]]+|[:;]/g
-    }
-
-    const match = node.textContent.match(regex[type]);
-    if (!match) { return; }                                   // end execution if not found
-
-    const text = node.textContent.split(regex[type]);
-    node.textContent = '';                                    // clear content
-    const span = document.createElement('span');
-
-    for (let i = 0, len = text.length; i < len; i++) {
-
-      node.appendChild(document.createTextNode(text[i]));
-      if (!match[i]) { continue; }                            // continue if not found
-
-      const [aClass, startEnd] = this.processWord(match[i], type) || [];
-
-      if (!aClass) { node.appendChild(document.createTextNode(match[i])); }
-      else {
-        const sp = span.cloneNode();
-        sp.textContent = match[i];
-        startEnd ? sp.classList.add(aClass, startEnd) : sp.classList.add(aClass);
-        node.appendChild(sp);
-      }
-    }
-  }
-
-  processWord(text, type) {
-
-    const js =  this.js;
-    const css = this.css;
-
     if (type === 'css') {
 
       switch (true) {
@@ -469,6 +433,8 @@ class Highlight {
 
         case text.endsWith('*/'): return ['comment', 'end'];
         case text === '!important': return ['important'];
+        case text.startsWith('#'): return ['value'];
+        case /^[\d.%]+[\w]*$/.test(text): return ['value'];
         case css.property.includes(text): return ['property'];
         case css.value.includes(text): return ['value'];
         case css.html.includes(text): return ['html'];
@@ -489,6 +455,7 @@ class Highlight {
 
         case text.startsWith('"') && text.endsWith('"'):
         case text.startsWith("'") && text.endsWith("'"):
+        case text.startsWith('`') && text.endsWith('`'):
           return ['string'];
 
         case js.keyword.includes(text): return ['keyword'];
@@ -522,7 +489,7 @@ class Highlight {
 
         case node.classList.contains('end'):
           {
-            end = true; start = false;
+            start = false; end = true;
             let next = node.nextSibling;
             while(next) {
               if (next.nodeName === '#text') { next.nodeValue.trim() && changeList.push([next, false]); }
@@ -548,4 +515,4 @@ class Highlight {
       });
     }
   }
-} 
+}

@@ -9,7 +9,7 @@ document.querySelectorAll('[data-i18n]').forEach(node => {
 // ----------------- /Internationalization -----------------
 
 // ----------------- Options -------------------------------
-const prefNode = document.querySelectorAll('#'+Object.keys(pref).join(',#')); // global, get all the preference elements
+const prefNode = document.querySelectorAll('#autoUpdateInterval, #autoUpdateLast, #sync'); // global, get all the preference elements
 const submit = document.querySelector('button[type="submit"]'); // submit button
 submit && submit.addEventListener('click', checkOptions);
 const globalScriptExcludeMatches = document.querySelector('#globalScriptExcludeMatches');
@@ -22,10 +22,12 @@ function processOptions() {                                 // set saved pref/de
     this ? pref[node.id] = node[attr] : node[attr] = pref[node.id];
   });
 
-  this && chrome.storage.local.set(pref);                   // update saved pref
-
-  // ----------------- Syntax Highlighter --------------------
-  pref.disableHighlight || highlight.init();
+  const settings = { 
+    autoUpdateInterval: pref.autoUpdateInterval,
+    autoUpdateLast: pref.autoUpdateLast,
+    sync: pref.sync
+  };
+  this && chrome.storage.local.set(settings);               // update saved pref
 }
 // ----------------- /Options ------------------------------
 
@@ -51,6 +53,9 @@ function checkOptions() {
 
   // --- save options
   processOptions.call(this);
+  
+  // --- process Syntax Highlight
+  highlight.process();  
 }
 
 
@@ -59,11 +64,58 @@ function checkOptions() {
 const liTemplate = document.querySelector('nav li.template');
 const legend = document.querySelector('.script legend');
 const box = document.querySelector('.script .box');
-const highlight = new Highlight(box);
+const textBox = box.nextElementSibling;
+textBox.value = '';                                         // Browser retains teaxarea content on refresh
 const enable = document.querySelector('#enable');
 const autoUpdate = document.querySelector('#autoUpdate');
 const userMatches = document.querySelector('#userMatches');
 const userExcludeMatches = document.querySelector('#userExcludeMatches');
+
+
+// ----- Theme
+const script = document.querySelector('.script');
+const dark = document.querySelector('#dark');
+const isDark = localStorage.getItem('dark') === 'true';     // defaults to false
+script.classList.toggle('dark', isDark);
+dark.checked = isDark;
+dark.addEventListener('change', function() {
+  localStorage.setItem('dark', this.checked);
+  script.classList.toggle('dark', this.checked);
+});
+
+// ----- Syntax Highlighter
+const footer = document.querySelector('footer');
+const doSyntax = localStorage.getItem('syntax') !== 'false'; // defaults to true
+box.classList.toggle('syntax', doSyntax);
+syntax.checked = doSyntax;
+syntax.addEventListener('change', function() {
+  localStorage.setItem('syntax', this.checked);
+  box.classList.toggle('syntax', this.checked);
+  
+  if (this.checked && textBox.value.trim()) {
+    box.textContent = textBox.value;
+    textBox.value = '';
+    highlight.process();
+  }
+  else {
+    textBox.value = box.textContent;
+    box.textContent = '';
+    footer.textContent = '';
+  }
+});
+
+const highlight = new Highlight(box, footer);
+
+// ----- menu dropdown
+const details = document.querySelector('.menu details');
+details.addEventListener('toggle', () => 
+  details.open ? document.body.addEventListener('click', closePopup) : document.body.removeEventListener('click', closePopup)
+);
+
+function closePopup(e) {
+  !details.contains(e.explicitOriginalTarget) && (details.open = false); 
+}
+
 
 document.querySelectorAll('.script button[type="button"][data-i18n], nav button[type="button"][data-i18n]').forEach(item =>
   item.addEventListener('click', processButtons));
@@ -117,6 +169,7 @@ function processButtons() {
 function newScript(type) {
 
   box.classList.remove('invalid');
+  textBox.classList.remove('invalid');
   const last = document.querySelector('nav li.on');
   last && last.classList.remove('on');
   if(unsavedChanges()) { return; }
@@ -124,8 +177,10 @@ function newScript(type) {
   legend.textContent = '';
   legend.className = type;
   legend.textContent = chrome.i18n.getMessage(type === 'js' ? 'newJS' : 'newCSS');
-  box.textContent = pref.template[type] || template[type];
-  highlight.process(pref.disableHighlight);
+  
+  const text = pref.template[type] || template[type];
+  box.classList.contains('syntax') ? box.textContent = text : textBox.value = text;
+  highlight.process();
 }
 
 function saveTemplate() {
@@ -133,7 +188,7 @@ function saveTemplate() {
   const metaData = box.textContent.match(metaRegEx);
   if (!metaData) { notify(chrome.i18n.getMessage('errorMeta')); return; }
   const type = metaData[1].toLowerCase() === 'userscript' ? 'js' : 'css';
-  pref.template[type] = box.innerText.trim();
+  pref.template[type] = box.textContent.trim();
   browser.storage.local.set({template: pref.template});     // update saved pref
 }
 
@@ -172,9 +227,10 @@ function showScript() {
   document.getElementById('nav4').checked = true;
 
   if(unsavedChanges()) { return; }
-
+  
   // --- reset
   box.classList.remove('invalid');
+  textBox.classList.remove('invalid');
   userMatches.classList.remove('invalid');
   userExcludeMatches.classList.remove('invalid');
 
@@ -189,11 +245,15 @@ function showScript() {
   legend.textContent = id;
   enable.checked = pref.content[id].enabled;
   autoUpdate.checked = pref.content[id].autoUpdate;
-  box.textContent = pref.content[id].js || pref.content[id].css;
-  highlight.process(pref.disableHighlight);
+  
+  const text = pref.content[id].js || pref.content[id].css;
+  box.classList.contains('syntax') ? box.textContent = text : textBox.value = text;
+  highlight.process();
+
 
   if (pref.content[id].error) {
     box.classList.add('invalid');
+    textBox.classList.add('invalid');
     notify(pref.content[id].error, id);
   }
 
@@ -208,7 +268,7 @@ function noSpace(str) {
 
 function unsavedChanges() {
 
-  const text = noSpace(box.innerText);
+  const text = noSpace(box.classList.contains('syntax') ? box.textContent : textBox.value);
   switch (true) {
 
     case !text:
@@ -216,9 +276,11 @@ function unsavedChanges() {
     case !box.id && text === noSpace(template.css):
     case !box.id && text === noSpace(pref.template.js):
     case !box.id && text === noSpace(pref.template.css):
-    case box.id &&  text === noSpace(pref.content[box.id].js + pref.content[box.id].css):
-    case box.id && pref.content[box.id] && userMatches.value.trim() === pref.content[box.id].userExcludeMatches:
-    case box.id && pref.content[box.id] && userExcludeMatches.value.trim() === pref.content[box.id].userExcludeMatches:
+    
+    case  box.id && text === noSpace(pref.content[box.id].js + pref.content[box.id].css) &&
+            userMatches.value.trim() === (pref.content[box.id].userMatches || '') &&
+            userExcludeMatches.value.trim() === (pref.content[box.id].userExcludeMatches || ''):
+      
       return false;
 
     default:
@@ -330,13 +392,15 @@ async function saveScript() {
 
   // --- reset
   box.classList.remove('invalid');
+  textBox.classList.remove('invalid');
 
   // --- check User Matches User Exclude Matches
   if(hasInvalidPattern(userMatches)) { return; }
   if(hasInvalidPattern(userExcludeMatches)) { return; }
 
   // --- chcek meta data
-  const data = getMetaData(box.innerText.trim(), userMatches.value, userExcludeMatches.value);
+  const text = box.classList.contains('syntax') ? box.textContent : textBox.value;
+  const data = getMetaData(text.trim(), userMatches.value, userExcludeMatches.value);
   if (!data) { throw 'Meta Data Error'; }
   else if (data.error) {
     box.classList.add('invalid');
@@ -648,7 +712,7 @@ function exportAllScript() {
 function exportfile(data, ext, id, saveAs = true) {
 
   const blob = new Blob([data], {type : 'text/plain;charset=utf-8'});
-  const filename = id + ext;
+  const filename = id + '.user' + ext;
 
   chrome.downloads.download({
     url: URL.createObjectURL(blob),

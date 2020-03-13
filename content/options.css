@@ -40,19 +40,16 @@ nav {
 
 nav h3 {
  font-weight: normal;
- margin: 0.6em 0;
-}
-
-nav h3:nth-of-type(1) {
- margin-top: 0;
-}
-
-nav h3:nth-of-type(1), nav h3:nth-of-type(2), nav h3:nth-of-type(4) {
+ margin: 1em 0 0.3em 0;
  border-bottom: 1px solid #456;
 }
 
+nav h3:nth-of-type(1) {
+ margin: -0.5em 0 0.5em 0;
+}
+
 nav h3 img, nav h3 svg {
- width: 32px;
+ width: 24px;
 }
 
 nav label {
@@ -61,12 +58,13 @@ nav label {
   transition: all 0.5s ease-in-out;
 }
 
+
 nav label:hover {
   color: #bcd;
 }
 
 nav > label {
-  margin-left: 1.5em;
+  margin-left: 1em;
 }
 
 nav label::before {
@@ -106,9 +104,8 @@ nav label:hover::before {
 }
 
 @keyframes sect {
-    0% { opacity: 0; }
-   /*50% {  }*/
-  100% { opacity: 1; }
+    0%  { opacity: 0; }
+  100%  { opacity: 1; }
 }
 /* ----- /Navigation ----- */
 
@@ -222,7 +219,6 @@ img.bin {
   width: 24px;
   transition: all 0.5s ease-in-out;
   cursor: pointer;
-  vertical-align: text-bottom;
   margin-left: 1em;
   filter: opacity(0.4) grayscale(1);
 }
@@ -321,9 +317,9 @@ input[type="checkbox"]:checked + label::before {
 }
 
 @keyframes rainbow {
-  0% { background-position: 0% 100%; }
-  50% { background-position: 100% 200%; }
-  100% { background-position: 0% 100%; }
+    0%  { background-position: 0% 100%; }
+   50%  { background-position: 100% 200%; }
+  100%  { background-position: 0% 100%; }
 }
 /* ----- Progress Bar ----- */
 
@@ -561,16 +557,132 @@ div.menu {
   user-select: none;
 }
 
+.menu button:nth-of-type(3), 
+.menu button:nth-of-type(4) {
+  flex-grow: 0.5;
+}
+
+.menu button img {
+  width: 16px;
+}
+
 .menu button:hover, .menu > label:hover {
   background-color: #f4f6f8;
   color: #4284f3 !important;
   border-color: #4284f3;
 }
 
-.script .box {
-  margin: 0;
+
+/* menu popup */
+details.popup {
+  position: relative;
+  margin-left: 0.5em;
+  padding: 0;
+}
+
+.popup summary {
+  list-style: none;
   padding: 0.5em;
-  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.5s ease-in-out;
+}
+
+.popup summary img {
+  width: 20px;
+  filter: opacity(0.4);
+}
+
+.popup summary:hover {
+  background-color: #f4f6f8;
+}
+
+details.popup[open] summary ~ * {
+  animation: fade-in2 0.5s ease-in-out;
+}
+
+@keyframes fade-in2 {
+    0%  { opacity: 0; transform: translateY(-1em); }
+  100%  { opacity: 1; transform: translateY(0); }
+}
+
+.popup > ul { 
+  list-style: none;
+  font-size: 0.9em;
+  margin: 0;
+  padding: 0;
+  min-width: 10em;
+  position: absolute;
+  top: 3em;
+  right: 0;
+  z-index: 1;
+  background-color: #f5f5f5;
+  border-radius: 5px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.popup > ul::after {
+  content: '';
+  position: absolute;
+  top: -1.5em;
+  right: 0.5em;
+  border-width: 0.8em;
+  border-style: solid;
+  border-color: transparent transparent #eee transparent;
+}
+
+.popup li {
+  padding: 0.5em;
+  white-space: nowrap;
+  transition: all 0.5s ease-in-out;
+}
+
+.popup li:hover {
+  background-color: #fff;
+}
+
+.popup li.flex > label:last-of-type {
+  margin-left: 1em;
+  flex: 0 0 3em;
+}
+
+.popup input[type="checkbox"] + label {
+  display: inline-block;
+  width: 3em;
+  height: 0.5em;
+  background: #ddd;
+  border-radius: 5px;
+  box-shadow: 0px 1px 3px rgba(0,0,0,0.5);
+  position: relative;
+  cursor: pointer;
+  margin-top: 0.3em;
+  transition: all 0.5s ease-in-out;
+}
+
+.popup input[type="checkbox"]:checked + label {
+  background: #f90;
+}
+
+.popup input[type="checkbox"] + label::before {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 0.8em;
+  height: 1.4em;
+  top: -0.5em;
+  left: 0.2em;
+  border-radius: 50px;
+  background: #ccc;
+  box-shadow: inset 0px 1px 3px rgba(0,0,0,0.5);
+}
+
+.popup input[type="checkbox"]:checked + label::before {
+  background: #fff;
+  left: 1.3em;
+}
+
+
+
+.script .container {
   flex-grow: 1;
   overflow: auto;
   height: 60vh;
@@ -578,12 +690,37 @@ div.menu {
   scrollbar-width: thin;
 }
 
-.script .box.plain {
-  color: #060;
-  width: calc(100vw - 18rem);
+.container textarea {
+  background-color: transparent;
+  resize: none;
+  flex-grow: 1;
+  width: calc(100% - 10px);
+  height: calc(100% - 20px);
+  border: 0;
+  scrollbar-color: #ddd #f5f5f5;
+  scrollbar-width: thin;  
 }
 
-.box.invalid {
+.box, .box.syntax ~ textarea {
+  display: none;
+}
+
+.box.syntax {
+  display: block;
+}
+
+.box {
+  margin: 0;
+  padding: 0.5em;
+  border: 1px solid transparent;
+  width: calc(100vw - 16rem);
+}
+
+.box:focus {
+  outline: 0;
+}
+
+.invalid {
   box-shadow: none;
   background-color: #fff0f5;
   border-color: #f50;
@@ -596,49 +733,144 @@ footer {
   height: 1em;
 }
 
-details  {
+details.user  {
   position: relative;
   margin-top: 1.5em;
 }
 
-details[open]  {
+details.user[open]  {
   margin-top: 0.5em;
 }
 
-details > div  {
-  margin-left: 1.5em;
+details.user > div  {
+  margin-left: 2em;
 }
 
-summary {
+.user summary {
   list-style: none;
   cursor: pointer;
   color: #aaa;
-  font-weight: 900;
   position: absolute;
   left: 0;
   bottom: 0;
+}
+
+.user summary:focus{
+  outline: 0;
+}
+
+.user summary img {
+  width: 1.5em;
   transition: all 0.5s ease;
+  filter: opacity(0.4) grayscale(1);
 }
 
-summary:hover {
-  color: #000;
+.user summary:hover img {
+  filter: opacity(1) grayscale(0);
 }
 
-details textarea {
+details.user textarea {
   font-size: 0.9em;
   color: #555;
+  background-color: transparent;
 }
 
-details textarea:nth-of-type(1) {
+details.user textarea:nth-of-type(1) {
   margin-right: 0.4em;
 }
 
-details[open] summary ~ * {
-  animation: fade 0.5s ease-in-out;
+details.user[open] summary ~ * {
+  animation: fade-in 0.5s ease-in-out;
 }
 
-@keyframes fade {
-  0%    { opacity: 0; }
+@keyframes fade-in {
+    0%  { opacity: 0; }
   100%  { opacity: 1; }
 }
 /* ----- /Scripts ----- */
+
+
+
+/* ----- Dark Theme ----- */
+.dark { 
+  color: #fff;
+  background-color: #123;  
+}
+
+.dark fieldset:hover {
+  background-color: transparent;
+}
+
+.dark legend {
+  color: #0ee;
+}
+
+.script.dark .container {
+  color: #fff;
+  font-size: 1.2em;
+  scrollbar-color: #567 #234;
+}
+
+.script.dark .container textarea {
+  color: inherit;
+  font-size: 1em;
+  scrollbar-color: #567 #234;
+}
+
+.dark div.menu {
+  color: #fff;
+  background-color: #567;
+  border-bottom-color: transparent;
+}
+
+.dark .menu button, .dark .menu > label {
+  color: #fff;
+}
+
+.dark .menu button:hover, .dark .menu > label:hover {
+  background-color: #789;
+  color: #fff !important;
+  border-color: #abc;
+}
+
+.dark input[type="checkbox"]:checked + label::before {
+  color: #fff;
+}
+
+.dark .bin {
+  filter: grayscale(1) invert(1) contrast(4);
+}
+
+.dark .popup summary img {
+  filter: opacity(0.4) invert(1);
+}
+
+.dark .popup summary:hover {
+  background-color: #789;
+}
+
+.dark .popup ul { 
+  background-color: #123;
+  box-shadow: 0px 8px 16px 0px rgba(255,255,255,0.5);
+}
+
+.dark .popup ul::after {
+  border-color: transparent transparent #123 transparent;
+}
+
+.dark .popup li:hover {
+  background-color: #789;
+}
+
+.dark .user summary img {
+  filter: invert(0.5);
+}
+
+.dark .user summary:hover img {
+  filter: invert(1);
+}
+
+.dark .user details textarea {
+  color: #ddd;
+}
+/* ----- /Dark Theme ----- */

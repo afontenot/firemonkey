@@ -25,40 +25,26 @@ const liTemplate = document.querySelector('li.template');
 const ulTab = document.querySelector('ul.tab');
 const ulOther = document.querySelector('ul.other');
 
+// ----- Theme
+const isDark = localStorage.getItem('dark') === 'true';     // defaults to false
+document.body.classList.toggle('dark', isDark);
+
+
 function process() {
 
+  let nav;
   switch (this.dataset.i18n) {
 
-    case 'options':
-      break;
-
-    case 'newJS|title':
-      localStorage.setItem('nav', 'js');
-      browser.runtime.sendMessage({nav: 'js'});
-      break;
-    case 'newCSS|title':
-      localStorage.setItem('nav', 'css');
-      browser.runtime.sendMessage({nav: 'css'});
-      break;
-    case 'help':
-      localStorage.setItem('nav', 'help');
-      browser.runtime.sendMessage({nav: 'help'});
-      break;
-
-    case 'edit':
-      localStorage.setItem('nav', this.id);
-      browser.runtime.sendMessage({nav: this.id});
-      break;
+    case 'options': break;
+    case 'newJS|title': nav = 'js'; break;
+    case 'newCSS|title': nav = 'css'; break;
+    case 'help': nav = 'help'; break;
+    case 'edit': nav = this.id; break;
   }
+  
+  nav && localStorage.setItem('nav', nav);
+  nav && browser.runtime.sendMessage({nav});                // in case Option page is already open
   browser.runtime.openOptionsPage();
-  window.close();
-}
-
-function editScript(edit, id) {
-
-  localStorage.setItem(edit, id);
-  chrome.runtime.openOptionsPage();
-  chrome.runtime.sendMessage({edit, id});                    // in case Option page is already open
   window.close();
 }
 
@@ -66,7 +52,7 @@ async function processScript() {
 
   const tabs = await browser.tabs.query({currentWindow: true, active: true});
   const tabId = tabs[0].id;                                 // active tab id
-  
+
   browser.browserAction.getBadgeText({tabId}).then(text => { // check if there are active scripts in tab
     if(text) {
       browser.runtime.onMessage.addListener((message, sender) => sender.tab.id === tabId && addCommand(tabId, message));
@@ -86,8 +72,7 @@ async function processScript() {
 function addScript(item, tab) {
 
   const li = liTemplate.cloneNode(true);
-  li.classList.remove('template');
-  li.classList.add(item.js ? 'js' : 'css');
+  li.classList.replace('template', item.js ? 'js' : 'css');
   item.enabled || li.classList.add('disabled');
   li.children[1].textContent = item.name;
   li.id = item.name;
@@ -101,15 +86,13 @@ function addScript(item, tab) {
   (tab ? ulTab : ulOther).appendChild(li);
 }
 
-async function toggleState() {
+function toggleState() {
 
   const li = this.parentNode;
-
   const id = li.id;
   if (!id) { return; }
 
   li.classList.toggle('disabled');
-
   pref.content[id].enabled = !li.classList.contains('disabled');
   browser.storage.local.set({content: pref.content});       // update saved pref
 }
@@ -127,13 +110,17 @@ function showInfo() {
   pref.content[id].error && infoArray.push('error');
 
   infoArray.forEach(item => {
-
-    const arr = Array.isArray(pref.content[id][item]) ? pref.content[id][item] : [pref.content[id][item]];
+    
+    const arr = pref.content[id][item] ? 
+        (Array.isArray(pref.content[id][item]) ? pref.content[id][item] : pref.content[id][item].split(/\r?\n/)) : [];
     if (arr[0]) {
       const dt = dtTemp.cloneNode();
       item === 'error' && dt.classList.add('error');
       dt.textContent = item;
       dl.appendChild(dt);
+      
+      // add requireRemote to require
+      if (item == 'require' && pref.content[id].requireRemote) { arr.push(...pref.content[id].requireRemote); }
 
       arr.forEach(item => {
         const dd = ddTemp.cloneNode();

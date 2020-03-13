@@ -65,16 +65,26 @@ function getMetaData(str, userMatches = '', userExcludeMatches = '') {
           break;
 
 
-        case 'match': prop = 'matches'; break;                // convert match to matches
-        case 'include': prop = 'matches'; break;              // convert include to matches
-        case 'exclude':
+        case 'match':                                       // convert match/include to matches
+        case 'include':
+          prop = 'matches';
+          break;
+
+        case 'exclude':                                     // convert exclude|exclude-match to excludeMatches
         case 'exclude-match':
-          prop = 'excludeMatches'; break;       // convert exclude|exclude-match to excludeMatches
-        case 'updateURL': if (value.endsWith('.meta.js')) { prop = 'updateURLnull'; } break; // disregarding .meta.js
-        case 'downloadURL':
+          prop = 'excludeMatches';
+          break;
+
+        case 'updateURL':                                   // disregarding .meta.js
+          if (value.endsWith('.meta.js')) { prop = 'updateURLnull'; }
+          break;
+
+        case 'downloadURL':                                 // convert downloadURL/installURL to updateURL
         case 'installURL':
-          prop = 'updateURL'; break;                          // convert downloadURL/installURL to updateURL
-        case 'run-at':                                        // convert run-at to runAt
+          prop = 'updateURL'; 
+          break;                          
+        
+        case 'run-at':                                        // convert run-at/runAt to runAt
         case 'runAt':
           prop = 'runAt';
           value = value.replace('-', '_');
@@ -143,7 +153,7 @@ function getMetaData(str, userMatches = '', userExcludeMatches = '') {
             case cdn && url.endsWith('/moment.js'):
               value = 'lib/moment-2.24.0.min.jsm';
               break;
-            
+
             case url === 'underscore1':
             case cdn && url.includes('/underscore.js'):
             case cdn && url.includes('/underscore-min.js'):
@@ -181,9 +191,9 @@ function getMetaData(str, userMatches = '', userExcludeMatches = '') {
   // --- check userMatches, userExcludeMatches
   data.userMatches = userMatches;
   data.userExcludeMatches = userExcludeMatches;
-  userMatches && (data.matches = [...data.matches, ...userMatches.split(/\s+/)]);
-  userExcludeMatches && (data.excludeMatches = [...data.excludeMatches, ...userExcludeMatches.split(/\s+/)]);
-  
+//  userMatches && (data.matches = [...data.matches, ...userMatches.split(/\s+/)]);
+//  userExcludeMatches && (data.excludeMatches = [...data.excludeMatches, ...userExcludeMatches.split(/\s+/)]);
+
   // --- convert to match pattern
   data.matches = data.matches.flatMap(checkPattern);        // flatMap() FF62
   data.excludeMatches = data.excludeMatches.flatMap(checkPattern);
@@ -198,17 +208,18 @@ function checkPattern(p) {
 
   // --- convert some common incompatibilities with matches API
   switch (true) {
-    
+
     // No change
     case p[0] === '/' && p[1] !== '/': return p;            // RegEx: can't fix
     case p === '<all_urls>': return p;
-    
+
     // fix complete pattern
-    case p === '*':  p = '*://*/*'; break;
-    case p === 'http://*': p = 'http://*/*'; break;
-    case p === 'https://*': p = 'https://*/*'; break;
-    case p === 'http*://*': p = '*://*/*'; break;
-    
+    case p === '*':  return '*://*/*';
+    case p === 'http://*': return 'http://*/*';
+    case p === 'https://*': return 'https://*/*';
+    case p === 'http*://*': return '*://*/*';
+
+
     // fix scheme
     case p.startsWith('http*'): p = p.substring(4); break;  // *://.....
     case p.startsWith('*//'): p = '*:' + p.substring(1); break; // bad protocol wildcard
@@ -216,15 +227,19 @@ function checkPattern(p) {
     case !p.includes('://'): p = '*://' + p.substring(1); break; // no protocol
   }
 
-  let [scheme, host, ...path] = p.split(/:?\/+/);
-  
-  if (!['http', 'https', 'file', '*'].includes(scheme)) { scheme = '*'; } // bad scheme
+  let [scheme, host, ...path] = p.split(/:\/{2,3}|\/+/);
+
+
+  if (scheme === 'file') { return p; }                      // handle file only
+
+  // http/https schemes
+  if (!['http', 'https', 'file', '*'].includes(scheme.toLowerCase())) { scheme = '*'; } // bad scheme
   if (host.includes(':')) { host = host.replace(/:.+/, ''); } // host with port
-  if (host.endsWith('.*')) { host = host.slice(0, -2) + '.TLD'; } // TLD wildcard google.*
-  if (host.startsWith('*') && host[1] && host[1] !== '.') { host = '*.' + host.substring(1); } // starting wildcard *google.com  
-  p = scheme + '://' + [host, ...path].join('/');           // rebuild pattern
-  
-  if (scheme !== 'file' && !path[0] && !p.endsWith('/')) { p += '/'; } // fix trailing slash
+  if (host.endsWith('.*')) { host = host.slice(0, -1) + 'TLD'; } // TLD wildcard google.*
+  if (host.startsWith('*') && host[1] && host[1] !== '.') { host = '*.' + host.substring(1); } // starting wildcard *google.com
+  p = scheme +  '://' + [host, ...path].join('/');          // rebuild pattern
+
+  if (!path[0] && !p.endsWith('/')) { p += '/'; }           // fix trailing slash
 
 
   // --- process TLD
@@ -299,7 +314,7 @@ function hasInvalidPattern(node) {
 
 function invalidPattern(pattern) {
 
-  const [scheme, host, path] = pattern.split(/:?\/+/);
+  const [scheme, host, path] = pattern.split(/:\/{2,3}|\/+/);
 
   // --- specific patterns
   switch (pattern) {
@@ -315,13 +330,13 @@ function invalidPattern(pattern) {
   // --- other patterns
   switch (true) {
 
-    case !['http', 'https', 'file', '*'].includes(scheme): return 'Unsupported scheme';
+    case !['http', 'https', 'file', '*'].includes(scheme.toLowerCase()): return 'Unsupported scheme';
     case scheme === 'file' && !pattern.startsWith('file:///'): return 'file:/// must have 3 slashes';
+    case scheme !== 'file' && host.includes(':'): return 'Host must not include a port number';
     case scheme !== 'file' && !path && host === '*': return 'Empty path: this should be "*://*/*"';
     case scheme !== 'file' && !path && !pattern.endsWith('/'): return 'Pattern must include trailing slash';
     case scheme !== 'file' && host[0] === '*' && host[1] !== '.': return '"*" in host must be the only character or be followed by "."'
     case host.substring(1).includes('*'): return '"*" in host must be at the start';
-    case host.includes(':'): return 'Host must not include a port number.';
   }
   return false;
 }
