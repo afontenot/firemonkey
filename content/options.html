@@ -16,40 +16,37 @@
     <input type="radio" name="nav" id="nav4">
     <input type="radio" name="nav" id="nav5">
     <input type="radio" name="nav" id="nav6">
-    
+
 
     <nav>
-     <img src="../image/gear.svg" style="margin-left: auto;" alt="">
-     <h3 data-i18n="options"><img src="../image/icon.svg" alt=""> </h3>
-        <label for="nav3" data-i18n="settings"></label>
-
-  <h3 data-i18n="help"><img src="../image/help32.png" alt=""> </h3>
-      <label for="nav1" style="cursor: help;">English</label>
-
-    <h3><label for="nav2" data-i18n="about"></label></h3>
-
-
-    <h3 style="margin: 0.2em 0;"><label for="nav4" data-i18n="script"></label></h3>
-    <input type="checkbox" id="listEnable" checked>
-    <input type="checkbox" id="listDisable" checked>
-    <input type="checkbox" id="listJS" checked>
-    <input type="checkbox" id="listCSS" checked>
-    <div class="flex list">
-      <label for="listEnable"><img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></label>
-      <label for="listDisable"><img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></label>
-      <label for="listJS"><img src="../image/js.svg" alt=""></label>
-      <label for="listCSS"><img src="../image/css.svg" alt=""></label>
-    </div>
-    <ul>
-      <!-- template -->
-      <li class="template"></li>
-    </ul>
-
-    <div class="flex">
-      <input type="file" id="fileScript" accept=".js, .css" multiple>
-      <label for="fileScript" data-i18n="importScript">&#x1f4e5; </label>&nbsp;
-      <button type="button" data-i18n="exportAllScript">&#x1f4e4; </button>
-    </div>
+       <img src="../image/gear.svg" style="margin-left: auto;" alt="">
+       <h3 data-i18n="options"><img src="../image/icon.svg" alt=""> </h3>
+          <label for="nav3" data-i18n="settings"></label>
+          <label for="nav1" data-i18n="help" style="cursor: help;"></label>
+          <label for="nav2" data-i18n="about"></label>
+  
+  
+      <h3><label for="nav4" data-i18n="script"></label></h3>
+      <input type="checkbox" id="listEnable" checked>
+      <input type="checkbox" id="listDisable" checked>
+      <input type="checkbox" id="listJS" checked>
+      <input type="checkbox" id="listCSS" checked>
+      <div class="flex list">
+        <label for="listEnable"><img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></label>
+        <label for="listDisable"><img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></label>
+        <label for="listJS"><img src="../image/js.svg" alt=""></label>
+        <label for="listCSS"><img src="../image/css.svg" alt=""></label>
+      </div>
+      <ul>
+        <!-- template -->
+        <li class="template"></li>
+      </ul>
+  
+      <div class="flex">
+        <input type="file" id="fileScript" accept=".js, .css" multiple>
+        <label for="fileScript" data-i18n="importScript">&#x1f4e5; </label>&nbsp;
+        <button type="button" data-i18n="exportAllScript">&#x1f4e4; </button>
+      </div>
 
 
     </nav>
@@ -85,11 +82,11 @@
                 <textarea id="globalScriptExcludeMatches" rows="8" spellcheck="false" placeholder="*://*.example.com/*"></textarea>
             </div>
           </div>          
-
+<!-- 
           <div style="margin-top: 1em;">
             <input type="checkbox" id="disableHighlight"><label for="disableHighlight" data-i18n="disableHighlight"></label>
           </div>
-            
+   -->          
           <div style="margin-top: 1em;">
             <input type="checkbox" id="sync"><label for="sync" data-i18n="enableSync"></label>
           </div>
@@ -114,26 +111,48 @@
             <button type="button" data-i18n="saveScript">&#x1f4be; </button>
             <input type="checkbox" id="enable" checked><label for="enable" data-i18n="enable"></label>
             <input type="checkbox" id="autoUpdate" checked><label for="autoUpdate" data-i18n="autoUpdate"></label>
+            
             <button type="button" data-i18n="update">&#x1f310; </button>
-
-            <button type="button" data-i18n="newJS|title">&#x2795; <img src="../image/js.svg" width="16" alt=""></button>
-            <button type="button" data-i18n="newCSS|title">&#x2795; <img src="../image/css.svg" width="16" alt=""></button>
+            <button type="button" data-i18n="newJS|title">&#x2795; <img src="../image/js.svg" alt=""></button>
+            <button type="button" data-i18n="newCSS|title">&#x2795; <img src="../image/css.svg" alt=""></button>
             <button type="button" data-i18n="saveTemplate">&#x1f4be; </button>
 
             <button type="button" data-i18n="exportScript">&#x1f4e4; </button>
 
-
             <span style="flex: 1;"></span>
             <img class="bin" src="../image/bin.svg" data-i18n="delete|title" alt="">
+
+            <details class="popup">
+              <summary><img src="../image/menu-dot.svg" alt=""></summary>
+              <ul>
+                <li class="flex"><label data-i18n="syntax"></label> <input type="checkbox" id="syntax" checked><label for="syntax"></label></li>
+                <li class="flex"><label data-i18n="dark"></label> <input type="checkbox" id="dark"><label for="dark"></label></li>
+                
+              </ul>
+            </details>
+            
+<!--             
+            <span class="submenu">
+              <img src="../image/menu-dot.svg" alt="">
+              <ul>
+                <li class="flex"><label for="syntax" data-i18n="syntax"></label> <input type="checkbox" id="syntax" checked><label for="syntax"></label></li>
+                <li class="flex"><label for="dark" data-i18n="dark"></label> <input type="checkbox" id="dark"><label for="dark"></label></li>
+                
+              </ul>
+            </span>
+          -->   
           </div>
           
           <fieldset>
             <legend data-i18n="script"></legend>          
             
-            <pre id="" class="box" data-type="css" spellcheck="false" contenteditable="true"></pre>
-              
-            <details> 
-              <summary data-i18n="userMatchesExcludeMatches|title">&#x2630;</summary>
+            <div class="container">
+              <pre id="" class="box syntax" data-type="css" spellcheck="false" contenteditable="true"></pre>
+              <textarea spellcheck="false"></textarea>
+            </div>
+            
+            <details class="user"> 
+              <summary data-i18n="userMatchesExcludeMatches|title"><img src="../image/menu.svg" alt=""></summary>
              
               <div class="flex">
                 <span data-i18n="userMatches"></span><span data-i18n="userExcludeMatches"></span>

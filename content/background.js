@@ -12,6 +12,11 @@ let platformInfo = {};
 chrome.storage.local.get(null, async result => {
   Object.keys(result).forEach(item => pref[item] = result[item]); // update pref with the saved version
 
+  if (pref.hasOwnProperty('disableHighlight')) {            // v1.31 migrate
+    browser.storage.local.remove('disableHighlight');
+    delete pref.disableHighlight;
+  }
+
   // --- storage sync check
   if (pref.sync) {
 
@@ -20,10 +25,10 @@ chrome.storage.local.get(null, async result => {
     });
     browser.storage.local.set(pref);                   // update local saved pref
   }
-  
+
   platformInfo = await browser.runtime.getPlatformInfo();
   browserInfo = await browser.runtime.getBrowserInfo();
-  
+
   const days = pref.autoUpdateInterval *1;
   const doUpdate =  days && Date.now() > pref.autoUpdateLast + (days + 86400000); // 86400 * 1000 = 24hr
 
@@ -43,22 +48,22 @@ chrome.storage.local.get(null, async result => {
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {   // Change Listener
-  
-  const hasChanged = Object.keys(changes).find(item => 
+
+  const hasChanged = Object.keys(changes).find(item =>
             JSON.stringify(changes[item].oldValue) !== JSON.stringify(changes[item].newValue));
   if (!hasChanged) { return; }
 
   Object.keys(changes).forEach(item => pref[item] = changes[item].newValue); // update pref with the saved version
-  
+
   // find changed scripts
   if (changes.globalScriptExcludeMatches &&
     changes.globalScriptExcludeMatches.oldValue !== changes.globalScriptExcludeMatches.newValue) {
     Object.keys(pref.content).forEach(register);            // re-register all
   }
-  else if (changes.hasOwnProperty('content') && 
+  else if (changes.hasOwnProperty('content') &&
     JSON.stringify(changes.content.oldValue) !== JSON.stringify(changes.content.newValue)) {
-      
-    Object.keys(changes.content.oldValue).forEach(item => 
+
+    Object.keys(changes.content.oldValue).forEach(item =>
       JSON.stringify(changes.content.oldValue[item]) !== JSON.stringify(changes.content.newValue[item]) &&
         register(item));
   }
@@ -187,69 +192,71 @@ async function register(id) {
     delete registered[id];
   }
 
+  const script = pref.content[id];
+
   // --- stop if script is not enabled
-  if (!pref.content[id].enabled) { return; }
+  if (!script.enabled) { return; }
 
   // --- preppare script options
   const options = {
 
-    matchAboutBlank: pref.content[id].matchAboutBlank,
-    allFrames: pref.content[id].allFrames,
-    runAt: pref.content[id].runAt
+    matchAboutBlank: script.matchAboutBlank,
+    allFrames: script.allFrames,
+    runAt: script.runAt
   };
 
   ['matches', 'excludeMatches', 'includeGlobs', 'excludeGlobs'].forEach(item => {
-    pref.content[id][item][0] && (options[item] = pref.content[id][item]);
+    script[item][0] && (options[item] = script[item]);
   });
 
   // --- add Global Script Exclude Matches
-  if (pref.globalScriptExcludeMatches) {
-    options.excludeMatches = [... pref.content[id].excludeMatches, ...pref.globalScriptExcludeMatches.split(/\s+/)];
-  }
+  pref.globalScriptExcludeMatches && options.excludeMatches.push(...pref.globalScriptExcludeMatches.split(/\s+/));
+
+  // --- add userMatches, userExcludeMatches
+  script.userMatches && options.matches.push(...script.userMatches.split(/\s+/));
+  script.userExcludeMatches && options.excludeMatches.push(...script.userExcludeMatches.split(/\s+/));
+
+
 
   // --- add CSS & JS
   // Removing metaBlock since there would be an error with /* ... *://*/* ... */
-  if (pref.content[id].css) {
+  
+  const target = script.js ? 'js' : 'css';
+  options[target] = [];
+  
+  // --- add @require
+  const require = script.require || [];
+  require.forEach(item => {
 
-    options.css = [];
-    if (pref.content[id].require && pref.content[id].require[0]) { // add @require
-      pref.content[id].require.forEach(item => pref.content[item] && pref.content[item].css &&
-        options.css.push({code: pref.content[item].css.replace(metaRegEx, '')}));
+    if (item.startsWith('lib/')) { options[target].push({file: item}); }
+    else if (pref.content[item] && pref.content[item][target]) {
+      options[target].push({code: pref.content[item][target].replace(metaRegEx, '')});
     }
-    options.css.push({code: pref.content[id].css.replace(metaRegEx, '')});
+  });  
+  
+  // --- add @requireRemote
+  const requireRemote = script.requireRemote || [];
+  if (requireRemote[0]) {
+
+    await Promise.all(requireRemote.map(url =>
+      fetch(url).then(response => response.text())
+      .then(code => options[target].push({code}))
+      .catch(() => null)
+    ));
   }
-  else if (pref.content[id].js) {
+
+  // --- add code
+  options[target].push({code: script[target].replace(metaRegEx, '')});
+  
+  // --- script only
+  if (script.js) {
 
     // --- unsafeWindow implementation
-    options.js = [{code: 'const unsafeWindow = window.wrappedJSObject;'}];
-
-    // --- add @require
-    const require = pref.content[id].require || [];
-    require.forEach(item => {
-
-      if (item.startsWith('lib/')) { options.js.push({file: item}); }
-      else if (pref.content[item] && pref.content[item].js) {
-        options.js.push({code: pref.content[item].js.replace(metaRegEx, '')});
-      }
-    });
-
-    // --- add @requireRemote
-    const requireRemote = pref.content[id].requireRemote || [];
-    if (requireRemote [0]) {
-
-      await Promise.all(requireRemote.map(url =>
-        fetch(url).then(response => response.text())
-        .then(code => options.js.push({code}))
-        .catch(() => null)
-      ));
-    }
-
-    // --- add code
-    options.js.push({code: pref.content[id].js.replace(metaRegEx, '')});
+    options.js.unshift({code: 'const unsafeWindow = window.wrappedJSObject;'});
 
     options.scriptMetadata = {
       name: id,
-      resource: pref.content[id].resource || {},
+      resource: script.resource || {},
       info: {                                               // GM.info data
         scriptHandler: 'FireMonkey',
         version: FMV,
@@ -258,20 +265,20 @@ async function register(id) {
         browser: browserInfo,
         script: {
           name: id,
-          version: pref.content[id].version,
-          description: pref.content[id].description,
-          matches: pref.content[id].matches,
-          includes: pref.content[id].matches,
-          excludes: pref.content[id].excludeMatches,
-          'run-at': pref.content[id].runAt.replace('_', '-'),
+          version: script.version,
+          description: script.description,
+          matches: script.matches,
+          includes: script.matches,
+          excludes: script.excludeMatches,
+          'run-at': script.runAt.replace('_', '-'),
           namespace: null,
-          resources: pref.content[id].resource || {}
+          resources: script.resource || {}
         }
       }
     };
   }
 
-  const API = pref.content[id].js ? browser.userScripts : browser.contentScripts;
+  const API = script.js ? browser.userScripts : browser.contentScripts;
 
   // --- register page script
   try {                                                     // matches error throws before the Promise
@@ -353,7 +360,7 @@ browser.webRequest.onBeforeSendHeaders.addListener(e => {
 browser.runtime.onMessage.addListener((message, sender) => {
 
   if (!message.api) { return; }
-  
+
   const e = message.data;
   const name = message.name;
   const storage = '_' + name;
@@ -367,7 +374,7 @@ browser.runtime.onMessage.addListener((message, sender) => {
       if (pref[storage][e.key] === e.value) { return true; } // return if value hasn't changed
       oldValue = pref[storage][e.key];                      // need to cache it due to async processes
       e.broadcast && browser.tabs.query({}).then(tabs => {
-        tabs.forEach(tab => browser.tabs.sendMessage(tab.id, 
+        tabs.forEach(tab => browser.tabs.sendMessage(tab.id,
           {name, valueChange: {key: e.key, oldValue, newValue: e.value, remote: tab.id !== sender.tab.id}}));
       });
       pref[storage][e.key] = e.value;
@@ -383,7 +390,7 @@ browser.runtime.onMessage.addListener((message, sender) => {
       if (!hasProperty(e.key)) { return true; }             // return if nothing to delete
       oldValue = pref[storage][e.key];                      // need to cache it due to async processes
       e.broadcast && browser.tabs.query({}).then(tabs => {
-        tabs.forEach(tab => browser.tabs.sendMessage(tab.id, 
+        tabs.forEach(tab => browser.tabs.sendMessage(tab.id,
           {name, valueChange: {key: e.key, oldValue, newValue: e.value, remote: tab.id !== sender.tab.id}}));
       });
       delete pref[storage][e.key];
@@ -400,7 +407,7 @@ browser.runtime.onMessage.addListener((message, sender) => {
       break;
 
     case 'notification': notify(e.text, name); break;
-    
+
     case 'download':
       // --- check url
       const dUrl = checkURL(e.url, e.base);
@@ -580,7 +587,7 @@ async function counter(tabId, changeInfo, tab) {
   const frames = await browser.webNavigation.getAllFrames({tabId});
   const urls = [...new Set(frames.map(item => item.url).filter(item => /^(https?|wss?|ftp|file|about:blank)/.test(item)))];
   const gExclude = pref.globalScriptExcludeMatches ? pref.globalScriptExcludeMatches.split(/\s+/) : []; // cache the array
-  const count = Object.keys(pref.content).filter(item => 
+  const count = Object.keys(pref.content).filter(item =>
     pref.content[item].enabled && checkMatches(pref.content[item], urls, gExclude));
   browser.browserAction.setBadgeText({tabId, text: (count[0] ? count.length.toString() : '')});
 }
