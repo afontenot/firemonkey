@@ -680,7 +680,9 @@ details.popup[open] summary ~ * {
   left: 1.3em;
 }
 
-
+section.script {
+  margin-top: -2px;                 /* cover Progress Bar */
+}
 
 .script .container {
   flex-grow: 1;
@@ -870,7 +872,7 @@ details.user[open] summary ~ * {
   filter: invert(1);
 }
 
-.dark .user details textarea {
+.dark details.user textarea {
   color: #ddd;
 }
 /* ----- /Dark Theme ----- */

@@ -6,16 +6,20 @@
     <title>About</title>
   </head>
   <body>
-    
+
     <nav>
       <span><a href="#changelog">Changelog</a></span>
       <span><a href="#credits">Credits</a></span>
-    </nav>    
-    
+    </nav>
+
     <article>
 
     <h2 id="changelog">Changelog</h2>
     <dl>
+
+      <dt>1.32</dt>
+        <dd>Fixed an issue with Global Script Exclude Matches</dd>
+
 
       <dt>1.31</dt>
         <dd>Improved Syntax Highlight rendering speed & style</dd>
@@ -25,12 +29,10 @@
         <dd>Fixed an issue in conversion process with <code>file:///</code> (from v1.29)</dd>
         <dd>Fixed an issue with User Matches & User Exclude Matches</dd>
         <dd>Added the same <code>@require</code> features of UserScript, to UserCSS as well</dd>
-        
 
       <dt>1.30</dt>
         <dd>Fixed an encoding issue with Export function</dd>
         <dd>Fixed a typo in <code>&lt;all_urls&gt;</code> processing</dd>
-
 
       <dt>1.29</dt>
         <dd>Fixed an issue with same-name command by different scripts on GM <code>registerMenuCommand</code></dd>
@@ -73,12 +75,10 @@
         <dd>Added case <i>libs.baidu.com</i> to processed URLs</dd>
         <dd>Added case <i>lib.baomitu.com</i> to processed URLs</dd>
 
-
      <dt>1.26</dt>
         <dd>Added update version checking via <code>.meta.js</code></dd>
         <dd>Added Web Install option for <i>openuserjs.org</i></dd>
         <dd>Fixed an error with Web Install & User Matches & User Exclude Matches</dd>
-
 
       <dt>1.25</dt>
         <dd>Added a fix for bad protocol wildcard in <code>@include</code></dd>
@@ -96,14 +96,12 @@
         <dd>Added <code>@noframes</code> processing</dd>
         <dd>Added <code>unsafeWindow</code> support</dd>
 
-
       <dt>1.23</dt>
         <dd>Added <code>@require</code> to enable requiring other saved scripts</dd>
 
       <dt>1.22</dt>
         <dd>Added Help button to toolbar pop-up</dd>
         <dd>Fixed a bug with Disable Syntax Highlighting</dd>
-
 
       <dt>1.21</dt>
         <dd>Fixed a bug in saving new Script/CSS</dd>
