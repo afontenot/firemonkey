@@ -9,7 +9,7 @@ document.querySelectorAll('[data-i18n]').forEach(node => {
 // ----------------- /Internationalization -----------------
 
 // ----------------- Options -------------------------------
-const prefNode = document.querySelectorAll('#autoUpdateInterval, #autoUpdateLast, #sync'); // global, get all the preference elements
+const prefNode = document.querySelectorAll('#autoUpdateInterval, #globalScriptExcludeMatches, #sync'); // global, get all the preference elements
 const submit = document.querySelector('button[type="submit"]'); // submit button
 submit && submit.addEventListener('click', checkOptions);
 const globalScriptExcludeMatches = document.querySelector('#globalScriptExcludeMatches');
@@ -24,7 +24,7 @@ function processOptions() {                                 // set saved pref/de
 
   const settings = { 
     autoUpdateInterval: pref.autoUpdateInterval,
-    autoUpdateLast: pref.autoUpdateLast,
+    globalScriptExcludeMatches: pref.globalScriptExcludeMatches,
     sync: pref.sync
   };
   this && chrome.storage.local.set(settings);               // update saved pref
