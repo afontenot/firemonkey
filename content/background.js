@@ -199,24 +199,26 @@ async function register(id) {
 
   // --- preppare script options
   const options = {
-
+    matches: script.matches || [],                                            // mandatory
+    excludeMatches: script.excludeMatches || [],
+    includeGlobs: script.includeGlobs || [],
+    excludeGlobs: script.excludeGlobs || [],
     matchAboutBlank: script.matchAboutBlank,
     allFrames: script.allFrames,
     runAt: script.runAt
   };
 
-  ['matches', 'excludeMatches', 'includeGlobs', 'excludeGlobs'].forEach(item => {
-    script[item][0] && (options[item] = script[item]);
-  });
-
   // --- add Global Script Exclude Matches
   pref.globalScriptExcludeMatches && options.excludeMatches.push(...pref.globalScriptExcludeMatches.split(/\s+/));
 
   // --- add userMatches, userExcludeMatches
-  script.userMatches && options.matches.push(...script.userMatches.split(/\s+/));
+  script.userMatches && options.matches.push(...script.userMatches.split(/\s+/)); 
   script.userExcludeMatches && options.excludeMatches.push(...script.userExcludeMatches.split(/\s+/));
 
-
+  // --- remove empty arrays
+  ['excludeMatches', 'includeGlobs', 'excludeGlobs'].forEach(item => {
+    if (!options[item][0]) { delete options[item]; };
+  });
 
   // --- add CSS & JS
   // Removing metaBlock since there would be an error with /* ... *://*/* ... */
