@@ -41,6 +41,8 @@
         <!-- template -->
         <li class="template"></li>
       </ul>
+      <!-- counter -->
+      <div></div>
   
       <div class="flex">
         <input type="file" id="fileScript" accept=".js, .css" multiple>
@@ -82,11 +84,7 @@
                 <textarea id="globalScriptExcludeMatches" rows="8" spellcheck="false" placeholder="*://*.example.com/*"></textarea>
             </div>
           </div>          
-<!-- 
-          <div style="margin-top: 1em;">
-            <input type="checkbox" id="disableHighlight"><label for="disableHighlight" data-i18n="disableHighlight"></label>
-          </div>
-   -->          
+         
           <div style="margin-top: 1em;">
             <input type="checkbox" id="sync"><label for="sync" data-i18n="enableSync"></label>
           </div>
@@ -119,7 +117,7 @@
 
             <button type="button" data-i18n="exportScript">&#x1f4e4; </button>
 
-            <span style="flex: 1;"></span>
+            <span class="spacer"></span>
             <img class="bin" src="../image/bin.svg" data-i18n="delete|title" alt="">
 
             <details class="popup">
@@ -127,20 +125,10 @@
               <ul>
                 <li class="flex"><label data-i18n="syntax"></label> <input type="checkbox" id="syntax" checked><label for="syntax"></label></li>
                 <li class="flex"><label data-i18n="dark"></label> <input type="checkbox" id="dark"><label for="dark"></label></li>
-                
+
               </ul>
             </details>
             
-<!--             
-            <span class="submenu">
-              <img src="../image/menu-dot.svg" alt="">
-              <ul>
-                <li class="flex"><label for="syntax" data-i18n="syntax"></label> <input type="checkbox" id="syntax" checked><label for="syntax"></label></li>
-                <li class="flex"><label for="dark" data-i18n="dark"></label> <input type="checkbox" id="dark"><label for="dark"></label></li>
-                
-              </ul>
-            </span>
-          -->   
           </div>
           
           <fieldset>

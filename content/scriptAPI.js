@@ -94,27 +94,27 @@ browser.userScripts.onBeforeScript.addListener(script => {
       });
     },
 
-    openInTab(url, open_in_background) {
+    async openInTab(url, open_in_background) {
 
-      return browser.runtime.sendMessage({
+      return await browser.runtime.sendMessage({
         name,
         api: 'openInTab',
         data: {url, active: !open_in_background}
       });
     },
 
-    setClipboard(text) {
+    async setClipboard(text) {
 
-      return browser.runtime.sendMessage({
+      return await browser.runtime.sendMessage({
         name,
         api: 'setClipboard',
         data: {text}
       });
     },
 
-    notification(text) {
+    async notification(text) {
 
-      return browser.runtime.sendMessage({
+      return await browser.runtime.sendMessage({
         name,
         api: 'notification',
         data: {text}
@@ -210,7 +210,7 @@ browser.userScripts.onBeforeScript.addListener(script => {
       checkListener();
     },
 
-    download(url, filename) {
+    async download(url, filename) {
 
       return browser.runtime.sendMessage({
         name,

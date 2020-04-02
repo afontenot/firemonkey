@@ -1,18 +1,14 @@
 ﻿'use strict';
 
 // ----------------- Internationalization ------------------
-document.querySelectorAll('[data-i18n]').forEach(node => {
-  let [text, attr] = node.dataset.i18n.split('|');
-  text = chrome.i18n.getMessage(text);
-  attr ? node[attr] = text : node.appendChild(document.createTextNode(text));
-});
-// ----------------- /Internationalization -----------------
+new I18N();
 
 // ----------------- Options -------------------------------
 const prefNode = document.querySelectorAll('#autoUpdateInterval, #globalScriptExcludeMatches, #sync'); // global, get all the preference elements
 const submit = document.querySelector('button[type="submit"]'); // submit button
-submit && submit.addEventListener('click', checkOptions);
+submit.addEventListener('click', checkOptions);
 const globalScriptExcludeMatches = document.querySelector('#globalScriptExcludeMatches');
+let prefImport = false;
 
 function processOptions() {                                 // set saved pref/defaults OR update saved pref
   // 'this' is ony set when clicking the button to save options
@@ -22,25 +18,29 @@ function processOptions() {                                 // set saved pref/de
     this ? pref[node.id] = node[attr] : node[attr] = pref[node.id];
   });
 
-  const settings = { 
+  const settings = {
     autoUpdateInterval: pref.autoUpdateInterval,
     globalScriptExcludeMatches: pref.globalScriptExcludeMatches,
     sync: pref.sync
   };
+  
+ // --- save scripts after import
+  if(prefImport) {
+    settings.content = pref.content;
+    prefImport = false;
+  }
+  
   this && chrome.storage.local.set(settings);               // update saved pref
 }
 // ----------------- /Options ------------------------------
 
 // ----------------- User Preference -----------------------
-chrome.storage.local.get(null, result => { // global default set in pref.js
-  Object.keys(result).forEach(item => pref[item] = result[item]); // update pref with the saved version
-  processOptions();                                         // run after the async operation
-  processScript();
+new Pref().then(() => {
 
+  processOptions();
+  processScript();
   autoUpdateInterval.nextElementSibling.value = autoUpdateInterval.value;
 });
-
-
 // ----------------- /User Preference ----------------------
 
 function checkOptions() {
@@ -50,12 +50,13 @@ function checkOptions() {
 
   // --- progress bar
   progressBar();
+  
 
   // --- save options
   processOptions.call(this);
-  
+
   // --- process Syntax Highlight
-  highlight.process();  
+  highlight.process();
 }
 
 
@@ -65,7 +66,7 @@ const liTemplate = document.querySelector('nav li.template');
 const legend = document.querySelector('.script legend');
 const box = document.querySelector('.script .box');
 const textBox = box.nextElementSibling;
-textBox.value = '';                                         // Browser retains teaxarea content on refresh
+textBox.value = '';                                         // Browser retains textarea content on refresh
 const enable = document.querySelector('#enable');
 const autoUpdate = document.querySelector('#autoUpdate');
 const userMatches = document.querySelector('#userMatches');
@@ -91,7 +92,7 @@ syntax.checked = doSyntax;
 syntax.addEventListener('change', function() {
   localStorage.setItem('syntax', this.checked);
   box.classList.toggle('syntax', this.checked);
-  
+
   if (this.checked && textBox.value.trim()) {
     box.textContent = textBox.value;
     textBox.value = '';
@@ -104,16 +105,16 @@ syntax.addEventListener('change', function() {
   }
 });
 
-const highlight = new Highlight(box, footer);
+const highlight = new Highlight(box, legend, footer);
 
 // ----- menu dropdown
 const details = document.querySelector('.menu details');
-details.addEventListener('toggle', () => 
+details.addEventListener('toggle', () =>
   details.open ? document.body.addEventListener('click', closePopup) : document.body.removeEventListener('click', closePopup)
 );
 
 function closePopup(e) {
-  !details.contains(e.explicitOriginalTarget) && (details.open = false); 
+  !details.contains(e.explicitOriginalTarget) && (details.open = false);
 }
 
 
@@ -127,7 +128,7 @@ window.addEventListener('beforeunload', (e) => unsavedChanges() && event.prevent
 
 const autoUpdateInterval = document.getElementById('autoUpdateInterval');
 autoUpdateInterval.addEventListener('input', function() {
-  this.nextElementSibling.textContent = this.value;
+  this.nextElementSibling.value = this.value;
 });
 
   const template = {
@@ -177,7 +178,7 @@ function newScript(type) {
   legend.textContent = '';
   legend.className = type;
   legend.textContent = chrome.i18n.getMessage(type === 'js' ? 'newJS' : 'newCSS');
-  
+
   const text = pref.template[type] || template[type];
   box.classList.contains('syntax') ? box.textContent = text : textBox.value = text;
   highlight.process();
@@ -227,12 +228,9 @@ function showScript() {
   document.getElementById('nav4').checked = true;
 
   if(unsavedChanges()) { return; }
-  
+
   // --- reset
-  box.classList.remove('invalid');
-  textBox.classList.remove('invalid');
-  userMatches.classList.remove('invalid');
-  userExcludeMatches.classList.remove('invalid');
+  [box, textBox, userMatches, userExcludeMatches].forEach(item => item.classList.remove('invalid'));
 
   const last = document.querySelector('nav li.on');
   last && last.classList.remove('on');
@@ -245,7 +243,7 @@ function showScript() {
   legend.textContent = id;
   enable.checked = pref.content[id].enabled;
   autoUpdate.checked = pref.content[id].autoUpdate;
-  
+
   const text = pref.content[id].js || pref.content[id].css;
   box.classList.contains('syntax') ? box.textContent = text : textBox.value = text;
   highlight.process();
@@ -276,11 +274,11 @@ function unsavedChanges() {
     case !box.id && text === noSpace(template.css):
     case !box.id && text === noSpace(pref.template.js):
     case !box.id && text === noSpace(pref.template.css):
-    
+
     case  box.id && text === noSpace(pref.content[box.id].js + pref.content[box.id].css) &&
             userMatches.value.trim() === (pref.content[box.id].userMatches || '') &&
             userExcludeMatches.value.trim() === (pref.content[box.id].userExcludeMatches || ''):
-      
+
       return false;
 
     default:
@@ -399,7 +397,14 @@ async function saveScript() {
   if(hasInvalidPattern(userExcludeMatches)) { return; }
 
   // --- chcek meta data
-  const text = box.classList.contains('syntax') ? box.textContent : textBox.value;
+  let text;
+  if (box.classList.contains('syntax')) {
+    const nl = /\r\n/.test(box.textContent) ? '\r\n' : '\n';
+    box.querySelectorAll('br').forEach(item => item.replaceWith(nl));
+    text = box.textContent.trim().replace(new RegExp(String.fromCharCode(160), 'g'), nl);
+  }
+  else {text = textBox.value; }
+
   const data = getMetaData(text.trim(), userMatches.value, userExcludeMatches.value);
   if (!data) { throw 'Meta Data Error'; }
   else if (data.error) {
@@ -417,7 +422,7 @@ async function saveScript() {
             !confirm(chrome.i18n.getMessage('errorName'))) { return; }
 
   // --- check matches
-  if (!data.matches[0] && !data.includeGlobs[0]) {
+  if (!data.matches[0] && !data.includeGlobs[0] && !data.style[0]) {
     data.enabled = false;                                   // allow no matches but disable
 /*
     box.classList.add('invalid');
@@ -492,7 +497,7 @@ async function processResponse(text, name) {
   if (!data) { throw `${name}: Update Meta Data error`; }
 
   // --- check version
-  if (compareVersion(data.version, pref.content[name].version) !== '>') {
+  if (!higherVersion(data.version, pref.content[name].version)) {
     notify(chrome.i18n.getMessage('noNewUpdate'), name);
     return;
   }
@@ -581,17 +586,20 @@ function readDataScript(text) {
 
   // --- check name
   if (pref.content[data.name]) {
+
     const dataType = data.js ? 'js' : 'css';
     const targetType = pref.content[data.name].js ? 'js' : 'css';
     if (dataType !== targetType) { // same name exist in another type
       data.name += ` (${dataType})`;
       if (pref.content[data.name]) { throw `${data.name}: Update new name already exists`; } // name already exists
     }
-  }
 
-  // --- update from previous version
-  data.enabled = pref.content[data.name] ? pref.content[data.name].enabled : true;
-  data.autoUpdate = pref.content[data.name] ? pref.content[data.name].autoUpdate : false;
+    // --- update/import from previous version
+    data.enabled = pref.content[data.name].enabled;
+    data.autoUpdate = pref.content[data.name].autoUpdate;
+    data.userMatches = pref.content[data.name].userMatches;
+    data.userExcludeMatches = pref.content[data.name].userExcludeMatches;
+  }
 
   pref.content[data.name] = data;                           // save to pref
   multiCache.push(data.name);
@@ -762,6 +770,7 @@ function readData(data) {
 
   processOptions();                                         // set options after the pref update
   processScript();                                          // update page display
+  prefImport = true;                                        // save scripts as well
 }
 
 function exportData(data, ext) {
@@ -780,11 +789,8 @@ function exportData(data, ext) {
 
 
 
-// ----------------- Edit from browser pop-up --------------
-// ----- message listeners from popup page
-chrome.runtime.onMessage.addListener((message, sender) => {
-  message.hasOwnProperty('nav') && getNav(message.nav);
-});
+// ----------------- from browser pop-up & contextmenu -----
+window.addEventListener('storage', (e) => e.key === 'nav' && getNav(e.newValue));
 
 function getNav(nav) {
 
@@ -794,18 +800,17 @@ function getNav(nav) {
 
   switch (nav) {
 
+    case 'help':
+      document.getElementById('nav1').checked = true;
+      break;
+
     case 'js':
     case 'css':
       document.getElementById('nav4').checked = true;
       newScript(nav);
       break;
 
-    case 'help':
-      document.getElementById('nav1').checked = true;
-      break;
-      
     default:
-      document.getElementById('nav4').checked = true;
       document.getElementById(nav).click();
   }
 }
