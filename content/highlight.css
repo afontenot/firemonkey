@@ -5,7 +5,7 @@
 .keyword, .html { color: blue; }
 .object, .font { color: red; }
 .string { color: gray; }
-.method { color: darkviolet; }
+.method, .function { color: darkviolet; }
 .gm { color: maroon; }
 
 .property { color: darkorange; }
@@ -47,9 +47,10 @@
 .dark .comment { color: limegreen; }
 .dark .keyword, .dark .html { color: deepskyblue; }
 .dark .string, .dark .font { color: darkgray; }
-.dark .method { color: violet; }
+.dark .method, .dark .function { color: violet; }
 .dark .gm { color: gold; }
 .dark .value { color: aqua; }
 .dark .pseudo { color: lightgreen; }
 .dark .important { color: bisque; }
+.dark .color { color: hotpink; }
 /* ----- /Dark Theme ----- */

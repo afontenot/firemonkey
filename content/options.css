@@ -36,6 +36,7 @@ nav {
   box-shadow: 0px 4px 10px 0 rgba(0,0,0,0.8);
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 nav h3 {
@@ -411,7 +412,7 @@ nav ul {
   overflow: hidden;
   height: 30vh;
   flex-grow: 1;
-  margin-bottom: 1em;
+  margin-bottom: 0.5em;
   margin-right: -0.5em;
   scrollbar-color: #567 #345;
   scrollbar-width: thin;
@@ -444,7 +445,7 @@ nav li.on {
 }
 
 nav li.error::after {
-  content: "\2718";
+  content: '\2718';
   font-weight: 900;
   display: inline-block;
   vertical-align: text-bottom;
@@ -494,6 +495,26 @@ nav div button:hover, nav div label:hover {
 nav div label[for="fileScript"]::before {
   content: none;
 }
+
+/* ----- Counter ----- */
+nav ul { counter-reset: n;  }
+
+nav li {
+  counter-increment: n; 
+}
+
+nav ul + div {
+  font-size: 0.8em;
+  text-align: right;
+  position: absolute;
+  bottom: 3em;
+  right: 1em;
+}
+
+nav ul + div::after {
+  content: counter(n);
+}
+/* ----- /Counter ----- */
 /* ----- /Nav Scripts ----- */
 
 /* ----- Scripts ----- */
@@ -553,8 +574,8 @@ div.menu {
   color: #4284f3;
   flex: 1;
   white-space: nowrap;
-  position: relative;
-  user-select: none;
+  /*position: relative;*/
+  /*user-select: none;*/
 }
 
 .menu button:nth-of-type(3), 
@@ -640,7 +661,7 @@ details.popup[open] summary ~ * {
   background-color: #fff;
 }
 
-.popup li.flex > label:last-of-type {
+.popup li.flex > label:last-child {
   margin-left: 1em;
   flex: 0 0 3em;
 }
@@ -678,10 +699,6 @@ details.popup[open] summary ~ * {
 .popup input[type="checkbox"]:checked + label::before {
   background: #fff;
   left: 1.3em;
-}
-
-section.script {
-  margin-top: -2px;                 /* cover Progress Bar */
 }
 
 .script .container {

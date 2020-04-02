@@ -1,19 +1,10 @@
 ﻿'use strict';
 
 // ----------------- Internationalization ------------------
-document.querySelectorAll('[data-i18n]').forEach(node => {
-  let [text, attr] = node.dataset.i18n.split('|');
-  text = chrome.i18n.getMessage(text);
-  attr ? node[attr] = text : node.appendChild(document.createTextNode(text));
-});
-// ----------------- /Internationalization -----------------
+new I18N();
 
 // ----------------- User Preference -----------------------
-chrome.storage.local.get(null, result => { // global default set in pref.js
-  Object.keys(result).forEach(item => pref[item] = result[item]); // update pref with the saved version
-  processScript();
-});
-// ----------------- /User Preference ----------------------
+new Pref().then(processScript);
 
 // ----------------- Actions -------------------------------
 // ----- global
@@ -25,9 +16,8 @@ const liTemplate = document.querySelector('li.template');
 const ulTab = document.querySelector('ul.tab');
 const ulOther = document.querySelector('ul.other');
 
-// ----- Theme
-const isDark = localStorage.getItem('dark') === 'true';     // defaults to false
-document.body.classList.toggle('dark', isDark);
+// ----- Theme  
+document.body.classList.toggle('dark', localStorage.getItem('dark') === 'true'); // defaults to false
 
 
 function process() {
@@ -41,10 +31,9 @@ function process() {
     case 'help': nav = 'help'; break;
     case 'edit': nav = this.id; break;
   }
-  
+
   nav && localStorage.setItem('nav', nav);
-  nav && browser.runtime.sendMessage({nav});                // in case Option page is already open
-  browser.runtime.openOptionsPage();
+  chrome.runtime.openOptionsPage();
   window.close();
 }
 
@@ -53,19 +42,18 @@ async function processScript() {
   const tabs = await browser.tabs.query({currentWindow: true, active: true});
   const tabId = tabs[0].id;                                 // active tab id
 
-  browser.browserAction.getBadgeText({tabId}).then(text => { // check if there are active scripts in tab
-    if(text) {
-      browser.runtime.onMessage.addListener((message, sender) => sender.tab.id === tabId && addCommand(tabId, message));
-      browser.tabs.sendMessage(tabId, {listCommand: []});
-    }
-  });
-
   const frames = await browser.webNavigation.getAllFrames({tabId});
   const urls = [...new Set(frames.map(item => item.url).filter(item => /^(https?|wss?|ftp|file|about:blank)/.test(item)))];
   const gExclude = pref.globalScriptExcludeMatches ? pref.globalScriptExcludeMatches.split(/\s+/) : []; // cache the array
   Object.keys(pref.content).sort(Intl.Collator().compare).forEach(item =>
     addScript(pref.content[item], checkMatches(pref.content[item], urls, gExclude))
   );
+
+  // --- check commands if there are active scripts in tab
+  if(ulTab.querySelector('li.js:not(.disabled)')) {
+    browser.runtime.onMessage.addListener((message, sender) => sender.tab.id === tabId && addCommand(tabId, message));
+    browser.tabs.sendMessage(tabId, {listCommand: []});
+  }
 }
 
 
@@ -113,15 +101,24 @@ function showInfo() {
     
     const arr = pref.content[id][item] ? 
         (Array.isArray(pref.content[id][item]) ? pref.content[id][item] : pref.content[id][item].split(/\r?\n/)) : [];
+        
+    switch (item) {
+  
+      case 'require':                                     // --- add requireRemote to require
+        pref.content[id].requireRemote && arr.push(...pref.content[id].requireRemote);
+        break;
+      
+      case 'matches':                                     // --- add UserStyle matches to matches
+        pref.content[id].style && pref.content[id].style[0] && arr.push(...pref.content[id].style.flatMap(i => i.matches));
+        break;
+    }      
+    
     if (arr[0]) {
       const dt = dtTemp.cloneNode();
       item === 'error' && dt.classList.add('error');
       dt.textContent = item;
       dl.appendChild(dt);
       
-      // add requireRemote to require
-      if (item == 'require' && pref.content[id].requireRemote) { arr.push(...pref.content[id].requireRemote); }
-
       arr.forEach(item => {
         const dd = ddTemp.cloneNode();
         dd.textContent = item;
@@ -133,7 +130,6 @@ function showInfo() {
   document.querySelector('button.edit').id = id;
   info.parentNode.style.transform = 'translateX(-50%)';
 }
-
 
 
 // ----------------- Script Commands -----------------------
@@ -160,3 +156,4 @@ function addCommand(tabId, message) {
     ulCommand.appendChild(li);
   });
 }
+
