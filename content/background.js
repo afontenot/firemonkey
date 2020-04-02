@@ -8,9 +8,31 @@ const FMUrl = browser.runtime.getURL('');
 let browserInfo = {};
 let platformInfo = {};
 
+// ----------------- Script Counter ------------------------
+class Counter {
+
+  constructor() {
+    browser.tabs.onUpdated.addListener(this.count, {urls: ['http://*/*', 'https://*/*', 'file:///*']});
+    browser.browserAction.setBadgeBackgroundColor({color: '#cd853f'});
+    browser.browserAction.setBadgeTextColor({color: '#fff'}); // FF63+
+  }
+
+  async count(tabId, changeInfo, tab) {
+    
+    if (changeInfo.status !== 'complete') { return; }        // end execution if not found
+  
+    const frames = await browser.webNavigation.getAllFrames({tabId});
+    const urls = [...new Set(frames.map(item => item.url).filter(item => /^(https?|wss?|ftp|file|about:blank)/.test(item)))];
+    const gExclude = pref.globalScriptExcludeMatches ? pref.globalScriptExcludeMatches.split(/\s+/) : []; // cache the array
+    const count = Object.keys(pref.content).filter(item =>
+      pref.content[item].enabled && checkMatches(pref.content[item], urls, gExclude));
+    browser.browserAction.setBadgeText({tabId, text: (count[0] ? count.length.toString() : '')});    
+  }
+} 
+// ----------------- /Script Counter -----------------------
+
 // ----------------- User Preference -----------------------
-chrome.storage.local.get(null, async result => {
-  Object.keys(result).forEach(item => pref[item] = result[item]); // update pref with the saved version
+new Pref().then(async() => {
 
   if (pref.hasOwnProperty('disableHighlight')) {            // v1.31 migrate
     browser.storage.local.remove('disableHighlight');
@@ -23,7 +45,7 @@ chrome.storage.local.get(null, async result => {
     await browser.storage.sync.get(null, result => {
       Object.keys(result).forEach(item => pref[item] = result[item]); // update pref with the saved version
     });
-    browser.storage.local.set(pref);                   // update local saved pref
+    browser.storage.local.set(pref);                        // update local saved pref
   }
 
   platformInfo = await browser.runtime.getPlatformInfo();
@@ -42,9 +64,7 @@ chrome.storage.local.get(null, async result => {
   update[0] && browser.idle.onStateChanged.addListener(onIdle); // FF51+
 
   // --- Script Counter
-  browser.tabs.onUpdated.addListener(counter, {urls: ['http://*/*', 'https://*/*', 'file:///*']});
-  browser.browserAction.setBadgeBackgroundColor({color: '#cd853f'});
-  browser.browserAction.setBadgeTextColor({color: '#fff'}); // FF63+
+  const counter = new Counter();
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {   // Change Listener
@@ -82,14 +102,17 @@ chrome.storage.onChanged.addListener((changes, area) => {   // Change Listener
 
 // ----------------- Web/Direct Install Listener ------------------
 browser.webRequest.onBeforeRequest.addListener(processWebInstall, {
-    urls: ['https://greasyfork.org/scripts/*.user.js', 'https://openuserjs.org/install/*.user.js'],
+    urls: [ 'https://greasyfork.org/scripts/*.user.js',
+            'https://greasyfork.org/scripts/*.user.css',
+            'https://openuserjs.org/install/*.user.js'],
     types: ['main_frame']
   },
   ['blocking']
 );
 
 browser.tabs.onUpdated.addListener(processDirectInstall,{
-  urls: ['*://*/*.user.js', 'file:///*.user.js' ]
+  urls: [ '*://*/*.user.js', '*://*/*.user.css',
+          'file:///*.user.js', 'file:///*.user.css' ]
 });
 
 function processWebInstall(e) {
@@ -135,7 +158,7 @@ function processDirectInstall(tabId, changeInfo, tab) {
   if (tab.url.startsWith('https://raw.githubusercontent.com/')) {
     // https://raw.githubusercontent.com/<username>/<repo>/<branch>/path/to/file.js
     const p = tab.url.split(/:?\/+/);
-    browser.tabs.update({url: `https://cdn.jsdelivr.net/gh/${p[2]}/${p[3]}@${p[4]}/${p.slice(5).join('/')}` })
+    browser.tabs.update({url: `https://cdn.jsdelivr.net/gh/${p[2]}/${p[3]}@${p[4]}/${p.slice(5).join('/')}` });
     return;
   }
 
@@ -177,7 +200,6 @@ function process(info, tab, command){
 
     case 'help':
       localStorage.setItem('nav', 'help');
-      browser.runtime.sendMessage({nav: 'help'});
       chrome.runtime.openOptionsPage();
       break;
   }
@@ -186,46 +208,56 @@ function process(info, tab, command){
 // ----------------- Register Content Script & CSS ---------
 async function register(id) {
 
+  const script = pref.content[id];
+  script.style = script.style || [];                        // preset
+
   // --- reset previous registers
-  if (registered[id]) {
+  if (script.style[0]) {                                    // UserStyle Multi-segment Process
+
+    for (let i = 0, len = script.style.length; i < len; i++) {
+      if (registered[id + 'style' + i]) {
+        await registered[id + 'style' + i].unregister();
+        delete registered[id + 'style' + i];
+      }
+    }
+  }
+  else if (registered[id]) {
     await registered[id].unregister();
     delete registered[id];
   }
 
-  const script = pref.content[id];
 
-  // --- stop if script is not enabled
-  if (!script.enabled) { return; }
+  // --- stop if script is not enabled or no mandatory matches
+  if (!script.enabled || (!script.matches[0] && !script.style[0])) { return; }
 
   // --- preppare script options
   const options = {
-    matches: script.matches || [],                                            // mandatory
-    excludeMatches: script.excludeMatches || [],
-    includeGlobs: script.includeGlobs || [],
-    excludeGlobs: script.excludeGlobs || [],
+    matches: script.matches,
+    excludeMatches: script.excludeMatches,
+    includeGlobs: script.includeGlobs,
+    excludeGlobs: script.excludeGlobs,
     matchAboutBlank: script.matchAboutBlank,
     allFrames: script.allFrames,
     runAt: script.runAt
   };
 
   // --- add Global Script Exclude Matches
-  pref.globalScriptExcludeMatches && options.excludeMatches.push(...pref.globalScriptExcludeMatches.split(/\s+/));
+  script.js && pref.globalScriptExcludeMatches && options.excludeMatches.push(...pref.globalScriptExcludeMatches.split(/\s+/));
 
   // --- add userMatches, userExcludeMatches
-  script.userMatches && options.matches.push(...script.userMatches.split(/\s+/)); 
+  script.userMatches && options.matches.push(...script.userMatches.split(/\s+/));
   script.userExcludeMatches && options.excludeMatches.push(...script.userExcludeMatches.split(/\s+/));
 
-  // --- remove empty arrays
+  // --- remove empty arrays (causes error)
   ['excludeMatches', 'includeGlobs', 'excludeGlobs'].forEach(item => {
     if (!options[item][0]) { delete options[item]; };
   });
 
   // --- add CSS & JS
   // Removing metaBlock since there would be an error with /* ... *://*/* ... */
-  
   const target = script.js ? 'js' : 'css';
   options[target] = [];
-  
+
   // --- add @require
   const require = script.require || [];
   require.forEach(item => {
@@ -234,8 +266,8 @@ async function register(id) {
     else if (pref.content[item] && pref.content[item][target]) {
       options[target].push({code: pref.content[item][target].replace(metaRegEx, '')});
     }
-  });  
-  
+  });
+
   // --- add @requireRemote
   const requireRemote = script.requireRemote || [];
   if (requireRemote[0]) {
@@ -249,7 +281,7 @@ async function register(id) {
 
   // --- add code
   options[target].push({code: script[target].replace(metaRegEx, '')});
-  
+
   // --- script only
   if (script.js) {
 
@@ -282,14 +314,33 @@ async function register(id) {
 
   const API = script.js ? browser.userScripts : browser.contentScripts;
 
-  // --- register page script
-  try {                                                     // matches error throws before the Promise
+  if (script.style[0]) {
+    // --- UserStyle Multi-segment Process
+    script.style.forEach((st, index) => {
 
-    API.register(options)
-    .then(reg => registered[id] = reg)                      // contentScripts.RegisteredContentScript object
-    .catch(console.error);
+      options.matches = st.matches;
+      options.css = [{code: st.css}];
 
-  } catch(error) { processError(id, error.message); }
+      // --- register page script
+      try {                                                 // matches error throws before the Promise
+
+        API.register(options)
+        .then(reg => registered[id + 'style' + index] = reg) // contentScripts.RegisteredContentScript object
+        .catch(console.error);
+
+      } catch(error) { processError(id, error.message); }
+    });
+  }
+  else {
+    // --- register page script
+    try {                                                     // matches error throws before the Promise
+
+      API.register(options)
+      .then(reg => registered[id] = reg)                      // contentScripts.RegisteredContentScript object
+      .catch(console.error);
+
+    } catch(error) { processError(id, error.message); }
+  }
 }
 
 async function unregister(id) {
@@ -380,13 +431,13 @@ browser.runtime.onMessage.addListener((message, sender) => {
           {name, valueChange: {key: e.key, oldValue, newValue: e.value, remote: tab.id !== sender.tab.id}}));
       });
       pref[storage][e.key] = e.value;
-      return browser.storage.local.set({[storage]: pref[storage]});
+      return browser.storage.local.set({[storage]: pref[storage]}); // Promise with no arguments OR reject with error message
 
-    case 'getValue':
-      return hasProperty(e.key) ? pref[storage][e.key] : e.defaultValue;
+    case 'getValue':     
+      return Promise.resolve(hasProperty(e.key) ? pref[storage][e.key] : e.defaultValue);
 
     case 'listValues':
-      return pref[storage] ? Object.keys(pref[storage]) : [];
+      return Promise.resolve(pref[storage] ? Object.keys(pref[storage]) : []);
 
     case 'deleteValue':
       if (!hasProperty(e.key)) { return true; }             // return if nothing to delete
@@ -399,11 +450,11 @@ browser.runtime.onMessage.addListener((message, sender) => {
       return browser.storage.local.set({[storage]: pref[storage]});
 
     case 'openInTab':
-      browser.tabs.create({url: e.url, active: e.active});
+      browser.tabs.create({url: e.url, active: e.active});  // Promise with tabs.Tab OR reject with error message
       break;
 
     case 'setClipboard':
-      navigator.clipboard.writeText(e.text)
+      navigator.clipboard.writeText(e.text)                 // Promise with ? OR reject with error message
       .then(() => {})
       .catch(error => { console.error(error); notify(chrome.i18n.getMessage('errorClipboard')); }); // failed copy notification
       break;
@@ -415,7 +466,7 @@ browser.runtime.onMessage.addListener((message, sender) => {
       const dUrl = checkURL(e.url, e.base);
       if (!dUrl) { return; }
 
-      browser.downloads.download({
+      browser.downloads.download({                          // Promise with id OR reject with error message
         url: dUrl,
         filename: e.filename ? e.filename : null,
         saveAs: true,
@@ -541,7 +592,7 @@ function processResponse(text, name, updateURL) {
   if (!data) { throw `${name}: Meta Data error`; }
 
   // --- check version, if update existing
-  if (pref.content[name] && compareVersion(data.version, pref.content[name].version) !== '>') { return; }
+  if (pref.content[name] && !higherVersion(data.version, pref.content[name].version)) { return; }
 
   // --- check name, if update existing
   if (pref.content[name] && data.name !== name) {           // name has changed
@@ -580,17 +631,3 @@ function processResponse(text, name, updateURL) {
   data.enabled && register(data.name);
 }
 // ----------------- /Remote Update ------------------------
-
-// ----------------- Script Counter ------------------------
-async function counter(tabId, changeInfo, tab) {
-
-  if (changeInfo.status !== 'complete') { return; }        // end execution if not found
-
-  const frames = await browser.webNavigation.getAllFrames({tabId});
-  const urls = [...new Set(frames.map(item => item.url).filter(item => /^(https?|wss?|ftp|file|about:blank)/.test(item)))];
-  const gExclude = pref.globalScriptExcludeMatches ? pref.globalScriptExcludeMatches.split(/\s+/) : []; // cache the array
-  const count = Object.keys(pref.content).filter(item =>
-    pref.content[item].enabled && checkMatches(pref.content[item], urls, gExclude));
-  browser.browserAction.setBadgeText({tabId, text: (count[0] ? count.length.toString() : '')});
-}
-// ----------------- /Script Counter -----------------------

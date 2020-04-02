@@ -1,8 +1,8 @@
 ﻿'use strict';
 
 // ----------------- Parse Metadata Block ------------------
-// ----- global
-const metaRegEx = /==(UserScript|UserCSS)==([\s\S]+)==\/\1==/i;
+// ----- global background.js options.js
+const metaRegEx = /==(UserScript|UserCSS|UserStyle)==([\s\S]+)==\/\1==/i;
 
 function getMetaData(str, userMatches = '', userExcludeMatches = '') {
 
@@ -10,16 +10,18 @@ function getMetaData(str, userMatches = '', userExcludeMatches = '') {
   const metaData = str.match(metaRegEx);
   if (!metaData) { return null; }
 
-  const type = metaData[1].toLowerCase() === 'userscript' ? 'js' : 'css';
+  const js = metaData[1].toLowerCase() === 'userscript';
+  const userStyle = metaData[1].toLowerCase() === 'userstyle';
   // Metadata Block
   const data = {
     // --- extension related data
     name: '',
     author: '',
     description: '',
-    enabled: typeof enable !== 'undefined' ? enable.checked : true, // enable is defined in options.js but not from background.js
     updateURL: '',
-    autoUpdate: typeof autoUpdate !== 'undefined'  ? autoUpdate.checked : false, // autoUpdate is defined in options.js but not from background.js
+    // enable & autoUpdate are defined in options.js but not from background.js
+    enabled: typeof enable !== 'undefined' ? enable.checked : true,
+    autoUpdate: typeof autoUpdate !== 'undefined'  ? autoUpdate.checked : false,
     version: '',
 
     require: [],
@@ -30,157 +32,156 @@ function getMetaData(str, userMatches = '', userExcludeMatches = '') {
 
     // --- API related data
     allFrames: false,
-    js: type === 'js' ? str : '',
-    css: type === 'css' ? str.replace(/[\u200B-\u200D\uFEFF]/g, '') : '', // avoid CSS parse error on invisible characters
+    js: js ? str : '',
+    css: !js ? str.replace(/[\u200B-\u200D\uFEFF]/g, '') : '', // avoid CSS parse error on invisible characters
+    style: [],
     matches: [],
     excludeMatches: [],
     includeGlobs: [],
     excludeGlobs: [],
     matchAboutBlank: false,
-    runAt: 'document_idle'                                  // "document_start" "document_end" "document_idle" (default)
+    runAt: userStyle ? 'document_start' : 'document_idle'  // "document_start" "document_end" "document_idle" (default)
   };
 
   metaData[2].split(/[\r\n]+/).forEach(item =>  {           // lines
 
     item = item.trim();
-    let [,prop, value] = item.match(/^(?:\/\/)?\s*@([\w-]+)\s+(.+)/) || ['', '', ''];
+    let [,prop, value] = item.match(/^(?:\/\/)?\s*@([\w-]+)\s+(.+)/) || [];
+    if (!prop) { return; }                                  // continue to next
+
     value = value.trim();
 
-    if (prop) {
+    switch (prop) {
 
-      switch (prop) {
+      // --- disallowed properties
+      case 'js':
+      case 'css':
+      case 'userMatches':
+      case 'userExcludeMatches':
+      case 'requireRemote':
+        value = '';                                       // no more processing
+        break;
 
-        // --- disallowed properties
-        case 'js':
-        case 'css':
-        case 'userMatches':
-        case 'userExcludeMatches':
-        case 'requireRemote':
-          value = '';                                       // no more processing
-          break;
-
-        case 'noframes':
-          data.allFrames = false;                           // convert @noframes to allFrames: false
-          value = '';                                       // no more processing
-          break;
+      case 'noframes':
+        data.allFrames = false;                           // convert @noframes to allFrames: false
+        value = '';                                       // no more processing
+        break;
 
 
-        case 'match':                                       // convert match/include to matches
-        case 'include':
-          prop = 'matches';
-          break;
+      case 'match':                                       // convert match/include to matches
+      case 'include':
+        prop = 'matches';
+        break;
 
-        case 'exclude':                                     // convert exclude|exclude-match to excludeMatches
-        case 'exclude-match':
-          prop = 'excludeMatches';
-          break;
+      case 'exclude':                                     // convert exclude|exclude-match to excludeMatches
+      case 'exclude-match':
+        prop = 'excludeMatches';
+        break;
 
-        case 'updateURL':                                   // disregarding .meta.js
-          if (value.endsWith('.meta.js')) { prop = 'updateURLnull'; }
-          break;
+      case 'updateURL':                                   // disregarding .meta.js
+        if (value.endsWith('.meta.js')) { prop = 'updateURLnull'; }
+        break;
 
-        case 'downloadURL':                                 // convert downloadURL/installURL to updateURL
-        case 'installURL':
-          prop = 'updateURL'; 
-          break;                          
-        
-        case 'run-at':                                        // convert run-at/runAt to runAt
-        case 'runAt':
-          prop = 'runAt';
-          value = value.replace('-', '_');
-          ['document_start', 'document_end'].includes(value) || (value = 'document_idle');
-          break;
+      case 'downloadURL':                                 // convert downloadURL/installURL to updateURL
+      case 'installURL':
+        prop = 'updateURL';
+        break;
 
-
-        case 'resource':
-          const [resName, resURL] = value.split(/\s+/);
-          if(resName && resUrl) { data.resoruce[resName] = resURL; }
-          value = '';                                       // no more processing
-          break;
+      case 'run-at':                                        // convert run-at/runAt to runAt
+      case 'runAt':
+        prop = 'runAt';
+        value = value.replace('-', '_');
+        ['document_start', 'document_end'].includes(value) || (value = 'document_idle');
+        break;
 
 
-        // --- add @require
-        case 'require':
-          const url = value.toLowerCase().replace(/^(http:)?\/\//, 'https://'); // change starting http:// & Protocol-relative URL //
-          const [protocol, host,] = url.split(/:?\/+/);
-          const cdnHosts = ['ajax.aspnetcdn.com', 'ajax.googleapis.com', 'apps.bdimg.com', 'cdn.bootcss.com',
-                            'cdn.jsdelivr.net', 'cdn.staticfile.org', 'cdnjs.cloudflare.com', 'code.jquery.com',
-                            'lib.baomitu.com', 'libs.baidu.com', 'pagecdn.io', 'unpkg.com'];
-          const cdn = host && cdnHosts.includes(host);
-          switch (true) {
-
-            case url === 'jquery3':
-            case cdn && url.includes('/jquery-3.'):
-            case cdn && url.includes('/jquery/3.'):
-            case cdn && url.includes('/jquery@3'):
-            case url.startsWith('https://lib.baomitu.com/jquery/latest/'):
-              value = 'lib/jquery-3.4.1.min.jsm';
-              break;
-
-            case url === 'jquery2':
-            case cdn && url.includes('/jquery-2.'):
-            case cdn && url.includes('/jquery/2.'):
-            case cdn && url.includes('/jquery@2'):
-              value = 'lib/jquery-2.2.4.min.jsm';
-              break;
-
-            case url === 'jquery1':
-            case cdn && url.includes('/jquery-1.'):
-            case cdn && url.includes('/jquery/1.'):
-            case cdn && url.includes('/jquery@1'):
-            case url.startsWith('https://ajax.googleapis.com/ajax/libs/jquery/1'):
-            case url.startsWith('https://code.jquery.com/jquery-latest.'):
-            case url.startsWith('https://code.jquery.com/jquery.'):
-              value = 'lib/jquery-1.12.4.min.jsm';
-              break;
-
-            case url === 'jquery-ui1':
-            case cdn && url.includes('/jqueryui/1.'):
-            case cdn && url.includes('/jquery.ui/1.'):
-            case url.startsWith('https://cdn.jsdelivr.net/npm/jquery-ui-dist@1.'):
-            case url.startsWith('https://code.jquery.com/ui/1.'):
-              value = 'lib/jquery-ui-1.12.1.min.jsm';
-              break;
-
-            case url === 'bootstrap4':
-            case cdn && url.includes('/bootstrap.min.js'):
-            case cdn && url.endsWith('/bootstrap.js'):
-              value = 'lib/bootstrap-4.4.1.min.jsm';
-              break;
-
-            case url === 'moment2':
-            case cdn && url.includes('/moment.min.js'):
-            case cdn && url.endsWith('/moment.js'):
-              value = 'lib/moment-2.24.0.min.jsm';
-              break;
-
-            case url === 'underscore1':
-            case cdn && url.includes('/underscore.js'):
-            case cdn && url.includes('/underscore-min.js'):
-              value = 'lib/underscore-1.9.2.min.jsm';
-              break;
+      case 'resource':
+        const [resName, resURL] = value.split(/\s+/);
+        if(resName && resUrl) { data.resoruce[resName] = resURL; }
+        value = '';                                       // no more processing
+        break;
 
 
-            case url.includes('/gm4-polyfill.'):            // not applicable
-            case url.startsWith('lib/'):                    // disallowed value
-              value = '';
-              break;
+      // --- add @require
+      case 'require':
+        const url = value.toLowerCase().replace(/^(http:)?\/\//, 'https://'); // change starting http:// & Protocol-relative URL //
+        const [protocol, host] = url.split(/:?\/+/);
+        const cdnHosts = ['ajax.aspnetcdn.com', 'ajax.googleapis.com', 'apps.bdimg.com', 'cdn.bootcss.com',
+                          'cdn.jsdelivr.net', 'cdn.staticfile.org', 'cdnjs.cloudflare.com', 'code.jquery.com',
+                          'lib.baomitu.com', 'libs.baidu.com', 'pagecdn.io', 'unpkg.com'];
+        const cdn = host && cdnHosts.includes(host);
+        switch (true) {
 
-            case url.startsWith('https://'):                // unsupported URL
-              prop = 'requireRemote';
-              break;
-          }
-          break;
-      }
+          case js && url.includes('/gm4-polyfill.'):      // not applicable
+          case url.startsWith('lib/'):                    // disallowed value
+            value = '';
+            break;
 
-      if(data.hasOwnProperty(prop) && value !== '') {
+          case js && url === 'jquery3':
+          case js && cdn && url.includes('/jquery-3.'):
+          case js && cdn && url.includes('/jquery/3.'):
+          case js && cdn && url.includes('/jquery@3'):
+          case js && url.startsWith('https://lib.baomitu.com/jquery/latest/'):
+            value = 'lib/jquery-3.4.1.min.jsm';
+            break;
 
-        switch (typeof data[prop]) {
+          case js && url === 'jquery2':
+          case js && cdn && url.includes('/jquery-2.'):
+          case js && cdn && url.includes('/jquery/2.'):
+          case js && cdn && url.includes('/jquery@2'):
+            value = 'lib/jquery-2.2.4.min.jsm';
+            break;
 
-          case 'boolean': data[prop] = value === 'true'; break;
-          case 'object': data[prop].push(value); break;
-          case 'string': data[prop] = value; break;
+          case js && url === 'jquery1':
+          case js && cdn && url.includes('/jquery-1.'):
+          case js && cdn && url.includes('/jquery/1.'):
+          case js && cdn && url.includes('/jquery@1'):
+          case js && url.startsWith('https://ajax.googleapis.com/ajax/libs/jquery/1'):
+          case js && url.startsWith('https://code.jquery.com/jquery-latest.'):
+          case js && url.startsWith('https://code.jquery.com/jquery.'):
+            value = 'lib/jquery-1.12.4.min.jsm';
+            break;
+
+          case js && url === 'jquery-ui1':
+          case js && cdn && url.includes('/jqueryui/1.'):
+          case js && cdn && url.includes('/jquery.ui/1.'):
+          case js && url.startsWith('https://cdn.jsdelivr.net/npm/jquery-ui-dist@1.'):
+          case js && url.startsWith('https://code.jquery.com/ui/1.'):
+            value = 'lib/jquery-ui-1.12.1.min.jsm';
+            break;
+
+          case js && url === 'bootstrap4':
+          case js && cdn && url.includes('/bootstrap.min.js'):
+          case js && cdn && url.endsWith('/bootstrap.js'):
+            value = 'lib/bootstrap-4.4.1.min.jsm';
+            break;
+
+          case js && url === 'moment2':
+          case js && cdn && url.includes('/moment.min.js'):
+          case js && cdn && url.endsWith('/moment.js'):
+            value = 'lib/moment-2.24.0.min.jsm';
+            break;
+
+          case js && url === 'underscore1':
+          case js && cdn && url.includes('/underscore.js'):
+          case js && cdn && url.includes('/underscore-min.js'):
+            value = 'lib/underscore-1.9.2.min.jsm';
+            break;
+
+          case url.startsWith('https://'):                // unsupported URL
+            prop = 'requireRemote';
+            break;
         }
+        break;
+    }
+
+    if (data.hasOwnProperty(prop) && value !== '') {
+
+      switch (typeof data[prop]) {
+
+        case 'boolean': data[prop] = value === 'true'; break;
+        case 'object': data[prop].push(value); break;
+        case 'string': data[prop] = value; break;
       }
     }
   });
@@ -188,11 +189,10 @@ function getMetaData(str, userMatches = '', userExcludeMatches = '') {
   // --- check auto-update criteria, must have updateURL & version
   if (data.autoUpdate && (!data.updateURL || !data.version)) { data.autoUpdate = false; }
 
-  // --- check userMatches, userExcludeMatches
-  data.userMatches = userMatches;
-  data.userExcludeMatches = userExcludeMatches;
-//  userMatches && (data.matches = [...data.matches, ...userMatches.split(/\s+/)]);
-//  userExcludeMatches && (data.excludeMatches = [...data.excludeMatches, ...userExcludeMatches.split(/\s+/)]);
+  // --- check & import userMatches, userExcludeMatches
+//  data.userMatches = userMatches;
+//  data.userExcludeMatches = userExcludeMatches;
+
 
   // --- convert to match pattern
   data.matches = data.matches.flatMap(checkPattern);        // flatMap() FF62
@@ -200,6 +200,54 @@ function getMetaData(str, userMatches = '', userExcludeMatches = '') {
 
   // --- remove duplicates
   Object.keys(data).forEach(item => Array.isArray(data[item]) && (data[item] = [...new Set(data[item])]));
+
+  // --- process UserStyle
+  if (userStyle) {
+
+    // split all sections
+    str.split(/@-moz-document\s+/).slice(1).forEach(moz => {
+
+      const st = moz.indexOf('{');
+      const end = moz.lastIndexOf('}');
+      if (st === -1 || end === -1) { return; }
+
+      const rule = moz.substring(0, st).trim();
+      const css = moz.substring(st+1, end).trim();
+
+      const obj = {
+        matches: [],
+        css: css.trim()
+      };
+
+      const r = rule.split(/\s*[\s()'",]+\s*/);             // split into pairs
+      for (let i = 0, len = r.length; i < len; i+=2) {
+
+        if(!r[i+1]) { break; }
+        const func = r[i];
+        const value = r[i+1];
+
+        switch (func) {
+
+          case 'domain': obj.matches.push(`*://*.${value}/*`); break;
+          case 'url': obj.matches.push(value); break;
+          case 'url-prefix':
+            obj.matches.push(value + (value.split(/:?\/+/).length > 2 ? '*' : '/*')); // fix no path
+            break;
+
+          case 'regexp': // convert basic regexp, ignore the rest
+            switch (value) {
+              case '.*':                                    // catch-all
+              case 'https:.*':
+                obj.matches.push('*://*/*');
+                break;
+            }
+            break;
+        }
+      }
+
+      obj.matches[0] && data.style.push(obj);
+    });
+  }
 
   return data;
 }
@@ -345,11 +393,10 @@ function invalidPattern(pattern) {
 // ----------------- Remote Update -------------------------
 function getUpdate(item, manual) {
 
-
   switch (true) {
     // --- get meta.js
     case item.updateURL.startsWith('https://greasyfork.org/scripts/'):
-    case item.updateURL.startsWith('https://openuserjs.org/install/'):
+    case item.js && item.updateURL.startsWith('https://openuserjs.org/install/'):
       getMeta(item, manual);
       break;
     // --- direct update
@@ -360,7 +407,7 @@ function getUpdate(item, manual) {
 
 function getMeta(item, manual) {
 
-  const url = item.updateURL.replace(/\.user\.js/i, '.meta.js');
+  const url = item.updateURL.replace(/\.user\.(js|css)/i, '.meta.$1');
   fetch(url)
   .then(response => response.text())
   .then(text => needUpdate(text, item) ? getScript(item) : manual && notify(chrome.i18n.getMessage('noNewUpdate'), name))
@@ -370,7 +417,7 @@ function getMeta(item, manual) {
 function needUpdate(text, item) {
   // --- check version
   const version = text.match(/@version\s+(\S+)/);
-  return version && compareVersion(version[1], item.version) === '>';
+  return version && higherVersion(version[1], item.version);
 }
 
 function getScript(item) {
@@ -381,39 +428,43 @@ function getScript(item) {
   .catch(console.error);
 }
 
-function compareVersion(a, b) {
+function higherVersion(a, b) {
 
   a = a.split('.');
   b = b.split('.');
 
   for (let i = 0, len = Math.max(a.length, b.length); i < len; i++) {
-    if (!a[i]) { return '<'; }
-    else if ((a[i] && !b[i]) || a[i] > b[i]) { return '>'; }
-    else if (a[i] < b[i]) { return '<'; }
+    if (!a[i]) { return false; }
+    else if ((a[i] && !b[i]) || a[i] > b[i]) { return true; }
+    else if (a[i] < b[i]) { return false; }
   }
-  return '=';
+  return false;
 }
 // ----------------- /Remote Update ------------------------
 
 // ----------------- Match Pattern Check -------------------
 function checkMatches(item, urls, gExclude = []) {
 
+  const styleMatches = item.style && item.style[0] ? item.style.flatMap(i => i.matches) : [];
+  const userMatches = item.userMatches ? item.userMatches.split(/\s+/) : [];
+
   switch (true) {
 
     // --- Global Script Exclude Matches
     case gExclude[0] && matches(urls, gExclude): return false;
 
-    // --- scripts/css without matches/includeGlobs
-    case !item.matches[0] && !item.includeGlobs[0]: return false;
+    // --- scripts/css without matches/includeGlobs/style
+    case !item.matches[0] && !item.includeGlobs[0] && !styleMatches[0]: return false;
 
     // --- about:blank
     case urls.includes('about:blank') && item.matchAboutBlank: return true;
 
     // --- matches & globs
-    case !matches(urls, item.matches):
+    case !matches(urls, [...item.matches, ...userMatches, ...styleMatches]):
     case item.excludeMatches[0] && matches(urls, item.excludeMatches):
     case item.includeGlobs[0] && !matches(urls, item.includeGlobs, true):
     case item.excludeGlobs[0] && matches(urls, item.excludeGlobs, true):
+    case item.userExcludeMatches && matches(urls, item.userExcludeMatches.split(/\s+/)):
       return false;
 
     default: return true;

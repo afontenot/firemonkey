@@ -2,41 +2,59 @@
 
 class Highlight {
 
-  constructor(box, footer) {
+  constructor(box, legend, footer) {
     this.box = box;
+    this.legend = legend;
     this.footer = footer;
     this.original = this.box.textContent;
+    box.addEventListener('keyup', e => this.keyup(e));
     box.addEventListener('keydown', e => this.keydown(e));
     box.addEventListener('blur', e => this.blur(e));
-    box.addEventListener('copy', e => this.copy(e));
     box.addEventListener('paste', e => this.paste(e));
+  }
+
+  keyup(e) {
+
+    switch (e.key) {
+
+      case 'Enter':                                         // highlight previous node on Enter
+        const sel = window.getSelection();
+        const target = [...this.box.childNodes].find(item => sel.containsNode(item, true));
+        if (!target || !target.previousElementSibling) { return; }
+        const nl = this.getNL();
+        const type = this.getType();
+        this.domify(target.previousElementSibling, type, nl);
+        break;
+    }
   }
 
   keydown(e) {
 
-    switch (true) {
+    switch (e.key) {
 
-      case e.ctrlKey && e.key === 's':                    // Ctrl + s
-        e.preventDefault();
-        saveScript();
+      case 's':                                             // Ctrl + s
+        if (e.ctrlKey) {
+          e.preventDefault();
+          saveScript();
+        }
         break;
 
-      case e.key === 'Tab':                               // Tab key
-        const sel = window.getSelection();
-        const range = sel.getRangeAt(0);
+      case 'Tab':                                           // Tab key
         e.preventDefault();
+        const sel = window.getSelection();
 
         const str = sel + '';
 
         switch (true) {
 
           case e.shiftKey && !!str:
-            this.getSelected(sel).forEach(item =>
+            this.getSelected().forEach(item =>
               item.firstChild.nodeValue.substring(0, 2).trim() || (item.firstChild.nodeValue = item.firstChild.nodeValue.substring(2))
             );
             break;
 
           case e.shiftKey:
+            const range = sel.getRangeAt(0);
             const startContainer = range.startContainer;
             const text = startContainer.nodeValue;
             const startOffset = range.startOffset;
@@ -47,46 +65,72 @@ class Highlight {
             break;
 
           case !!str:
-            this.getSelected(sel).forEach(item => item.firstChild.nodeValue = '  ' + item.firstChild.nodeValue);
+            this.getSelected().forEach(item => item.firstChild.nodeValue = '  ' + item.firstChild.nodeValue);
             break;
 
           default:
             document.execCommand('insertText', false, '  ');
         }
+        this.original = box.textContent;
         break;
     }
   }
 
   blur(e) {
     // not when clicking save
-    this.box.textContent !== this.original &&
-      (!e.relatedTarget || e.relatedTarget.dataset.i18n !== 'saveScript') && this.process();
-  }
-
-  copy(e) {
-      // convert to plain text
-      e.preventDefault();
-      const text = window.getSelection().toString();
-      e.clipboardData.setData('text/plain', text);
+    (!e.relatedTarget || e.relatedTarget.dataset.i18n !== 'saveScript') && this.process();
   }
 
   paste(e) {
     // convert to plain text
     e.preventDefault();
     const text = e.clipboardData.getData('text/plain');
-    const selection = window.getSelection() + '';
-    document.execCommand('insertText', false, text);
+    if (!text.trim()) { return; }
+
+    const sel = window.getSelection();
+    const range = sel.getRangeAt(0);
+    const index = [...this.box.childNodes].findIndex(item => sel.containsNode(item, true));
+
+    const pre = range.cloneRange();
+    pre.selectNodeContents(this.box);
+    pre.setEnd(range.startContainer, range.startOffset);
+
+    const post = range.cloneRange();
+    post.selectNodeContents(this.box);
+    post.setStart(range.endContainer, range.endOffset);
+
+    this.box.textContent = pre + text + post;
+    this.original = '';                                     // force re-process
+    this.process();
+
+    if (index > 0) {                                        // go to previous node/line, not -1 or 0
+      range.setStart(this.box.childNodes[index], 0);
+      range.collapse(true);                                 // collapse to start
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
   }
 
-  getSelected(sel) {
-
-    return [...document.querySelectorAll('pre div')].filter(item => sel.containsNode(item, true));
+  getSelected() {
+    const sel = window.getSelection();
+    return [...this.box.childNodes].filter(item => sel.containsNode(item, true)); // always array
   }
 
+  getNL() {
+    return /\r\n/.test(this.box.textContent) ? '\r\n' : '\n';
+  }
+
+  getType() {
+    return this.legend.classList.contains('js') ? 'js' : 'css';
+  }
+
+  br2nl(target, nl) {                     // replacing <br>
+    target.querySelectorAll('br').forEach(item => item.replaceWith(nl));
+  }
 
   process() {
 
-    if (!this.box.classList.contains('syntax')) {
+    if (!this.box.classList.contains('syntax') || this.box.textContent === this.original) {
       return;
     }
 
@@ -94,12 +138,12 @@ class Highlight {
     const start = performance.now();
     box.classList.remove('invalid');                        // reset
 
-    const nl = /\r\n/.test(box.textContent) ? '\r\n' : '\n';
-    box.querySelectorAll('br').forEach(item => item.replaceWith(nl));
-    const text = box.textContent.trim();
-    if (!text) { return; }
+    const nl = this.getNL();
+    this.br2nl(box, nl);
+    const text = box.textContent.trim().replace(new RegExp(String.fromCharCode(160), 'g'), nl); // replacing &nbsp;
+    if (!text.trim()) { return; }
 
-    const metaRegex = /==(UserScript|UserCSS)==([\s\S]+)==\/\1==/i;
+    const metaRegex = /==(UserScript|UserCSS|UserStyle)==([\s\S]+)==\/\1==/i;
     const metaData = text.match(metaRegex);
 
     if (!metaData) {
@@ -112,13 +156,13 @@ class Highlight {
     box.textContent = '';                                     // clear box
     const type = metaData[1].toLowerCase() === 'userscript' ? 'js' : 'css';
     const docfrag = document.createDocumentFragment();
-    const line = document.createElement('div');
+    const div = document.createElement('div');
 
     // --- convert each line to DOM
     text.split(/\r?\n/).forEach(item => {
-      const node = line.cloneNode();
-      node.textContent = item.trimEnd() + nl;
-      item.trim() && this.domify(node, type);
+      const node = div.cloneNode();
+      node.textContent = item;
+      this.domify(node, type, nl);
       docfrag.appendChild(node);
     });
 
@@ -130,7 +174,10 @@ class Highlight {
     this.footer.textContent = `Syntax Highlight ${performance.now() - start} ms`;
   }
 
-  domify(node, type) {
+  domify(node, type, nl) {
+
+    node.textContent = node.textContent.trimEnd() + nl;
+    if (!node.textContent.trim()) { return; }
 
     const regex = {
       css: /\/\*.*\*\/|::?[\w-]+|!important|[^\s!:;~+>(){}\[\]]+/g,
@@ -290,7 +337,14 @@ class Highlight {
 
     const css = {
 
+      function: [
+        'url', 'url-prefix', 'domain', 'regexp',
+        'attr', 'calc', 'cubic-bezier', 'hsl', 'hsla', 'linear-gradient',
+        'radial-gradient', 'repeating-linear-gradient', 'repeating-radial-gradient', 'rgb', 'rgba', 'var'
+      ],
+
       property: [
+        '@import', '@-moz-document',
         'align-content', 'align-items', 'align-self', 'all', 'animation', 'animation-delay', 'animation-direction',
         'animation-duration', 'animation-fill-mode', 'animation-iteration-count', 'animation-name', 'animation-play-state',
         'animation-timing-function', 'backface-visibility', 'background', 'background-attachment', 'background-blend-mode',
@@ -315,7 +369,7 @@ class Highlight {
         'grid-auto-rows', 'grid-column', 'grid-column-end', 'grid-column-gap', 'grid-column-start', 'grid-gap',
         'grid-row', 'grid-row-end', 'grid-row-gap', 'grid-row-start', 'grid-template', 'grid-template-areas',
         'grid-template-columns', 'grid-template-rows', 'hanging-punctuation', 'height', 'hyphens', 'image-rendering',
-        '@import', 'isolation', 'justify-content', '@keyframes', 'left', 'letter-spacing', 'line-break',
+        'isolation', 'justify-content', '@keyframes', 'left', 'letter-spacing', 'line-break',
         'line-height', 'list-style', 'list-style-image', 'list-style-position', 'list-style-type', 'margin',
         'margin-bottom', 'margin-left', 'margin-right', 'margin-top', 'max-height', 'max-width', '@media',
         'min-height', 'min-width', 'mix-blend-mode', 'object-fit', 'object-position', 'opacity', 'order',
@@ -435,6 +489,7 @@ class Highlight {
         case text === '!important': return ['important'];
         case text.startsWith('#'): return ['value'];
         case /^[\d.%]+[\w]*$/.test(text): return ['value'];
+        case css.function.includes(text): return ['function'];
         case css.property.includes(text): return ['property'];
         case css.value.includes(text): return ['value'];
         case css.html.includes(text): return ['html'];
@@ -469,32 +524,28 @@ class Highlight {
 
   getMultiLineComment(docfrag) {
 
-    let start, end;
+    let start, end, next;
     const changeList = [];
     docfrag.querySelectorAll('div, span').forEach(node => {
 
       switch (true) {
 
         case node.classList.contains('start'):
-          {
-            start = true; end = false;
-            let next = node.nextSibling;
-            while(next) {
-              if (next.nodeName === '#text') { next.nodeValue.trim() && changeList.push([next, true]); }
-              else { next.className = 'comment'; }
-              next = next.nextSibling;
-            }
+          start = true; end = false;
+          next = node.nextSibling;
+          while(next) {
+            if (next.nodeName === '#text') { next.nodeValue.trim() && changeList.push([next, true]); }
+            else { next.className = 'comment'; }
+            next = next.nextSibling;
           }
           break;
 
         case node.classList.contains('end'):
-          {
-            start = false; end = true;
-            let next = node.nextSibling;
-            while(next) {
-              if (next.nodeName === '#text') { next.nodeValue.trim() && changeList.push([next, false]); }
-              next = next.nextSibling;
-            }
+          start = false; end = true;
+          next = node.nextSibling;
+          while(next) {
+            if (next.nodeName === '#text') { next.nodeValue.trim() && changeList.push([next, false]); }
+            next = next.nextSibling;
           }
           break;
 

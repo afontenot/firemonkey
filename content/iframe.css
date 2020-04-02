@@ -80,8 +80,6 @@ article li::marker { /* FF 68+ */
   color: #ddd;
 }
 
-
-
 a {
   color: #0080ff;
   text-decoration: none;
@@ -276,13 +274,12 @@ pre div.deprecated::after {
 }
 
 blockquote {
-  background-color: #fdf5e6;
-  border-left: 4px solid #e9967a;
-  border-right: 4px solid #e9967a;
-  padding: 1em 2.5em;
+  padding: 1em 3.5em;
   font-style: italic;
   position: relative;
   border-radius: 20px;
+  background: rgba(233, 150, 122, 0.4) url("../image/blob.svg") center no-repeat;
+  background-size: 100% 100%;
 }
 
 blockquote::before {
@@ -292,7 +289,7 @@ blockquote::before {
   font-size: 4em;
   position: absolute;
   top: 0;
-  left: 0;
+  left: 0.3em;
 }
 
 blockquote::after {
@@ -302,7 +299,7 @@ blockquote::after {
   font-size: 4em;
   position: absolute;
   bottom: -0.5em;
-  right: 0.2em; 
+  right: 0.5em; 
 }
 
 
@@ -436,4 +433,11 @@ h3 sup {
   background-color: #cd853f;
   color: #fff;
   padding: 0.1em 0.4em;
+}
+
+span.label {
+  display: inline-block;
+  min-width: 9em;
+  margin-right: 0.5em;
+  font-weight: bold;
 }

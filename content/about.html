@@ -17,12 +17,23 @@
     <h2 id="changelog">Changelog</h2>
     <dl>
 
+      <dt>1.34</dt>
+        <dd>Improved Syntax Highlight rendering</dd>
+        <dd>Added Stylus Style UserStyle handler (but no regexp())</dd>
+        <dd>Added Web Install option for <code>*.user.css</code> from <i>greasyfork.org</i></dd>
+        <dd>Added Direct Install option for files loaded into tab ending in <code>*.user.css</code></dd>
+        <dd>Fixed an issue with importing userMatches/userExcludeMatches when importing script</dd>
+        <dd>Fixed Global Script Exclude Matches applying to both Script & CSS</dd>
+        <dd>Added counter at the bottom of Script & CSS</dd>
+        <dd>Added update version checking via <code>.meta.css</code></dd>
+        <dd>Fixed and issue with GM getValue/listValues (from v1.27)</dd>
+        <dd>Code Improvement</dd>
+
       <dt>1.33</dt>
         <dd>Fixed an issue with Global Script Exclude Matches</dd>
 
       <dt>1.32</dt>
         <dd>Fixed an issue with Global Script Exclude Matches</dd>
-
 
       <dt>1.31</dt>
         <dd>Improved Syntax Highlight rendering speed & style</dd>
@@ -110,7 +121,7 @@
         <dd>Fixed a bug in saving new Script/CSS</dd>
 
       <dt>1.20</dt>
-        <dd>Fixed an update bug with edited spirit from GreasyFork</dd>
+        <dd>Fixed an update bug with edited script from GreasyFork</dd>
         <dd>Workaround for Webextension UUID leak via Fetch requests (https://bugzilla.mozilla.org/show_bug.cgi?id=1405971)</dd>
 
       <dt>1.19</dt>

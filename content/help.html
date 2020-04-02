@@ -62,7 +62,7 @@
           </ul>
         </li>
         <li><a href="#xray-vision">Xray Vision & Sharing objects with page scripts</a></li>
-        <li><a href="#stylish-stylus">Stylish/Stylus Type CSS</a></li>
+        <li><a href="#stylish-stylus">Stylish/Stylus Type UserStyle</a></li>
 
       </ul>
     </span>
@@ -139,7 +139,7 @@
 
 
   <h3 id="import-export">Preferences: Import/Export</h3>
-  <p>You can export/import Preferences (for backup or share) to/from a local file on your computer.</p>
+  <p>You can export/import Preferences (for backup or share) to/from a local file on your computer. Import is non-destructive. Click save to apply the new settings.</p>
 
   <h3 id="save">Save</h3>
   <p>Please note that changes will not take effect until they are saved.</p>
@@ -160,6 +160,7 @@
     <li>&#x2611; <img src="../image/css.svg" width="16" alt=""><span style="display: inline-block; width: 16px;"></span> Uncheck to hide all CSS</li>
   </ul>
 
+  <p>The counter shows the number of Script & CSS at the bottom.</p>
 
   <h3 id="editing">Editing</h3>
 
@@ -167,7 +168,7 @@
       <li><kbd>Tab</kbd> will be converted to 2 spaces. If there is a selection it will be applied to every line in the selection.</li>
       <li><kbd>Tab</kbd> + <kbd>Shift</kbd> will remove 2 spaces (if there are). If there is a selection it will be applied to every line in the selection.</li>
       <li><kbd>Ctrl</kbd> + <kbd>s</kbd> will save the script.</li>
-      <li>Syntax Highlighting refreshes on <code>blur</code> which means when you click outside the edit box.</li>
+      <li><a href="#syntax-highlighting">Syntax Highlighting</a> refreshes on <code>blur</code> (when you click outside the edit box), on <code>paste</code> and on <kbd>Enter</kbd>.</li>
     </ul>
 
 
@@ -182,7 +183,7 @@
 
     <li><b>Import from Stylus</b><br>
       Export styles from <i>Stylus</i> and Import the JSON (on pop-up change the file type selection to <i>All Files</i>), same name Script/CSS will be overwritten without warning<br>
-      Note: Not perfect (but helps), RegEx patterns are ignored, sections are separated into different files (<a href="#Stylish">Stylish/Stylus Type CSS</a>)</li>
+      Note: Not perfect (but helps), RegEx patterns are ignored, sections are separated into different files (<a href="#stylish-stylus">Stylish/Stylus Type UserStyle</a>)</li>
   </ul>
 
 
@@ -232,14 +233,14 @@
   </ul>
 
   <h3 id="syntax-highlighting">Syntax Highlighting</h3>
-  <p>Syntax Highlighting requires considerably large libraries. Personally as a developer, I always use a dedicated application for coding and then copy/paste or import into user script/style manager etc. Therefore, for slimness and efficiency, I have written a basic Syntax Highlighting code. It does not have all the features of the large library scripts but it is still being improved.</p>
-  <p>Although the Syntax Highlighting is fairly fast (took 3 seconds for a 2.4mb 50,000+ lines script), Firefox takes much longer to render and display the result. You can disable Syntax Highlighting if needed.</p>
-  
+  <p>Syntax Highlighting requires considerably large libraries. Personally as a developer, I always use a dedicated application for coding and then copy/paste or import into user script/style manager etc. Therefore, for slimness and efficiency, I have written a basic Syntax Highlighting code. It does not have all the features of large library scripts but it is still being improved.</p>
+  <p>Although the Syntax Highlighting is fairly fast (took 3 seconds for a 2.4mb 50,000+ lines script), browser takes much longer to render and display the result. Syntax Highlighting can be disabled if wanted.</p>
+
 
   <h3 id="auto-update">Update & Auto-update</h3>
   <p>Any target can be set for <code>@updateURL</code> as long it directly leads to the final file and it is in plain text. The <code>.js</code> or <code>.css</code> file extensions are not necessary although it makes sense to have them. The <code>.user.</code> is not necessary.</p>
   <p><i>FireMonkey</i> uses <code>@version</code> for the update process and both the current file and the update file must have <code>@version</code> and the version of the target file must be higher.</p>
-  <p>In case of <i>GreasyFork</i> & <i>OpenUserJS</i>, the <code>@version</code> via Metadata Block in <code>https://...../*.meta.js</code> is verified first. <i>(v1.26)</i></p>
+  <p>In case of <i>GreasyFork</i> & <i>OpenUserJS</i>, the <code>@version</code> via Metadata Block in <code>https://...../*.meta.js</code> is verified first.</p>
   <p>Update will fail if the new version has a different name which already exists among user's installed Scripts/CSS.</p>
   <p>Auto-update will only update enabled Scripts/CSS but manual update can update both enabled and disabled ones.</p>
   <p><code>@downloadURL/@installURL</code>, if present, is set for script update.</p>
@@ -274,13 +275,14 @@
 </table>
 
 
-  <h3 id="user-matches-exclude">User Matches & Exclude Matches <img src="../image/menu.svg" width="16" alt=""> <span>(v1.25+)</span></h3>
+  <h3 id="user-matches-exclude">User Matches & Exclude Matches <img src="../image/menu.svg" width="16" alt=""></h3>
   <p>Persistent user matches & excludeMatches (one per line using Match Patterns) can be set for each script to supplement script's matches & excludeMatches.</p>
   <p>Please note that invalid match pattern will cause the script to fail and thus get disabled.</p>
 
 
   <h2 id="metadata-block">Metadata Block</h2>
   <p>For easier compatibility, format is similar to <i>GreaseMonkey</i> Metadata Block for UserScripts. The commenting is different for CSS and as a result a uniform commenting for Metadata Block can be used. The Metadata Block identifier (case-insensitive e.g. ==userscript== etc) for UserScript is <code>==UserScript== ... ==/UserScript==</code> and for UserCSS is <code>==UserCSS== ... ==/UserCSS==</code>. For clarity, it is best to have the Metadata Block on top (or after <code>'use strict';</code> if wanted, but <i>FireMonkey</i> can pick it up from anywhere within the code.</p>
+  <p>Note: Read <a href="#stylish-stylus">Stylish/Stylus Type UserStyle</a> for <code>==UserStyle== ... ==/UserStyle==</code></p>
 
    <figure>
     <figcaption>JS Single-line Comment</figcaption>
@@ -324,6 +326,9 @@
 */
 </pre>
   </figure>
+
+
+
 
   <p><i>FireMonkey</i> supports the following entries based on <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/contentScripts/register" target="_blank">
 contentScripts.register()</a> & <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/userScripts/register" target="_blank">
@@ -371,8 +376,13 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
   <p><i>FireMonkey</i> accepts both GM style <code>run-at</code> and browser API style <code>runAt</code>.</p>
 
-  <p><b>N.B.</b> CSS mangers like Stylus tend to inject CSS at <code>document-start</code>.</p>
+  <p><b>N.B.</b> CSS mangers like Stylus tend to inject CSS at <code>document-start</code>. The benefit of <code>document-start</code> for CSS is that the changes will display earlier. The drawback is that the page CSS may override these CSS and if so, it is better to inject later at <code>document-end</code> or <code>document-idle</code>.</p>
 
+  <ul>
+    <li><span class="label">document_start</span> Corresponds to loading. The DOM is still loading.</li>
+    <li><span class="label">document_end</span> Corresponds to interactive. The DOM has finished loading, but resources such as scripts and images may still be loading.</li>
+    <li><span class="label">document_idle</span> Corresponds to complete. The document and all its resources have finished loading.</li>
+  </ul>
 
   <h4>defaults</h4>
   <p><i>FireMonkey</i> conforms to the Firefox (& Chrome) <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts" target="_blank">content_scripts</a> API defaults.</p>
@@ -576,7 +586,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
 
 
-  <h3 id="tld">TLD <span>(v1.25+)</span></h3>
+  <h3 id="tld">TLD</h3>
   <p>A TLD (case-insensitive) wildcard can be used and <i>FireMonkey</i> will automatically generate a list of most common country TLD <code>@matches</code>. Due to the extra Firefox API processing for many <code>@matches</code>, it is best to use it only when necessary.</p>
 
 
@@ -867,11 +877,12 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 </div>
   </figure>
 
-  <h3 id="require">require <span>(v1.23+)</span></h3>
+  <h3 id="require">require</h3>
   <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers.</p>
+  <p>You can use <code>@require</code> for both scripts and CSS but it will be added as the same type i.e. <code>@require</code> in scripts will be injected as JavaScript and require in CSS will be injected as CSS.</p>
 
 
-  <h4>require &nbsp;&nbsp;&nbsp; script-name <span>(v1.23+)</span></h4>
+  <h4>require &nbsp;&nbsp;&nbsp; script-name</h4>
   <p><code>@require</code> can be used to pre-include other existing scripts into a script (or other existing CSS into a CSS). For example:</p>
 <pre class="comment">
 @require            My Script
@@ -935,7 +946,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 */</pre>
   </figure>
 
-  <h4>require &nbsp;&nbsp;&nbsp; specific-library<span>(v1.24+)</span></h4>
+  <h4>require &nbsp;&nbsp;&nbsp; specific-library</h4>
   <p>Few libraries have been packed with <i>FireMonkey</i> which will be injected for user-scripts using <code>@require</code>. A shorthand <code>jquery1/jquery2/jquery3/jquery-ui1</code> (case-insensitive) can also be used.</p>
   <p>Based on data provided by <i>GreasyFork</i>, 8,011/31,170 (26%) use <code>@require</code> and from those 7,082/11,236 (63%) entries relate to these libraries (& <i>gm4-polyfill</i>).</p>
 
@@ -997,7 +1008,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
   <p>On popular demand, more libraries may be added in future.</p>
 
-  <h4>require &nbsp;&nbsp;&nbsp; other-URL &#x26A0;&#xFE0F; <span>(v1.27+)</span></h4>
+  <h4>require &nbsp;&nbsp;&nbsp; other-URL &#x26A0;&#xFE0F;</h4>
   <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers as the target is not not stored. It uses <code>fetch()</code> to get the target the first time but on subsequently <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request/cache" target="_blank">Request.cache</a> will be used by the browser. Please note:</p>
   <ul>
     <li>Processing many scripts with many <code>@require</code> can take time when registering scripts (i.e. browser start-up, disabling & re-enabling <i>FireMonkey</i>)</li>
@@ -1371,7 +1382,7 @@ xhr.send(<span class="keyword">null</span>);
   </ul>
 
 
-  <h3 id="registerMenuCommand">registerMenuCommand(name, onclick) <span>(v1.27+)</span></h3>
+  <h3 id="registerMenuCommand">registerMenuCommand(name, onclick)</h3>
   <p>If there are Script Commands for a tab, they will be listed at the bottom of toolbar pop-up under their user-script name. Please note that <i>onclick</i> must be a <i>function</i>.</p>
 
   <figure>
@@ -1387,13 +1398,13 @@ xhr.send(<span class="keyword">null</span>);
 </pre>
   </figure>
 
-  <h3 id="unregisterMenuCommand">unregisterMenuCommand(name) <span>(v1.29+)</span></h3>
+  <h3 id="unregisterMenuCommand">unregisterMenuCommand(name)</h3>
   <p>Unregistered the previously created script menu.</p>
 <pre>
 <span class="gm">GM.unregisterMenuCommand</span>(<span class="string">'Hello, world (named)'</span>);
 </pre>
 
-  <h3 id="getResourceText">getResourceText(resourceName) <span>(v1.27+)</span></h3>
+  <h3 id="getResourceText">getResourceText(resourceName)</h3>
   <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers as the target is not not stored. It uses <code>fetch()</code> to get the target the first time but on subsequently <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request/cache" target="_blank">Request.cache</a> will be used by the browser.</p>
 
 <pre>
@@ -1401,7 +1412,7 @@ xhr.send(<span class="keyword">null</span>);
 </pre>
 
 
-  <h3 id="getResourceUrl">getResourceUrl(resourceName) <span>(v1.27+)</span></h3>
+  <h3 id="getResourceUrl">getResourceUrl(resourceName)</h3>
   <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers as the target is not not stored. It maps directly to the <i>resourceURL</i> and returns the URL, or <code>undefined</code>.</p>
 
 <pre>
@@ -1409,7 +1420,7 @@ xhr.send(<span class="keyword">null</span>);
 </pre>
 
 
-  <h3 id="addValueChangeListener">addValueChangeListener(key, callback) <span>(v1.29+)</span></h3>
+  <h3 id="addValueChangeListener">addValueChangeListener(key, callback)</h3>
   <p>Script storage change listener that returns the key as listener ID (although not necessary in FireMonkey).</p>
   <p><code>(key, oldValue, newValue, remote)</code> are passed to the callback function.</p>
 
@@ -1431,7 +1442,7 @@ xhr.send(<span class="keyword">null</span>);
 
 
 
-  <h3 id="removeValueChangeListener">removeValueChangeListener(key) <span>(v1.29+)</span></h3>
+  <h3 id="removeValueChangeListener">removeValueChangeListener(key)</h3>
   <p>Remove listener for <code>key</code></p>
 
 <pre>
@@ -1439,7 +1450,7 @@ xhr.send(<span class="keyword">null</span>);
 </pre>
 
 
-  <h3 id="download">download(url <i>[, filename]</i>) <span>(v1.29+)</span></h3>
+  <h3 id="download">download(url <i>[, filename]</i>)</h3>
   <p>Simple file download from the Internet. <code>url</code> must be valid but <code>filename</code> is optional.</p>
   <p><code>url</code>: http, https, ftp, ftps, (file not allowed), can be relative to the web page</p>
   <p>If the specified <code>url</code> uses the HTTP or HTTPS protocol, then the request will include all cookies currently set for its hostname.</p>
@@ -1486,7 +1497,7 @@ xhr.send(<span class="keyword">null</span>);
 <span class="gm">GM_log</span>(<span class="gm">GM_info</span>);
 </pre>
 
-  <h3 id="unsafeWindow">unsafeWindow &#x26A0;&#xFE0F; <span>(v1.24+)</span></h3>
+  <h3 id="unsafeWindow">unsafeWindow &#x26A0;&#xFE0F;</h3>
   <p><code>unsafeWindow</code> in <i>FireMonkey</i> is an alias for <code>window.wrappedJSObject</code>. You can also use <code>window.wrappedJSObject</code> or <code>window.eval()</code> to access page JavaScript <b>globals</b>. Please note that <code>window.eval()</code> makes the object available to the page script as well while <code>unsafeWindow</code>, <code>window.wrappedJSObject</code> does not.</p>
 
   <figure>
@@ -1584,19 +1595,36 @@ xhr.send(<span class="keyword">null</span>);
 
 
 
-  <h3 id="stylish-stylus">&#x2139;&#xFE0F; Stylish/Stylus Type CSS</h3>
-  <p>Ref: <a href="https://github.com/erosman/support/issues/111" target="_blank">Implement Stylus style Compatibility</a></p>
-  <p>After verifying from Mozilla engineers, it seems extensions can not apply Stylish/Stylus type <code>@-moz-document</code>. In Firefox Quantum, to implement any such style extensions would have to:</p>
+  <h3 id="stylish-stylus">&#x2139;&#xFE0F; Stylish/Stylus Type UserStyle</h3>
+  <p>Ref: <a href="https://github.com/erosman/support/issues/111" target="_blank">Implement Stylus style Compatibility</a> | 
+    <a href="https://github.com/JasonBarnabe/greasyfork/issues/656" target="_blank">Support FireMonkey's UserCSS spec</a></p>
+
+  <p>Partial compatibility with <a href="https://www.w3schools.com/css/css_syntax.asp" target="_blank">standard CSS syntax</a> UserStyle <code>==UserStyle== ... ==/UserStyle==</code> is available. All <code>url()</code>, <code>url-prefix()</code> & <code>domain()</code> are processed. Few very basic <code>regexp()</code> are converted to match pattern but other sections with <code>regexp()</code> are ignored since browser API does not support Regular Expression.</p>
+  <p>The default <code>'run-at'</code> is set to <code>'document-start'</code> for UserStyles.</p>
+
+
+  <blockquote>-x- Implemented with the vendor prefix: `-moz-`<br><br>
+
+* Notes Disabled by default in web pages, except for an empty <code>url-prefix()</code> value, which is supported due to its use in Firefox browser detection. Still supported in user stylesheets.<br><br>
+
+🏴 Disabled From version 61: this feature is behind the <code>layout.css.moz-document.content.enabled</code> preference (needs to be set to <code>true</code>). To change preferences in Firefox, visit <code>about:config</code>.
+
+  <cite><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@document" target="_blank">@document</a></cite></blockquote>
+
+
+  <p>In Firefox Quantum, extension can not use <code>@-moz-document</code> and therefore would have to:</p>
 
   <ul>
-    <li>Break each style document into segments for each <code>@-moz-document</code></li>
-    <li>Listeners have to be added to monitor changes to tab/iframe URLs</li>
-    <li>Run a comparison loop against each tab and its iframes and each <code>@-moz-document</code> in each style document in all style documents</li>
-    <li>If there is a match, inject the style segment into the tab/iframe</li>
+    <li>Break each UserStyle into sections for each <code>@-moz-document</code></li>
+    <li>Add listeners to monitor changes to tab/iframe URLs</li>
+    <li>Run a comparison loop against each tab and its iframes and each <code>@-moz-document</code> in every UserStyle</li>
+    <li>If there is a match, inject the style section into the tab/iframe</li>
   </ul>
 
   <p>Above process is considerably resource intensive in comparison to using a dedicated API to inject Style/CSS.</p>
-  <p>The first 3 are quite straight forward and easy to convert. The only difficulty is with the <code>regex()</code>. The more complex the RegEx (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions" target="_blank">Regular Expressions</a>), the more <code>@match</code> may be needed, but once done, it is easy to read and maintain.</p>
+  
+  <h4>Converting UserStyle @-moz-document to UserCSS @match</h4>
+  <p>The first 3 are quite straight forward and easy to convert. The only difficulty is with the <code>regexp()</code>. The more complex the regexp (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions" target="_blank">Regular Expressions</a>), the more <code>@match</code> may be needed, but once done, it is easy to read and maintain.</p>
 
 
 <table>
