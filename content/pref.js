@@ -1,7 +1,7 @@
 ﻿'use strict';
 
-// ----------------- User Preference -----------------------
-let pref = {                                                // global default
+// ----------------- Default Preference --------------------
+let pref = {
   autoUpdateInterval: 0,
   autoUpdateLast: 0,
   content: {},
@@ -9,10 +9,12 @@ let pref = {                                                // global default
   sync: false,
   template: { css: '', js: '' }
 };
+// ----------------- /Default Preference -------------------
 
+// ----------------- User Preference -----------------------
 class Pref {
 
-  constructor() {
+  static get() {
     // update pref with the saved version
     return browser.storage.local.get().then(result =>
       Object.keys(result).forEach(item => pref[item] = result[item]));
@@ -23,7 +25,7 @@ class Pref {
 // ----------------- Internationalization ------------------
 class I18N {
 
-  constructor() {
+  static get() {
     document.querySelectorAll('[data-i18n]').forEach(node => {
       let [text, attr] = node.dataset.i18n.split('|');
       text = chrome.i18n.getMessage(text);
@@ -32,3 +34,15 @@ class I18N {
   }
 }
 // ----------------- /Internationalization -----------------
+
+// ----------------- Helper functions ----------------------
+function notify(message, title = chrome.i18n.getMessage('extensionName'), id = '') {
+
+  chrome.notifications.create(id, {
+    type: 'basic',
+    iconUrl: 'image/icon.svg',
+    title,
+    message
+  });
+}
+// ----------------- /Helper functions ---------------------

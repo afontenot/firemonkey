@@ -1,7 +1,7 @@
 ﻿'use strict';
 
 // ----------------- Internationalization ------------------
-new I18N();
+I18N.get();
 
 // ----------------- Options -------------------------------
 const prefNode = document.querySelectorAll('#autoUpdateInterval, #globalScriptExcludeMatches, #sync'); // global, get all the preference elements
@@ -35,8 +35,7 @@ function processOptions() {                                 // set saved pref/de
 // ----------------- /Options ------------------------------
 
 // ----------------- User Preference -----------------------
-new Pref().then(() => {
-
+Pref.get().then(() => {
   processOptions();
   processScript();
   autoUpdateInterval.nextElementSibling.value = autoUpdateInterval.value;

@@ -82,8 +82,8 @@
   <h3 id="toolbar-menu">Toolbar Icon Context Menu</h3>
   <p>Right-clik on Toolbar Icon:</p>
   <ul>
-    <li><img src="../image/gear.svg" width="16" alt=""> Options: open the Options Page</li>
-    <li><img src="../image/help32.png" width="16" alt=""> Help: display Help document</li>
+    <li><img src="../image/gear.svg" alt=""> <b>Options</b>: Open the Options Page</li>
+    <li><img src="../image/help32.png" alt=""> <b>Help</b>: Display Help document</li>
   </ul>
 
   <h3 id="toolbar-badge">Toolbar Icon Badge <sup>5</sup></h3>
@@ -94,11 +94,11 @@
     <ul>
       <li>✔ shows Script/CSS is enabled. Disabled Script/CSS are greyed out and clicking that area toggles the enable/disable</li>
       <li><span style="color: #f00;">✘</span> shows that there was an error when registering the script & the Information page displays the error</li>
-      <li><img src="../image/next.svg" width="16" alt=""> shows the Information for the Script/CSS</li>
+      <li><img src="../image/next.svg" alt=""> shows the Information for the Script/CSS</li>
       <li>&#x1f58c; edit button on Information page opens the Options Page and selects the current Script/CSS</li>
-      <li><img src="../image/gear.svg" width="16" alt=""> Options: open the Options Page</li>
-      <li>&#x2795; <img src="../image/js.svg" width="16" alt=""> display a new Script Template that you can edit and Save</li>
-      <li>&#x2795; <img src="../image/css.svg" width="16" alt=""> display a new CSS Template that you can edit and Save</li>
+      <li><img src="../image/gear.svg" alt=""> Options: open the Options Page</li>
+      <li>&#x2795; <img src="../image/js.svg" alt=""> display a new Script Template that you can edit and Save</li>
+      <li>&#x2795; <img src="../image/css.svg" alt=""> display a new CSS Template that you can edit and Save</li>
       <li>Help: display Help document</li>
     </ul>
 
@@ -135,7 +135,8 @@
   <br><br>
   The main use case of this API is to store preferences about your extension and allow the user to sync them to different profiles. You can store up to 100KB of data using this API. If you try to store more than this, the call will fail with an error message. The API is provided without any guarantees about uptime or performance.
 
-  <cite><a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/storage/sync" target="_blank">storage.sync</a></cite></blockquote>
+  <cite><a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/storage/sync" target="_blank">storage.sync</a></cite>
+  </blockquote>
 
 
   <h3 id="import-export">Preferences: Import/Export</h3>
@@ -154,10 +155,10 @@
   <p><span style="color: #f50;"><b>✘</b></span> shows that there was an error when registering the script. Scripts with errors get disabled automatically.</p>
 
   <ul>
-    <li>&#x2611; <img src="../image/js.svg" width="16" alt=""><img src="../image/css.svg" width="16" alt=""> Uncheck to hide all enabled Script & CSS</li>
-    <li>&#x2611; <img src="../image/js.svg" style="filter: grayscale(1);" width="16" alt=""><img src="../image/css.svg" style="filter: grayscale(1);" width="16" alt=""> Uncheck to hide all disabled Script & CSS</li>
-    <li>&#x2611; <img src="../image/js.svg" width="16" alt=""><span style="display: inline-block; width: 16px;"></span> Uncheck to hide all Scripts</li>
-    <li>&#x2611; <img src="../image/css.svg" width="16" alt=""><span style="display: inline-block; width: 16px;"></span> Uncheck to hide all CSS</li>
+    <li>&#x2611; <img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""> Uncheck to hide all enabled Script & CSS</li>
+    <li>&#x2611; <img src="../image/js.svg" style="filter: grayscale(1);" alt=""><img src="../image/css.svg" style="filter: grayscale(1);" alt=""> Uncheck to hide all disabled Script & CSS</li>
+    <li>&#x2611; <img src="../image/js.svg" alt=""><span style="display: inline-block; width: 16px;"></span> Uncheck to hide all Scripts</li>
+    <li>&#x2611; <img src="../image/css.svg" alt=""><span style="display: inline-block; width: 16px;"></span> Uncheck to hide all CSS</li>
   </ul>
 
   <p>The counter shows the number of Script & CSS at the bottom.</p>
@@ -201,10 +202,10 @@
     <li><b>&#x1f310; Update</b><br>
       Update the currently displaying Script/CSS</li>
 
-    <li><b>&#x2795; <img src="../image/js.svg" width="16" alt=""></b><br>
+    <li><b>&#x2795; <img src="../image/js.svg" alt=""></b><br>
       Display a new Script Template that you can edit and Save</li>
 
-    <li><b>&#x2795; <img src="../image/css.svg" width="16" alt=""></b><br>
+    <li><b>&#x2795; <img src="../image/css.svg" alt=""></b><br>
       Display a new CSS Template that you can edit and Save</li>
 
     <li><b>&#x1f4be; Save Template</b><br>
@@ -215,14 +216,14 @@
 
 
 
-    <li><img src="../image/bin.svg" width="16" alt=""><br>
+    <li><img src="../image/bin.svg" alt=""><br>
       Delete the currently displaying Script/CSS after confirmation<br><br></li>
 
     <li><b>Multiple Enable/Disable & Delete</b><br>
       Make a selection of (highlight with mouse) items listed under Script & CSS to multiple Delete (after confirmation) or multiple Enable/Disable the selected items.</li>
   </ul>
 
-  <h4><img src="../image/menu-dot.svg" width="16" alt=""> Menu</h4>
+  <h4><img src="../image/menu-dot.svg" alt=""> Menu</h4>
 
   <ul>
     <li><b>Syntax</b><br>
@@ -275,7 +276,7 @@
 </table>
 
 
-  <h3 id="user-matches-exclude">User Matches & Exclude Matches <img src="../image/menu.svg" width="16" alt=""></h3>
+  <h3 id="user-matches-exclude">User Matches & Exclude Matches <img src="../image/menu.svg" alt=""></h3>
   <p>Persistent user matches & excludeMatches (one per line using Match Patterns) can be set for each script to supplement script's matches & excludeMatches.</p>
   <p>Please note that invalid match pattern will cause the script to fail and thus get disabled.</p>
 
@@ -1008,7 +1009,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
   <p>On popular demand, more libraries may be added in future.</p>
 
-  <h4>require &nbsp;&nbsp;&nbsp; other-URL &#x26A0;&#xFE0F;</h4>
+  <h4>require &nbsp;&nbsp;&nbsp; other-URL &#x26a0;&#xfe0f;</h4>
   <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers as the target is not not stored. It uses <code>fetch()</code> to get the target the first time but on subsequently <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request/cache" target="_blank">Request.cache</a> will be used by the browser. Please note:</p>
   <ul>
     <li>Processing many scripts with many <code>@require</code> can take time when registering scripts (i.e. browser start-up, disabling & re-enabling <i>FireMonkey</i>)</li>
@@ -1497,7 +1498,7 @@ xhr.send(<span class="keyword">null</span>);
 <span class="gm">GM_log</span>(<span class="gm">GM_info</span>);
 </pre>
 
-  <h3 id="unsafeWindow">unsafeWindow &#x26A0;&#xFE0F;</h3>
+  <h3 id="unsafeWindow">unsafeWindow &#x26a0;&#xfe0f;</h3>
   <p><code>unsafeWindow</code> in <i>FireMonkey</i> is an alias for <code>window.wrappedJSObject</code>. You can also use <code>window.wrappedJSObject</code> or <code>window.eval()</code> to access page JavaScript <b>globals</b>. Please note that <code>window.eval()</code> makes the object available to the page script as well while <code>unsafeWindow</code>, <code>window.wrappedJSObject</code> does not.</p>
 
   <figure>
@@ -1652,6 +1653,10 @@ xhr.send(<span class="keyword">null</span>);
     <td><code>@-moz-document <strong>regexp</strong>('http://www\\.example\\.(com|de)/images/.*')</code></td>
     <td><code>@match      http://www.example.com/images/*
 @match      http://www.example.de/images/*</code></td>
+  </tr>
+  <tr>
+    <td><code>@-moz-document <strong>regexp</strong>(''https?:\/\/(www\.|old\.)?reddit.com.*'')</code></td>
+    <td><code>@match      *://*.reddit.com/*</code></td>
   </tr>
   </tbody>
 </table>
