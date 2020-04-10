@@ -97,7 +97,7 @@ function getMetaData(str, userMatches = '', userExcludeMatches = '') {
 
       case 'resource':
         const [resName, resURL] = value.split(/\s+/);
-        if(resName && resUrl) { data.resoruce[resName] = resURL; }
+        if(resName && resURL) { data.resource[resName] = resURL; }
         value = '';                                       // no more processing
         break;
 
@@ -283,6 +283,7 @@ function checkPattern(p) {
   // http/https schemes
   if (!['http', 'https', 'file', '*'].includes(scheme.toLowerCase())) { scheme = '*'; } // bad scheme
   if (host.includes(':')) { host = host.replace(/:.+/, ''); } // host with port
+  if (host.endsWith('.co*.*')) { host = host.slice(0, -5) + 'TLD'; } // TLD wildcard google.co*.*
   if (host.endsWith('.*')) { host = host.slice(0, -1) + 'TLD'; } // TLD wildcard google.*
   if (host.startsWith('*') && host[1] && host[1] !== '.') { host = '*.' + host.substring(1); } // starting wildcard *google.com
   p = scheme +  '://' + [host, ...path].join('/');          // rebuild pattern
@@ -495,15 +496,3 @@ function prepareMatches(arr, glob) {
   return glob ? str.replace(/\?/g, '.') : str;
 }
 // ----------------- /Match Pattern Check ------------------
-
-// ----------------- Helper functions ----------------------
-function notify(message, title = chrome.i18n.getMessage('extensionName'), id = '') {
-
-  chrome.notifications.create(id, {
-    type: 'basic',
-    iconUrl: 'image/icon.svg',
-    title,
-    message
-  });
-}
-// ----------------- /Helper functions ---------------------

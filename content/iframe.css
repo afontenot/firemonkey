@@ -15,18 +15,16 @@ dl {
 dt {
   color: #004080;
   font-weight: bold;
-  width: 10em;
+  min-width: 10em;
   border-bottom: 1px solid #add8e6;
   margin-top: 1em;
+  display: inline-block;
 }
 
-dd.image {
-  padding-top: 0.3em;
-}
 
-dd.image img {
+
+dt img, dd img {
   width: 16px;
-  height: 16px;
 }
 
 img {
@@ -75,10 +73,14 @@ article li {
   padding-left: 0.8em;
 }
 
-
 article li::marker { /* FF 68+ */
   color: #ddd;
 }
+
+article li img, h3 img, h4 img {
+  width: 16px;
+}
+
 
 a {
   color: #0080ff;
@@ -95,7 +97,7 @@ nav  {
   z-index: 1;
 }
 
-nav span {
+nav > a, nav span {
   position: relative;
   display: inline-block;
   border-top: 3px solid transparent;
@@ -103,7 +105,7 @@ nav span {
   transition: all 0.5s ease-in-out;
 }
 
-nav span:hover {
+nav > a:hover, nav span:hover {
   border-top-color: #f84;
 }
 
@@ -282,22 +284,23 @@ blockquote {
   background-size: 100% 100%;
 }
 
-blockquote::before {
-  content: '\201c';
+blockquote::before,
+blockquote::after {
   color: #e9967a;
   opacity: 0.6;
   font-size: 4em;
   position: absolute;
+}
+
+
+blockquote::before {
+  content: '\201c';
   top: 0;
   left: 0.3em;
 }
 
 blockquote::after {
   content: '\201d';
-  color: #e9967a;
-  opacity: 0.6;
-  font-size: 4em;
-  position: absolute;
   bottom: -0.5em;
   right: 0.5em; 
 }

@@ -1,38 +1,211 @@
 ﻿'use strict';
 
-// ----- global
-const registered = {};
-const update =[];
-const FMV = browser.runtime.getManifest().version;          // FireMonkey version
-const FMUrl = browser.runtime.getURL('');
-let browserInfo = {};
-let platformInfo = {};
+const update = []; // global
+
+// ----------------- Context Menu --------------------------
+class ContextMenu {
+
+  constructor() {
+    const contextMenus = [
+      { id: 'options', contexts: ['browser_action'], icons: {16: 'image/gear.svg'} }, // FF53+
+      { id: 'help', contexts: ['browser_action'], icons: {16: 'image/help32.png'} }
+    ];
+
+    contextMenus.forEach(item => {
+
+      if (item.id && !item.title) { item.title = chrome.i18n.getMessage(item.id); } // always use the same ID for i18n
+      if (item.id) { item.onclick = this.process; }
+      chrome.contextMenus.create(item);
+    });
+  }
+
+  process(info, tab, command){
+
+    switch (info.menuItemId) {
+
+      case 'options': break;
+      case 'help': localStorage.setItem('nav', 'help'); break;
+    }
+    chrome.runtime.openOptionsPage();
+  }
+}
+
+const menus = new ContextMenu();
+// ----------------- /Context Menu -------------------------
 
 // ----------------- Script Counter ------------------------
 class Counter {
 
   constructor() {
-    browser.tabs.onUpdated.addListener(this.count, {urls: ['http://*/*', 'https://*/*', 'file:///*']});
     browser.browserAction.setBadgeBackgroundColor({color: '#cd853f'});
     browser.browserAction.setBadgeTextColor({color: '#fff'}); // FF63+
+    browser.tabs.onUpdated.addListener(this.count, {urls: ['http://*/*', 'https://*/*', 'file:///*']});
   }
 
   async count(tabId, changeInfo, tab) {
-    
-    if (changeInfo.status !== 'complete') { return; }        // end execution if not found
-  
+
+    if (changeInfo.status !== 'complete') { return; }
+
     const frames = await browser.webNavigation.getAllFrames({tabId});
     const urls = [...new Set(frames.map(item => item.url).filter(item => /^(https?|wss?|ftp|file|about:blank)/.test(item)))];
     const gExclude = pref.globalScriptExcludeMatches ? pref.globalScriptExcludeMatches.split(/\s+/) : []; // cache the array
     const count = Object.keys(pref.content).filter(item =>
       pref.content[item].enabled && checkMatches(pref.content[item], urls, gExclude));
-    browser.browserAction.setBadgeText({tabId, text: (count[0] ? count.length.toString() : '')});    
+    browser.browserAction.setBadgeText({tabId, text: (count[0] ? count.length.toString() : '')});
   }
-} 
+}
 // ----------------- /Script Counter -----------------------
 
+// ----------------- Register Content Script & CSS ---------
+class ScriptRegister {
+
+  constructor() {
+    this.registered = {};
+    this.FMV = browser.runtime.getManifest().version;         // FireMonkey version
+  }
+
+  async init() {
+    this.platformInfo = await browser.runtime.getPlatformInfo();
+    this.browserInfo = await browser.runtime.getBrowserInfo();
+  }
+
+  async process(id) {
+
+    const script = pref.content[id];
+    script.style = script.style || [];                        // preset
+
+    // --- reset previous registers  (UserStyle Multi-segment Process)
+    script.style[0] ? script.style.forEach((item, i) => this.unregister(id + 'style' + i)) : this.unregister(id);
+
+    // --- stop if script is not enabled or no mandatory matches
+    if (!script.enabled || (!script.matches[0] && !script.style[0])) { return; }
+
+    // --- preppare script options
+    const options = {
+      matches: script.matches,
+      excludeMatches: script.excludeMatches,
+      includeGlobs: script.includeGlobs,
+      excludeGlobs: script.excludeGlobs,
+      matchAboutBlank: script.matchAboutBlank,
+      allFrames: script.allFrames,
+      runAt: script.runAt
+    };
+
+    // --- add Global Script Exclude Matches
+    script.js && pref.globalScriptExcludeMatches && options.excludeMatches.push(...pref.globalScriptExcludeMatches.split(/\s+/));
+
+    // --- add userMatches, userExcludeMatches
+    script.userMatches && options.matches.push(...script.userMatches.split(/\s+/));
+    script.userExcludeMatches && options.excludeMatches.push(...script.userExcludeMatches.split(/\s+/));
+
+    // --- remove empty arrays (causes error)
+    ['excludeMatches', 'includeGlobs', 'excludeGlobs'].forEach(item => {
+      if (!options[item][0]) { delete options[item]; };
+    });
+
+    // --- add CSS & JS
+    // Removing metaBlock since there would be an error with /* ... *://*/* ... */
+    const target = script.js ? 'js' : 'css';
+    options[target] = [];
+
+    // --- add @require
+    const require = script.require || [];
+    require.forEach(item => {
+
+      if (item.startsWith('lib/')) { options[target].push({file: item}); }
+      else if (pref.content[item] && pref.content[item][target]) {
+        options[target].push({code: pref.content[item][target].replace(metaRegEx, '')});
+      }
+    });
+
+    // --- add @requireRemote
+    const requireRemote = script.requireRemote || [];
+    if (requireRemote[0]) {
+
+      await Promise.all(requireRemote.map(url =>
+        fetch(url).then(response => response.text())
+        .then(code => options[target].push({code}))
+        .catch(() => null)
+      ));
+    }
+
+    // --- add code
+    options[target].push({code: script[target].replace(metaRegEx, '')});
+
+    // --- script only
+    if (script.js) {
+
+      // --- unsafeWindow implementation
+      options.js.unshift({code: 'const unsafeWindow = window.wrappedJSObject;'});
+
+      options.scriptMetadata = {
+        name: id,
+        resource: script.resource || {},
+        info: {                                               // GM.info data
+          scriptHandler: 'FireMonkey',
+          version: this.FMV,
+          scriptMetaStr: null,
+          platform: this.platformInfo,
+          browser: this.browserInfo,
+          script: {
+            name: id,
+            version: script.version,
+            description: script.description,
+            matches: script.matches,
+            includes: script.matches,
+            excludes: script.excludeMatches,
+            'run-at': script.runAt.replace('_', '-'),
+            namespace: null,
+            resources: script.resource || {}
+          }
+        }
+      };
+    }
+
+    if (script.style[0]) {
+      // --- UserStyle Multi-segment Process
+      script.style.forEach((st, i) => {
+
+        options.matches = st.matches;
+        options.css = [{code: st.css}];
+        this.register(id, options);
+      });
+    }
+    else { this.register(id, options); }
+  }
+
+  register(id, options) {
+
+    const API = options.js ? browser.userScripts : browser.contentScripts;
+    // --- register page script
+    try {                                                 // catches error throws before the Promise
+      API.register(options)
+      .then(reg => this.registered[id] = reg)             // contentScripts.RegisteredContentScript object
+      .catch(console.error);
+    } catch(error) { this.processError(id, error.message); }
+  }
+
+  async unregister(id) {
+
+    if (this.registered[id]) {
+      await this.registered[id].unregister();
+      delete this.registered[id];
+    }
+  }
+
+  processError(id, error) {
+
+    pref.content[id].error = error;                         // store error message
+    pref.content[id].enabled = false;                       // disable the script
+    browser.storage.local.set({content: pref.content});     // update saved pref
+  }
+}
+
+const scriptReg = new ScriptRegister();
+// ----------------- /Register Content Script & CSS --------
+
 // ----------------- User Preference -----------------------
-new Pref().then(async() => {
+Pref.get().then(async() => {
 
   if (pref.hasOwnProperty('disableHighlight')) {            // v1.31 migrate
     browser.storage.local.remove('disableHighlight');
@@ -48,44 +221,50 @@ new Pref().then(async() => {
     browser.storage.local.set(pref);                        // update local saved pref
   }
 
-  platformInfo = await browser.runtime.getPlatformInfo();
-  browserInfo = await browser.runtime.getBrowserInfo();
-
   const days = pref.autoUpdateInterval *1;
   const doUpdate =  days && Date.now() > pref.autoUpdateLast + (days + 86400000); // 86400 * 1000 = 24hr
 
+
+  await scriptReg.init();                                   // await data initialization
   Object.keys(pref.content).forEach(item => {
 
-    register(item);
+    scriptReg.process(item);
     doUpdate && pref.content[item].enabled && pref.content[item].autoUpdate && pref.content[item].updateURL &&
       pref.content[item].version && update.push(item);
   });
 
-  update[0] && browser.idle.onStateChanged.addListener(onIdle); // FF51+
+  update[0] && browser.idle.onStateChanged.addListener(onIdle);
 
   // --- Script Counter
-  const counter = new Counter();
+  new Counter();
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {   // Change Listener
 
-  const hasChanged = Object.keys(changes).find(item =>
-            JSON.stringify(changes[item].oldValue) !== JSON.stringify(changes[item].newValue));
-  if (!hasChanged) { return; }
+  const changesKeys = Object.keys(changes);
+  if (!changesKeys.find(item => notEqual(changes[item].oldValue, changes[item].newValue))) { return; }
 
-  Object.keys(changes).forEach(item => pref[item] = changes[item].newValue); // update pref with the saved version
+  changesKeys.forEach(item => pref[item] = changes[item].newValue); // update pref with the saved version
 
-  // find changed scripts
+  // --- find changed scripts
   if (changes.globalScriptExcludeMatches &&
     changes.globalScriptExcludeMatches.oldValue !== changes.globalScriptExcludeMatches.newValue) {
-    Object.keys(pref.content).forEach(register);            // re-register all
+    Object.keys(pref.content).forEach(scriptReg.process);  // re-register all
   }
-  else if (changes.hasOwnProperty('content') &&
-    JSON.stringify(changes.content.oldValue) !== JSON.stringify(changes.content.newValue)) {
+  else if (changes.hasOwnProperty('content') && notEqual(changes.content.oldValue, changes.content.newValue)) {
 
-    Object.keys(changes.content.oldValue).forEach(item =>
-      JSON.stringify(changes.content.oldValue[item]) !== JSON.stringify(changes.content.newValue[item]) &&
-        register(item));
+    Object.keys(changes.content.oldValue).forEach(item => {
+
+      if (!changes.content.newValue[item]) {                // script was deleted
+        const script = changes.content.oldValue[item];
+        const id = script.name;
+        // --- reset previous registers  (UserStyle Multi-segment Process)
+        script.style[0] ? script.style.forEach((item, i) => scriptReg.unregister(id + 'style' + i)) : scriptReg.unregister(id);
+      }
+      else if (!changes.content.newValue[item].error && notEqual(changes.content.oldValue[item], changes.content.newValue[item])) {
+        scriptReg.process(item);
+      }
+    });
   }
 
   // --- storage sync update
@@ -99,6 +278,10 @@ chrome.storage.onChanged.addListener((changes, area) => {   // Change Listener
     else { browser.storage.sync.set(pref); }
   }
 });
+
+function notEqual(a, b) {
+  return JSON.stringify(a) !== JSON.stringify(b);
+}
 
 // ----------------- Web/Direct Install Listener ------------------
 browser.webRequest.onBeforeRequest.addListener(processWebInstall, {
@@ -175,189 +358,7 @@ function processDirectInstall(tabId, changeInfo, tab) {
   });
 }
 
-// ----------------- Context Menu --------------------------
-const contextMenus = [
 
-  { id: 'options', contexts: ['browser_action'], icons: {16: 'image/gear.svg'} }, // FF53+
-  { id: 'help', contexts: ['browser_action'], icons: {16: 'image/help32.png'} }
-];
-
-
-contextMenus.forEach(item => {
-
-  if (item.id && !item.title) { item.title = chrome.i18n.getMessage(item.id); } // always use the same ID for i18n
-  if (item.id) { item.onclick = process; }
-  chrome.contextMenus.create(item);
-});
-
-function process(info, tab, command){
-
-  switch (info.menuItemId) {
-
-    case 'options':
-      chrome.runtime.openOptionsPage();
-      break;
-
-    case 'help':
-      localStorage.setItem('nav', 'help');
-      chrome.runtime.openOptionsPage();
-      break;
-  }
-}
-
-// ----------------- Register Content Script & CSS ---------
-async function register(id) {
-
-  const script = pref.content[id];
-  script.style = script.style || [];                        // preset
-
-  // --- reset previous registers
-  if (script.style[0]) {                                    // UserStyle Multi-segment Process
-
-    for (let i = 0, len = script.style.length; i < len; i++) {
-      if (registered[id + 'style' + i]) {
-        await registered[id + 'style' + i].unregister();
-        delete registered[id + 'style' + i];
-      }
-    }
-  }
-  else if (registered[id]) {
-    await registered[id].unregister();
-    delete registered[id];
-  }
-
-
-  // --- stop if script is not enabled or no mandatory matches
-  if (!script.enabled || (!script.matches[0] && !script.style[0])) { return; }
-
-  // --- preppare script options
-  const options = {
-    matches: script.matches,
-    excludeMatches: script.excludeMatches,
-    includeGlobs: script.includeGlobs,
-    excludeGlobs: script.excludeGlobs,
-    matchAboutBlank: script.matchAboutBlank,
-    allFrames: script.allFrames,
-    runAt: script.runAt
-  };
-
-  // --- add Global Script Exclude Matches
-  script.js && pref.globalScriptExcludeMatches && options.excludeMatches.push(...pref.globalScriptExcludeMatches.split(/\s+/));
-
-  // --- add userMatches, userExcludeMatches
-  script.userMatches && options.matches.push(...script.userMatches.split(/\s+/));
-  script.userExcludeMatches && options.excludeMatches.push(...script.userExcludeMatches.split(/\s+/));
-
-  // --- remove empty arrays (causes error)
-  ['excludeMatches', 'includeGlobs', 'excludeGlobs'].forEach(item => {
-    if (!options[item][0]) { delete options[item]; };
-  });
-
-  // --- add CSS & JS
-  // Removing metaBlock since there would be an error with /* ... *://*/* ... */
-  const target = script.js ? 'js' : 'css';
-  options[target] = [];
-
-  // --- add @require
-  const require = script.require || [];
-  require.forEach(item => {
-
-    if (item.startsWith('lib/')) { options[target].push({file: item}); }
-    else if (pref.content[item] && pref.content[item][target]) {
-      options[target].push({code: pref.content[item][target].replace(metaRegEx, '')});
-    }
-  });
-
-  // --- add @requireRemote
-  const requireRemote = script.requireRemote || [];
-  if (requireRemote[0]) {
-
-    await Promise.all(requireRemote.map(url =>
-      fetch(url).then(response => response.text())
-      .then(code => options[target].push({code}))
-      .catch(() => null)
-    ));
-  }
-
-  // --- add code
-  options[target].push({code: script[target].replace(metaRegEx, '')});
-
-  // --- script only
-  if (script.js) {
-
-    // --- unsafeWindow implementation
-    options.js.unshift({code: 'const unsafeWindow = window.wrappedJSObject;'});
-
-    options.scriptMetadata = {
-      name: id,
-      resource: script.resource || {},
-      info: {                                               // GM.info data
-        scriptHandler: 'FireMonkey',
-        version: FMV,
-        scriptMetaStr: null,
-        platform: platformInfo,
-        browser: browserInfo,
-        script: {
-          name: id,
-          version: script.version,
-          description: script.description,
-          matches: script.matches,
-          includes: script.matches,
-          excludes: script.excludeMatches,
-          'run-at': script.runAt.replace('_', '-'),
-          namespace: null,
-          resources: script.resource || {}
-        }
-      }
-    };
-  }
-
-  const API = script.js ? browser.userScripts : browser.contentScripts;
-
-  if (script.style[0]) {
-    // --- UserStyle Multi-segment Process
-    script.style.forEach((st, index) => {
-
-      options.matches = st.matches;
-      options.css = [{code: st.css}];
-
-      // --- register page script
-      try {                                                 // matches error throws before the Promise
-
-        API.register(options)
-        .then(reg => registered[id + 'style' + index] = reg) // contentScripts.RegisteredContentScript object
-        .catch(console.error);
-
-      } catch(error) { processError(id, error.message); }
-    });
-  }
-  else {
-    // --- register page script
-    try {                                                     // matches error throws before the Promise
-
-      API.register(options)
-      .then(reg => registered[id] = reg)                      // contentScripts.RegisteredContentScript object
-      .catch(console.error);
-
-    } catch(error) { processError(id, error.message); }
-  }
-}
-
-async function unregister(id) {
-
-  if (registered[id]) {
-    await registered[id].unregister();
-    delete registered[id];
-  }
-}
-
-function processError(id, error) {
-
-  pref.content[id].error = error;                           // store error message
-  pref.content[id].enabled = false;                         // disable the script
-  browser.storage.local.set({content: pref.content});       // update saved pref
-}
-// ----------------- /Register Content Script & CSS --------
 
 // ----------------- Content Message Handler ---------------
 function processForbiddenHeaders(headers) {
@@ -383,6 +384,7 @@ function processForbiddenHeaders(headers) {
 }
 
 // --- allow specialHeader
+const FMUrl = browser.runtime.getURL(''); //global
 browser.webRequest.onBeforeSendHeaders.addListener(e => {
 
     let found = false;
@@ -433,7 +435,7 @@ browser.runtime.onMessage.addListener((message, sender) => {
       pref[storage][e.key] = e.value;
       return browser.storage.local.set({[storage]: pref[storage]}); // Promise with no arguments OR reject with error message
 
-    case 'getValue':     
+    case 'getValue':
       return Promise.resolve(hasProperty(e.key) ? pref[storage][e.key] : e.defaultValue);
 
     case 'listValues':
@@ -608,7 +610,7 @@ function processResponse(text, name, updateURL) {
       delete pref.content[name];
     }
 
-    unregister(name);                                       // --- unregister old name
+    scriptReg.unregister(name);                             // --- unregister old name
   }
 
   // --- update from previous version
@@ -628,6 +630,6 @@ function processResponse(text, name, updateURL) {
 
   pref.content[data.name] = data;                           // save to pref
   browser.storage.local.set({content: pref.content});       // update saved pref
-  data.enabled && register(data.name);
+  data.enabled && scriptReg.process(data.name);
 }
 // ----------------- /Remote Update ------------------------

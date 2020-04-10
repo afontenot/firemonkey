@@ -1,10 +1,10 @@
 ﻿'use strict';
 
 // ----------------- Internationalization ------------------
-new I18N();
+I18N.get();
 
 // ----------------- User Preference -----------------------
-new Pref().then(processScript);
+Pref.get().then(processScript);
 
 // ----------------- Actions -------------------------------
 // ----- global
