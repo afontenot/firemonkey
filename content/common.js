@@ -117,55 +117,55 @@ function getMetaData(str, userMatches = '', userExcludeMatches = '') {
             value = '';
             break;
 
-          case js && url === 'jquery3':
+          case js && url === 'jquery-3':
           case js && cdn && url.includes('/jquery-3.'):
           case js && cdn && url.includes('/jquery/3.'):
           case js && cdn && url.includes('/jquery@3'):
           case js && url.startsWith('https://lib.baomitu.com/jquery/latest/'):
-            value = 'lib/jquery-3.4.1.min.jsm';
+            value = 'lib/jquery-3.jsm';
             break;
 
-          case js && url === 'jquery2':
+          case js && url === 'jquery-2':
           case js && cdn && url.includes('/jquery-2.'):
           case js && cdn && url.includes('/jquery/2.'):
           case js && cdn && url.includes('/jquery@2'):
-            value = 'lib/jquery-2.2.4.min.jsm';
+            value = 'lib/jquery-2.jsm';
             break;
 
-          case js && url === 'jquery1':
+          case js && url === 'jquery-1':
           case js && cdn && url.includes('/jquery-1.'):
           case js && cdn && url.includes('/jquery/1.'):
           case js && cdn && url.includes('/jquery@1'):
           case js && url.startsWith('https://ajax.googleapis.com/ajax/libs/jquery/1'):
           case js && url.startsWith('https://code.jquery.com/jquery-latest.'):
           case js && url.startsWith('https://code.jquery.com/jquery.'):
-            value = 'lib/jquery-1.12.4.min.jsm';
+            value = 'lib/jquery-1.jsm';
             break;
 
-          case js && url === 'jquery-ui1':
+          case js && url === 'jquery-ui-1':
           case js && cdn && url.includes('/jqueryui/1.'):
           case js && cdn && url.includes('/jquery.ui/1.'):
           case js && url.startsWith('https://cdn.jsdelivr.net/npm/jquery-ui-dist@1.'):
           case js && url.startsWith('https://code.jquery.com/ui/1.'):
-            value = 'lib/jquery-ui-1.12.1.min.jsm';
+            value = 'lib/jquery-ui-1.jsm';
             break;
 
-          case js && url === 'bootstrap4':
+          case js && url === 'bootstrap-4':
           case js && cdn && url.includes('/bootstrap.min.js'):
           case js && cdn && url.endsWith('/bootstrap.js'):
-            value = 'lib/bootstrap-4.4.1.min.jsm';
+            value = 'lib/bootstrap-4.jsm';
             break;
 
-          case js && url === 'moment2':
+          case js && url === 'moment-2':
           case js && cdn && url.includes('/moment.min.js'):
           case js && cdn && url.endsWith('/moment.js'):
-            value = 'lib/moment-2.24.0.min.jsm';
+            value = 'lib/moment-2.jsm';
             break;
 
-          case js && url === 'underscore1':
+          case js && url === 'underscore-1':
           case js && cdn && url.includes('/underscore.js'):
           case js && cdn && url.includes('/underscore-min.js'):
-            value = 'lib/underscore-1.9.2.min.jsm';
+            value = 'lib/underscore-1.jsm';
             break;
 
           case url.startsWith('https://'):                // unsupported URL
@@ -188,11 +188,6 @@ function getMetaData(str, userMatches = '', userExcludeMatches = '') {
 
   // --- check auto-update criteria, must have updateURL & version
   if (data.autoUpdate && (!data.updateURL || !data.version)) { data.autoUpdate = false; }
-
-  // --- check & import userMatches, userExcludeMatches
-//  data.userMatches = userMatches;
-//  data.userExcludeMatches = userExcludeMatches;
-
 
   // --- convert to match pattern
   data.matches = data.matches.flatMap(checkPattern);        // flatMap() FF62

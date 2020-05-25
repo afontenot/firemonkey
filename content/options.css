@@ -22,6 +22,17 @@ a:hover {
   text-decoration: underline;
 }
 
+/* ----- Import/Export ----- */
+label[data-i18n^="import"]::before {
+  content: '\1f4e5';
+  margin-right: 0.3em;
+}
+
+button[data-i18n^="export"]::before {
+  content: '\1f4e4';
+  margin-right: 0.3em;
+}
+
 /* ----- Navigation ----- */
 input[name="nav"] {
   display: none;
@@ -53,22 +64,22 @@ nav h3 img, nav h3 svg {
  width: 24px;
 }
 
-nav label {
+nav label[for^="nav"] {
   display: block;
   cursor: pointer;
   transition: all 0.5s ease-in-out;
 }
 
 
-nav label:hover {
+nav label[for^="nav"]:hover {
   color: #bcd;
 }
 
-nav > label {
+nav > label[for^="nav"] {
   margin-left: 1em;
 }
 
-nav label::before {
+nav label[for^="nav"]::before {
   content: '\25B6';
   margin-right: 0.4em;
   font-size: 0.8em;
@@ -76,7 +87,7 @@ nav label::before {
   transition: all 0.5s ease-in-out;
 }
 
-nav label:hover::before {
+nav label[for^="nav"]:hover::before {
   opacity: 1;
 }
 
@@ -490,10 +501,6 @@ nav div button, nav div label {
 nav div button:hover, nav div label:hover {
   border-color: #789;
   color: #bcd;
-}
-
-nav div label[for="fileScript"]::before {
-  content: none;
 }
 
 /* ----- Counter ----- */
