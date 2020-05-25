@@ -7,25 +7,9 @@ class Highlight {
     this.legend = legend;
     this.footer = footer;
     this.original = this.box.textContent;
-    box.addEventListener('keyup', e => this.keyup(e));
     box.addEventListener('keydown', e => this.keydown(e));
     box.addEventListener('blur', e => this.blur(e));
     box.addEventListener('paste', e => this.paste(e));
-  }
-
-  keyup(e) {
-
-    switch (e.key) {
-
-      case 'Enter':                                         // highlight previous node on Enter
-        const sel = window.getSelection();
-        const target = [...this.box.childNodes].find(item => sel.containsNode(item, true));
-        if (!target || !target.previousElementSibling) { return; }
-        const nl = this.getNL();
-        const type = this.getType();
-        this.domify(target.previousElementSibling, type, nl);
-        break;
-    }
   }
 
   keydown(e) {
@@ -89,7 +73,7 @@ class Highlight {
 
     const sel = window.getSelection();
     const range = sel.getRangeAt(0);
-    const index = [...this.box.childNodes].findIndex(item => sel.containsNode(item, true));
+    const index = [...this.box.children].findIndex(item => sel.containsNode(item, true));
 
     const pre = range.cloneRange();
     pre.selectNodeContents(this.box);
@@ -104,7 +88,7 @@ class Highlight {
     this.process();
 
     if (index > 0) {                                        // go to previous node/line, not -1 or 0
-      range.setStart(this.box.childNodes[index], 0);
+      range.setStart(this.box.children[index], 0);
       range.collapse(true);                                 // collapse to start
       sel.removeAllRanges();
       sel.addRange(range);
@@ -113,7 +97,7 @@ class Highlight {
 
   getSelected() {
     const sel = window.getSelection();
-    return [...this.box.childNodes].filter(item => sel.containsNode(item, true)); // always array
+    return [...this.box.children].filter(item => sel.containsNode(item, true)); // always array
   }
 
   getNL() {
@@ -130,7 +114,7 @@ class Highlight {
 
   process() {
 
-    if (!this.box.classList.contains('syntax') || this.box.textContent === this.original) {
+    if (!this.box.classList.contains('syntax') || this.box.innerText === this.original) {
       return;
     }
 
@@ -156,11 +140,11 @@ class Highlight {
     box.textContent = '';                                     // clear box
     const type = metaData[1].toLowerCase() === 'userscript' ? 'js' : 'css';
     const docfrag = document.createDocumentFragment();
-    const div = document.createElement('div');
+    const code = document.createElement('code');
 
     // --- convert each line to DOM
     text.split(/\r?\n/).forEach(item => {
-      const node = div.cloneNode();
+      const node = code.cloneNode();
       node.textContent = item;
       this.domify(node, type, nl);
       docfrag.appendChild(node);
@@ -180,7 +164,7 @@ class Highlight {
     if (!node.textContent.trim()) { return; }
 
     const regex = {
-      css: /\/\*.*\*\/|::?[\w-]+|!important|[^\s!:;~+>(){}\[\]]+/g,
+      css: /\/\*.*\*\/|::?[\w-]+|!important|[^\s!:;,~+>(){}\[\]]+/g,
       js:  /GM[._]\w+|\/\/.+|\/\*.*?\*\/|`.*?`|'.*?'|".*?"|[^\s!,:;.(){}\[\]]+|[:;]/g
     }
 
@@ -526,7 +510,7 @@ class Highlight {
 
     let start, end, next;
     const changeList = [];
-    docfrag.querySelectorAll('div, span').forEach(node => {
+    docfrag.querySelectorAll('code, span').forEach(node => {
 
       switch (true) {
 
@@ -550,7 +534,7 @@ class Highlight {
           break;
 
         case start && !end:
-          node.nodeName === 'DIV' ? node.classList.add('comment') : node.className = 'comment';
+          node.nodeName === 'CODE' ? node.classList.add('comment') : node.className = 'comment';
           break;
       }
     });

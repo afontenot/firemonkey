@@ -112,12 +112,14 @@ browser.userScripts.onBeforeScript.addListener(script => {
       });
     },
 
-    async notification(text) {
-
+    async notification(text, title, image, onclick) {
+      // (text, title, image, onclick) | ({text, title, image, onclick})
+      const txt = typeof text === 'string' ? text : text.text;
+      if (typeof txt !== 'string' || !txt.trim()) { return; }
       return await browser.runtime.sendMessage({
         name,
         api: 'notification',
-        data: {text}
+        data: typeof text === 'string' ? {text, title, image, onclick} : text
       });
     },
 

@@ -10,21 +10,57 @@ body {
 }
 
 dl {
+  margin-left: 2em;
 }
 
 dt {
-  color: #004080;
+  color: #567;
   font-weight: bold;
-  min-width: 10em;
-  border-bottom: 1px solid #add8e6;
-  margin-top: 1em;
+  background-color: #eee;
   display: inline-block;
+  padding: 0.1em 0.5em;
 }
 
+dd + dt {
+  margin-top: 0.5em;
+}
 
+dd > dl, dd > ul {
+  margin: 1em auto;
+}
+
+dl.about  {
+  margin-left: initial;
+}
+
+.about dt {
+  color: #fff;
+  margin-top: 1em;
+  display: inline-block;
+  background-color: #bcd;
+  padding: 0.2em 0.5em;
+  position: relative;
+  border-radius: 1em;
+  min-width: 3em;
+  text-align: center;
+}
+
+.about dt::before {
+  content: '';
+  height: 2px;
+  width: 20vw;
+  position: absolute;
+  bottom: 0;
+  left: 1em;
+  background-color: #bcd;
+}
 
 dt img, dd img {
-  width: 16px;
+  width: 1.2em;
+}
+
+dt.indent {
+  text-indent: 1.5em;
 }
 
 img {
@@ -37,10 +73,43 @@ h2, h3, h4 {
 
 h2 {
   color: #066;
+  display: inline-block;
+  background: #def linear-gradient(to right, #def, #bcd);
+  min-width: 10em;
+  padding: 0.2em 0.5em;
+  text-align:right;
+  border: 3px solid #fff;
+  box-shadow: 0px 5px 8px rgba(0,0,0,0.2);  
+  text-shadow: 1px 1px 1px rgba(255,255,255,0.6);
+  border-radius: 0 1em 1em 0;
+  position: relative;
 }
 
-h2::first-letter {
-  font-size: 1.5em;
+h2::before {
+  content: '';
+  background: url('../image/icon.svg') no-repeat center;
+  background-size: contain;
+  display: inline-block;
+  width: 1.5em;
+  height: 1.5em;
+  position: absolute;
+  left: 1em;
+  top: -0.7em;
+}
+
+h2::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-width: calc(1em - 3px);
+  border-style: solid;
+  border-color: transparent transparent transparent #fff;
+}
+
+
+h2 img, h3 img, h4 img {
+  width: 1.2em;
 }
 
 h3 {
@@ -77,8 +146,8 @@ article li::marker { /* FF 68+ */
   color: #ddd;
 }
 
-article li img, h3 img, h4 img {
-  width: 16px;
+article li img {
+  width: 1em;
 }
 
 
@@ -90,14 +159,17 @@ a {
 /* ----- Navigation ----- */
 nav  {
   background-color: #fff;
-  border-top: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
   position: sticky;
   top: 0;
   z-index: 1;
+  box-shadow: 0px 3px 6px rgba(0,0,0,0.2);
 }
 
-nav > a, nav span {
+nav div {
+  display: inline-block;
+}
+
+nav > a, nav div {
   position: relative;
   display: inline-block;
   border-top: 3px solid transparent;
@@ -105,7 +177,7 @@ nav > a, nav span {
   transition: all 0.5s ease-in-out;
 }
 
-nav > a:hover, nav span:hover {
+nav > a:hover, nav div:hover {
   border-top-color: #f84;
 }
 
@@ -117,7 +189,7 @@ nav a {
   min-width: 5em;
 }
 
-nav span ul {
+nav div ul {
   position: absolute;
   left: 0;
   top: 1em;
@@ -129,7 +201,7 @@ nav span ul {
   border-radius: 5px;
 }
 
-nav span:hover > ul {
+nav div:hover > ul {
   display: block;
   animation: fade 0.5s ease-in-out;
 }
@@ -192,16 +264,53 @@ nav li:hover ul {
   animation: fade 0.5s ease-in-out;
 }
 
-
 @keyframes fade {
   0%    { opacity: 0; }
   100%  { opacity: 1; }
 }
-
 /* ----- /Navigation ----- */
 
 strong {
   color: #905;
+}
+
+pre {
+  background-color: #fff;
+  border-left: 4px solid #4682b4;
+  padding: 1em;
+}
+
+article > pre {
+  margin-left: 2.5em;
+}
+
+pre code {
+  display: block;
+  font-size: 1em;
+  padding: 1em;
+  background-color: #f5fffa;
+  position: relative;
+  margin: auto -1em;
+}
+
+pre code::after {
+  content: '\263a';
+  color: #0d0;
+  opacity: 0.6;
+  font-size: 2.5em;
+  position: absolute;
+  bottom: 0;
+  right: 0.2em; 
+}
+
+pre code.deprecated {
+  background-color: #fff5f5;
+}
+
+pre code.deprecated::after {
+  content: '\2639';
+  color: #f70;
+  font-size: 2.1em;
 }
 
 figure {
@@ -213,10 +322,10 @@ figure {
 figcaption {
   color: #fff;
   background-color: #4682b4;
-  padding: 0.2em 0.5em;
+  padding: 0.2em 0.5em 0.2em 1em;
   display: inline-block;
   min-width: 25em;
-  border-radius: 10px;
+  border-radius: 1em;
   font-weight: bold;
   font-size: 0.9em;
   margin-left: -1.5em;
@@ -224,7 +333,7 @@ figcaption {
 
 figcaption span {
   margin-left: 0.5em;
-  color: #ddd;
+  color: #eee;
   font-style: italic;
   font-weight: normal;
 }
@@ -232,40 +341,6 @@ figcaption span {
 figure pre {
   border: 0;
   margin: 0;
-  padding: 1em;
-}
-
-pre {
-  background-color: #fff;
-  border-left: 4px solid #4682b4;
-  padding: 1em;
-  margin-left: 2.5em;
-}
-
-pre div {
-  padding: 0.5em;
-  background-color: #f5fffa;
-  position: relative;
-}
-
-pre div::after {
-  content: '\263a';
-  color: #0d0;
-  opacity: 0.6;
-  font-size: 2.5em;
-  position: absolute;
-  bottom: 0;
-  right: 0.2em; 
-}
-
-pre div.deprecated {
-  background-color: #fff5f5;
-}
-
-pre div.deprecated::after {
-  content: '\2639';
-  color: #f70;
-  font-size: 2.1em;
 }
 
 .scroll {
@@ -279,7 +354,7 @@ blockquote {
   padding: 1em 3.5em;
   font-style: italic;
   position: relative;
-  border-radius: 20px;
+  border-radius: 1.5em;
   background: rgba(233, 150, 122, 0.4) url("../image/blob.svg") center no-repeat;
   background-size: 100% 100%;
 }
@@ -291,7 +366,6 @@ blockquote::after {
   font-size: 4em;
   position: absolute;
 }
-
 
 blockquote::before {
   content: '\201c';
@@ -305,7 +379,6 @@ blockquote::after {
   right: 0.5em; 
 }
 
-
 cite {
   display: block;
   margin-top: 1em;
@@ -317,8 +390,9 @@ cite::before {
 }
 
 code {
-  background-color: #def;
+  font-size: 1.2em;
   padding: 0 0.2em;
+  background-color: #eee;
 }
 
 kbd {
@@ -350,9 +424,9 @@ table {
 caption {
   color: #fff;
   background-color: #abc;
-  padding: 0.2em 0.5em;
+  padding: 0.2em 0.5em 0.2em 1em;
   min-width: 25em;
-  border-radius: 10px;
+  border-radius: 1em;
   font-weight: bold;
   font-size: 0.9em;
   margin-left: -1.5em;
@@ -404,7 +478,7 @@ td code {
   white-space: pre;
 }
 
-.pass, .fail {
+td .pass, td .fail {
  font-family: monospace;
 }
 
@@ -436,11 +510,4 @@ h3 sup {
   background-color: #cd853f;
   color: #fff;
   padding: 0.1em 0.4em;
-}
-
-span.label {
-  display: inline-block;
-  min-width: 9em;
-  margin-right: 0.5em;
-  font-weight: bold;
 }

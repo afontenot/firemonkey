@@ -17,29 +17,29 @@
 /* ----- Counter ----- */
 .box { counter-reset: n;  }
 
-.box div {
+.box code {
   display: list-item;
   margin-left: 3em;
-  counter-increment: n;              /* Increment the section counter*/
+  counter-increment: n;                 /* Increment the section counter*/
 }
 
-.box div:hover {
+.box code:hover {
   background-color: #eee;
 }
 
-.box div::marker {                  /* FF68+ */
+.box code::marker {                     /* FF68+ */
   color: #aaa;
-  content: counter(n) ' ';          /* Display the counter */
+  content: counter(n) ' ';              /* Display the counter */
 }
 
-.box div:hover::marker {
+.box code:hover::marker {
   color: #f50;
   font-weight: bold;
 }
 /* ----- /Counter ----- */
 
 /* ----- Dark Theme ----- */
-.dark .box div:hover {
+.dark .box code:hover {
   background-color: #555;
 }
 

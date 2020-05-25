@@ -8,7 +8,7 @@ const prefNode = document.querySelectorAll('#autoUpdateInterval, #globalScriptEx
 const submit = document.querySelector('button[type="submit"]'); // submit button
 submit.addEventListener('click', checkOptions);
 const globalScriptExcludeMatches = document.querySelector('#globalScriptExcludeMatches');
-let prefImport = false;
+
 
 function processOptions() {                                 // set saved pref/defaults OR update saved pref
   // 'this' is ony set when clicking the button to save options
@@ -17,20 +17,8 @@ function processOptions() {                                 // set saved pref/de
     const attr = node.type === 'checkbox' ? 'checked' : 'value';
     this ? pref[node.id] = node[attr] : node[attr] = pref[node.id];
   });
-
-  const settings = {
-    autoUpdateInterval: pref.autoUpdateInterval,
-    globalScriptExcludeMatches: pref.globalScriptExcludeMatches,
-    sync: pref.sync
-  };
   
- // --- save scripts after import
-  if(prefImport) {
-    settings.content = pref.content;
-    prefImport = false;
-  }
-  
-  this && chrome.storage.local.set(settings);               // update saved pref
+  this && chrome.storage.local.set(pref);                   // update saved pref
 }
 // ----------------- /Options ------------------------------
 
@@ -719,7 +707,7 @@ function exportAllScript() {
 function exportfile(data, ext, id, saveAs = true) {
 
   const blob = new Blob([data], {type : 'text/plain;charset=utf-8'});
-  const filename = id + '.user' + ext;
+  const filename = id.replace(/[<>:"/\\|?*]/g, '') + '.user' + ext; // removing disallowed characters
 
   chrome.downloads.download({
     url: URL.createObjectURL(blob),
@@ -731,62 +719,16 @@ function exportfile(data, ext, id, saveAs = true) {
 // ----------------- /Import/Export Script -----------------
 
 // ----------------- Import/Export Preferences -------------
-document.getElementById('file').addEventListener('change', processFileSelect);
-document.getElementById('export').addEventListener('click', () => exportData(JSON.stringify(pref, null, 2), '.json'));
+document.getElementById('file').addEventListener('change', (e) => Pref.import(e).then(processImport));
+document.getElementById('export').addEventListener('click', () => Pref.export());
 
-function processFileSelect(e) {
-
-  const file = e.target.files[0];
-
-  switch (true) {
-
-    case !file:
-      notify(chrome.i18n.getMessage('error'));
-      return;
-
-    case !['text/plain', 'application/json'].includes(file.type): // check file MIME type
-      notify(chrome.i18n.getMessage('errorType'));
-      return;
-  }
-
-  const reader  = new FileReader();
-  reader.onloadend = () => readData(reader.result);
-  reader.onerror = () => notify(chrome.i18n.getMessage('errorRead'));
-  reader.readAsText(file);
-}
-
-function readData(data) {
-
-  let importData;
-  try { importData = JSON.parse(data); }                    // Parse JSON
-  catch(e) {
-    notify(chrome.i18n.getMessage('errorParse'));           // display the error
-    return;
-  }
-
-  Object.keys(pref).forEach(item =>
-    importData.hasOwnProperty(item) && (pref[item] = importData[item])); // update pref with the saved version
-
+function processImport(success) {
+  
   processOptions();                                         // set options after the pref update
   processScript();                                          // update page display
-  prefImport = true;                                        // save scripts as well
-}
-
-function exportData(data, ext) {
-
-  const blob = new Blob([data], {type : 'text/plain;charset=utf-8'});
-  const filename = chrome.i18n.getMessage('extensionName') + '_' + new Date().toISOString().substring(0, 10) + ext;
-
-  chrome.downloads.download({
-    url: URL.createObjectURL(blob),
-    filename,
-    saveAs: true,
-    conflictAction: 'uniquify'
-  });
+  chrome.storage.local.set(pref);                           // update saved pref
 }
 // ----------------- /Import/Export Preferences ------------
-
-
 
 // ----------------- from browser pop-up & contextmenu -----
 window.addEventListener('storage', (e) => e.key === 'nav' && getNav(e.newValue));
