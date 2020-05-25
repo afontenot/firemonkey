@@ -19,6 +19,58 @@ class Pref {
     return browser.storage.local.get().then(result =>
       Object.keys(result).forEach(item => pref[item] = result[item]));
   }
+  
+  static importExport(callback) {
+    this.callback = callback;
+    document.getElementById('file').addEventListener('change', (e) => this.import(e));
+    document.getElementById('export').addEventListener('click', this.export);
+  }
+
+  static import(e) {
+
+    const file = e.target.files[0];
+    switch (true) {
+
+      case !file: notify(chrome.i18n.getMessage('error')); return;
+      case !['text/plain', 'application/json'].includes(file.type): // check file MIME type
+        notify(chrome.i18n.getMessage('errorType'));
+        return;
+    }
+
+    const reader  = new FileReader();
+    reader.onloadend = () => this.readData(reader.result);
+    reader.onerror = () => notify(chrome.i18n.getMessage('errorRead'));
+    reader.readAsText(file);
+  }
+
+  static readData(data) {
+
+    let importData;
+    try { importData = JSON.parse(data); }                    // Parse JSON
+    catch(e) {
+      notify(chrome.i18n.getMessage('errorParse'));           // display the error
+      return;
+    }
+
+    Object.keys(pref).forEach(item =>
+      importData.hasOwnProperty(item) && (pref[item] = importData[item])); // update pref with the saved version
+    
+    this.callback();                                        // successful import
+  }
+
+  static export() {
+
+    const data = JSON.stringify(pref, null, 2);
+    const blob = new Blob([data], {type : 'text/plain;charset=utf-8'});
+    const filename = chrome.i18n.getMessage('extensionName') + '_' + new Date().toISOString().substring(0, 10) + '.json';
+
+    chrome.downloads.download({
+      url: URL.createObjectURL(blob),
+      filename,
+      saveAs: true,
+      conflictAction: 'uniquify'
+    });
+  }
 }
 // ----------------- /User Preference ----------------------
 

@@ -15,7 +15,7 @@ class ContextMenu {
 
       if (item.id && !item.title) { item.title = chrome.i18n.getMessage(item.id); } // always use the same ID for i18n
       if (item.id) { item.onclick = this.process; }
-      chrome.contextMenus.create(item);
+      browser.menus.create(item);
     });
   }
 
@@ -29,8 +29,7 @@ class ContextMenu {
     chrome.runtime.openOptionsPage();
   }
 }
-
-const menus = new ContextMenu();
+new ContextMenu();
 // ----------------- /Context Menu -------------------------
 
 // ----------------- Script Counter ------------------------
@@ -52,6 +51,7 @@ class Counter {
     const count = Object.keys(pref.content).filter(item =>
       pref.content[item].enabled && checkMatches(pref.content[item], urls, gExclude));
     browser.browserAction.setBadgeText({tabId, text: (count[0] ? count.length.toString() : '')});
+    browser.browserAction.setTitle({tabId, title: (count[0] ? count.join('\n') : '')});
   }
 }
 // ----------------- /Script Counter -----------------------
@@ -61,7 +61,7 @@ class ScriptRegister {
 
   constructor() {
     this.registered = {};
-    this.FMV = browser.runtime.getManifest().version;         // FireMonkey version
+    this.FMV = browser.runtime.getManifest().version;       // FireMonkey version
   }
 
   async init() {
@@ -114,7 +114,7 @@ class ScriptRegister {
 
       if (item.startsWith('lib/')) { options[target].push({file: item}); }
       else if (pref.content[item] && pref.content[item][target]) {
-        options[target].push({code: pref.content[item][target].replace(metaRegEx, '')});
+        options[target].push({code: pref.content[item][target].replace(metaRegEx, (m) => m.replace(/\*\//g, '* /'))});
       }
     });
 
@@ -130,7 +130,7 @@ class ScriptRegister {
     }
 
     // --- add code
-    options[target].push({code: script[target].replace(metaRegEx, '')});
+    options[target].push({code: script[target].replace(metaRegEx, (m) => m.replace(/\*\//g, '* /'))});
 
     // --- script only
     if (script.js) {
@@ -164,11 +164,11 @@ class ScriptRegister {
 
     if (script.style[0]) {
       // --- UserStyle Multi-segment Process
-      script.style.forEach((st, i) => {
+      script.style.forEach((item, i) => {
 
-        options.matches = st.matches;
-        options.css = [{code: st.css}];
-        this.register(id, options);
+        options.matches = item.matches;
+        options.css = [{code: item.css}];
+        this.register(id + 'style' + i, options);
       });
     }
     else { this.register(id, options); }
@@ -200,88 +200,133 @@ class ScriptRegister {
     browser.storage.local.set({content: pref.content});     // update saved pref
   }
 }
-
 const scriptReg = new ScriptRegister();
 // ----------------- /Register Content Script & CSS --------
 
 // ----------------- User Preference -----------------------
-Pref.get().then(async() => {
-
-  if (pref.hasOwnProperty('disableHighlight')) {            // v1.31 migrate
-    browser.storage.local.remove('disableHighlight');
-    delete pref.disableHighlight;
-  }
-
-  // --- storage sync check
-  if (pref.sync) {
-
-    await browser.storage.sync.get(null, result => {
-      Object.keys(result).forEach(item => pref[item] = result[item]); // update pref with the saved version
-    });
-    browser.storage.local.set(pref);                        // update local saved pref
-  }
-
-  const days = pref.autoUpdateInterval *1;
-  const doUpdate =  days && Date.now() > pref.autoUpdateLast + (days + 86400000); // 86400 * 1000 = 24hr
-
-
-  await scriptReg.init();                                   // await data initialization
-  Object.keys(pref.content).forEach(item => {
-
-    scriptReg.process(item);
-    doUpdate && pref.content[item].enabled && pref.content[item].autoUpdate && pref.content[item].updateURL &&
-      pref.content[item].version && update.push(item);
-  });
-
-  update[0] && browser.idle.onStateChanged.addListener(onIdle);
-
-  // --- Script Counter
-  new Counter();
+Pref.get().then(() => {
+  new ProcessPref();
 });
 
-chrome.storage.onChanged.addListener((changes, area) => {   // Change Listener
+class ProcessPref {
 
-  const changesKeys = Object.keys(changes);
-  if (!changesKeys.find(item => notEqual(changes[item].oldValue, changes[item].newValue))) { return; }
-
-  changesKeys.forEach(item => pref[item] = changes[item].newValue); // update pref with the saved version
-
-  // --- find changed scripts
-  if (changes.globalScriptExcludeMatches &&
-    changes.globalScriptExcludeMatches.oldValue !== changes.globalScriptExcludeMatches.newValue) {
-    Object.keys(pref.content).forEach(scriptReg.process);  // re-register all
-  }
-  else if (changes.hasOwnProperty('content') && notEqual(changes.content.oldValue, changes.content.newValue)) {
-
-    Object.keys(changes.content.oldValue).forEach(item => {
-
-      if (!changes.content.newValue[item]) {                // script was deleted
-        const script = changes.content.oldValue[item];
-        const id = script.name;
-        // --- reset previous registers  (UserStyle Multi-segment Process)
-        script.style[0] ? script.style.forEach((item, i) => scriptReg.unregister(id + 'style' + i)) : scriptReg.unregister(id);
-      }
-      else if (!changes.content.newValue[item].error && notEqual(changes.content.oldValue[item], changes.content.newValue[item])) {
-        scriptReg.process(item);
-      }
-    });
+  constructor() {
+    this.process();
   }
 
-  // --- storage sync update
-  if (pref.sync) {
-    const size = JSON.stringify(pref).length;
-    if (size > 102400) {
-      notify(chrome.i18n.getMessage('errorSync', (size/1024).toFixed(1)));
-      pref.sync = false;
-      browser.storage.local.set({sync: false});
+  async process() {
+
+    // --- storage sync check
+    if (pref.sync) {
+
+      await browser.storage.sync.get(null, result => {
+        Object.keys(result).forEach(item => pref[item] = result[item]); // update pref with the saved version
+      });
+      await browser.storage.local.set(pref);                // update local saved pref
     }
-    else { browser.storage.sync.set(pref); }
-  }
-});
 
-function notEqual(a, b) {
-  return JSON.stringify(a) !== JSON.stringify(b);
+    await this.migrate();                                   // migrate after storage sync check
+
+    chrome.storage.onChanged.addListener((changes, area) => { // Change Listener
+      Object.keys(changes).forEach(item => pref[item] = changes[item].newValue); // update pref with the saved version
+      this.processPrefUpdate(changes);                      // apply changes
+    });
+
+    const days = pref.autoUpdateInterval *1;
+    const doUpdate =  days && Date.now() > pref.autoUpdateLast + (days + 86400000); // 86400 * 1000 = 24hr
+
+    await scriptReg.init();                                   // await data initialization
+    Object.keys(pref.content).forEach(item => {
+
+      scriptReg.process(item);
+      doUpdate && pref.content[item].enabled && pref.content[item].autoUpdate && pref.content[item].updateURL &&
+        pref.content[item].version && update.push(item);
+    });
+
+    update[0] && browser.idle.onStateChanged.addListener(onIdle);
+
+    // --- Script Counter
+    new Counter();
+  }
+
+  processPrefUpdate(changes) {
+
+    const changesKeys = Object.keys(changes);
+    if (!changesKeys.find(item => this.notEqual(changes[item].oldValue, changes[item].newValue))) { return; }
+
+    changesKeys.forEach(item => pref[item] = changes[item].newValue); // update pref with the saved version
+
+    // --- find changed scripts
+    if (changes.globalScriptExcludeMatches &&
+      changes.globalScriptExcludeMatches.oldValue !== changes.globalScriptExcludeMatches.newValue) {
+      Object.keys(pref.content).forEach(scriptReg.process);  // re-register all
+    }
+    else if (changes.hasOwnProperty('content') && this.notEqual(changes.content.oldValue, changes.content.newValue)) {
+
+      Object.keys(changes.content.oldValue).forEach(item => {
+
+        if (!changes.content.newValue[item]) {                // script was deleted
+          const script = changes.content.oldValue[item];
+          const id = script.name;
+          // --- reset previous registers  (UserStyle Multi-segment Process)
+          script.style[0] ? script.style.forEach((item, i) => scriptReg.unregister(id + 'style' + i)) : scriptReg.unregister(id);
+        }
+        else if (!changes.content.newValue[item].error && this.notEqual(changes.content.oldValue[item], changes.content.newValue[item])) {
+          scriptReg.process(item);
+        }
+      });
+    }
+
+    // --- storage sync update
+    if (pref.sync) {
+      const size = JSON.stringify(pref).length;
+      if (size > 102400) {
+        notify(chrome.i18n.getMessage('errorSync', (size/1024).toFixed(1)));
+        pref.sync = false;
+        browser.storage.local.set({sync: false});
+      }
+      else { browser.storage.sync.set(pref); }
+    }
+  }
+
+  notEqual(a, b) {
+    return JSON.stringify(a) !== JSON.stringify(b);
+  }
+
+  async migrate() {
+
+    const version = (localStorage.getItem('migrate') || 0) *1;
+    if (version >= 1.36) { return; }
+
+    if (pref.hasOwnProperty('disableHighlight')) {            // v1.31 migrate
+      browser.storage.local.remove('disableHighlight');
+      delete pref.disableHighlight;
+    }
+
+    Object.keys(pref.content).forEach(item => {               // v1.36 migrate
+
+      pref.content[item].require && pref.content[item].require.forEach((lib, i) => {
+
+        switch (lib) {
+
+          case 'lib/jquery-1.12.4.min.jsm': pref.content[item].require[i] = 'lib/jquery-1.jsm'; break;
+          case 'lib/jquery-2.2.4.min.jsm': pref.content[item].require[i] = 'lib/jquery-2.jsm'; break;
+          case 'lib/jquery-3.4.1.min.jsm': pref.content[item].require[i] = 'lib/jquery-3.jsm'; break;
+          case 'lib/jquery-ui-1.12.1.min.jsm': pref.content[item].require[i] = 'lib/jquery-ui-1.jsm'; break;
+          case 'lib/bootstrap-4.4.1.min.jsm': pref.content[item].require[i] = 'lib/bootstrap-4.jsm'; break;
+          case 'lib/moment-2.24.0.min.jsm': pref.content[item].require[i] = 'lib/moment-2.jsm'; break;
+          case 'lib/underscore-1.9.2.min.jsm': pref.content[item].require[i] = 'lib/underscore-1.jsm'; break;
+        }
+      });
+    });
+
+    await browser.storage.local.set({content: pref.content});
+
+    // store migrate version locally
+    localStorage.setItem('migrate',  1.36);
+  }
 }
+
 
 // ----------------- Web/Direct Install Listener ------------------
 browser.webRequest.onBeforeRequest.addListener(processWebInstall, {
@@ -320,7 +365,7 @@ function processWebInstall(e) {
 
     const code = `(() => {
       let title = document.querySelector('${q}');
-      title = title ? title.textContent : 'Unknown';
+      title = title ? title.textContent : document.title;
       return confirm(chrome.i18n.getMessage('installConfirm', title)) ? title : null;
     })();`;
 
@@ -361,34 +406,44 @@ function processDirectInstall(tabId, changeInfo, tab) {
 
 
 // ----------------- Content Message Handler ---------------
-function processForbiddenHeaders(headers) {
+class API {
 
-  const forbiddenHeader = ['Accept-Charset', 'Accept-Encoding', 'Access-Control-Request-Headers',
-    'Access-Control-Request-Method', 'Connection', 'Content-Length', 'Cookie2',
-    'Date', 'DNT', 'Expect', 'Keep-Alive', 'TE',
-    'Trailer', 'Transfer-Encoding', 'Upgrade', 'Via'];
+  constructor() {
+    this.FMUrl = browser.runtime.getURL('');
+    browser.webRequest.onBeforeSendHeaders.addListener(e => this.allowSpecialHeaders(e),
+      {urls: ['<all_urls>'], types: ['xmlhttprequest']},
+      ['blocking', 'requestHeaders']
+    );
+    browser.runtime.onMessage.addListener((message, sender) => this.process(message, sender));
+  }
 
-  const specialHeader = ['Cookie', 'Host', 'Origin', 'Referer'];
+  processForbiddenHeaders(headers) {
+    // lowercase test
+    const forbiddenHeader = ['accept-charset', 'accept-encoding', 'access-control-request-headers',
+      'access-control-request-method', 'connection', 'content-length', 'cookie2',
+      'date', 'dnt', 'expect', 'keep-alive', 'te',
+      'trailer', 'transfer-encoding', 'upgrade', 'via'];
 
-  // --- remove forbidden headers (Attempt to set a forbidden header was denied: Referer)
-  // --- allow specialHeader
-  Object.keys(headers).forEach(item =>  {
-    if (item.startsWith('Proxy-') || item.startsWith('Sec-') || forbiddenHeader.includes(item)) {
-      delete headers[item];
-    }
-    else if (specialHeader.includes(item)) {
-      headers['FM-' + item] = headers[item];                // set a new FM header
-      delete headers[item];                                 // delete original header
-    }
-  });
-}
+    const specialHeader = ['cookie', 'host', 'origin', 'referer'];
 
-// --- allow specialHeader
-const FMUrl = browser.runtime.getURL(''); //global
-browser.webRequest.onBeforeSendHeaders.addListener(e => {
+    // --- remove forbidden headers (Attempt to set a forbidden header was denied: Referer)
+    // --- allow specialHeader
+    Object.keys(headers).forEach(item =>  {
+      item = item.toLowerCase();
+      if (item.startsWith('proxy-') || item.startsWith('sec-') || forbiddenHeader.includes(item)) {
+        delete headers[item];
+      }
+      else if (specialHeader.includes(item)) {
+        headers['FM-' + item] = headers[item];                // set a new FM header
+        delete headers[item];                                 // delete original header
+      }
+    });
+  }
+
+  allowSpecialHeaders(e) {
 
     let found = false;
-    e.originUrl && e.originUrl.startsWith(FMUrl) && e.requestHeaders.forEach((item, index) => {
+    e.originUrl && e.originUrl.startsWith(this.FMUrl) && e.requestHeaders.forEach((item, index) => {
       if (item.name.startsWith('FM-')) {
         e.requestHeaders.push({name: item.name.substring(3), value: item.value});
         e.requestHeaders.splice(index, 1);
@@ -403,172 +458,174 @@ browser.webRequest.onBeforeSendHeaders.addListener(e => {
       }
     });
     if (found) { return {requestHeaders: e.requestHeaders}; }
-  },
-  {
-    urls: ['<all_urls>'],
-    types: ['xmlhttprequest']
-  },
-  ['blocking', 'requestHeaders']
-);
+  }
 
+  process(message, sender) {
 
-browser.runtime.onMessage.addListener((message, sender) => {
+    if (!message.api) { return; }
 
-  if (!message.api) { return; }
+    const e = message.data;
+    const name = message.name;
+    const storage = '_' + name;
+    const hasProperty = (p) => pref[storage] && Object.prototype.hasOwnProperty.call(pref[storage], p);
+    let oldValue;
 
-  const e = message.data;
-  const name = message.name;
-  const storage = '_' + name;
-  const hasProperty = (p) => pref[storage] && Object.prototype.hasOwnProperty.call(pref[storage], p);
-  let oldValue;
+    switch (message.api) {
 
-  switch (message.api) {
+      case 'setValue':
+        pref[storage] || (pref[storage] = {});                // make one if didn't exist
+        if (pref[storage][e.key] === e.value) { return true; } // return if value hasn't changed
+        oldValue = pref[storage][e.key];                      // need to cache it due to async processes
+        e.broadcast && browser.tabs.query({}).then(tabs => {
+          tabs.forEach(tab => browser.tabs.sendMessage(tab.id,
+            {name, valueChange: {key: e.key, oldValue, newValue: e.value, remote: tab.id !== sender.tab.id}}));
+        });
+        pref[storage][e.key] = e.value;
+        return browser.storage.local.set({[storage]: pref[storage]}); // Promise with no arguments OR reject with error message
 
-    case 'setValue':
-      pref[storage] || (pref[storage] = {});                // make one if didn't exist
-      if (pref[storage][e.key] === e.value) { return true; } // return if value hasn't changed
-      oldValue = pref[storage][e.key];                      // need to cache it due to async processes
-      e.broadcast && browser.tabs.query({}).then(tabs => {
-        tabs.forEach(tab => browser.tabs.sendMessage(tab.id,
-          {name, valueChange: {key: e.key, oldValue, newValue: e.value, remote: tab.id !== sender.tab.id}}));
-      });
-      pref[storage][e.key] = e.value;
-      return browser.storage.local.set({[storage]: pref[storage]}); // Promise with no arguments OR reject with error message
+      case 'getValue':
+        return Promise.resolve(hasProperty(e.key) ? pref[storage][e.key] : e.defaultValue);
 
-    case 'getValue':
-      return Promise.resolve(hasProperty(e.key) ? pref[storage][e.key] : e.defaultValue);
+      case 'listValues':
+        return Promise.resolve(pref[storage] ? Object.keys(pref[storage]) : []);
 
-    case 'listValues':
-      return Promise.resolve(pref[storage] ? Object.keys(pref[storage]) : []);
+      case 'deleteValue':
+        if (!hasProperty(e.key)) { return true; }             // return if nothing to delete
+        oldValue = pref[storage][e.key];                      // need to cache it due to async processes
+        e.broadcast && browser.tabs.query({}).then(tabs => {
+          tabs.forEach(tab => browser.tabs.sendMessage(tab.id,
+            {name, valueChange: {key: e.key, oldValue, newValue: e.value, remote: tab.id !== sender.tab.id}}));
+        });
+        delete pref[storage][e.key];
+        return browser.storage.local.set({[storage]: pref[storage]});
 
-    case 'deleteValue':
-      if (!hasProperty(e.key)) { return true; }             // return if nothing to delete
-      oldValue = pref[storage][e.key];                      // need to cache it due to async processes
-      e.broadcast && browser.tabs.query({}).then(tabs => {
-        tabs.forEach(tab => browser.tabs.sendMessage(tab.id,
-          {name, valueChange: {key: e.key, oldValue, newValue: e.value, remote: tab.id !== sender.tab.id}}));
-      });
-      delete pref[storage][e.key];
-      return browser.storage.local.set({[storage]: pref[storage]});
+      case 'openInTab':
+        browser.tabs.create({url: e.url, active: e.active});  // Promise with tabs.Tab OR reject with error message
+        break;
 
-    case 'openInTab':
-      browser.tabs.create({url: e.url, active: e.active});  // Promise with tabs.Tab OR reject with error message
-      break;
+      case 'setClipboard':
+        navigator.clipboard.writeText(e.text)                 // Promise with ? OR reject with error message
+        .then(() => {})
+        .catch(error => { console.error(error); notify(chrome.i18n.getMessage('errorClipboard')); }); // failed copy notification
+        break;
 
-    case 'setClipboard':
-      navigator.clipboard.writeText(e.text)                 // Promise with ? OR reject with error message
-      .then(() => {})
-      .catch(error => { console.error(error); notify(chrome.i18n.getMessage('errorClipboard')); }); // failed copy notification
-      break;
+      case 'notification':
+        return browser.notifications.create('', {
+          type: 'basic',
+          iconUrl: e.image || 'image/icon.svg',
+          title: name,
+          message: e.text
+        });
+        break;
 
-    case 'notification': notify(e.text, name); break;
+      case 'download':
+        // --- check url
+        const dUrl = this.checkURL(e.url, e.base);
+        if (!dUrl) { return; }
 
-    case 'download':
-      // --- check url
-      const dUrl = checkURL(e.url, e.base);
-      if (!dUrl) { return; }
-
-      browser.downloads.download({                          // Promise with id OR reject with error message
-        url: dUrl,
-        filename: e.filename ? e.filename : null,
-        saveAs: true,
-        conflictAction: 'uniquify'
-      })
-      .then(() => {})
-      .catch(error => notify(error.message, name));                 // failed notification
-      break;
-
-
-    case 'fetch':
-      // --- check url
-      const url = checkURL(e.url, e.base);
-      if (!url) { return; }
-
-      const init = {};
-      ['method', 'headers', 'body', 'mode', 'credentials', 'cache', 'redirect', 'referrer', 'referrerPolicy',
-        'integrity', 'keepalive', 'signal'].forEach(item => e.init.hasOwnProperty(item) && (init[item] = e.init[item]));
-
-      // --- remove forbidden headers
-      init.headers && processForbiddenHeaders(init.headers);
-
-      return fetch(url, init)
-        .then(response => {
-
-          switch (e.init.responseType) {
-
-            case 'json': return response.json();
-            case 'blob': return response.blob();
-            case 'arrayBuffer': return response.arrayBuffer();
-            case 'formData': return response.formData();
-            default: return response.text();
-          }
+        browser.downloads.download({                          // Promise with id OR reject with error message
+          url: dUrl,
+          filename: e.filename ? e.filename : null,
+          saveAs: true,
+          conflictAction: 'uniquify'
         })
-        .catch(console.error);
-      break;
+        .then(() => {})
+        .catch(error => notify(error.message, name));                 // failed notification
+        break;
 
-    case 'xmlHttpRequest':
-      const xhrUrl = checkURL(e.url, e.base);
-      if (!xhrUrl) { return; }
 
-      return new Promise((resolve, reject) => {
+      case 'fetch':
+        // --- check url
+        const url = this.checkURL(e.url, e.base);
+        if (!url) { return; }
 
-        const xhr = new XMLHttpRequest();
-        xhr.open(e.method, xhrUrl, true, e.user, e.password);
-        e.overrideMimeType && xhr.overrideMimeType(e.overrideMimeType);
-        xhr.responseType = e.responseType;
-        e.timeout && (xhr.timeout = e.timeout);
-        e.hasOwnProperty('withCredentials') && (xhr.withCredentials = e.withCredentials);
-        if (e.headers) {
-           // --- remove forbidden headers
-           processForbiddenHeaders(e.headers);
-           Object.keys(e.headers).forEach(item => xhr.setRequestHeader(item, e.headers[item]));
-        }
-        xhr.send(e.data);
+        const init = {};
+        ['method', 'headers', 'body', 'mode', 'credentials', 'cache', 'redirect', 'referrer', 'referrerPolicy',
+          'integrity', 'keepalive', 'signal'].forEach(item => e.init.hasOwnProperty(item) && (init[item] = e.init[item]));
 
-        xhr.onload =      () => resolve(makeResponse(xhr, 'onload'));
-        xhr.onerror =     () => resolve(makeResponse(xhr, 'onerror'));
-        xhr.ontimeout =   () => resolve(makeResponse(xhr, 'ontimeout'));
-        xhr.onabort =     () => resolve(makeResponse(xhr, 'onabort'));
-        xhr.onprogress =  () => { };
-      });
-      break;
+        // --- remove forbidden headers
+        init.headers && this.processForbiddenHeaders(init.headers);
+
+        return fetch(url, init)
+          .then(response => {
+
+            switch (e.init.responseType) {
+
+              case 'json': return response.json();
+              case 'blob': return response.blob();
+              case 'arrayBuffer': return response.arrayBuffer();
+              case 'formData': return response.formData();
+              default: return response.text();
+            }
+          })
+          .catch(console.error);
+        break;
+
+      case 'xmlHttpRequest':
+        const xhrUrl = this.checkURL(e.url, e.base);
+        if (!xhrUrl) { return; }
+
+        return new Promise((resolve, reject) => {
+
+          const xhr = new XMLHttpRequest();
+          xhr.open(e.method, xhrUrl, true, e.user, e.password);
+          e.overrideMimeType && xhr.overrideMimeType(e.overrideMimeType);
+          xhr.responseType = e.responseType;
+          e.timeout && (xhr.timeout = e.timeout);
+          e.hasOwnProperty('withCredentials') && (xhr.withCredentials = e.withCredentials);
+          if (e.headers) {
+             // --- remove forbidden headers
+             this.processForbiddenHeaders(e.headers);
+             Object.keys(e.headers).forEach(item => xhr.setRequestHeader(item, e.headers[item]));
+          }
+          xhr.send(e.data);
+
+          xhr.onload =      () => resolve(this.makeResponse(xhr, 'onload'));
+          xhr.onerror =     () => resolve(this.makeResponse(xhr, 'onerror'));
+          xhr.ontimeout =   () => resolve(this.makeResponse(xhr, 'ontimeout'));
+          xhr.onabort =     () => resolve(this.makeResponse(xhr, 'onabort'));
+          xhr.onprogress =  () => {};
+        });
+        break;
+    }
   }
-});
 
-function makeResponse(xhr, type) {
+  checkURL(url, base) {
 
-  return {
-    type,
-    readyState:       xhr.readyState,
-    response:         xhr.response,
-    responseHeaders:  xhr.getAllResponseHeaders(),
-    responseText:     ['', 'text'].includes(xhr.responseType) ? xhr.responseText : '', // responseText is only available if responseType is '' or 'text'.
-    responseType:     xhr.responseType,
-    responseURL:      xhr.responseURL,
-    responseXML:      ['', 'document'].includes(xhr.responseType) ? xhr.responseXML : '', // responseXML is only available if responseType is '' or 'document'.
-    status:           xhr.status,
-    statusText:       xhr.statusText,
-    timeout:          xhr.timeout,
-    withCredentials:  xhr.withCredentials,
-    finalUrl:         xhr.responseURL
-  };
+    try { url = new URL(url, base); }
+    catch (error) {
+      console.error(error.message);
+      return;
+    }
+
+    // --- check protocol
+    if (!['http:', 'https:', 'ftp:', 'ftps:'].includes(url.protocol)) {
+      console.error('Unsupported Protocol ' + url.protocol);
+      return;
+    }
+    return url.href;
+  }
+
+  makeResponse(xhr, type) {
+
+    return {
+      type,
+      readyState:       xhr.readyState,
+      response:         xhr.response,
+      responseHeaders:  xhr.getAllResponseHeaders(),
+      responseText:     ['', 'text'].includes(xhr.responseType) ? xhr.responseText : '', // responseText is only available if responseType is '' or 'text'.
+      responseType:     xhr.responseType,
+      responseURL:      xhr.responseURL,
+      responseXML:      ['', 'document'].includes(xhr.responseType) ? xhr.responseXML : '', // responseXML is only available if responseType is '' or 'document'.
+      status:           xhr.status,
+      statusText:       xhr.statusText,
+      timeout:          xhr.timeout,
+      withCredentials:  xhr.withCredentials,
+      finalUrl:         xhr.responseURL
+    };
+  }
 }
-
-function checkURL(url, base) {
-
-  try { url = new URL(url, base); }
-  catch (error) {
-    console.error(error.message);
-    return;
-  }
-
-  // --- check protocol
-  if (!['http:', 'https:', 'ftp:', 'ftps:'].includes(url.protocol)) {
-    console.error('Unsupported Protocol ' + url.protocol);
-    return;
-  }
-  return url.href;
-}
+new API();
 // ----------------- /Content Message Handler --------------
 
 // ----------------- Remote Update -------------------------
@@ -593,8 +650,9 @@ function processResponse(text, name, updateURL) {
   const data = getMetaData(text, userMatches, userExcludeMatches);
   if (!data) { throw `${name}: Meta Data error`; }
 
-  // --- check version, if update existing
-  if (pref.content[name] && !higherVersion(data.version, pref.content[name].version)) { return; }
+  // --- check version, if update existing, not for local files
+  if (!updateURL.startsWith('file:///') && pref.content[name] &&
+        !higherVersion(data.version, pref.content[name].version)) { return; }
 
   // --- check name, if update existing
   if (pref.content[name] && data.name !== name) {           // name has changed
