@@ -2,7 +2,7 @@
 
 class Highlight {
 
-  constructor(box, legend, footer) {
+  init(box, legend, footer) {
     this.box = box;
     this.legend = legend;
     this.footer = footer;
@@ -14,7 +14,24 @@ class Highlight {
 
   keydown(e) {
 
+    let sel;
     switch (e.key) {
+
+      case 'Enter':                                         // highlight previous node on Enter
+        e.preventDefault();
+        sel = window.getSelection();
+        const target = [...this.box.children].find(item => sel.containsNode(item, true));
+        if (!target) { return; }
+
+        const node = target.cloneNode(false);
+        node.textContent = '\n';
+        target.after(node);
+        const range = sel.getRangeAt(0);
+        range.setStart(target.nextElementSibling, 0);
+        range.collapse(true);                                 // collapse to start
+        sel.removeAllRanges();
+        sel.addRange(range);
+        break;
 
       case 's':                                             // Ctrl + s
         if (e.ctrlKey) {
@@ -25,7 +42,7 @@ class Highlight {
 
       case 'Tab':                                           // Tab key
         e.preventDefault();
-        const sel = window.getSelection();
+        sel = window.getSelection();
 
         const str = sel + '';
 
@@ -55,7 +72,7 @@ class Highlight {
           default:
             document.execCommand('insertText', false, '  ');
         }
-        this.original = box.textContent;
+        this.original = this.box.textContent;
         break;
     }
   }
@@ -72,23 +89,19 @@ class Highlight {
     if (!text.trim()) { return; }
 
     const sel = window.getSelection();
-    const range = sel.getRangeAt(0);
     const index = [...this.box.children].findIndex(item => sel.containsNode(item, true));
+    const childIndex = [...this.box.children[index].children].findIndex(item => sel.containsNode(item, true));
+    document.execCommand('insertText', false, text);
 
-    const pre = range.cloneRange();
-    pre.selectNodeContents(this.box);
-    pre.setEnd(range.startContainer, range.startOffset);
-
-    const post = range.cloneRange();
-    post.selectNodeContents(this.box);
-    post.setStart(range.endContainer, range.endOffset);
-
-    this.box.textContent = pre + text + post;
     this.original = '';                                     // force re-process
     this.process();
 
-    if (index > 0) {                                        // go to previous node/line, not -1 or 0
-      range.setStart(this.box.children[index], 0);
+    if (index > 0) {                                        // go to previous node/line, not -1 or 0     
+
+      const len = text.split('\n').length -1;
+      const node = this.box.children[index+len] || this.box.children[index];
+      const range = sel.getRangeAt(0);
+      range.setStart(node, 0);
       range.collapse(true);                                 // collapse to start
       sel.removeAllRanges();
       sel.addRange(range);
@@ -114,10 +127,10 @@ class Highlight {
 
   process() {
 
-    if (!this.box.classList.contains('syntax') || this.box.innerText === this.original) {
+    if (!this.box.classList.contains('syntax') || this.box.textContent === this.original) {
       return;
     }
-
+//console.log(' called');
     const box = this.box;
     const start = performance.now();
     box.classList.remove('invalid');                        // reset
@@ -127,13 +140,12 @@ class Highlight {
     const text = box.textContent.trim().replace(new RegExp(String.fromCharCode(160), 'g'), nl); // replacing &nbsp;
     if (!text.trim()) { return; }
 
-    const metaRegex = /==(UserScript|UserCSS|UserStyle)==([\s\S]+)==\/\1==/i;
-    const metaData = text.match(metaRegex);
+    const metaData = text.match(Meta.regEx);
 
     if (!metaData) {
 
       box.classList.add('invalid');
-      notify(chrome.i18n.getMessage('errorMeta'));
+      Util.notify(chrome.i18n.getMessage('errorMeta'));
       return;
     }
 
@@ -551,3 +563,5 @@ class Highlight {
     }
   }
 }
+
+const highlight = new Highlight();

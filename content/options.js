@@ -1,767 +1,819 @@
 ﻿'use strict';
 
 // ----------------- Internationalization ------------------
-I18N.get();
-
-// ----------------- Options -------------------------------
-const prefNode = document.querySelectorAll('#autoUpdateInterval, #globalScriptExcludeMatches, #sync'); // global, get all the preference elements
-const submit = document.querySelector('button[type="submit"]'); // submit button
-submit.addEventListener('click', checkOptions);
-const globalScriptExcludeMatches = document.querySelector('#globalScriptExcludeMatches');
-
-
-function processOptions() {                                 // set saved pref/defaults OR update saved pref
-  // 'this' is ony set when clicking the button to save options
-  prefNode.forEach(node => {
-    // value: 'select-one', 'textarea', 'text', 'number'
-    const attr = node.type === 'checkbox' ? 'checked' : 'value';
-    this ? pref[node.id] = node[attr] : node[attr] = pref[node.id];
-  });
-  
-  this && chrome.storage.local.set(pref);                   // update saved pref
-}
-// ----------------- /Options ------------------------------
+Util.i18n();
 
 // ----------------- User Preference -----------------------
 Pref.get().then(() => {
-  processOptions();
-  processScript();
-  autoUpdateInterval.nextElementSibling.value = autoUpdateInterval.value;
+  options.process();
+  script.process();
 });
 // ----------------- /User Preference ----------------------
 
-function checkOptions() {
+// ----------------- Options -------------------------------
+class Options {
 
-  // --- check Global Script Exclude Matches
-  if(hasInvalidPattern(globalScriptExcludeMatches)) { return; }
+  constructor(keys) {
+    this.prefNode = document.querySelectorAll(keys || '#'+Object.keys(pref).join(',#')); // defaults to pref keys
+    document.querySelector('button[type="submit"]').addEventListener('click', () => this.check()); // submit button
+    this.pBar = document.querySelector('.progressBar');
 
-  // --- progress bar
-  progressBar();
-  
+    this.globalScriptExcludeMatches = document.querySelector('#globalScriptExcludeMatches');
 
-  // --- save options
-  processOptions.call(this);
+    // --- from browser pop-up & contextmenu (not in Private Window)
+    window.addEventListener('storage', (e) => e.key === 'nav' && this.getNav(e.newValue));
+  }
 
-  // --- process Syntax Highlight
-  highlight.process();
-}
+  process(save) {
+    // 'save' is ony set when clicking the button to save options
+    this.prefNode.forEach(node => {
+      // value: 'select-one', 'textarea', 'text', 'number'
+      const attr = node.type === 'checkbox' ? 'checked' : 'value';
+      save ? pref[node.id] = node[attr] : node[attr] = pref[node.id];
+    });
 
+    save && chrome.storage.local.set(pref);                 // update saved pref
+  }
 
-// ----------------- Scripts -------------------------------
-// ----- global
-const liTemplate = document.querySelector('nav li.template');
-const legend = document.querySelector('.script legend');
-const box = document.querySelector('.script .box');
-const textBox = box.nextElementSibling;
-textBox.value = '';                                         // Browser retains textarea content on refresh
-const enable = document.querySelector('#enable');
-const autoUpdate = document.querySelector('#autoUpdate');
-const userMatches = document.querySelector('#userMatches');
-const userExcludeMatches = document.querySelector('#userExcludeMatches');
+  progressBar() {
+    this.pBar.classList.toggle('on');
+    setTimeout(() => { this.pBar.classList.toggle('on'); }, 2000);
+  }
 
+  check() {
 
-// ----- Theme
-const script = document.querySelector('.script');
-const dark = document.querySelector('#dark');
-const isDark = localStorage.getItem('dark') === 'true';     // defaults to false
-script.classList.toggle('dark', isDark);
-dark.checked = isDark;
-dark.addEventListener('change', function() {
-  localStorage.setItem('dark', this.checked);
-  script.classList.toggle('dark', this.checked);
-});
+    // --- check Global Script Exclude Matches
+    if(!Pattern.validate(this.globalScriptExcludeMatches)) { return; }
 
-// ----- Syntax Highlighter
-const footer = document.querySelector('footer');
-const doSyntax = localStorage.getItem('syntax') !== 'false'; // defaults to true
-box.classList.toggle('syntax', doSyntax);
-syntax.checked = doSyntax;
-syntax.addEventListener('change', function() {
-  localStorage.setItem('syntax', this.checked);
-  box.classList.toggle('syntax', this.checked);
+    // --- progress bar
+    this.progressBar();
 
-  if (this.checked && textBox.value.trim()) {
-    box.textContent = textBox.value;
-    textBox.value = '';
+    // --- save options
+    this.process(true);
+
+    // --- process Syntax Highlight
     highlight.process();
   }
-  else {
-    textBox.value = box.textContent;
-    box.textContent = '';
-    footer.textContent = '';
+
+  getNav(nav) {
+
+    nav = nav || localStorage.getItem('nav');
+    localStorage.removeItem('nav');
+    if (!nav) { return; }                                   // end execution if not found
+
+    switch (nav) {
+
+      case 'help':
+        document.getElementById('nav1').checked = true;
+        break;
+
+      case 'js':
+      case 'css':
+        document.getElementById('nav4').checked = true;
+        script.newScript(nav);
+        break;
+
+      default:
+        document.getElementById(nav).click();
+    }
   }
-});
-
-const highlight = new Highlight(box, legend, footer);
-
-// ----- menu dropdown
-const details = document.querySelector('.menu details');
-details.addEventListener('toggle', () =>
-  details.open ? document.body.addEventListener('click', closePopup) : document.body.removeEventListener('click', closePopup)
-);
-
-function closePopup(e) {
-  !details.contains(e.explicitOriginalTarget) && (details.open = false);
 }
+const options = new Options('#autoUpdateInterval, #globalScriptExcludeMatches, #sync, #counter');
+// ----------------- /Options ------------------------------
+
+// ----------------- Scripts -------------------------------
+class Script {                                
+
+  constructor() {
+    // class RemoteUpdate in common.js                     
+    RU.callback = this.processResponse.bind(this);
+    
+    this.liTemplate = document.querySelector('nav li.template');
+    this.legend = document.querySelector('.script legend');
+    const box = document.querySelector('.script .box');
+    this.box = box;
+
+    const textBox = box.nextElementSibling;
+    textBox.value = '';                                     // Browser retains textarea content on refresh
+    this.textBox = textBox;
+
+    this.enable = document.querySelector('#enable');
+    this.enable.addEventListener('change', () => this.toggleEnable());
+
+    this.autoUpdate = document.querySelector('#autoUpdate');
+    this.autoUpdate.addEventListener('change', () => this.toggleAutoUpdate());
+
+    this.userMatches = document.querySelector('#userMatches');
+    this.userExcludeMatches = document.querySelector('#userExcludeMatches');
+
+    // --- Theme
+    const script = document.querySelector('.script');
+    const dark = document.querySelector('#dark');
+    const isDark = localStorage.getItem('dark') === 'true'; // defaults to false
+    script.classList.toggle('dark', isDark);
+    dark.checked = isDark;
+    dark.addEventListener('change', function() {
+      localStorage.setItem('dark', this.checked);
+      script.classList.toggle('dark', this.checked);
+    });
+
+    // --- Syntax Highlighter
+    const footer = document.querySelector('footer');
+    const doSyntax = localStorage.getItem('syntax') !== 'false'; // defaults to true
+    box.classList.toggle('syntax', doSyntax);
+    syntax.checked = doSyntax;
+    syntax.addEventListener('change', function() {
+      localStorage.setItem('syntax', this.checked);
+      box.classList.toggle('syntax', this.checked);
+
+      if (this.checked && textBox.value.trim()) {
+        box.textContent = textBox.value;
+        textBox.value = '';
+        highlight.process();
+      }
+      else {
+        textBox.value = box.textContent;
+        box.textContent = '';
+        footer.textContent = '';
+      }
+    });
+
+    highlight.init(box, this.legend, footer);
 
 
-document.querySelectorAll('.script button[type="button"][data-i18n], nav button[type="button"][data-i18n]').forEach(item =>
-  item.addEventListener('click', processButtons));
-enable.addEventListener('change', toggleEnable);
-autoUpdate.addEventListener('change', toggleAutoUpdate);
-document.querySelector('.script .bin').addEventListener('click', deleteScript);
+    document.querySelectorAll('.script button[type="button"][data-i18n], nav button[type="button"][data-i18n]').forEach(item =>
+      item.addEventListener('click', e => this.processButtons(e)));
 
-window.addEventListener('beforeunload', (e) => unsavedChanges() && event.preventDefault());
+    document.querySelector('.script .bin').addEventListener('click', () => this.deleteScript());
 
-const autoUpdateInterval = document.getElementById('autoUpdateInterval');
-autoUpdateInterval.addEventListener('input', function() {
-  this.nextElementSibling.value = this.value;
-});
+    window.addEventListener('beforeunload', () => this.unsavedChanges() && event.preventDefault());
 
-  const template = {
-    js:
+
+    this.template = {
+      js:
 `/*
 ==UserScript==
 @name
 @match
-@version        1.0
+@version          1.0
 ==/UserScript==
 */`,
 
-    css:
+      css:
 `/*
 ==UserCSS==
 @name
 @match
-@version        1.0
-@run-at         document-start
+@version          1.0
+@run-at           document-start
 ==/UserCSS==
 */`
 };
 
-// ----------------- Buttons -------------------------------
-function processButtons() {
 
-  switch (this.dataset.i18n) {
+    // --- Import/Export Script
+    document.getElementById('fileScript').addEventListener('change', this.processFileSelect);
 
-    case 'saveScript': saveScript(); break;
-    case 'update': updateScript(); break;
-    case 'newJS|title': newScript('js'); break;
-    case 'newCSS|title': newScript('css'); break;
-    case 'saveTemplate': saveTemplate(); break;
-    case 'exportScript': exportScript(); break;
-    case 'exportAllScript': exportAllScript(); break;
-  }
-}
-
-function newScript(type) {
-
-  box.classList.remove('invalid');
-  textBox.classList.remove('invalid');
-  const last = document.querySelector('nav li.on');
-  last && last.classList.remove('on');
-  if(unsavedChanges()) { return; }
-  box.id = '';
-  legend.textContent = '';
-  legend.className = type;
-  legend.textContent = chrome.i18n.getMessage(type === 'js' ? 'newJS' : 'newCSS');
-
-  const text = pref.template[type] || template[type];
-  box.classList.contains('syntax') ? box.textContent = text : textBox.value = text;
-  highlight.process();
-}
-
-function saveTemplate() {
-
-  const metaData = box.textContent.match(metaRegEx);
-  if (!metaData) { notify(chrome.i18n.getMessage('errorMeta')); return; }
-  const type = metaData[1].toLowerCase() === 'userscript' ? 'js' : 'css';
-  pref.template[type] = box.textContent.trim();
-  browser.storage.local.set({template: pref.template});     // update saved pref
-}
-
-function processScript() {
-
-  // --- clear data
-  while (liTemplate.parentNode.children[1]) { liTemplate.parentNode.children[1].remove(); }
-
-  Object.keys(pref.content).sort(Intl.Collator().compare).forEach(item => addScript(pref.content[item]));
-
-  if (box.id) {                                             // refresh previously loaded content
-
-    box.textContent = '';
-    document.getElementById(box.id).click();
-  }
-  getNav();                                                 // run after scripts are loaded
-}
-
-function addScript(item) {
-
-  const li = liTemplate.cloneNode(true);
-  li.classList.remove('template');
-  li.classList.add(item.js ? 'js' : 'css');
-  item.enabled || li.classList.add('disabled');
-  item.error && li.classList.add('error');
-  li.textContent = item.name;
-  li.id = item.name;
-  liTemplate.parentNode.appendChild(li);
-  li.addEventListener('click', showScript);
-}
-
-
-function showScript() {
-
-  // --- if showing another page
-  document.getElementById('nav4').checked = true;
-
-  if(unsavedChanges()) { return; }
-
-  // --- reset
-  [box, textBox, userMatches, userExcludeMatches].forEach(item => item.classList.remove('invalid'));
-
-  const last = document.querySelector('nav li.on');
-  last && last.classList.remove('on');
-  this.classList.add('on');
-
-  const id = this.id;
-  box.id = id;
-  legend.textContent = '';
-  legend.className = this.classList.contains('js') ? 'js' : 'css';
-  legend.textContent = id;
-  enable.checked = pref.content[id].enabled;
-  autoUpdate.checked = pref.content[id].autoUpdate;
-
-  const text = pref.content[id].js || pref.content[id].css;
-  box.classList.contains('syntax') ? box.textContent = text : textBox.value = text;
-  highlight.process();
-
-
-  if (pref.content[id].error) {
-    box.classList.add('invalid');
-    textBox.classList.add('invalid');
-    notify(pref.content[id].error, id);
+    // --- menu dropdown
+    this.closePopup = this.closePopup.bind(this);
+    this.details = document.querySelector('.menu details');
+    this.details.addEventListener('toggle', () =>
+      this.details.open ? document.body.addEventListener('click', this.closePopup) :
+        document.body.removeEventListener('click', this.closePopup)
+    );
   }
 
-  userMatches.value = pref.content[id].userMatches || '';
-  userExcludeMatches.value = pref.content[id].userExcludeMatches || '';
-}
-
-function noSpace(str) {
-
-  return str.replace(/\s+/g, '');
-}
-
-function unsavedChanges() {
-
-  const text = noSpace(box.classList.contains('syntax') ? box.textContent : textBox.value);
-  switch (true) {
-
-    case !text:
-    case !box.id && text === noSpace(template.js):
-    case !box.id && text === noSpace(template.css):
-    case !box.id && text === noSpace(pref.template.js):
-    case !box.id && text === noSpace(pref.template.css):
-
-    case  box.id && text === noSpace(pref.content[box.id].js + pref.content[box.id].css) &&
-            userMatches.value.trim() === (pref.content[box.id].userMatches || '') &&
-            userExcludeMatches.value.trim() === (pref.content[box.id].userExcludeMatches || ''):
-
-      return false;
-
-    default:
-      return !confirm(chrome.i18n.getMessage('discardConfirm'));
+  closePopup(e) {
+    !this.details.contains(e.explicitOriginalTarget) && (this.details.open = false);
   }
-}
 
-async function toggleEnable() {
+  processButtons(e) {
 
-  // --- multi toggle
-  if (window.getSelection().toString().trim()) {
+    switch (e.target.dataset.i18n) {
 
-    const li = getMulti();
+      case 'saveScript': this.saveScript(); break;
+      case 'update': this.updateScript(); break;
+      case 'newJS|title': this.newScript('js'); break;
+      case 'newCSS|title': this.newScript('css'); break;
+      case 'saveTemplate': this.saveTemplate(); break;
+      case 'exportScript': this.exportScript(); break;
+      case 'exportAllScript': this.exportAllScript(); break;
+    }
+  }
+
+  newScript(type) {
+
+    const box = this.box;
+    const legend = this.legend;
+    const textBox = this.textBox;
+
+    box.classList.remove('invalid');
+    textBox.classList.remove('invalid');
+    const last = document.querySelector('nav li.on');
+    last && last.classList.remove('on');
+    if(this.unsavedChanges()) { return; }
+    box.id = '';
+    legend.textContent = '';
+    legend.className = type;
+    legend.textContent = chrome.i18n.getMessage(type === 'js' ? 'newJS' : 'newCSS');
+
+    const text = pref.template[type] || this.template[type];
+    box.classList.contains('syntax') ? box.textContent = text : textBox.value = text;
+    highlight.process();
+  }
+
+  saveTemplate() {
+
+    const box = this.box;
+
+    const metaData = box.textContent.match(Meta.regEx);
+    if (!metaData) { Util.notify(chrome.i18n.getMessage('errorMeta')); return; }
+    const type = metaData[1].toLowerCase() === 'userscript' ? 'js' : 'css';
+    pref.template[type] = box.textContent.trim();
+    browser.storage.local.set({template: pref.template});   // update saved pref
+  }
+
+  process() {
+
+    const box = this.box;
+
+    // --- clear data
+    while (this.liTemplate.parentNode.children[1]) { this.liTemplate.parentNode.children[1].remove(); }
+
+    Object.keys(pref.content).sort(Intl.Collator().compare).forEach(item => this.addScript(pref.content[item]));
+
+    if (box.id) {                                           // refresh previously loaded content
+
+      box.textContent = '';
+      document.getElementById(box.id).click();
+    }
+    options.getNav();                                       // run after scripts are loaded
+  }
+
+  addScript(item) {
+
+    const li = this.liTemplate.cloneNode(true);
+    li.classList.remove('template');
+    li.classList.add(item.js ? 'js' : 'css');
+    item.enabled || li.classList.add('disabled');
+    item.error && li.classList.add('error');
+    li.textContent = item.name;
+    li.id = item.name;
+    this.liTemplate.parentNode.appendChild(li);
+    li.addEventListener('click', e => this.showScript(e));
+  }
+
+  showScript(e) {
+
+    const box = this.box;
+    const legend = this.legend;
+    const textBox = this.textBox;
+    const enable = this.enable;
+    const autoUpdate = this.autoUpdate;
+    const li = e.target;
+
+    // --- if showing another page
+    document.getElementById('nav4').checked = true;
+
+    if(this.unsavedChanges()) { return; }
+
+    // --- reset
+    [box, textBox, this.userMatches, this.userExcludeMatches].forEach(item => item.classList.remove('invalid'));
+
+    const last = document.querySelector('nav li.on');
+    last && last.classList.remove('on');
+    li.classList.add('on');
+
+    const id = li.id;
+    box.id = id;
+    legend.textContent = '';
+    legend.className = li.classList.contains('js') ? 'js' : 'css';
+    legend.textContent = id;
+    enable.checked = pref.content[id].enabled;
+    autoUpdate.checked = pref.content[id].autoUpdate;
+
+    const text = pref.content[id].js || pref.content[id].css;
+    box.classList.contains('syntax') ? box.textContent = text : textBox.value = text;
+    highlight.process();
+
+
+    if (pref.content[id].error) {
+      box.classList.add('invalid');
+      textBox.classList.add('invalid');
+      Util.notify(pref.content[id].error, id);
+    }
+
+    this.userMatches.value = pref.content[id].userMatches || '';
+    this.userExcludeMatches.value = pref.content[id].userExcludeMatches || '';
+  }
+
+  noSpace(str) {
+
+    return str.replace(/\s+/g, '');
+  }
+
+  unsavedChanges() {
+
+    const box = this.box;
+
+    const text = this.noSpace(box.classList.contains('syntax') ? box.textContent : this.textBox.value);
+    switch (true) {
+
+      case !text:
+      case !box.id && text === this.noSpace(pref.template.js || this.template.js):
+      case !box.id && text === this.noSpace(pref.template.css || this.template.css):
+      case  box.id && text === this.noSpace(pref.content[box.id].js + pref.content[box.id].css) &&
+              this.userMatches.value.trim() === (pref.content[box.id].userMatches || '') &&
+              this.userExcludeMatches.value.trim() === (pref.content[box.id].userExcludeMatches || ''):
+
+        return false;
+
+      default:
+        return !confirm(chrome.i18n.getMessage('discardConfirm'));
+    }
+  }
+
+  toggleEnable() {
+
+    const box = this.box;
+    const enable = this.enable;
+
+    // --- multi toggle
+    if (window.getSelection().toString().trim()) {
+
+      const li = this.getMulti();
+      if (li[0]) {
+
+        li.forEach(item => {
+
+          const id = item.id;
+          pref.content[id].enabled = enable.checked;
+          item.classList.toggle('disabled', !enable.checked);
+        });
+
+        browser.storage.local.set({content: pref.content}); // update saved pref
+        return;
+      }
+    }
+
+    if (!box.id) { return; }
+
+    const id = box.id;
+    pref.content[id].enabled = enable.checked;
+    const last = document.querySelector('nav li.on');
+    last && last.classList.toggle('disabled', !enable.checked);
+
+    browser.storage.local.set({content: pref.content});     // update saved pref
+  }
+
+  toggleAutoUpdate() {
+
+    const box = this.box;
+    const autoUpdate = this.autoUpdate;
+    
+    if (!box.id) { return; }
+
+    const id = box.id;
+    const canUpdate = pref.content[id].updateURL && pref.content[id].version;
+    pref.content[id].autoUpdate = canUpdate ? autoUpdate.checked : false;
+    if (!canUpdate) {
+      Util.notify(chrome.i18n.getMessage('errorUpdate'));
+      autoUpdate.checked = false;
+      return;
+    }
+
+    browser.storage.local.set({content: pref.content});     // update saved pref
+  }
+
+  getMulti() {
+
+    // --- fitler the visible items in the selection only
+    const sel = window.getSelection();
+    if (!sel.toString().trim()) { return []; }
+    return [...document.querySelectorAll('li.js, li.css')].filter(item =>
+            sel.containsNode(item, true) && window.getComputedStyle(item).display !== 'none');
+  }
+
+  async deleteScript() {
+
+    const box = this.box;
+    const legend = this.legend;
+
+    const li = this.getMulti();
+    if (li[0] ? !confirm(chrome.i18n.getMessage('deleteMultiConfirm', li.length)) :
+                !confirm(chrome.i18n.getMessage('deleteConfirm', box.id))) { return; }
+
+    const deleted = [];
+
+
+    // --- multi delete
     if (li[0]) {
 
       li.forEach(item => {
 
         const id = item.id;
-        pref.content[id].enabled = this.checked;
-        item.classList.toggle('disabled', !this.checked);
+        item.remove();                                      // remove from menu list
+        delete pref.content[id];
+        deleted.push(id);
       });
-
-      browser.storage.local.set({content: pref.content});   // update saved pref
-      return;
     }
-  }
+    // --- single delete
+    else {
 
-  if (!box.id) { return; }
+      if (!box.id) { return; }
+      const id = box.id;
 
-  const id = box.id;
-  pref.content[id].enabled = this.checked;
-  const last = document.querySelector('nav li.on');
-  last && last.classList.toggle('disabled', !this.checked);
-
-  browser.storage.local.set({content: pref.content});       // update saved pref
-}
-
-function toggleAutoUpdate() {
-
-  if (!box.id) { return; }
-
-  const id = box.id;
-  const canUpdate = pref.content[id].updateURL && pref.content[id].version;
-  pref.content[id].autoUpdate = canUpdate ? this.checked : false;
-  if (!canUpdate) {
-    notify(chrome.i18n.getMessage('errorUpdate'));
-    this.checked = false;
-    return;
-  }
-
-  browser.storage.local.set({content: pref.content});       // update saved pref
-}
-
-function getMulti() {
-
-  // --- fitler the visible items in the selection only
-  const sel = window.getSelection();
-  if (!sel.toString().trim()) { return []; }
-  return [...document.querySelectorAll('li.js, li.css')].filter(item =>
-          sel.containsNode(item, true) && window.getComputedStyle(item).display !== 'none');
-}
-
-async function deleteScript() {
-
-  const li = getMulti();
-  if (li[0] ? !confirm(chrome.i18n.getMessage('deleteMultiConfirm', li.length)) :
-              !confirm(chrome.i18n.getMessage('deleteConfirm', box.id))) { return; }
-
-  const deleted = [];
-
-
-  // --- multi delete
-  if (li[0]) {
-
-    li.forEach(item => {
-
-      const id = item.id;
-      item.remove();                                        // remove from menu list
+      // --- remove from menu list
+      const li = document.getElementById(id);
+      li && li.remove();
       delete pref.content[id];
       deleted.push(id);
-    });
-  }
-  // --- single delete
-  else {
-
-    if (!box.id) { return; }
-    const id = box.id;
-
-    // --- remove from menu list
-    document.querySelector('nav li.on').remove();
-    delete pref.content[id];
-    deleted.push(id);
-  }
-
-  // --- reset box
-  legend.className = '';
-  legend.textContent = chrome.i18n.getMessage('script');
-  box.id = '';
-  box.textContent = '';
-
-  // --- delete script storage
-  await browser.storage.local.remove(deleted.map(name => '_' + name));
-
-  browser.storage.local.set({content: pref.content});       // update saved pref
-}
-
-
-async function saveScript() {
-
-  // --- reset
-  box.classList.remove('invalid');
-  textBox.classList.remove('invalid');
-
-  // --- check User Matches User Exclude Matches
-  if(hasInvalidPattern(userMatches)) { return; }
-  if(hasInvalidPattern(userExcludeMatches)) { return; }
-
-  // --- chcek meta data
-  let text;
-  if (box.classList.contains('syntax')) {
-    const nl = /\r\n/.test(box.textContent) ? '\r\n' : '\n';
-    box.querySelectorAll('br').forEach(item => item.replaceWith(nl));
-    text = box.textContent.trim().replace(new RegExp(String.fromCharCode(160), 'g'), nl);
-  }
-  else {text = textBox.value; }
-
-  const data = getMetaData(text.trim(), userMatches.value, userExcludeMatches.value);
-  if (!data) { throw 'Meta Data Error'; }
-  else if (data.error) {
-    box.classList.add('invalid');
-    notify(chrome.i18n.getMessage('errorMeta'));
-    return;
-  }
-
-  // --- check name
-  if (!data.name) {
-    notify(chrome.i18n.getMessage('errorNoName'));
-    return;
-  }
-  if (data.name !== box.id && pref.content[data.name] &&
-            !confirm(chrome.i18n.getMessage('errorName'))) { return; }
-
-  // --- check matches
-  if (!data.matches[0] && !data.includeGlobs[0] && !data.style[0]) {
-    data.enabled = false;                                   // allow no matches but disable
-/*
-    box.classList.add('invalid');
-    notify(chrome.i18n.getMessage('errorMatches'));
-    return;
-*/
-  }
-
-  // --- check for Web Install, set install URL
-  if (!data.updateURL && pref.content[data.name] &&
-      (pref.content[data.name].updateURL.startsWith('https://greasyfork.org/scripts/') ||
-        pref.content[data.name].updateURL.startsWith('https://openuserjs.org/install/')) ) {
-    data.updateURL = pref.content[data.name].updateURL;
-    data.autoUpdate = true;
-  }
-
-
-  pref.content[data.name] = data;                       // save to pref
-
-  switch (true) {
-
-    // --- new script
-    case !box.id:
-      addScript(data);
-      break;
-
-    // --- update new name
-    case data.name !== box.id:
-      // remove old registers
-      const oldName = box.id;
-      delete pref.content[oldName];
-      if (pref.hasOwnProperty('_' + oldName)) {                   // move script storage
-
-        pref['_' + data.name] = pref['_' + oldName];
-        await browser.storage.local.remove('_' + oldName);
-      }
-
-      // update old one in menu list & legend
-      const li = document.querySelector('nav li.on');
-      li.textContent = data.name;
-      li.id = data.name;
-      break;
-  }
-
-  box.id = data.name;
-  legend.textContent = data.name;
-
-  browser.storage.local.set({content: pref.content});       // update saved pref
-
-  // --- progress bar
-  progressBar();
-}
-
-// ----------------- Remote Update -------------------------
-function updateScript() {                                   // manual update, also for disabled and disabled autoUpdate
-
-  if (!box.id) { return; }
-
-  const id = box.id;
-
-  if (!pref.content[id].updateURL || !pref.content[id].version) {
-    notify(chrome.i18n.getMessage('errorUpdate'));
-    return;
-  }
-
-  getUpdate(pref.content[id], true);
-}
-
-async function processResponse(text, name) {
-
-  const data = getMetaData(text);
-  if (!data) { throw `${name}: Update Meta Data error`; }
-
-  // --- check version
-  if (!higherVersion(data.version, pref.content[name].version)) {
-    notify(chrome.i18n.getMessage('noNewUpdate'), name);
-    return;
-  }
-
-  // --- update from previous version
-  data.enabled = pref.content[name].enabled;
-  data.autoUpdate = pref.content[name].autoUpdate;
-
-  // --- check name
-  if (data.name !== name) {                                 // name has changed
-
-    if (pref.content[data.name]) { throw `${name}: Update new name already exists`; } // name already exists
-    else {
-      const oldName = name;
-      delete pref.content[oldName];
-      if (pref.hasOwnProperty('_' + oldName)) {                   // move script storage
-
-        pref['_' + data.name] = pref['_' + oldName];
-        await browser.storage.local.remove('_' + oldName);
-      }
     }
+
+    // --- reset box
+    legend.className = '';
+    legend.textContent = chrome.i18n.getMessage('script');
+    box.id = '';
+    box.textContent = '';
+
+    // --- delete script storage
+    await browser.storage.local.remove(deleted.map(name => '_' + name));
+
+    browser.storage.local.set({content: pref.content});     // update saved pref
   }
 
-  notify(chrome.i18n.getMessage('scriptUpdated', data.version), name);
-  pref.content[data.name] = data;                           // save to pref
-  browser.storage.local.set({content: pref.content});       // update saved pref
+  async saveScript() {
 
-  processScript();                                          // update page display
-  const on = document.getElementById(data.name);
-  on && on.click();                                         // reload the new script
-}
-// ----------------- /Remote Update ------------------------
+    const box = this.box;
+    const legend = this.legend;
+    const textBox = this.textBox;
 
-// ----------------- /Scripts ------------------------------
+    // --- reset
+    box.classList.remove('invalid');
+    textBox.classList.remove('invalid');
 
-// ----------------- Import/Export Script ------------------
-document.getElementById('fileScript').addEventListener('change', processFileSelectScript);
+    // --- check User Matches User Exclude Matches
+    if(!Pattern.validate(this.userMatches)) { return; }
+    if(!Pattern.validate(this.userExcludeMatches)) { return; }
 
-let multiCache = [];
-async function processFileSelectScript(e) {
+    // --- chcek meta data
+    let text;
+    if (box.classList.contains('syntax')) {
+      const nl = /\r\n/.test(box.textContent) ? '\r\n' : '\n';
+      box.querySelectorAll('br').forEach(item => item.replaceWith(nl));
+      text = box.textContent.trim().replace(new RegExp(String.fromCharCode(160), 'g'), nl);
+    }
+    else {text = textBox.value; }
 
-  multiCache = [];                                          // reset
+    const data = Meta.get(text.trim(), this.userMatches.value, this.userExcludeMatches.value);
+    if (!data) { throw 'Meta Data Error'; }
+    else if (data.error) {
+      box.classList.add('invalid');
+      Util.notify(chrome.i18n.getMessage('errorMeta'));
+      return;
+    }
 
-  // --- check for Stylus import
-  if (e.target.files[0].type === 'application/json') {
-    processFileSelectStylus(e);
-    return;
-  }
+    // --- check name
+    if (!data.name) {
+      Util.notify(chrome.i18n.getMessage('errorNoName'));
+      return;
+    }
+    if (data.name !== box.id && pref.content[data.name] &&
+              !confirm(chrome.i18n.getMessage('errorName'))) { return; }
 
-  for (const file of e.target.files) {
+    // --- check matches
+    if (!data.matches[0] && !data.includeGlobs[0] && !data.style[0]) {
+      data.enabled = false;                                 // allow no matches but disable
+  /*
+      box.classList.add('invalid');
+      Util.notify(chrome.i18n.getMessage('errorMatches'));
+      return;
+  */
+    }
+
+    // --- check for Web Install, set install URL
+    if (!data.updateURL && pref.content[data.name] &&
+        (pref.content[data.name].updateURL.startsWith('https://greasyfork.org/scripts/') ||
+          pref.content[data.name].updateURL.startsWith('https://openuserjs.org/install/')) ) {
+      data.updateURL = pref.content[data.name].updateURL;
+      data.autoUpdate = true;
+    }
+
+
+    pref.content[data.name] = data;                         // save to pref
 
     switch (true) {
 
-      case !file:
-        notify(chrome.i18n.getMessage('error'));
-        return;
+      // --- new script
+      case !box.id:
+        this.addScript(data);
+        break;
 
-      case !['text/css', 'application/x-javascript'].includes(file.type): // check file MIME type CSS/JS
-        notify(chrome.i18n.getMessage('errorType'));
-        return;
+      // --- update new name
+      case data.name !== box.id:
+        // remove old registers
+        const oldName = box.id;
+        delete pref.content[oldName];
+        if (pref.hasOwnProperty('_' + oldName)) {           // move script storage
+
+          pref['_' + data.name] = pref['_' + oldName];
+          await browser.storage.local.remove('_' + oldName);
+        }
+
+        // update old one in menu list & legend
+        const li = document.querySelector('nav li.on');
+        li.textContent = data.name;
+        li.id = data.name;
+        break;
     }
 
-    await new Promise((resolve, reject) => {
+    box.id = data.name;
+    legend.textContent = data.name;
+
+    browser.storage.local.set({content: pref.content});     // update saved pref
+
+    // --- progress bar
+    options.progressBar();
+  }
+
+  // --- Remote Update
+  updateScript() {                                          // manual update, also for disabled and disabled autoUpdate
+
+    const box = this.box;
+    if (!box.id) { return; }
+
+    const id = box.id;
+
+    if (!pref.content[id].updateURL || !pref.content[id].version) {
+      Util.notify(chrome.i18n.getMessage('errorUpdate'));
+      return;
+    }
+
+    RU.getUpdate(pref.content[id], true);              // to class RemoteUpdate in common.js
+  }
+
+  async processResponse(text, name) {                       // from class RemoteUpdate in common.js
+console.log(text);
+    const data = Meta.get(text);
+    if (!data) { throw `${name}: Update Meta Data error`; }
+
+    // --- check version
+    if (!RU.higherVersion(data.version, pref.content[name].version)) {
+      Util.notify(chrome.i18n.getMessage('noNewUpdate'), name);
+      return;
+    }
+
+    // --- update from previous version
+    data.enabled = pref.content[name].enabled;
+    data.autoUpdate = pref.content[name].autoUpdate;
+
+    // --- check name
+    if (data.name !== name) {                               // name has changed
+
+      if (pref.content[data.name]) { throw `${name}: Update new name already exists`; } // name already exists
+      else {
+        const oldName = name;
+        delete pref.content[oldName];
+        if (pref.hasOwnProperty('_' + oldName)) {           // move script storage
+
+          pref['_' + data.name] = pref['_' + oldName];
+          await browser.storage.local.remove('_' + oldName);
+        }
+      }
+    }
+
+    Util.notify(chrome.i18n.getMessage('scriptUpdated', data.version), name);
+    pref.content[data.name] = data;                         // save to pref
+    browser.storage.local.set({content: pref.content});     // update saved pref
+
+    this.process();                                         // update page display
+    const on = document.getElementById(data.name);
+    on && on.click();                                       // reload the new script
+  }
+
+  // ----------------- Import Script -----------------------
+  processFileSelect(e) {
+
+    // --- check for Stylus import
+    if (e.target.files[0].type === 'application/json') {
+      this.processFileSelectStylus(e);
+      return;
+    }
+
+    this.fileLength = e.target.files.length;
+
+    e.target.files.forEach(file => {
+
+      switch (true) {
+
+        case !file: Util.notify(chrome.i18n.getMessage('error')); return;
+        case !['text/css', 'application/x-javascript'].includes(file.type): // check file MIME type CSS/JS
+          Util.notify(chrome.i18n.getMessage('errorType'));
+          return;
+      }
 
       const reader  = new FileReader();
-      reader.onloadend = () => resolve(readDataScript(reader.result));
-      reader.onerror = () => reject(notify(chrome.i18n.getMessage('errorRead')));
+      reader.onloadend = () => script.readDataScript(reader.result);
+      reader.onerror = () => Util.notify(chrome.i18n.getMessage('errorRead'));
       reader.readAsText(file);
     });
   }
 
-  if(!multiCache[0]) { return; }
-  processScript();                                          // update page display
-  browser.storage.local.set({content: pref.content});       // update saved pref
-}
+  readDataScript(text) {
 
-function readDataScript(text) {
-
-  // --- chcek meta data
-  const data = getMetaData(text);
-  if (!data) { throw 'Meta Data Error'; }
-  else if (data.error) {
-    notify(chrome.i18n.getMessage('errorMeta'));
-    return;
-  }
-
-  // --- check name
-  if (pref.content[data.name]) {
-
-    const dataType = data.js ? 'js' : 'css';
-    const targetType = pref.content[data.name].js ? 'js' : 'css';
-    if (dataType !== targetType) { // same name exist in another type
-      data.name += ` (${dataType})`;
-      if (pref.content[data.name]) { throw `${data.name}: Update new name already exists`; } // name already exists
-    }
-
-    // --- update/import from previous version
-    data.enabled = pref.content[data.name].enabled;
-    data.autoUpdate = pref.content[data.name].autoUpdate;
-    data.userMatches = pref.content[data.name].userMatches;
-    data.userExcludeMatches = pref.content[data.name].userExcludeMatches;
-  }
-
-  pref.content[data.name] = data;                           // save to pref
-  multiCache.push(data.name);
-}
-
-function processFileSelectStylus(e) {
-
-  const file = e.target.files[0];
-
-  switch (true) {
-
-    case !file:
-      notify(chrome.i18n.getMessage('error'));
-      return;
-
-    case !['application/json'].includes(file.type): // check file MIME type
-      notify(chrome.i18n.getMessage('errorType'));
-      return;
-  }
-
-  const reader  = new FileReader();
-  reader.onloadend = () => prepareStylus(reader.result);
-  reader.onerror = () => notify(chrome.i18n.getMessage('errorRead'));
-  reader.readAsText(file);
-}
-
-function prepareStylus(data) {
-
-  let importData;
-  try { importData = JSON.parse(data); }                    // Parse JSON
-  catch(e) {
-    notify(chrome.i18n.getMessage('errorParse'));           // display the error
-    return;
-  }
-
-
-  for (const item of importData) {
-
-    // --- test validity
-    if (!item.name || !item.id || !item.sections) {
-      notify(chrome.i18n.getMessage('error'));
+    // --- chcek meta data
+    const data = Meta.get(text);
+    if (!data) { throw 'Meta Data Error'; }
+    else if (data.error) {
+      Util.notify(chrome.i18n.getMessage('errorMeta'));
       return;
     }
 
-    item.sections.forEach((sec, index) => {
+    // --- check name
+    if (pref.content[data.name]) {
 
-      const data = {
-        // --- extension related data
-        name: item.name + (index ? ' ' + index : ''),
-        author: '',
-        description: '',
-        enabled: item.enabled,
-        updateURL: item.updateUrl,
-        autoUpdate: false,
-        version: '',
+      const dataType = data.js ? 'js' : 'css';
+      const targetType = pref.content[data.name].js ? 'js' : 'css';
+      if (dataType !== targetType) { // same name exist in another type
+        data.name += ` (${dataType})`;
+        if (pref.content[data.name]) { throw `${data.name}: Update new name already exists`; } // name already exists
+      }
 
-        // --- API related data
-        allFrames: false,
-        js: '',
-        css: sec.code,
-        excludeGlobs: [],
-        excludeMatches: [],
-        includeGlobs: [],
-        matchAboutBlank: false,
-        matches: [],
-        runAt: 'document_start'
-      };
+      // --- update/import from previous version
+      data.enabled = pref.content[data.name].enabled;
+      data.autoUpdate = pref.content[data.name].autoUpdate;
+      data.userMatches = pref.content[data.name].userMatches;
+      data.userExcludeMatches = pref.content[data.name].userExcludeMatches;
+    }
 
-      // --- check auto-update criteria, must have updateURL & version
-      if (data.autoUpdate && (!data.updateURL || !data.version)) { data.autoUpdate = false; }
+    pref.content[data.name] = data;                           // save to pref
+    this.fileLength--;                                        // one less file to process
+    if(this.fileLength) { return; }                           // not 0 yet
 
-      // --- merge include into matches
-      sec.urls = sec.urls || [];
-      sec.urlPrefixes = sec.urlPrefixes || [];
-      sec.domains = sec.domains || [];
-      data.matches = [...sec.urls, ...sec.urlPrefixes.map(item => `${item}*`), ...sec.domains.map(item => `*://*.${item}/*`)];
+    this.process();                                     // update page display
+    browser.storage.local.set({content: pref.content});       // update saved pref
+  }
+  // ----------------- /Import Script ----------------------
 
+  // ----------------- Import Stylus -----------------------
+  processFileSelectStylus(e) {
+
+    const file = e.target.files[0];
+
+    const reader  = new FileReader();
+    reader.onloadend = () => script.prepareStylus(reader.result);
+    reader.onerror = () => Util.notify(chrome.i18n.getMessage('errorRead'));
+    reader.readAsText(file);
+  }
+
+  prepareStylus(data) {
+
+    let importData;
+    try { importData = JSON.parse(data); }                    // Parse JSON
+    catch(e) {
+      Util.notify(chrome.i18n.getMessage('errorParse'));           // display the error
+      return;
+    }
+
+    importData.forEach(item => {
+
+      // --- test validity
+      if (!item.name || !item.id || !item.sections) {
+        Util.notify(chrome.i18n.getMessage('error'));
+        return;
+      }
+
+      // rebuild UserStyle
+      let text =
+`/*
+==UserStyle==
+@name           ${item.name}
+@updateURL      ${item.updateUrl}
+@run-at         document-start
+==/UserStyle==
+*/`;
+
+      item.sections.forEach(sec => {
+
+        const r = [];
+        sec.urls[0] && sec.urls.forEach(i => r.push(`url('${i}')`));
+        sec.urlPrefixes[0] && sec.urlPrefixes.forEach(i => r.push(`url-prefix('${i}')`));
+        sec.domains[0] && sec.domains.forEach(i => r.push(`domain('${i}')`));
+        sec.regexps[0] && sec.regexps.forEach(i => r.push(`regexp('${i}')`));
+
+        r[0] && (text += '\n\n@-moz-document ' + r.join(', ') +' {\n  ' + sec.code + '\n}');
+      });
+
+      const data = Meta.get(text);
+      data.enabled = item.enabled;
       if (pref.content[data.name]) { data.name += ' (Stylus)'; }
-
-      // --- make meta data
-      data.css =
-      '/*\n==UserCSS==\n' +
-      `@name           ${data.name}\n` +
-      data.matches.map(item => `@matches        ${item}\n`).join('') +
-      (data.version ? `@version        ${data.version}\n` : '') +
-      (data.updateURL ? `@updateURL      ${data.updateURL}\n` : '') +
-      '@run-at         document-start\n' +
-      '==/UserCSS==\n*/\n\n' + data.css;
-
       pref.content[data.name] = data;                       // save to pref
+    });
+
+    this.process();                                     // update page display
+    browser.storage.local.set({content: pref.content});       // update saved pref
+  }
+  // ----------------- /Import Stylus ----------------------
+
+  // ----------------- Export ------------------------------
+  exportScript() {
+
+    const box = this.box;
+    if (!box.id) { return; }
+
+    const id = box.id;
+    const ext = pref.content[id].js ? '.js' : '.css';
+    const data = pref.content[id].js || pref.content[id].css;
+    this.export(data, ext, id);
+  }
+
+  exportAllScript() {
+
+    Object.keys(pref.content).forEach(id => {
+
+      const ext = pref.content[id].js ? '.js' : '.css';
+      const data = pref.content[id].js || pref.content[id].css;
+      this.export(data, ext, 'FireMonkey/' + id, false);
     });
   }
 
-  processScript();                                          // update page display
-  browser.storage.local.set({content: pref.content});       // update saved pref
+  export(data, ext, id, saveAs = true) {
+
+    const blob = new Blob([data], {type : 'text/plain;charset=utf-8'});
+    const filename = id.replace(/[<>:"/\\|?*]/g, '') + '.user' + ext; // removing disallowed characters
+
+    chrome.downloads.download({
+      url: URL.createObjectURL(blob),
+      filename,
+      saveAs,
+      conflictAction: 'uniquify'
+    });
+  }
+
+
+
 }
-
-function exportScript() {
-
-  if (!box.id) { return; }
-
-  const id = box.id;
-  const ext = pref.content[id].js ? '.js' : '.css';
-  const data = pref.content[id].js || pref.content[id].css;
-  exportfile(data, ext, id);
-}
-
-function exportAllScript() {
-
-  Object.keys(pref.content).forEach(id => {
-
-    const ext = pref.content[id].js ? '.js' : '.css';
-    const data = pref.content[id].js || pref.content[id].css;
-    exportfile(data, ext, 'FireMonkey/' + id, false);
-  });
-}
-
-function exportfile(data, ext, id, saveAs = true) {
-
-  const blob = new Blob([data], {type : 'text/plain;charset=utf-8'});
-  const filename = id.replace(/[<>:"/\\|?*]/g, '') + '.user' + ext; // removing disallowed characters
-
-  chrome.downloads.download({
-    url: URL.createObjectURL(blob),
-    filename,
-    saveAs,
-    conflictAction: 'uniquify'
-  });
-}
-// ----------------- /Import/Export Script -----------------
+const script = new Script();
 
 // ----------------- Import/Export Preferences -------------
-document.getElementById('file').addEventListener('change', (e) => Pref.import(e).then(processImport));
-document.getElementById('export').addEventListener('click', () => Pref.export());
+Pref.importExport(() => {
 
-function processImport(success) {
-  
-  processOptions();                                         // set options after the pref update
-  processScript();                                          // update page display
+  options.process();                                        // set options after the pref update
+  script.process();                                         // update page display
   chrome.storage.local.set(pref);                           // update saved pref
-}
+});
 // ----------------- /Import/Export Preferences ------------
 
-// ----------------- from browser pop-up & contextmenu -----
-window.addEventListener('storage', (e) => e.key === 'nav' && getNav(e.newValue));
+// ----------------- Match Pattern Tester ------------------
+class Pattern {
 
-function getNav(nav) {
+  static validate(node) {
 
-  nav = nav || localStorage.getItem('nav');
-  localStorage.removeItem('nav');
-  if (!nav) { return; }                                     // end execution if not found
+    node.classList.remove('invalid');
+    node.value = node.value.trim();
 
-  switch (nav) {
+    if (!node.value) { return true; }                       // emtpy
 
-    case 'help':
-      document.getElementById('nav1').checked = true;
-      break;
+    for (const item of node.value.split(/\s+/)) {           // use for loop to be able to break
 
-    case 'js':
-    case 'css':
-      document.getElementById('nav4').checked = true;
-      newScript(nav);
-      break;
+      const error = this.check(item.toLowerCase());
+      if (error) {
+        node.classList.add('invalid');
+        Util.notify(`${item}\n${error}`);
+        return false;                                       // end execution
+      }
+    }
+    return true;
+  }
 
-    default:
-      document.getElementById(nav).click();
+  static check(pattern) {
+
+    const [scheme, host, path] = pattern.split(/:\/{2,3}|\/+/);
+
+    // --- specific patterns
+    switch (pattern) {
+
+      case '*': return 'Invalid Pattern';
+
+      case '<all_urls>':
+      case '*://*/*':
+      case 'http://*/*':
+      case 'https://*/*':
+        return false;
+    }
+
+    // --- other patterns
+    switch (true) {
+
+      case !['http', 'https', 'file', '*'].includes(scheme.toLowerCase()): return 'Unsupported scheme';
+      case scheme === 'file' && !pattern.startsWith('file:///'): return 'file:/// must have 3 slashes';
+      case scheme !== 'file' && host.includes(':'): return 'Host must not include a port number';
+      case scheme !== 'file' && !path && host === '*': return 'Empty path: this should be "*://*/*"';
+      case scheme !== 'file' && !path && !pattern.endsWith('/'): return 'Pattern must include trailing slash';
+      case scheme !== 'file' && host[0] === '*' && host[1] !== '.': return '"*" in host must be the only character or be followed by "."'
+      case host.substring(1).includes('*'): return '"*" in host must be at the start';
+    }
+    return false;
   }
 }
-
-
-// ----------------- Progress Bar --------------------------
-function progressBar() {
-
-  const pBar = document.querySelector('.progressBar');
-  pBar.classList.toggle('on');
-  setTimeout(() => { pBar.classList.toggle('on'); }, 2000);
-}
-// ----------------- /Progress Bar -------------------------
+// ----------------- /Match Pattern Tester -----------------

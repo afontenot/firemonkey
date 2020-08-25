@@ -5,6 +5,7 @@ let pref = {
   autoUpdateInterval: 0,
   autoUpdateLast: 0,
   content: {},
+  counter: true,
   globalScriptExcludeMatches: '',
   sync: false,
   template: { css: '', js: '' }
@@ -22,7 +23,7 @@ class Pref {
   
   static importExport(callback) {
     this.callback = callback;
-    document.getElementById('file').addEventListener('change', (e) => this.import(e));
+    document.getElementById('file').addEventListener('change', this.import);
     document.getElementById('export').addEventListener('click', this.export);
   }
 
@@ -31,15 +32,15 @@ class Pref {
     const file = e.target.files[0];
     switch (true) {
 
-      case !file: notify(chrome.i18n.getMessage('error')); return;
+      case !file: Util.notify(chrome.i18n.getMessage('error')); return;
       case !['text/plain', 'application/json'].includes(file.type): // check file MIME type
-        notify(chrome.i18n.getMessage('errorType'));
+        Util.notify(chrome.i18n.getMessage('errorType'));
         return;
     }
 
     const reader  = new FileReader();
-    reader.onloadend = () => this.readData(reader.result);
-    reader.onerror = () => notify(chrome.i18n.getMessage('errorRead'));
+    reader.onloadend = () => Pref.readData(reader.result);
+    reader.onerror = () => Util.notify(chrome.i18n.getMessage('errorRead'));
     reader.readAsText(file);
   }
 
@@ -48,7 +49,7 @@ class Pref {
     let importData;
     try { importData = JSON.parse(data); }                    // Parse JSON
     catch(e) {
-      notify(chrome.i18n.getMessage('errorParse'));           // display the error
+      Util.notify(chrome.i18n.getMessage('errorParse'));           // display the error
       return;
     }
 
@@ -74,27 +75,25 @@ class Pref {
 }
 // ----------------- /User Preference ----------------------
 
-// ----------------- Internationalization ------------------
-class I18N {
-
-  static get() {
+// ----------------- Helper functions ----------------------
+class Util {
+  // --- Internationalization
+  static i18n() {
     document.querySelectorAll('[data-i18n]').forEach(node => {
       let [text, attr] = node.dataset.i18n.split('|');
       text = chrome.i18n.getMessage(text);
       attr ? node[attr] = text : node.appendChild(document.createTextNode(text));
     });
   }
-}
-// ----------------- /Internationalization -----------------
+  
+  static notify(message, title = chrome.i18n.getMessage('extensionName'), id = '') {
 
-// ----------------- Helper functions ----------------------
-function notify(message, title = chrome.i18n.getMessage('extensionName'), id = '') {
-
-  chrome.notifications.create(id, {
-    type: 'basic',
-    iconUrl: 'image/icon.svg',
-    title,
-    message
-  });
+    chrome.notifications.create(id, {
+      type: 'basic',
+      iconUrl: 'image/icon.svg',
+      title,
+      message
+    });
+  }
 }
-// ----------------- /Helper functions ---------------------
+// ----------------- /Helper functions ----------------------
