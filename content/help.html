@@ -25,6 +25,7 @@
         <li><a href="#auto-update-interval">Auto-Update Interval</a></li>
         <li><a href="#global-script-exclude">Global Script Exclude Matches</a></li>
         <li><a href="#enable-storage">Enable Storage Sync</a></li>
+        <li><a href="#counter">Counter</a></li>
         <li><a href="#import-export">Preferences: Import/Export</a></li>
         <li><a href="#save">Save</a></li>
       </ul>
@@ -91,8 +92,17 @@
     <dt><img src="../image/gear.svg" alt=""> Options</dt>
       <dd>Open the Options page</dd>
       
+    <dt><img src="../image/js.svg" alt=""> New UserScript</dt>
+      <dd>Open the Options page and display a new Script Template that you can edit and Save</dd>
+      <dd><i>(In Private Window opens the Options page ref bug 1659998)</i></dd>
+      
+    <dt><img src="../image/css.svg" alt=""> New UserCSS</dt>
+      <dd>Open the Options page and display a new CSS Template that you can edit and Save</dd>
+      <dd><i>(In Private Window opens the Options page ref bug 1659998)</i></dd>
+
     <dt><img src="../image/help32.png" alt=""> Help</dt>
       <dd>Display Help document</dd>
+      <dd><i>(In Private Window opens the Options page ref bug 1659998)</i></dd>
   </dl>
 
   <h3 id="toolbar-badge"><sup>5</sup> Toolbar Icon Badge</h3>
@@ -118,7 +128,10 @@
         <dd>Button on Information page opens the Options Page and selects the current Script/CSS</dd>
 
       <dt><img src="../image/gear.svg" alt=""> Options</dt>
-        <dd>Open the Options Page</dd>
+        <dd>Open the Options Page</dd>      
+      
+      <dt>Script Commands &nbsp;&nbsp;&nbsp;<img src="../image/next.svg" alt=""></dt>
+        <dd>Shows available Script Commands</dd>
 
       <dt>&#x2795; <img src="../image/js.svg" alt=""></dt> 
         <dd>Display a new Script Template that you can edit and Save</dd>
@@ -167,6 +180,8 @@
   <cite><a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/storage/sync" target="_blank">storage.sync</a></cite>
   </blockquote>
 
+  <h3 id="counter">Counter</h3>
+  <p>Enable/Disable Script/CSS counter (Toolbar Iocn Badge & Toolbar Icon Title)</p>
 
   <h3 id="import-export">Preferences: Import/Export</h3>
   <p>You can export/import Preferences (for backup or share) to/from a local file on your computer. Import is non-destructive. Click save to apply the new settings.</p>
@@ -208,7 +223,7 @@
       <li><kbd>Tab</kbd> will be converted to 2 spaces. If there is a selection it will be applied to every line in the selection.</li>
       <li><kbd>Tab</kbd> + <kbd>Shift</kbd> will remove 2 spaces (if there are). If there is a selection it will be applied to every line in the selection.</li>
       <li><kbd>Ctrl</kbd> + <kbd>s</kbd> will save the script.</li>
-      <li><a href="#syntax-highlighting">Syntax Highlighting</a> refreshes on <code>blur</code> (when you click outside the edit box), on <code>paste</code>.</li>
+      <li><a href="#syntax-highlighting">Syntax Highlighting</a> refreshes on <code>blur</code> (when you click outside the edit box), & on <code>paste</code>.</li>
     </ul>
 
 
@@ -1097,13 +1112,13 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   </tr>
   </thead>
   <tbody>
-  <tr><td>bootstrap</td><td>bootstrap-4</td><td>4.4.1</td></tr>
+  <tr><td>bootstrap</td><td>bootstrap-4</td><td>4.5.0</td></tr>
   <tr><td>jquery 1.*</td><td>jquery-1</td><td>1.12.4</td></tr>
   <tr><td>jquery 2.*</td><td>jquery-2</td><td>2.2.4</td></tr>
   <tr><td>jquery 3.*</td><td>jquery-3</td><td>3.5.1</td></tr>
   <tr><td>jquery-ui 1.*</td><td>jquery-ui-1</td><td>1.12.1</td></tr>
-  <tr><td>moment</td><td>moment-2</td><td>2.24.0</td></tr>
-  <tr><td>underscore</td><td>underscore-1</td><td>1.9.2</td></tr>
+  <tr><td>moment</td><td>moment-2</td><td>2.27.0</td></tr>
+  <tr><td>underscore</td><td>underscore-1</td><td>1.10.2</td></tr>
 
   </tbody>
 </table>
