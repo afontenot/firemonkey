@@ -8,14 +8,14 @@ browser.userScripts.onBeforeScript.addListener(script => {
     command: {},
     valueChange: {}
   };
-
-  function scriptListener(message, sender) {
+  
+  browser.runtime.onMessage.addListener((message, sender) => {
 
     switch (true) {
-
       // --- to popup.js for registerMenuCommand
       case message.hasOwnProperty('listCommand'):
-        browser.runtime.sendMessage({name, command: Object.keys(scriptOptions.command)});
+        const command = Object.keys(scriptOptions.command);
+        command[0] && browser.runtime.sendMessage({name, command});
         break;
 
       // from popup.js for registerMenuCommand
@@ -29,15 +29,7 @@ browser.userScripts.onBeforeScript.addListener(script => {
         (scriptOptions.valueChange[e.key])(e.key, e.oldValue, e.newValue, e.remote);
         break;
     }
-  }
-
-  function checkListener() {
-
-    if (Object.keys(scriptOptions.command)[0] || Object.keys(scriptOptions.valueChange)[0]) {
-      browser.runtime.onMessage.hasListener(scriptListener) || browser.runtime.onMessage.addListener(scriptListener);
-    }
-    else { browser.runtime.onMessage.removeListener(scriptListener); }
-  }
+  });
 
   /*
     Ref: robwu (Rob Wu)
@@ -57,7 +49,6 @@ browser.userScripts.onBeforeScript.addListener(script => {
     async setValue(key, value) {
 
       if (!['string', 'number', 'boolean'].includes(typeof value)) { throw `${name}: Unsupported value in setValue()`; }
-      checkListener();
       return await browser.runtime.sendMessage({
         name,
         api: 'setValue',
@@ -86,7 +77,6 @@ browser.userScripts.onBeforeScript.addListener(script => {
 
     async deleteValue(key) {
 
-     checkListener();
      return await browser.runtime.sendMessage({
         name,
         api: 'deleteValue',
@@ -187,30 +177,17 @@ browser.userScripts.onBeforeScript.addListener(script => {
 
     getResourceURL(resourceName) { return resource[resourceName]; },
 
-    registerMenuCommand(text, onclick, accessKey) {
+    registerMenuCommand(text, onclick, accessKey) { scriptOptions.command[text] = onclick; },
 
-      scriptOptions.command[text] = onclick;
-      checkListener();
-    },
-
-    unregisterMenuCommand(text) {
-
-      delete scriptOptions.command[text];
-      checkListener();
-    },
+    unregisterMenuCommand(text) { delete scriptOptions.command[text]; },
 
     addValueChangeListener(key, callback) {
 
       scriptOptions.valueChange[key] = callback;
-      checkListener();
       return key;
     },
 
-    removeValueChangeListener(key) {
-
-      delete scriptOptions.valueChange[key];
-      checkListener();
-    },
+    removeValueChangeListener(key) { delete scriptOptions.valueChange[key]; },
 
     async download(url, filename) {
 

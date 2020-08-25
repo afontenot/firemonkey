@@ -1,13 +1,13 @@
 ﻿'use strict';
 
-const update = []; // global
-
 // ----------------- Context Menu --------------------------
 class ContextMenu {
 
   constructor() {
     const contextMenus = [
-      { id: 'options', contexts: ['browser_action'], icons: {16: 'image/gear.svg'} }, // FF53+
+      { id: 'options', contexts: ['browser_action'], icons: {16: 'image/gear.svg'} },
+      { id: 'newJS', contexts: ['browser_action'], icons: {16: 'image/js.svg'} },
+      { id: 'newCSS', contexts: ['browser_action'], icons: {16: 'image/css.svg'} },
       { id: 'help', contexts: ['browser_action'], icons: {16: 'image/help32.png'} }
     ];
 
@@ -24,6 +24,8 @@ class ContextMenu {
     switch (info.menuItemId) {
 
       case 'options': break;
+      case 'newJS': localStorage.setItem('nav', 'js'); break;
+      case 'newCSS': localStorage.setItem('nav', 'css'); break;
       case 'help': localStorage.setItem('nav', 'help'); break;
     }
     chrome.runtime.openOptionsPage();
@@ -38,10 +40,18 @@ class Counter {
   constructor() {
     browser.browserAction.setBadgeBackgroundColor({color: '#cd853f'});
     browser.browserAction.setBadgeTextColor({color: '#fff'}); // FF63+
-    browser.tabs.onUpdated.addListener(this.count, {urls: ['http://*/*', 'https://*/*', 'file:///*']});
+    this.process = this.process.bind(this);
   }
 
-  async count(tabId, changeInfo, tab) {
+  init() {
+    browser.tabs.onUpdated.addListener(this.process, {urls: ['http://*/*', 'https://*/*', 'file:///*']});
+  }
+
+  terminate() {
+    browser.tabs.onUpdated.removeListener(this.process);
+  }
+
+  async process(tabId, changeInfo, tab) {
 
     if (changeInfo.status !== 'complete') { return; }
 
@@ -49,14 +59,15 @@ class Counter {
     const urls = [...new Set(frames.map(item => item.url).filter(item => /^(https?|wss?|ftp|file|about:blank)/.test(item)))];
     const gExclude = pref.globalScriptExcludeMatches ? pref.globalScriptExcludeMatches.split(/\s+/) : []; // cache the array
     const count = Object.keys(pref.content).filter(item =>
-      pref.content[item].enabled && checkMatches(pref.content[item], urls, gExclude));
+      pref.content[item].enabled && CheckMatches.get(pref.content[item], urls, gExclude));
     browser.browserAction.setBadgeText({tabId, text: (count[0] ? count.length.toString() : '')});
     browser.browserAction.setTitle({tabId, title: (count[0] ? count.join('\n') : '')});
   }
 }
+const counter = new Counter();
 // ----------------- /Script Counter -----------------------
 
-// ----------------- Register Content Script & CSS ---------
+// ----------------- Register Content Script|CSS -----------
 class ScriptRegister {
 
   constructor() {
@@ -114,7 +125,7 @@ class ScriptRegister {
 
       if (item.startsWith('lib/')) { options[target].push({file: item}); }
       else if (pref.content[item] && pref.content[item][target]) {
-        options[target].push({code: pref.content[item][target].replace(metaRegEx, (m) => m.replace(/\*\//g, '* /'))});
+        options[target].push({code: pref.content[item][target].replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'))});
       }
     });
 
@@ -130,7 +141,7 @@ class ScriptRegister {
     }
 
     // --- add code
-    options[target].push({code: script[target].replace(metaRegEx, (m) => m.replace(/\*\//g, '* /'))});
+    options[target].push({code: script[target].replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'))});
 
     // --- script only
     if (script.js) {
@@ -201,7 +212,7 @@ class ScriptRegister {
   }
 }
 const scriptReg = new ScriptRegister();
-// ----------------- /Register Content Script & CSS --------
+// ----------------- /Register Content Script|CSS ----------
 
 // ----------------- User Preference -----------------------
 Pref.get().then(() => {
@@ -240,13 +251,13 @@ class ProcessPref {
 
       scriptReg.process(item);
       doUpdate && pref.content[item].enabled && pref.content[item].autoUpdate && pref.content[item].updateURL &&
-        pref.content[item].version && update.push(item);
+        pref.content[item].version && installer.cache.push(item);
     });
 
-    update[0] && browser.idle.onStateChanged.addListener(onIdle);
+    installer.cache[0] && installer.initRemoteUpdate();
 
     // --- Script Counter
-    new Counter();
+    pref.counter && counter.init();
   }
 
   processPrefUpdate(changes) {
@@ -255,6 +266,11 @@ class ProcessPref {
     if (!changesKeys.find(item => this.notEqual(changes[item].oldValue, changes[item].newValue))) { return; }
 
     changesKeys.forEach(item => pref[item] = changes[item].newValue); // update pref with the saved version
+
+    // --- check counter preference has changed
+    if (changes.counter && changes.counter.newValue !== changes.counter.oldValue) {
+      changes.counter.newValue ? counter.init() : counter.terminate();
+    }
 
     // --- find changed scripts
     if (changes.globalScriptExcludeMatches &&
@@ -281,7 +297,7 @@ class ProcessPref {
     if (pref.sync) {
       const size = JSON.stringify(pref).length;
       if (size > 102400) {
-        notify(chrome.i18n.getMessage('errorSync', (size/1024).toFixed(1)));
+        Util.notify(chrome.i18n.getMessage('errorSync', (size/1024).toFixed(1)));
         pref.sync = false;
         browser.storage.local.set({sync: false});
       }
@@ -326,84 +342,173 @@ class ProcessPref {
     localStorage.setItem('migrate',  1.36);
   }
 }
+// ----------------- /User Preference ----------------------
 
+// ----------------- Web/Direct Installer & Remote Update --
+class Installer {
 
-// ----------------- Web/Direct Install Listener ------------------
-browser.webRequest.onBeforeRequest.addListener(processWebInstall, {
-    urls: [ 'https://greasyfork.org/scripts/*.user.js',
-            'https://greasyfork.org/scripts/*.user.css',
-            'https://openuserjs.org/install/*.user.js'],
-    types: ['main_frame']
-  },
-  ['blocking']
-);
+  constructor() {
+    // class RemoteUpdate in common.js                        
+    RU.callback = this.processResponse.bind(this);
 
-browser.tabs.onUpdated.addListener(processDirectInstall,{
-  urls: [ '*://*/*.user.js', '*://*/*.user.css',
-          'file:///*.user.js', 'file:///*.user.css' ]
-});
+    // --- Web/Direct Installer
+    this.webInstall = this.webInstall.bind(this);
+    this.directInstall = this.directInstall.bind(this);
 
-function processWebInstall(e) {
+    browser.webRequest.onBeforeRequest.addListener(this.webInstall, {
+        urls: [ 'https://greasyfork.org/scripts/*.user.js',
+                'https://greasyfork.org/scripts/*.user.css',
+                'https://openuserjs.org/install/*.user.js'],
+        types: ['main_frame']
+      },
+      ['blocking']
+    );
 
-  let q;
-  switch (true) {
+    browser.tabs.onUpdated.addListener(this.directInstall,{
+      urls: [ '*://*/*.user.js', '*://*/*.user.css',
+              'file:///*.user.js', 'file:///*.user.css' ]
+    });
 
-    case !e.originUrl: return;                              // end execution if not Web Install
-
-    // --- GreasyFork
-    case e.originUrl.startsWith('https://greasyfork.org/') && e.url.startsWith('https://greasyfork.org/'):
-      q = 'header h2';
-      break;
-
-    // --- OpenUserJS
-    case e.originUrl.startsWith('https://openuserjs.org/') && e.url.startsWith('https://openuserjs.org/'):
-      q = 'a[class="script-name"]';
-      break;
+    // --- Remote Update
+    this.cache = [];
+    this.onIdle = this.onIdle.bind(this);
   }
 
-  if (q) {
+  // --------------- Web/Direct Installer ------------------
+  webInstall(e) {
 
-    const code = `(() => {
-      let title = document.querySelector('${q}');
-      title = title ? title.textContent : document.title;
-      return confirm(chrome.i18n.getMessage('installConfirm', title)) ? title : null;
+    let q;
+    switch (true) {
+
+      case !e.originUrl: return;                              // end execution if not Web Install
+
+      // --- GreasyFork
+      case e.originUrl.startsWith('https://greasyfork.org/') && e.url.startsWith('https://greasyfork.org/'):
+        q = 'header h2';
+        break;
+
+      // --- OpenUserJS
+      case e.originUrl.startsWith('https://openuserjs.org/') && e.url.startsWith('https://openuserjs.org/'):
+        q = 'a[class="script-name"]';
+        break;
+    }
+
+    if (q) {
+
+      const code = `(() => {
+        let title = document.querySelector('${q}');
+        title = title ? title.textContent : document.title;
+        return confirm(chrome.i18n.getMessage('installConfirm', title)) ? title : null;
+      })();`;
+
+      chrome.tabs.executeScript({code}, (result = []) => {
+        result[0] && RU.getScript({updateURL: e.url, name: result[0]});
+      });
+      return {cancel: true};
+    }
+  }
+
+  directInstall(tabId, changeInfo, tab) {
+
+    if (changeInfo.status !== 'complete') { return; }       // end execution if not found
+    if (tab.url.startsWith('https://github.com/')) { return; } // not on https://github.com/*/*.user.js
+
+    // work-around for https://bugzilla.mozilla.org/show_bug.cgi?id=1411641
+    // using https://cdn.jsdelivr.net mirror
+    if (tab.url.startsWith('https://raw.githubusercontent.com/')) {
+      // https://raw.githubusercontent.com/<username>/<repo>/<branch>/path/to/file.js
+      const p = tab.url.split(/:?\/+/);
+      browser.tabs.update({url: `https://cdn.jsdelivr.net/gh/${p[2]}/${p[3]}@${p[4]}/${p.slice(5).join('/')}` });
+      return;
+    }
+
+    const code = String.raw`(() => {
+      const pre = document.body;
+      if (!pre || !pre.textContent.trim()) { alert(chrome.i18n.getMessage('errorMeta')); return; }
+      const name = pre.textContent.match(/(?:\/\/)?\s*@name\s+([^\r\n]+)/);
+      if (!name) { alert(chrome.i18n.getMessage('errorMeta')); return; }
+      return confirm(chrome.i18n.getMessage('installConfirm', name[1])) ? [pre.textContent, name[1]] : null;
     })();`;
 
     chrome.tabs.executeScript({code}, (result = []) => {
-      result[0] && getScript({updateURL: e.url, name: result[0]});
+      result[0] && this.processResponse(result[0][0], result[0][1], tab.url);
     });
-    return {cancel: true};
   }
-}
+  // --------------- /Web|Direct Installer -----------------
 
-function processDirectInstall(tabId, changeInfo, tab) {
-
-  if (changeInfo.status !== 'complete') { return; }        // end execution if not found
-  if (tab.url.startsWith('https://github.com/')) { return; } // not on https://github.com/*/*.user.js
-
-  // work-around for https://bugzilla.mozilla.org/show_bug.cgi?id=1411641
-  // using https://cdn.jsdelivr.net mirror
-  if (tab.url.startsWith('https://raw.githubusercontent.com/')) {
-    // https://raw.githubusercontent.com/<username>/<repo>/<branch>/path/to/file.js
-    const p = tab.url.split(/:?\/+/);
-    browser.tabs.update({url: `https://cdn.jsdelivr.net/gh/${p[2]}/${p[3]}@${p[4]}/${p.slice(5).join('/')}` });
-    return;
+  // --------------- Remote Update -------------------------
+  initRemoteUpdate() {
+    browser.idle.onStateChanged.addListener(this.onIdle);
   }
 
-  const code = String.raw`(() => {
-    const pre = document.body;
-    if (!pre || !pre.textContent.trim()) { alert(chrome.i18n.getMessage('errorMeta')); return; }
-    const name = pre.textContent.match(/(?:\/\/)?\s*@name\s+([^\r\n]+)/);
-    if (!name) { alert(chrome.i18n.getMessage('errorMeta')); return; }
-    return confirm(chrome.i18n.getMessage('installConfirm', name[1])) ? [pre.textContent, name[1]] : null;
-  })();`;
+  terminateRemoteUpdate() {
+    browser.idle.onStateChanged.removeListener(this.onIdle);
+  }
 
-  chrome.tabs.executeScript({code}, (result = []) => {
-    result[0] && processResponse(result[0][0], result[0][1], tab.url);
-  });
+  onIdle() {
+
+    if (state !== 'idle' || !this.cache[0]) { return; }
+
+    pref.autoUpdateLast = Date.now();
+    browser.storage.local.set({autoUpdateLast: pref.autoUpdateLast}); // update saved pref
+
+    // --- do 10 updates at a time
+    const sect = this.cache.splice(0, 10);
+    this.cache[0] || this.terminate();
+    sect.forEach(item => pref.content.hasOwnProperty(item) && RU.getUpdate(pref.content[item])); // check if script wasn't deleted
+  }
+
+  processResponse(text, name, updateURL) {                  // from class RemoteUpdate in common.js
+
+    const userMatches = pref.content[name] ? pref.content[name].userMatches : '';
+    const userExcludeMatches = pref.content[name] ? pref.content[name].userExcludeMatches : '';
+
+    const data = Meta.get(text, userMatches, userExcludeMatches);
+    if (!data) { throw `${name}: Meta Data error`; }
+console.log(this);
+    // --- check version, if update existing, not for local files
+    if (!updateURL.startsWith('file:///') && pref.content[name] &&
+          !RU.higherVersion(data.version, pref.content[name].version)) { return; }
+
+    // --- check name, if update existing
+    if (pref.content[name] && data.name !== name) {           // name has changed
+
+      if (pref.content[data.name]) { throw `${name}: Update new name already exists`; } // name already exists
+      else {
+
+        if (pref['_' + name]) {                               // move storage
+          pref['_' + data.name] = pref['_' + name];
+          delete pref['_' + name];
+          browser.storage.local.remove('_' + name);
+        }
+        delete pref.content[name];
+      }
+
+      scriptReg.unregister(name);                             // --- unregister old name
+    }
+
+    // --- update from previous version
+    if (pref.content[data.name]) {
+      data.enabled = pref.content[data.name].enabled;
+      data.autoUpdate = pref.content[data.name].autoUpdate;
+      console.log(data.name, 'updated to version', data.version);
+    }
+
+    // --- check for Web Install, set install URL
+    if (updateURL.startsWith('https://greasyfork.org/scripts/') ||
+        updateURL.startsWith('https://openuserjs.org/install/')) {
+      data.updateURL = updateURL;
+      data.autoUpdate = true;
+    }
+
+    pref.content[data.name] = data;                           // save to pref
+    browser.storage.local.set({content: pref.content});       // update saved pref
+    data.enabled && scriptReg.process(data.name);
+  }
+  // --------------- /Remote Update ------------------------
 }
-
-
+const installer = new Installer();
+// ----------------- /Web|Direct Installer & Remote Update -
 
 // ----------------- Content Message Handler ---------------
 class API {
@@ -473,9 +578,9 @@ class API {
     switch (message.api) {
 
       case 'setValue':
-        pref[storage] || (pref[storage] = {});                // make one if didn't exist
+        pref[storage] || (pref[storage] = {});              // make one if didn't exist
         if (pref[storage][e.key] === e.value) { return true; } // return if value hasn't changed
-        oldValue = pref[storage][e.key];                      // need to cache it due to async processes
+        oldValue = pref[storage][e.key];                    // need to cache it due to async processes
         e.broadcast && browser.tabs.query({}).then(tabs => {
           tabs.forEach(tab => browser.tabs.sendMessage(tab.id,
             {name, valueChange: {key: e.key, oldValue, newValue: e.value, remote: tab.id !== sender.tab.id}}));
@@ -506,7 +611,7 @@ class API {
       case 'setClipboard':
         navigator.clipboard.writeText(e.text)                 // Promise with ? OR reject with error message
         .then(() => {})
-        .catch(error => { console.error(error); notify(chrome.i18n.getMessage('errorClipboard')); }); // failed copy notification
+        .catch(error => { console.error(error); Util.notify(chrome.i18n.getMessage('errorClipboard')); }); // failed copy notification
         break;
 
       case 'notification':
@@ -530,7 +635,7 @@ class API {
           conflictAction: 'uniquify'
         })
         .then(() => {})
-        .catch(error => notify(error.message, name));                 // failed notification
+        .catch(error => Util.notify(error.message, name));                 // failed notification
         break;
 
 
@@ -628,66 +733,3 @@ class API {
 new API();
 // ----------------- /Content Message Handler --------------
 
-// ----------------- Remote Update -------------------------
-function onIdle() {
-
-  if (state !== 'idle' || !update[0]) { return; }
-
-  pref.autoUpdateLast = Date.now();
-  browser.storage.local.set({autoUpdateLast: pref.autoUpdateLast}); // update saved pref
-
-  // --- do 10 updates at a time
-  const sect = update.splice(0, 10);
-  update[0] || browser.idle.onStateChanged.removeListener(onIdle);
-  sect.forEach(item => pref.content.hasOwnProperty(item) && getUpdate(pref.content[item])); // check if script wasn't deleted
-}
-
-function processResponse(text, name, updateURL) {
-
-  const userMatches = pref.content[name] ? pref.content[name].userMatches : '';
-  const userExcludeMatches = pref.content[name] ? pref.content[name].userExcludeMatches : '';
-
-  const data = getMetaData(text, userMatches, userExcludeMatches);
-  if (!data) { throw `${name}: Meta Data error`; }
-
-  // --- check version, if update existing, not for local files
-  if (!updateURL.startsWith('file:///') && pref.content[name] &&
-        !higherVersion(data.version, pref.content[name].version)) { return; }
-
-  // --- check name, if update existing
-  if (pref.content[name] && data.name !== name) {           // name has changed
-
-    if (pref.content[data.name]) { throw `${name}: Update new name already exists`; } // name already exists
-    else {
-
-      if (pref['_' + name]) {                               // move storage
-        pref['_' + data.name] = pref['_' + name];
-        delete pref['_' + name];
-        browser.storage.local.remove('_' + name);
-      }
-      delete pref.content[name];
-    }
-
-    scriptReg.unregister(name);                             // --- unregister old name
-  }
-
-  // --- update from previous version
-  if (pref.content[data.name]) {
-    data.enabled = pref.content[data.name].enabled;
-    data.autoUpdate = pref.content[data.name].autoUpdate;
-
-    console.log(data.name, 'updated to version', data.version);
-  }
-
-  // --- check for Web Install, set install URL
-  if (updateURL.startsWith('https://greasyfork.org/scripts/') ||
-      updateURL.startsWith('https://openuserjs.org/install/')) {
-    data.updateURL = updateURL;
-    data.autoUpdate = true;
-  }
-
-  pref.content[data.name] = data;                           // save to pref
-  browser.storage.local.set({content: pref.content});       // update saved pref
-  data.enabled && scriptReg.process(data.name);
-}
-// ----------------- /Remote Update ------------------------

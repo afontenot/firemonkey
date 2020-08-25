@@ -87,6 +87,7 @@ li span {
 li span.enable,
 li img {
   width: 16px;
+  flex: 0 0 16px;
   text-align: center;
   cursor: pointer;
   color: #05f;
@@ -142,48 +143,21 @@ li.css span.name::before {
   background: url('../image/css.svg');
 }
 
-h3.command, ul.command {
-  display: none;
+/* ----- Script Command ----- */
+h3.command {
+  opacity: 0.4;
+  transition: all 0.3s ease-in-out;
 }
-
-h3.command.on, h3.command.on ~ ul.command {
-  display: block;
-}
-
-ul.command {
-  max-height: 5em;
-}
-
-ul.command li:not(.head) {
-  padding-left: 1em;
-  cursor: pointer;
-}
-
-ul.command li:not(.head)::before {
-  content: '\25B6';
-  margin-right: 0.4em;
-  font-size: 0.8em;
-  opacity: 0;
-  transition: all 0.5s ease-in-out;
-}
-
-ul.command li:not(.head):hover {
-  color: #f30;
-}
-
-ul.command li:not(.head):hover::before {
+h3.command:hover {
   opacity: 1;
 }
-
-
-li.head {
-  color: #004080;
-  font-weight: bold;
+h3.command img {
+  width: 16px;
+  vertical-align: middle;
+  float: right;
+  cursor: pointer;
 }
-
-li.head:hover {
-  background-color: transparent;
-}
+/* ----- /Script Command ----- */
 
 /* ----- Info ----- */
 section.info {
@@ -202,7 +176,6 @@ section.info h3 span:hover {
   opacity: 1;
 }
 
-
 section.info img {
   width: 16px;
   vertical-align: middle;
@@ -220,9 +193,10 @@ dl {
 dt {
   color: #004080;
   font-weight: bold;
-  width: 10em;
+  min-width: 10em;
   border-bottom: 1px solid #add8e6;
   margin-top: 0.5em;
+  display: inline-block;
 }
 
 dd {
@@ -237,6 +211,42 @@ dt.error {
 dt.error ~ dd {
   color: #f00;
 }
+
+dl.infoList {
+  display: none;
+}
+
+dl.infoList.on {
+  display: block;
+}
+
+dl.infoList ~ dl.commandList {
+  display: block;
+}
+
+dl.infoList.on ~ dl.commandList {
+  display: none;
+}
+
+dl.infoList ~ div.button {
+  display: none;
+}
+
+dl.infoList.on ~ div.button {
+  display: flex
+}
+
+dl.commandList dd {
+  cursor: pointer;
+  padding: 0.2em 0.5em;
+  border-radius: 10px;
+  transition: all 0.3s ease-in-out;
+}
+
+dl.commandList dd:hover {
+  background-color: #eee;
+}
+
 /* ----- /Info ----- */
 
 /* ----- Buttons ----- */
@@ -326,3 +336,10 @@ body.dark {
   background-color: #456;
 }
 
+.dark h3.command img {
+  filter: invert(1);
+}
+
+.dark dl.commandList dd:hover {
+  background-color: #678;
+}
