@@ -602,7 +602,7 @@ console.log(text);
 
     this.fileLength = e.target.files.length;
 
-    e.target.files.forEach(file => {
+    [...e.target.files].forEach(file => {
 
       switch (true) {
 
