@@ -408,7 +408,7 @@ class Highlight {
         'status-bar', 'step-end', 'step-start', 'steps', 'stretch', 'strict', 'sub', 'super', 'sw-resize',
         'table-caption', 'table-cell', 'table-column-group', 'table-column', 'table-footer-group', 'table-header-group',
         'table-row-group', 'table-row', 'table', 'tb-rl', 'text-after-edge', 'text-before-edge', 'text-bottom',
-        'text-size', 'text-top', 'text', 'thick', 'thin', 'transparent', 'underline', 'upper-alpha', 'upper-latin',
+        'text-size', 'text-top', 'text', 'thick', 'thin', 'transparent', 'underline', 'unset', 'upper-alpha', 'upper-latin',
         'upper-roman', 'uppercase', 'use-script', 'vertical-ideographic', 'vertical-text', 'visible',
         'w-resize', 'wait', 'whitespace', 'z-index', 'zero', 'zoom'
       ],

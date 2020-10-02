@@ -226,10 +226,12 @@ class Script {
 
     const box = this.box;
 
-    const metaData = box.textContent.match(Meta.regEx);
+    const text = box.classList.contains('syntax') ? box.textContent : this.textBox.value;
+    const metaData = text.match(Meta.regEx);
+
     if (!metaData) { Util.notify(chrome.i18n.getMessage('errorMeta')); return; }
     const type = metaData[1].toLowerCase() === 'userscript' ? 'js' : 'css';
-    pref.template[type] = box.textContent.trim();
+    pref.template[type] = text.trimStart();
     browser.storage.local.set({template: pref.template});   // update saved pref
   }
 
