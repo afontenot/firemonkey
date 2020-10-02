@@ -735,14 +735,14 @@ console.log(text);
 
       const ext = pref.content[id].js ? '.js' : '.css';
       const data = pref.content[id].js || pref.content[id].css;
-      this.export(data, ext, 'FireMonkey/' + id, false);
+      this.export(data, ext, id, 'FireMonkey/', false);
     });
   }
 
-  export(data, ext, id, saveAs = true) {
+  export(data, ext, id, folder = '', saveAs = true) {
 
     const blob = new Blob([data], {type : 'text/plain;charset=utf-8'});
-    const filename = id.replace(/[<>:"/\\|?*]/g, '') + '.user' + ext; // removing disallowed characters
+    const filename = folder + id.replace(/[<>:"/\\|?*]/g, '') + '.user' + ext; // removing disallowed characters
 
     chrome.downloads.download({
       url: URL.createObjectURL(blob),
