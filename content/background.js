@@ -291,6 +291,8 @@ class ProcessPref {
           scriptReg.process(item);
         }
       });
+      // --- look for newly added
+      Object.keys(changes.content.newValue).forEach(item => !changes.content.oldValue[item] && scriptReg.process(item));
     }
 
     // --- storage sync update
@@ -465,7 +467,7 @@ class Installer {
 
     const data = Meta.get(text, userMatches, userExcludeMatches);
     if (!data) { throw `${name}: Meta Data error`; }
-console.log(this);
+
     // --- check version, if update existing, not for local files
     if (!updateURL.startsWith('file:///') && pref.content[name] &&
           !RU.higherVersion(data.version, pref.content[name].version)) { return; }
