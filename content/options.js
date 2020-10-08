@@ -685,12 +685,14 @@ console.log(text);
         return;
       }
 
+      const updateUrl = item.updateUrl || '';               // new Stylus "updateUrl": null, | old Stylus "updateUrl": "",
+
       // rebuild UserStyle
       let text =
 `/*
 ==UserStyle==
 @name           ${item.name}
-@updateURL      ${item.updateUrl}
+@updateURL      ${updateUrl}
 @run-at         document-start
 ==/UserStyle==
 */`;
@@ -712,8 +714,8 @@ console.log(text);
       pref.content[data.name] = data;                       // save to pref
     });
 
-    this.process();                                     // update page display
-    browser.storage.local.set({content: pref.content});       // update saved pref
+    this.process();                                         // update page display
+    browser.storage.local.set({content: pref.content});     // update saved pref
   }
   // ----------------- /Import Stylus ----------------------
 
