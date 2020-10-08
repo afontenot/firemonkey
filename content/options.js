@@ -172,7 +172,7 @@ class Script {
 
 
     // --- Import/Export Script
-    document.getElementById('fileScript').addEventListener('change', this.processFileSelect);
+    document.getElementById('fileScript').addEventListener('change', (e) => this.processFileSelect(e));
 
     // --- menu dropdown
     this.closePopup = this.closePopup.bind(this);
@@ -698,10 +698,10 @@ console.log(text);
       item.sections.forEach(sec => {
 
         const r = [];
-        sec.urls[0] && sec.urls.forEach(i => r.push(`url('${i}')`));
-        sec.urlPrefixes[0] && sec.urlPrefixes.forEach(i => r.push(`url-prefix('${i}')`));
-        sec.domains[0] && sec.domains.forEach(i => r.push(`domain('${i}')`));
-        sec.regexps[0] && sec.regexps.forEach(i => r.push(`regexp('${i}')`));
+        sec.urls && sec.urls.forEach(i => r.push(`url('${i}')`));
+        sec.urlPrefixes && sec.urlPrefixes.forEach(i => r.push(`url-prefix('${i}')`));
+        sec.domains && sec.domains.forEach(i => r.push(`domain('${i}')`));
+        sec.regexps && sec.regexps.forEach(i => r.push(`regexp('${i}')`));
 
         r[0] && (text += '\n\n@-moz-document ' + r.join(', ') +' {\n  ' + sec.code + '\n}');
       });
