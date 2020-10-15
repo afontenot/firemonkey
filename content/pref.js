@@ -47,9 +47,9 @@ class Pref {
   static readData(data) {
 
     let importData;
-    try { importData = JSON.parse(data); }                    // Parse JSON
+    try { importData = JSON.parse(data); }                  // Parse JSON
     catch(e) {
-      Util.notify(chrome.i18n.getMessage('errorParse'));           // display the error
+      Util.notify(chrome.i18n.getMessage('errorParse'));    // display the error
       return;
     }
 

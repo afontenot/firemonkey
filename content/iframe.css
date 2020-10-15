@@ -63,6 +63,10 @@ dt.indent {
   text-indent: 1.5em;
 }
 
+dd sup {
+  color: #05f;
+}
+
 img {
   vertical-align: text-bottom;
 }

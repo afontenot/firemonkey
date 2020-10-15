@@ -24,15 +24,35 @@ class Popup {
 
     this.infoList = this.info.querySelector('dl.infoList');
     this.commandList = this.info.querySelector('dl.commandList');
+    this.scratchpad = this.info.querySelector('div.scratchpad');
     this.dtTemp = document.createElement('dt');
     this.ddTemp = document.createElement('dd');
 
     // ----- Script Commands
     document.querySelector('h3.command img').addEventListener('click', () => {
-      this.infoList.classList.remove('on');
+      this.toggleOn(this.commandList);
       this.info.parentNode.style.transform = 'translateX(-50%)';
     });
     this.buttonDiv =  this.info.querySelector('div.button');
+
+    // ----- Scratchpad
+    this.js = document.querySelector('#js');
+    this.js.value = localStorage.getItem('scraptchpadJS') || ''; // recall last entry
+    this.css = document.querySelector('#css');
+    this.css.value = localStorage.getItem('scraptchpadCSS') || ''; // recall last entry
+
+    document.querySelector('h3.scratchpad img').addEventListener('click', () => {
+      this.toggleOn(this.scratchpad);
+      this.info.parentNode.style.transform = 'translateX(-50%)';
+    });
+    document.querySelector('img.scraptchpadJS').addEventListener('click', () => {
+      this.js.value = '';
+      localStorage.setItem('scraptchpadJS', '');
+    });
+    document.querySelector('img.scraptchpadCSS').addEventListener('click', () => {
+      this.css.value = '';
+      localStorage.setItem('scraptchpadCSS', '');
+    });
 
     // ----- Theme
     document.body.classList.toggle('dark', localStorage.getItem('dark') === 'true'); // defaults to false
@@ -47,6 +67,7 @@ class Popup {
       case 'newCSS|title': localStorage.setItem('nav', 'css'); break;
       case 'help': localStorage.setItem('nav', 'help'); break;
       case 'edit': localStorage.setItem('nav', this.id); break;
+      case 'run':  popup.runScratchpad(); return;
     }
     chrome.runtime.openOptionsPage();
     window.close();
@@ -99,11 +120,16 @@ class Popup {
     browser.storage.local.set({content: pref.content});     // update saved pref
   }
 
+  toggleOn(node) {
+
+    [this.infoList, this.commandList, this.scratchpad].forEach(item => item.classList.toggle('on', item === node));
+  }
+
   showInfo(e) {
 
     const id = e.target.parentNode.id;
     this.infoList.textContent = '';                         // clearing previous content
-    this.infoList.classList.toggle('on', true);
+    this.toggleOn(this.infoList);
 
     const dl = this.infoList;
     const dtTemp = this.dtTemp;
@@ -168,6 +194,27 @@ class Popup {
       dd.addEventListener('click', () => browser.tabs.sendMessage(tabId, {name: message.name, command: item}));
       dl.appendChild(dd);
     });
+  }
+
+  // ----------------- Scratchpad --------------------------
+  runScratchpad() {
+
+    const js = this.js.value.trim();
+    const css = this.css.value.trim();
+    
+    if (js) {
+      localStorage.setItem('scraptchpadJS', js); // save last entry
+      browser.tabs.executeScript({code: js})
+      .then(() => {})
+      .catch(error => Util.notify('JavaScript: ' + chrome.i18n.getMessage('errorInsert')));
+    }
+
+    if (css) {
+      localStorage.setItem('scraptchpadCSS', css); // save last entry
+      browser.tabs.insertCSS({code: css})
+      .then(() => {})
+      .catch(error => Util.notify('CSS: ' + chrome.i18n.getMessage('errorInsert')));
+    }
   }
 }
 const popup = new Popup();

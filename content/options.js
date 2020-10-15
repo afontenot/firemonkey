@@ -67,6 +67,10 @@ class Options {
         document.getElementById('nav1').checked = true;
         break;
 
+      case 'log':
+        document.getElementById('nav5').checked = true;
+        break;
+
       case 'js':
       case 'css':
         document.getElementById('nav4').checked = true;
@@ -82,12 +86,12 @@ const options = new Options('#autoUpdateInterval, #globalScriptExcludeMatches, #
 // ----------------- /Options ------------------------------
 
 // ----------------- Scripts -------------------------------
-class Script {                                
+class Script {
 
   constructor() {
-    // class RemoteUpdate in common.js                     
+    // class RemoteUpdate in common.js
     RU.callback = this.processResponse.bind(this);
-    
+
     this.liTemplate = document.querySelector('nav li.template');
     this.legend = document.querySelector('.script legend');
     const box = document.querySelector('.script .box');
@@ -372,7 +376,7 @@ class Script {
 
     const box = this.box;
     const autoUpdate = this.autoUpdate;
-    
+
     if (!box.id) { return; }
 
     const id = box.id;
@@ -551,11 +555,11 @@ class Script {
       return;
     }
 
-    RU.getUpdate(pref.content[id], true);              // to class RemoteUpdate in common.js
+    RU.getUpdate(pref.content[id], true);                   // to class RemoteUpdate in common.js
   }
 
   async processResponse(text, name) {                       // from class RemoteUpdate in common.js
-console.log(text);
+
     const data = Meta.get(text);
     if (!data) { throw `${name}: Update Meta Data error`; }
 
@@ -821,3 +825,33 @@ class Pattern {
   }
 }
 // ----------------- /Match Pattern Tester -----------------
+
+// ----------------- Log -----------------------------------
+class LogDisply {
+  
+  constructor() {
+    this.log = localStorage.getItem('log') || '';
+    try { this.log = JSON.parse(this.log); } catch (e) { this.log = []; }
+    this.log[0] && this.process();
+  } 
+  
+  process() {
+    
+    const trTemp = document.querySelector('.log tr.template');
+    const tbody = trTemp.parentNode.nextElementSibling;
+    this.log.reverse().forEach(([time, ref, message, error]) => {
+      
+      const tr = trTemp.cloneNode(true);
+      tr.classList.remove('template');
+      error && tr.classList.add('error');
+      const td = tr.children;
+      td[0].textContent = time;
+      td[1].title = ref;
+      td[1].textContent = ref;
+      td[2].textContent = message;
+      tbody.appendChild(tr);  
+    });
+  }
+}
+new LogDisply();
+// ---------------- /Log ----------------------------------
