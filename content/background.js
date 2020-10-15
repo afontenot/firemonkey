@@ -8,7 +8,8 @@ class ContextMenu {
       { id: 'options', contexts: ['browser_action'], icons: {16: 'image/gear.svg'} },
       { id: 'newJS', contexts: ['browser_action'], icons: {16: 'image/js.svg'} },
       { id: 'newCSS', contexts: ['browser_action'], icons: {16: 'image/css.svg'} },
-      { id: 'help', contexts: ['browser_action'], icons: {16: 'image/help32.png'} }
+      { id: 'help', contexts: ['browser_action'], icons: {16: 'image/help32.png'} },
+      { id: 'log', contexts: ['browser_action'], icons: {16: 'image/document.svg'} }
     ];
 
     contextMenus.forEach(item => {
@@ -27,6 +28,7 @@ class ContextMenu {
       case 'newJS': localStorage.setItem('nav', 'js'); break;
       case 'newCSS': localStorage.setItem('nav', 'css'); break;
       case 'help': localStorage.setItem('nav', 'help'); break;
+      case 'log': localStorage.setItem('nav', 'log'); break;
     }
     chrome.runtime.openOptionsPage();
   }
@@ -76,14 +78,15 @@ class ScriptRegister {
   }
 
   async init() {
+    this.process = this.process.bind(this);
     this.platformInfo = await browser.runtime.getPlatformInfo();
     this.browserInfo = await browser.runtime.getBrowserInfo();
   }
 
   async process(id) {
 
-    const script = pref.content[id];
-    script.style = script.style || [];                        // preset
+    const script = JSON.parse(JSON.stringify(pref.content[id])); // deep clone pref object
+    script.style = script.style || [];                      // preset
 
     // --- reset previous registers  (UserStyle Multi-segment Process)
     script.style[0] ? script.style.forEach((item, i) => this.unregister(id + 'style' + i)) : this.unregister(id);
@@ -152,7 +155,7 @@ class ScriptRegister {
       options.scriptMetadata = {
         name: id,
         resource: script.resource || {},
-        info: {                                               // GM.info data
+        info: {                                             // GM.info data
           scriptHandler: 'FireMonkey',
           version: this.FMV,
           scriptMetaStr: null,
@@ -189,10 +192,10 @@ class ScriptRegister {
 
     const API = options.js ? browser.userScripts : browser.contentScripts;
     // --- register page script
-    try {                                                 // catches error throws before the Promise
+    try {                                                   // catches error throws before the Promise
       API.register(options)
-      .then(reg => this.registered[id] = reg)             // contentScripts.RegisteredContentScript object
-      .catch(console.error);
+      .then(reg => this.registered[id] = reg)               // contentScripts.RegisteredContentScript object
+      .catch(error => logger.set(id, error.message, true));
     } catch(error) { this.processError(id, error.message); }
   }
 
@@ -209,6 +212,7 @@ class ScriptRegister {
     pref.content[id].error = error;                         // store error message
     pref.content[id].enabled = false;                       // disable the script
     browser.storage.local.set({content: pref.content});     // update saved pref
+    logger.set(id, error, true);                            // log message to display in Options -> Log
   }
 }
 const scriptReg = new ScriptRegister();
@@ -246,7 +250,7 @@ class ProcessPref {
     const days = pref.autoUpdateInterval *1;
     const doUpdate =  days && Date.now() > pref.autoUpdateLast + (days + 86400000); // 86400 * 1000 = 24hr
 
-    await scriptReg.init();                                   // await data initialization
+    await scriptReg.init();                                 // await data initialization
     Object.keys(pref.content).forEach(item => {
 
       scriptReg.process(item);
@@ -262,10 +266,7 @@ class ProcessPref {
 
   processPrefUpdate(changes) {
 
-    const changesKeys = Object.keys(changes);
-    if (!changesKeys.find(item => this.notEqual(changes[item].oldValue, changes[item].newValue))) { return; }
-
-    changesKeys.forEach(item => pref[item] = changes[item].newValue); // update pref with the saved version
+    if (!Object.keys(changes).find(item => this.notEqual(changes[item].oldValue, changes[item].newValue))) { return; }
 
     // --- check counter preference has changed
     if (changes.counter && changes.counter.newValue !== changes.counter.oldValue) {
@@ -281,7 +282,7 @@ class ProcessPref {
 
       Object.keys(changes.content.oldValue).forEach(item => {
 
-        if (!changes.content.newValue[item]) {                // script was deleted
+        if (!changes.content.newValue[item]) {              // script was deleted
           const script = changes.content.oldValue[item];
           const id = script.name;
           // --- reset previous registers  (UserStyle Multi-segment Process)
@@ -299,7 +300,9 @@ class ProcessPref {
     if (pref.sync) {
       const size = JSON.stringify(pref).length;
       if (size > 102400) {
-        Util.notify(chrome.i18n.getMessage('errorSync', (size/1024).toFixed(1)));
+        const text = chrome.i18n.getMessage('errorSync', (size/1024).toFixed(1));
+        Util.notify(text);
+        logger.set('Sync', text, true);
         pref.sync = false;
         browser.storage.local.set({sync: false});
       }
@@ -316,12 +319,12 @@ class ProcessPref {
     const version = (localStorage.getItem('migrate') || 0) *1;
     if (version >= 1.36) { return; }
 
-    if (pref.hasOwnProperty('disableHighlight')) {            // v1.31 migrate
+    if (pref.hasOwnProperty('disableHighlight')) {          // v1.31 migrate
       browser.storage.local.remove('disableHighlight');
       delete pref.disableHighlight;
     }
 
-    Object.keys(pref.content).forEach(item => {               // v1.36 migrate
+    Object.keys(pref.content).forEach(item => {             // v1.36 migrate
 
       pref.content[item].require && pref.content[item].require.forEach((lib, i) => {
 
@@ -350,7 +353,7 @@ class ProcessPref {
 class Installer {
 
   constructor() {
-    // class RemoteUpdate in common.js                        
+    // class RemoteUpdate in common.js
     RU.callback = this.processResponse.bind(this);
 
     // --- Web/Direct Installer
@@ -382,7 +385,7 @@ class Installer {
     let q;
     switch (true) {
 
-      case !e.originUrl: return;                              // end execution if not Web Install
+      case !e.originUrl: return;                            // end execution if not Web Install
 
       // --- GreasyFork
       case e.originUrl.startsWith('https://greasyfork.org/') && e.url.startsWith('https://greasyfork.org/'):
@@ -473,12 +476,12 @@ class Installer {
           !RU.higherVersion(data.version, pref.content[name].version)) { return; }
 
     // --- check name, if update existing
-    if (pref.content[name] && data.name !== name) {           // name has changed
+    if (pref.content[name] && data.name !== name) {         // name has changed
 
       if (pref.content[data.name]) { throw `${name}: Update new name already exists`; } // name already exists
       else {
 
-        if (pref['_' + name]) {                               // move storage
+        if (pref['_' + name]) {                             // move storage
           pref['_' + data.name] = pref['_' + name];
           delete pref['_' + name];
           browser.storage.local.remove('_' + name);
@@ -486,14 +489,14 @@ class Installer {
         delete pref.content[name];
       }
 
-      scriptReg.unregister(name);                             // --- unregister old name
+      scriptReg.unregister(name);                           // unregister old name
     }
 
     // --- update from previous version
     if (pref.content[data.name]) {
       data.enabled = pref.content[data.name].enabled;
       data.autoUpdate = pref.content[data.name].autoUpdate;
-      console.log(data.name, 'updated to version', data.version);
+      logger.set(data.name, 'Updated version ' + pref.content[data.name].version + ' to ' + data.version); // log message to display in Options -> Log
     }
 
     // --- check for Web Install, set install URL
@@ -503,9 +506,8 @@ class Installer {
       data.autoUpdate = true;
     }
 
-    pref.content[data.name] = data;                           // save to pref
-    browser.storage.local.set({content: pref.content});       // update saved pref
-    data.enabled && scriptReg.process(data.name);
+    pref.content[data.name] = data;                         // save to pref
+    browser.storage.local.set({content: pref.content});     // update saved pref
   }
   // --------------- /Remote Update ------------------------
 }
@@ -541,8 +543,8 @@ class API {
         delete headers[item];
       }
       else if (specialHeader.includes(item)) {
-        headers['FM-' + item] = headers[item];                // set a new FM header
-        delete headers[item];                                 // delete original header
+        headers['FM-' + item] = headers[item];              // set a new FM header
+        delete headers[item];                               // delete original header
       }
     });
   }
@@ -597,8 +599,8 @@ class API {
         return Promise.resolve(pref[storage] ? Object.keys(pref[storage]) : []);
 
       case 'deleteValue':
-        if (!hasProperty(e.key)) { return true; }             // return if nothing to delete
-        oldValue = pref[storage][e.key];                      // need to cache it due to async processes
+        if (!hasProperty(e.key)) { return true; }           // return if nothing to delete
+        oldValue = pref[storage][e.key];                    // need to cache it due to async processes
         e.broadcast && browser.tabs.query({}).then(tabs => {
           tabs.forEach(tab => browser.tabs.sendMessage(tab.id,
             {name, valueChange: {key: e.key, oldValue, newValue: e.value, remote: tab.id !== sender.tab.id}}));
@@ -607,13 +609,13 @@ class API {
         return browser.storage.local.set({[storage]: pref[storage]});
 
       case 'openInTab':
-        browser.tabs.create({url: e.url, active: e.active});  // Promise with tabs.Tab OR reject with error message
+        browser.tabs.create({url: e.url, active: e.active}); // Promise with tabs.Tab OR reject with error message
         break;
 
       case 'setClipboard':
-        navigator.clipboard.writeText(e.text)                 // Promise with ? OR reject with error message
+        navigator.clipboard.writeText(e.text)               // Promise with ? OR reject with error message
         .then(() => {})
-        .catch(error => { console.error(error); Util.notify(chrome.i18n.getMessage('errorClipboard')); }); // failed copy notification
+        .catch(error => logger.set(name, error.message, true));
         break;
 
       case 'notification':
@@ -627,23 +629,23 @@ class API {
 
       case 'download':
         // --- check url
-        const dUrl = this.checkURL(e.url, e.base);
+        const dUrl = this.checkURL(name, e.url, e.base);
         if (!dUrl) { return; }
 
-        browser.downloads.download({                          // Promise with id OR reject with error message
+        browser.downloads.download({                        // Promise with id OR reject with error message
           url: dUrl,
           filename: e.filename ? e.filename : null,
           saveAs: true,
           conflictAction: 'uniquify'
         })
         .then(() => {})
-        .catch(error => Util.notify(error.message, name));                 // failed notification
+        .catch(error => logger.set(name, error.message, true));  // failed notification
         break;
 
 
       case 'fetch':
         // --- check url
-        const url = this.checkURL(e.url, e.base);
+        const url = this.checkURL(name, e.url, e.base);
         if (!url) { return; }
 
         const init = {};
@@ -665,11 +667,11 @@ class API {
               default: return response.text();
             }
           })
-          .catch(console.error);
+          .catch(error => logger.set(name, error.message, true));
         break;
 
       case 'xmlHttpRequest':
-        const xhrUrl = this.checkURL(e.url, e.base);
+        const xhrUrl = this.checkURL(name, e.url, e.base);
         if (!xhrUrl) { return; }
 
         return new Promise((resolve, reject) => {
@@ -697,17 +699,17 @@ class API {
     }
   }
 
-  checkURL(url, base) {
+  checkURL(name, url, base) {
 
     try { url = new URL(url, base); }
     catch (error) {
-      console.error(error.message);
+      logger.set(name, error, true);
       return;
     }
 
     // --- check protocol
     if (!['http:', 'https:', 'ftp:', 'ftps:'].includes(url.protocol)) {
-      console.error('Unsupported Protocol ' + url.protocol);
+      logger.set(name, 'Unsupported Protocol ' + url.protocol, true);
       return;
     }
     return url.href;
@@ -735,3 +737,19 @@ class API {
 new API();
 // ----------------- /Content Message Handler --------------
 
+// ----------------- Logger --------------------------------
+class Logger {
+
+  constructor() {
+    this.log = localStorage.getItem('log') || '';
+    try { this.log = JSON.parse(this.log); } catch (e) { this.log = []; }
+  }
+
+  set(ref, message, error = false) {
+    this.log = this.log.slice(-100);                        // slice to the last 100 entries
+    this.log.push([new Date().toString().substring(0, 24), ref, message, error]);
+    localStorage.setItem('log', JSON.stringify(this.log));
+  }
+}
+const logger = new Logger();
+// ----------------- /Logger -------------------------------

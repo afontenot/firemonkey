@@ -11,8 +11,7 @@
 
   "autoUpdateInterval": { "message": "自動更新間隔" },
   "autoUpdateIntervalDescription": { "message": "更新間的天數（0 = 不更新）" },
-  
-  "disableHighlight": { "message": "停用語法突顯" },
+
   "enableSync": { "message": "Enable Storage Sync" },
   "errorSync": { "message": "Unable to sync\nStorage ($1KB) is larger than 100KB. Sync will be turned off." },
 
@@ -48,7 +47,6 @@
   "errorMeta": { "message": "詮釋資料錯誤" },
   "errorNoName": { "message": "指令稿/CSS 必須有名稱。" },
   "errorName": { "message": "指令稿/CSS 名稱已存在。\n您想要取代既有的項目嗎？" },
-  "errorMatches": { "message": "必須設定 @mathces 或 @includeGlobs。" },
   "errorUpdate": { "message": "指令稿/CSS 沒有 updateURL 或版本。" },
   "noNewUpdate": { "message": "沒有新更新。" },
   "scriptUpdated": { "message": "指令稿/CSS 已更新至版本 $1" },
@@ -66,8 +64,14 @@
   "errorRead": { "message": "讀取檔案錯誤" },
   "errorParse": { "message": "解析檔案錯誤" },
 
+  "log": { "message": "Log" },
+  "time": { "message": "Time" },
+  "reference": { "message": "Reference" },
+  "message": { "message": "Message" },
 
-  "errorClipboard": { "message": "儲存到剪貼簿失敗" },
+  "scratchpad": { "message": "Scratchpad" },
+  "run": { "message": "Run" },
+  "errorInsert": { "message": "Failed to insert" },
 
   "about": { "message": "關於" },
   "amo":  { "message": "Firefox 在某些 URL 上限制了某些功能" },

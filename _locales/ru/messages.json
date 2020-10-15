@@ -11,13 +11,12 @@
 
   "autoUpdateInterval": { "message": "Интервал автообновления" },
   "autoUpdateIntervalDescription": { "message": "Количество дней между обновлениями скриптов и стилей (0 = не обновлять)" },
-  
-  "disableHighlight": { "message": "Отключить подсветку синтаксиса" },
+
   "enableSync": { "message": "Включить синхронизацию хранилища" },
   "errorSync": { "message": "Невозможно синхронизировать\nхранилище ($1KB) больше, чем 100 КБ. Синхронизация будет отключена." },
 
   "counter": { "message": "Counter" },
-  
+
   "globalScriptExcludeMatches": { "message": "Exclude Matches глобального скрипта" },
   "globalScriptExcludeMatchesDescription": { "message": "Исключите совпадение pattens (по одному на строку), чтобы все скрипты не работали на них." },
   "userMatches": { "message": "Пользовательские совпадения (Matches)" },
@@ -30,6 +29,7 @@
   "enable": { "message": "Включить" },
   "update": { "message": "Обновить" },
   "autoUpdate": { "message": "Автообновление" },
+  "syntax": { "message": "Syntax" },
   "dark": { "message": "Тёмная тема" },
 
   "newJS": { "message": "Новый польз. скрипт (UserScript)" },
@@ -41,13 +41,12 @@
   "delete": { "message": "Удалить" },
   "deleteConfirm": { "message": "Удалить \n'$1'\n и его сохранённые данные?" },
   "deleteMultiConfirm": { "message": "Удалить выбранные ($1) Scripts/CSS и их сохранённые данные?" },
-  
+
   "installConfirm": { "message": "Установить '$1'?\nScript/CSS с таким же именем будет заменён, если он имеет более низкий номер версии." },
 
   "errorMeta": { "message": "Ошибка метаданных" },
   "errorNoName": { "message": "Необходимо ввести название." },
   "errorName": { "message": "Такое название уже существует.\nХотите заменить существующее?" },
-  "errorMatches": { "message": "Н еобходимо установить @mathces или @includeGlobs." },
   "errorUpdate": { "message": "Нет updateURL или version." },
   "noNewUpdate": { "message": "Новых обновлений нет." },
   "scriptUpdated": { "message": "Обновлён до версии $1" },
@@ -65,8 +64,14 @@
   "errorRead": { "message": "Произошла ошибка при чтении файла" },
   "errorParse": { "message": "Произошла ошибка при разборе файла" },
 
+  "log": { "message": "Log" },
+  "time": { "message": "Time" },
+  "reference": { "message": "Reference" },
+  "message": { "message": "Message" },
 
-  "errorClipboard": { "message": "Не удалось сохранить в буфер обмена" },
+  "scratchpad": { "message": "Scratchpad" },
+  "run": { "message": "Run" },
+  "errorInsert": { "message": "Failed to insert" },
 
   "about": { "message": "О FireMonkey" },
   "amo":  { "message": "Firefox ограничивает некоторые функции на некоторых URL" },
