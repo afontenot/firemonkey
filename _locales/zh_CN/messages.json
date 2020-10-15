@@ -12,7 +12,7 @@
   "autoUpdateInterval": { "message": "自动更新间隔" },
   "autoUpdateIntervalDescription": { "message": "更新间隔天数（0 = 不更新）" },
 
-  "disableHighlight": { "message": "禁用语法高亮" },
+  "enableSync": { "message": "Enable Storage Sync" },
   "errorSync": { "message": "无法同步\n存储 ($1KB) 大于 100KB。同步将关闭。" },
   
   "counter": { "message": "计数器" },
@@ -64,8 +64,14 @@
   "errorRead": { "message": "读取该文件出错" },
   "errorParse": { "message": "解析该文件出错" },
 
-
-  "errorClipboard": { "message": "保存到剪贴板失败" },
+  "log": { "message": "Log" },
+  "time": { "message": "Time" },
+  "reference": { "message": "Reference" },
+  "message": { "message": "Message" },
+  
+  "scratchpad": { "message": "Scratchpad" },
+  "run": { "message": "Run" },
+  "errorInsert": { "message": "Failed to insert" },
 
   "about": { "message": "关于" },
   "amo":  { "message": "Firefox 对某些 URL 的页面操作设有限制" },

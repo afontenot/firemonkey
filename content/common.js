@@ -368,7 +368,8 @@ class RemoteUpdate {
     const url = item.updateURL.replace(/\.user\.(js|css)/i, '.meta.$1');
     fetch(url)
     .then(response => response.text())
-    .then(text => this.needUpdate(text, item) ? this.getScript(item) : manual && Util.notify(chrome.i18n.getMessage('noNewUpdate'), name))
+    .then(text => this.needUpdate(text, item) ? this.getScript(item) : 
+                      manual && Util.notify(chrome.i18n.getMessage('noNewUpdate'), item.name))
     .catch(console.error);
   }
   
