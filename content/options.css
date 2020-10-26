@@ -829,12 +829,9 @@ details.user[open] summary ~ * {
 }
 
 .log tr {
+  animation: sect 0.5s ease-in-out;
   font-size: 0.9em;
   color: #555;
-}
-
-.log tr.error {
-  color: #b44;
 }
 
 .log tr:nth-child(odd) {
@@ -864,6 +861,15 @@ details.user[open] summary ~ * {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.log tr.info {
+  background-color: #ffffe0;
+}
+
+.log tr.error {
+  color: #b44;
+  background-color: #fff5f5;
 }
 
 .log tbody { counter-reset: n; }

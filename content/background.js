@@ -165,6 +165,7 @@ class ScriptRegister {
             name: id,
             version: script.version,
             description: script.description,
+            match: script.matches,
             matches: script.matches,
             includes: script.matches,
             excludes: script.excludeMatches,
@@ -195,7 +196,7 @@ class ScriptRegister {
     try {                                                   // catches error throws before the Promise
       API.register(options)
       .then(reg => this.registered[id] = reg)               // contentScripts.RegisteredContentScript object
-      .catch(error => logger.set(id, error.message, true));
+      .catch(error => logger.set(id, error.message, 'error'));
     } catch(error) { this.processError(id, error.message); }
   }
 
@@ -212,7 +213,7 @@ class ScriptRegister {
     pref.content[id].error = error;                         // store error message
     pref.content[id].enabled = false;                       // disable the script
     browser.storage.local.set({content: pref.content});     // update saved pref
-    logger.set(id, error, true);                            // log message to display in Options -> Log
+    logger.set(id, error, 'error');                         // log message to display in Options -> Log
   }
 }
 const scriptReg = new ScriptRegister();
@@ -302,7 +303,7 @@ class ProcessPref {
       if (size > 102400) {
         const text = chrome.i18n.getMessage('errorSync', (size/1024).toFixed(1));
         Util.notify(text);
-        logger.set('Sync', text, true);
+        logger.set('Sync', text, 'error');
         pref.sync = false;
         browser.storage.local.set({sync: false});
       }
@@ -615,7 +616,7 @@ class API {
       case 'setClipboard':
         navigator.clipboard.writeText(e.text)               // Promise with ? OR reject with error message
         .then(() => {})
-        .catch(error => logger.set(name, error.message, true));
+        .catch(error => logger.set(name, error.message, 'error'));
         break;
 
       case 'notification':
@@ -639,7 +640,7 @@ class API {
           conflictAction: 'uniquify'
         })
         .then(() => {})
-        .catch(error => logger.set(name, error.message, true));  // failed notification
+        .catch(error => logger.set(name, error.message, 'error'));  // failed notification
         break;
 
 
@@ -667,7 +668,7 @@ class API {
               default: return response.text();
             }
           })
-          .catch(error => logger.set(name, error.message, true));
+          .catch(error => logger.set(name, error.message, 'error'));
         break;
 
       case 'xmlHttpRequest':
@@ -703,13 +704,13 @@ class API {
 
     try { url = new URL(url, base); }
     catch (error) {
-      logger.set(name, error, true);
+      logger.set(name, error.message, 'error');
       return;
     }
 
     // --- check protocol
     if (!['http:', 'https:', 'ftp:', 'ftps:'].includes(url.protocol)) {
-      logger.set(name, 'Unsupported Protocol ' + url.protocol, true);
+      logger.set(name, 'Unsupported Protocol ' + url.protocol, 'error');
       return;
     }
     return url.href;
