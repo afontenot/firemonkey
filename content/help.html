@@ -71,6 +71,7 @@
         <li><a href="#UserCSS">UserCSS</a></li>
         <li><a href="#UserStyle">UserStyle</a></li>
         <li><a href="#stylish-stylus">Stylish/Stylus/xStyle Type UserStyle</a></li>
+        <li><a href="#escaping">Character Escapeing in CSS</a></li>
         <li><a href="#debugging">Debugging Script & CSS</a></li>
 
       </ul>
@@ -93,10 +94,10 @@
   <dl>
     <dt><img src="../image/gear.svg" alt=""> Options</dt>
       <dd>Open the Options page</dd>
-      
+
     <dt><img src="../image/js.svg" alt=""> New UserScript</dt>
       <dd>Open the Options page and display a new Script Template that you can edit and Save <sup>1</sup></dd>
-      
+
     <dt><img src="../image/css.svg" alt=""> New UserCSS</dt>
       <dd>Open the Options page and display a new CSS Template that you can edit and Save <sup>1</sup></dd>
 
@@ -126,10 +127,10 @@
         <dd>Shows that there was an error when registering the script & the Information page displays the error</dd>
 
 
-      <dt><img src="../image/next.svg" alt=""></dt> 
+      <dt><img src="../image/next.svg" alt=""></dt>
         <dd>Shows the Information for the Script/CSS</dd>
 
-      <dt>&#x1f58c; Edit</dt>  
+      <dt>&#x1f58c; Edit</dt>
         <dd>Button on Information page opens the Options Page and selects the current Script/CSS</dd>
 
       <dt style="margin-top: 2em;">Script Commands &nbsp;&nbsp;&nbsp;<img src="../image/next.svg" alt=""></dt>
@@ -141,19 +142,19 @@
         <dd><img src="../image/bin.svg" alt=""> Click to clear the box and saved code</dd>
         <dd style="color: #f00;">Warning on Inserting JS: The API has more access than the API used for userScript injection and therefore untrusted code should not be used.</dd>
 
-      <dt>&#x25b7; Run</dt>  
+      <dt>&#x25b7; Run</dt>
         <dd>Insert the Scratchpad code</dd>
 
       <dt style="margin-top: 2em;"><img src="../image/gear.svg" alt=""> Options</dt>
-        <dd>Open the Options Page</dd>      
+        <dd>Open the Options Page</dd>
 
-      <dt>&#x2795; <img src="../image/js.svg" alt=""></dt> 
+      <dt>&#x2795; <img src="../image/js.svg" alt=""></dt>
         <dd>Display a new Script Template that you can edit and Save</dd>
 
-      <dt>&#x2795; <img src="../image/css.svg" alt=""></dt> 
+      <dt>&#x2795; <img src="../image/css.svg" alt=""></dt>
         <dd>Display a new CSS Template that you can edit and Save</dd>
 
-      <dt>Help</dt> 
+      <dt>Help</dt>
         <dd>Open the Help document</dd>
 
 
@@ -244,7 +245,7 @@
 
 
   <h4>Navigation Buttons</h4>
-  
+
   <dl>
     <dt>&#x1f4e5; Import</dt>
       <dd>Import one or more Script/CSS from file, same name Script/CSS will be overwritten without warning</dd>
@@ -425,27 +426,29 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
     <figcaption>Metadata Block</figcaption>
 <pre class="comment">
 @name
-@matches
-@version            <i>(needed for updates)</i>
-@updateURL          <i>(needed for updates)</i>
-
 @author
 @description
-@excludeMatches
+@version            <i>needed for updates</i>
+@updateURL          <i>needed for updates</i>
+
+@match
+@matches            <i>browser API style same as match</i>
+@include            <i>entries will be merged into matches, use match/matches or includeGlobs instead</i>
+@exclude            <i>entries will be merged into excludeMatches</i>
+@exclude-match
+@excludeMatches     <i>browser API style same as exclude-match</i>
 @includeGlobs
 @excludeGlobs
-@allFrames          <i>(true or false (default))</i>
-@matchAboutBlank    <i>(true or false (default))</i>
-@run-at             <i>(document_start or document_end or document_idle (default))</i>
 
-@require            <i>(script-name, specific-library, other-URL)</i>
-@resource           <i>resourceName resourceURL</i>
+@matchAboutBlank    <i>true/false (default)</i>
+@allFrames          <i>true/false (default)</i>
+@noframes           <i>if present will set @allFrames to false (default)</i>
 
-@match              <i>(entries will be merged into matches)</i>
-@include            <i>(entries will be merged into matches, use match, matches or includeGlobs instead)</i>
-@exclude            <i>(entries will be merged into excludeMatches)</i>
-@exclude-match      <i>(entries will be merged into excludeMatches)</i>
-@noframes           <i>(if present will set @allFrames to false (default))</i>
+@require            <i>(script-name/specific-library/other-URL)</i>
+@resource           <i>(resourceName resourceURL)</i>
+
+@run-at             <i>document_start/document_end/document_idle (default)</i>
+@runAt              <i>browser API style same as run-at</i>
 </pre>
   </figure>
 
@@ -470,7 +473,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 </pre>
 
   If the user loads <code>https://example.org/</code>, and this page embeds an empty iframe, then <code>"my-script.js"</code> will be loaded into the iframe.
-  
+
   <cite><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts" target="_blank">content_scripts</a></cite></blockquote>
 
   <blockquote><b>matchAboutBlank</b> <i>Optional</i><br><br>
@@ -484,17 +487,15 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <p><i>FireMonkey</i> default <code>run-at</code> is <code>document_idle</code>, therefore there is no need for event listeners such as <code>'load'</code> or <code>'DOMContentLoaded'</code> as they will not apply. If script has to run earlier, then the <code>run-at</code> has to be set accordingly.</p>
   <p><i>GreaseMonkey</i> uses hyphen separated words (<code>document-start|document-end|document-idle</code>), while the API uses underscore separated words (<code>document_start|document_end|document_idle</code>). <i>FireMonkey</i> converts the hyphen so both can be used.</p>
 
-  <p><i>FireMonkey</i> accepts both GM style <code>run-at</code> and browser API style <code>runAt</code>.</p>
-
   <p><b>N.B.</b> CSS mangers like Stylus tend to inject CSS at <code>document-start</code>. The benefit of <code>document-start</code> for CSS is that the changes will display earlier. The drawback is that the page CSS may override these CSS and if so, it is better to inject later at <code>document-end</code> or <code>document-idle</code>.</p>
 
   <dl>
     <dt>document_start</dt>
       <dd>Corresponds to <code>loading</code>. The DOM is still loading.</dd>
-      
+
     <dt>document_end</dt>
       <dd>Corresponds to <code>interactive</code>. The DOM has finished loading, but resources such as scripts and images may still be loading.</dd>
-      
+
     <dt>document_idle</dt>
       <dd>Corresponds to <code>complete</code>. The document and all its resources have finished loading.</dd>
   </dl>
@@ -702,7 +703,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
   <h4>includeGlobs & excludeGlobs</h4>
   <p>Due to the following logic process in Firefox & Chrome, when using <code>includeGlobs</code>, there must also be the mandatory <code>matches</code> (or <code>match</code>).</p>
-    
+
   <blockquote>Since <code>matches</code> is the only mandatory key, the other three keys are used to limit further the URLs that match. To match the key as a whole, a URL must:
 
     <ul>
@@ -731,7 +732,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 <h3 id="ftp">FTP &#x26a0;&#xfe0f;</h3>
 
   <blockquote>The Firefox platform development team recently <a href="https://groups.google.com/forum/#!msg/mozilla.dev.platform/FqCZUT9ay_o/jt4DLRDjAwAJ">announced plans</a> to first disable, and then remove the implementation for built-in <a href="https://developer.mozilla.org/en-US/docs/Glossary/FTP">FTP</a> from the browser.
-  
+
   <cite><a href="https://blog.mozilla.org/addons/2020/04/13/what-to-expect-for-the-upcoming-deprecation-of-ftp-in-firefox/" target="_blank">What to expect for the upcoming deprecation of FTP in Firefox</a></cite></blockquote>
 
 
@@ -1547,11 +1548,11 @@ xhr.send(<span class="keyword">null</span>);
       <dd><span class="fail"></span>Not processed, maybe added on popular demand</dd>
 
   </dl>
-  
+
 <pre>
 <span class="gm">GM_notification</span>(<span class="string">'some text'</span>);
 <span class="gm">GM_notification</span>({text: <span class="string">'some text'</span>, image: <span class="string">'https://example.com/icon.jpg'</span>, ...});
-</pre>  
+</pre>
 
 
   <h3 id="registerMenuCommand">registerMenuCommand(name, onclick)</h3>
@@ -1708,7 +1709,7 @@ xhr.send(<span class="keyword">null</span>);
   <cite><a href="https://sourceforge.net/p/greasemonkey/wiki/unsafeWindow/" target="_blank">unsafeWindow</a></cite></blockquote>
 
   <p>Safer alternatives to <code>unsafeWindow</code> are also listed in above page.</p>
-  
+
 
   <blockquote>This command can open certain security holes in your user script, and it is recommended to use this command sparingly.<br>
 
@@ -1767,7 +1768,7 @@ xhr.send(<span class="keyword">null</span>);
 
   <h4>Injecting code into page scripts</h4>
   <p>Sometimes it is necessary to have a script that is available to page spirit and/or run in page context, as an extension to page script functions.</p>
-  
+
 <pre><span class="keyword">const</span> script = <span class="property">document</span>.<span class="method">createElement</span>(<span class="string">'script'</span>);
 script.<span class="property">textContent</span> = <span class="string">`... code ...`</span>;
 <span class="property">document</span>.<span class="property">body</span>.<span class="method">appendChild</span>(script);
@@ -1777,7 +1778,7 @@ script.<span class="method">remove</span>();
 
   <h4>Receiving data from page scripts</h4>
   <p><a href="https://developer.mozilla.org/docs/Web/API/CustomEvent" target="_blank">CustomEvent</a> can be used send data from a page script.</p>
-  
+
   <figure>
     <figcaption>Example with &lt;script&gt;</figcaption>
 <pre>
@@ -1801,7 +1802,7 @@ script.<span class="method">remove</span>();
   <span class="comment">// run some code</span>
 }
 </pre>
-</figure>  
+</figure>
 
   <p>In Firefox, <code>window.eval()</code> can also be used to inject code into a page context.</p>
 
@@ -1825,13 +1826,13 @@ script.<span class="method">remove</span>();
   <span class="comment">// run some code</span>
 }
 </pre>
-</figure>  
+</figure>
 
   <h2 id="UserCSS"><img src="../image/css.svg" alt=""> UserCSS</h2>
-  
+
   <p>CSS can be injected directly into a page. If the goal is to inject CSS, it is by far more efficient to inject CSS as UserCSS, instead of using UserScript to inject CSS. Here is an example of simple UserCSS that I use to mark watched/visited videos on YouTube.</p>
   <p>Furthermore, CSS rules will apply to newly created elements in dynamically updated pages (e.g. on scroll) while JavaScript would need additional listeners to wait for new element to be created and then run then code again.</p>
-  
+
   <figure>
     <figcaption>Example</figcaption>
 <pre>
@@ -1850,19 +1851,19 @@ script.<span class="method">remove</span>();
   <span class="property">color</span>: <span class="value">#f50</span> <span class="important">!important</span>;
 }
 </pre>
-</figure>  
+</figure>
 
 
   <h2 id="UserStyle"><img src="../image/css.svg" alt=""> UserStyle</h2>
-  
+
   <p>Partial compatibility with <a href="https://www.w3schools.com/css/css_syntax.asp" target="_blank">standard CSS syntax</a> UserStyle <code>==UserStyle== ... ==/UserStyle==</code> is available. All <code>url()</code>, <code>url-prefix()</code> & <code>domain()</code> are processed. Few very basic <code>regexp()</code> are converted to match pattern but other sections with <code>regexp()</code> are ignored since browser API does not support Regular Expression.</p>
   <p>The default <code>'run-at'</code> is set to <code>'document-start'</code> for UserStyles.</p>
-  <p>Ref: <a href="https://github.com/erosman/support/issues/111" target="_blank">Implement Stylus style Compatibility</a> | 
+  <p>Ref: <a href="https://github.com/erosman/support/issues/111" target="_blank">Implement Stylus style Compatibility</a> |
     <a href="https://github.com/JasonBarnabe/greasyfork/issues/656" target="_blank">Support FireMonkey's UserCSS spec</a></p>
-  
-  
+
+
   <h3 id="stylish-stylus">&#x2139;&#xFE0F; Stylish/Stylus/xStyle Type UserStyle</h3>
-  
+
   <p>In Firefox Quantum, extension can not use <code>@-moz-document</code> and therefore would have to:</p>
 
   <ul>
@@ -1882,7 +1883,7 @@ script.<span class="method">remove</span>();
 🏴 Disabled From version 61: this feature is behind the <code>layout.css.moz-document.content.enabled</code> preference (needs to be set to <code>true</code>). To change preferences in Firefox, visit <code>about:config</code>.
 
   <cite><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@document" target="_blank">@document</a></cite></blockquote>
-  
+
   <h4>Converting UserStyle @-moz-document to UserCSS @match</h4>
   <p>The first 3 are quite straight forward and easy to convert. The only difficulty is with the <code>regexp()</code>. The more complex the regexp (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions" target="_blank">Regular Expressions</a>), the more <code>@match</code> may be needed, but once done, it is easy to read and maintain.</p>
 
@@ -1921,6 +1922,32 @@ script.<span class="method">remove</span>();
 </table>
 
 
+  <h3 id="escaping">Character Escapeing in CSS</h3>
+  <p>CSS Escaping in userScript requires double scaping.</p>
+
+  <figure>
+    <figcaption>Example</figcaption>
+<pre>
+<span class="comment">// target element</span>
+&lt;div class="RichText RichText--sans lg:mb-32"&gt; ... &lt;/div&gt;
+
+
+<span class="comment">// in userScript </span>
+<span class="keyword">const</span> css = <span class="string">`</span>
+.lg\\:mb-32 {
+  <span class="property">border</span>: 1px solid red;
+}
+<span class="string">`</span>;
+<span class="gm">GM_addStyle</span>(css);
+
+
+<span class="comment">// in userCSS</span>
+.lg\:mb-32 {
+  <span class="property">border</span>: <span class="value">1px</span> <span class="value">solid</span> <span class="color">blue</span>;
+}
+</pre>
+</figure>
+
   <h3 id="debugging">Debugging Script & CSS</h3>
   <dl>
     <dt>JavaScript Compile Errors</dt>
@@ -1933,13 +1960,13 @@ You can check the Console tab.</dd>
 
     <dt>CSS Errors</dt>
       <dd>The CSS error can be checked in <b>Developer Tool</b> (<kbd>F12</kbd>) for the page that the CSS is injected into.</dd>
-      <dd>You can check <b>Style Editor</b> tab and the injected CSS shows as <code>&lt;inline style sheet #...&gt;</code>.</dd>      
+      <dd>You can check <b>Style Editor</b> tab and the injected CSS shows as <code>&lt;inline style sheet #...&gt;</code>.</dd>
 
     <dt>Injection Errors</dt>
       <dd>Check the Log page for recent errors</dd>
 
-  </dl>  
-    
+  </dl>
+
 
 
   <h2 id="support"><img src="../image/help32.png" alt=""> Support</h2>

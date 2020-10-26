@@ -21,7 +21,10 @@ class Options {
     this.globalScriptExcludeMatches = document.querySelector('#globalScriptExcludeMatches');
 
     // --- from browser pop-up & contextmenu (not in Private Window)
-    window.addEventListener('storage', (e) => e.key === 'nav' && this.getNav(e.newValue));
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'nav') { this.getNav(e.newValue); }
+      else if (e.key === 'log') { showLog.update(e.newValue); }
+    });
   }
 
   process(save) {
@@ -757,9 +760,6 @@ class Script {
       conflictAction: 'uniquify'
     });
   }
-
-
-
 }
 const script = new Script();
 
@@ -827,31 +827,45 @@ class Pattern {
 // ----------------- /Match Pattern Tester -----------------
 
 // ----------------- Log -----------------------------------
-class LogDisply {
+class ShowLog {
   
   constructor() {
     this.log = localStorage.getItem('log') || '';
     try { this.log = JSON.parse(this.log); } catch (e) { this.log = []; }
-    this.log[0] && this.process();
+    this.log[0] && this.process(this.log);
   } 
   
-  process() {
+  process(list) {
     
     const trTemp = document.querySelector('.log tr.template');
     const tbody = trTemp.parentNode.nextElementSibling;
-    this.log.reverse().forEach(([time, ref, message, error]) => {
+    list.forEach(([time, ref, message, type]) => {
       
       const tr = trTemp.cloneNode(true);
       tr.classList.remove('template');
-      error && tr.classList.add('error');
+      type && tr.classList.add(type);
       const td = tr.children;
       td[0].textContent = time;
       td[1].title = ref;
       td[1].textContent = ref;
-      td[2].textContent = message;
-      tbody.appendChild(tr);  
+      td[2].textContent = message; 
+      tbody.insertBefore(tr, tbody.firstElementChild);      // in reverse order, new on top
     });
   }
+   
+  update(newLog) {
+    
+    try { newLog = JSON.parse(newLog); } catch (e) { newLog = []; }
+    if (!newLog[0]) { return; }
+    
+    const old = this.log.map(item => item.toString());      // need to conver to array of strings for Array.includes()
+    const newItems = newLog.filter(item => !old.includes(item.toString()));
+
+    if (newItems[0]) {
+      this.log = newLog;
+      this.process(newItems);
+    }
+  }
 }
-new LogDisply();
+const showLog = new ShowLog();
 // ---------------- /Log ----------------------------------
