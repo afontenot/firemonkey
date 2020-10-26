@@ -10,6 +10,8 @@ class Highlight {
     box.addEventListener('keydown', e => this.keydown(e));
     box.addEventListener('blur', e => this.blur(e));
     box.addEventListener('paste', e => this.paste(e));
+    this.docfrag = document.createDocumentFragment();
+    this.code = document.createElement('code');
   }
 
   keydown(e) {
@@ -17,33 +19,16 @@ class Highlight {
     let sel;
     switch (e.key) {
 
-      case 'Enter':                                         // highlight previous node on Enter
-        e.preventDefault();
-        sel = window.getSelection();
-        const target = [...this.box.children].find(item => sel.containsNode(item, true));
-        if (!target) { return; }
-
-        const node = target.cloneNode(false);
-        node.textContent = '\n';
-        target.after(node);
-        const range = sel.getRangeAt(0);
-        range.setStart(target.nextElementSibling, 0);
-        range.collapse(true);                                 // collapse to start
-        sel.removeAllRanges();
-        sel.addRange(range);
-        break;
-
       case 's':                                             // Ctrl + s
         if (e.ctrlKey) {
           e.preventDefault();
-          saveScript();
+          script.saveScript();
         }
         break;
 
       case 'Tab':                                           // Tab key
         e.preventDefault();
         sel = window.getSelection();
-
         const str = sel + '';
 
         switch (true) {
@@ -90,13 +75,12 @@ class Highlight {
 
     const sel = window.getSelection();
     const index = [...this.box.children].findIndex(item => sel.containsNode(item, true));
-    const childIndex = [...this.box.children[index].children].findIndex(item => sel.containsNode(item, true));
     document.execCommand('insertText', false, text);
 
     this.original = '';                                     // force re-process
     this.process();
 
-    if (index > 0) {                                        // go to previous node/line, not -1 or 0     
+    if (index > 0) {                                        // go to previous node/line, not -1 or 0
 
       const len = text.split('\n').length -1;
       const node = this.box.children[index+len] || this.box.children[index];
@@ -127,17 +111,17 @@ class Highlight {
 
   process() {
 
-    if (!this.box.classList.contains('syntax') || this.box.textContent === this.original) {
-      return;
-    }
-//console.log(' called');
     const box = this.box;
-    const start = performance.now();
-    box.classList.remove('invalid');                        // reset
+    if (!box.classList.contains('syntax')) { return; }      // no highlight
 
     const nl = this.getNL();
     this.br2nl(box, nl);
-    const text = box.textContent.trim().replace(new RegExp(String.fromCharCode(160), 'g'), nl); // replacing &nbsp;
+
+    if (box.textContent === this.original) { return; }      // no change
+
+    const start = performance.now();
+    box.classList.remove('invalid');                        // reset
+    const text = box.textContent.trim().replace(new RegExp(String.fromCharCode(160), 'g'), ' '); // replacing &nbsp;
     if (!text.trim()) { return; }
 
     const metaData = text.match(Meta.regEx);
@@ -151,20 +135,18 @@ class Highlight {
 
     box.textContent = '';                                     // clear box
     const type = metaData[1].toLowerCase() === 'userscript' ? 'js' : 'css';
-    const docfrag = document.createDocumentFragment();
-    const code = document.createElement('code');
 
     // --- convert each line to DOM
     text.split(/\r?\n/).forEach(item => {
-      const node = code.cloneNode();
+      const node = this.code.cloneNode();
       node.textContent = item;
       this.domify(node, type, nl);
-      docfrag.appendChild(node);
+      this.docfrag.appendChild(node);
     });
 
     // --- search for multi-line comments
-    this.getMultiLineComment(docfrag);
-    box.appendChild(docfrag);
+    this.getMultiLineComment(this.docfrag);
+    box.appendChild(this.docfrag);
 
     this.original = box.textContent;
     this.footer.textContent = `Syntax Highlight ${performance.now() - start} ms`;
@@ -319,11 +301,11 @@ class Highlight {
         'valueOf', 'warn', 'write', 'writeln'
       ],
       gm: [
-        'GM.getValue', 'GM.setValue', 'GM.listValues', 'GM.deleteValue', 'GM.fetch', 'GM.xmlHttpRequest',
+        'GM.addStyle', 'GM.getValue', 'GM.setValue', 'GM.listValues', 'GM.deleteValue', 'GM.fetch', 'GM.xmlHttpRequest',
         'GM.openInTab', 'GM.setClipboard','GM.info', 'GM.notification', 'GM.download',
         'GM.getResourceText', 'GM.getResourceUrl',
         'GM.registerMenuCommand', 'GM.unregisterMenuCommand', 'GM.addValueChangeListener', 'GM.removeValueChangeListener',
-        'GM_getValue', 'GM_setValue', 'GM_listValues', 'GM_deleteValue',  'GM_fetch', 'GM_xmlhttpRequest',
+        'GM_addStyle', 'GM_getValue', 'GM_setValue', 'GM_listValues', 'GM_deleteValue',  'GM_fetch', 'GM_xmlhttpRequest',
         'GM_openInTab', 'GM_setClipboard', 'GM_info', 'GM_notification', 'GM_download',
         'GM_getResourceText', 'GM_getResourceURL',
         'GM_registerMenuCommand', 'GM_unregisterMenuCommand', 'GM_addValueChangeListener', 'GM_removeValueChangeListener',
