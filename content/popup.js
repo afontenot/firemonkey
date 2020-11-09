@@ -22,7 +22,7 @@ class Popup {
     this.info.querySelector('h3 span').addEventListener('click', () =>
         this.info.parentNode.style.transform = 'translateX(0%)');
 
-    this.infoList = this.info.querySelector('dl.infoList');
+    this.infoList = this.info.querySelector('.infoList dl');
     this.commandList = this.info.querySelector('dl.commandList');
     this.scratchpad = this.info.querySelector('div.scratchpad');
     this.dtTemp = document.createElement('dt');
@@ -67,7 +67,8 @@ class Popup {
       case 'newCSS|title': localStorage.setItem('nav', 'css'); break;
       case 'help': localStorage.setItem('nav', 'help'); break;
       case 'edit': localStorage.setItem('nav', this.id); break;
-      case 'run':  popup.runScratchpad(); return;
+      case 'run':  popup.runScratchpad(this.id); return;
+      case 'undo':  popup.undoScratchpad(); return;
     }
     chrome.runtime.openOptionsPage();
     window.close();
@@ -122,14 +123,14 @@ class Popup {
 
   toggleOn(node) {
 
-    [this.infoList, this.commandList, this.scratchpad].forEach(item => item.classList.toggle('on', item === node));
+    [this.infoList.parentNode, this.commandList, this.scratchpad].forEach(item => item.classList.toggle('on', item === node));
   }
 
   showInfo(e) {
 
     const id = e.target.parentNode.id;
     this.infoList.textContent = '';                         // clearing previous content
-    this.toggleOn(this.infoList);
+    this.toggleOn(this.infoList.parentNode);
 
     const dl = this.infoList;
     const dtTemp = this.dtTemp;
@@ -197,10 +198,10 @@ class Popup {
   }
 
   // ----------------- Scratchpad --------------------------
-  runScratchpad() {
+  runScratchpad(id) {
 
-    const js = this.js.value.trim();
-    const css = this.css.value.trim();
+    const js = id === 'js' && this.js.value.trim();
+    const css = id === 'css' && this.css.value.trim();
     
     if (js) {
       localStorage.setItem('scraptchpadJS', js); // save last entry
@@ -216,5 +217,17 @@ class Popup {
       .catch(error => Util.notify('CSS: ' + chrome.i18n.getMessage('errorInsert')));
     }
   }
+
+  undoScratchpad() {
+
+    const css = this.css.value.trim();
+    
+    if (css) {
+      browser.tabs.removeCSS({code: css})
+      .then(() => {})
+      .catch(error => Util.notify('CSS: ' + error.message));
+    }
+  }
+  
 }
 const popup = new Popup();

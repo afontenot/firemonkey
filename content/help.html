@@ -62,6 +62,9 @@
             <li><a href="#addValueChangeListener">addValueChangeListener</a></li>
             <li><a href="#removeValueChangeListener">removeValueChangeListener</a></li>
             <li><a href="#download">download</a></li>
+            <li><a href="#addStyle">addStyle</a></li>
+            <li><a href="#addScript">addScript</a></li>
+            <li><a href="#popup">popup</a></li>
             <li><a href="#info">info</a></li>
             <li><a href="#log">log</a></li>
             <li><a href="#unsafeWindow">unsafeWindow</a></li>
@@ -139,11 +142,17 @@
       <dt style="margin-top: 2em;">Scratchpad <img src="../image/next.svg" alt=""></dt>
         <dd>Insert CSS & JavaScript temporarily into the active tab</dd>
         <dd>Scratchpad recalls the last entries for repeated use</dd>
-        <dd><img src="../image/bin.svg" alt=""> Click to clear the box and saved code</dd>
+
         <dd style="color: #f00;">Warning on Inserting JS: The API has more access than the API used for userScript injection and therefore untrusted code should not be used.</dd>
 
+      <dt><img src="../image/bin.svg" alt=""></dt>
+        <dd>Click to clear the box and saved code</dd>
+
       <dt>&#x25b7; Run</dt>
-        <dd>Insert the Scratchpad code</dd>
+        <dd>Insert the Scratchpad code (JS or CSS)</dd>
+
+      <dt>&#x238c; Undo</dt>
+        <dd>Undo/Remove the CSS Inserted by Scratchpad</dd>
 
       <dt style="margin-top: 2em;"><img src="../image/gear.svg" alt=""> Options</dt>
         <dd>Open the Options Page</dd>
@@ -353,7 +362,7 @@
 
   <tr><th>GreasyFork</th><td class="fail"><a href="https://greasyfork.org/en/help/meta-keys" title="@updateURL, @installURL, @downloadURL: Describe how user script managers should get updates. Greasy Fork will strip these keys, which makes any script installed from Greasy Fork only update from Greasy Fork." target="_blank">[*]</a></td><td class="fail"></td><td></td><td class="pass"></td><td class="pass"></td><td class="fail"></td></tr>
   <tr><th>GitHub/Gist</th><td class="fail"></td><td class="fail"></td><td></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
-  <tr><th>OpenUserJS</th><td class="pass"></td><td class="pass"></td><td></td><td class="pass"></td><td class="pass"></td><td class="fail"></td></tr>
+  <tr><th>OpenUserJS</th><td class="pass"></td><td class="pass"></td><td></td><td class="pass"></td><td class="fail"></td><td class="fail"></td></tr>
   </tbody>
 </table>
 
@@ -1237,20 +1246,40 @@ document.<span class="property">head</span>.<span class="method">appendChild</sp
   <span class="comment">// ----- Promise</span>
 
   <span class="comment">// stored value for key OR default</span>
-  <span class="keyword">const</span> <span class="property">value</span> = <span class="keyword">await</span> <span class="gm">GM.getValue</span>(key, default);
   <span class="keyword">const</span> <span class="property">value</span> = <span class="keyword">await</span> <span class="gm">GM_getValue</span>(key, default);
+  <span class="keyword">const</span> <span class="property">value</span> = <span class="keyword">await</span> <span class="gm">GM.getValue</span>(key, default);
 
   <span class="comment">// an array of keys set by script OR []</span>
-  <span class="keyword">const</span> <span class="method">keys</span> = <span class="keyword">await</span> <span class="gm">GM.listValues</span>();
   <span class="keyword">const</span> <span class="method">keys</span> = <span class="keyword">await</span> <span class="gm">GM_listValues</span>();
+  <span class="keyword">const</span> <span class="method">keys</span> = <span class="keyword">await</span> <span class="gm">GM.listValues</span>();
+
+  <span class="gm">GM.setValue</span>(key, <span class="property">value</span>)
+  <span class="gm">GM_setValue</span>(key, <span class="property">value</span>)
+
+  <span class="gm">GM.deleteValue</span>(key)
+  <span class="gm">GM_deleteValue</span>(key)
+
 
   <span class="comment">// Response Object</span>
-  <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM.fetch</span>(url[, init]);
-  <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM_fetch</span>(url[, init]);
+  <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM.fetch</span>(url[, init]);     <span class="comment"><i>(FireMonkey only)</i></span>
+  <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM_fetch</span>(url[, init]);     <span class="comment"><i>(FireMonkey only</i>)</span>
 
   <span class="comment">// Response Text</span>
   <span class="keyword">const</span> text = <span class="keyword">await</span> <span class="gm">GM.getResourceText</span>(resourceName);
   <span class="keyword">const</span> text = <span class="keyword">await</span> <span class="gm">GM_getResourceText</span>(resourceName);
+
+  <span class="comment">// usually there is no need to wait for the following, but if needed, use await</span>
+  <span class="gm">GM.openInTab</span>(url, open_in_background)
+  <span class="gm">GM_openInTab</span>(url, open_in_background)
+
+  <span class="gm">GM.setClipboard</span>(text)
+  <span class="gm">GM_setClipboard</span>(text)
+
+  <span class="gm">GM.notification</span>(text)
+  <span class="gm">GM_notification</span>({text: '...', image: '...', ....})
+
+  <span class="gm">GM.download</span>(url, fielname)
+  <span class="gm">GM_download</span>(url, fielname)
 
 
 
@@ -1271,31 +1300,16 @@ document.<span class="property">head</span>.<span class="method">appendChild</sp
   <span class="gm">GM_addValueChangeListener</span>(key, callback)
 
 
-  <span class="comment">// ----- usually there is no need to wait for the following, but if needed, use await</span>
-
-  <span class="gm">GM.setValue</span>(key, <span class="property">value</span>)
-  <span class="gm">GM_setValue</span>(key, <span class="property">value</span>)
-
-  <span class="gm">GM.deleteValue</span>(key)
-  <span class="gm">GM_deleteValue</span>(key)
-
-  <span class="gm">GM.openInTab</span>(url, open_in_background)
-  <span class="gm">GM_openInTab</span>(url, open_in_background)
-
-  <span class="gm">GM.setClipboard</span>(text)
-  <span class="gm">GM_setClipboard</span>(text)
-
-  <span class="gm">GM.notification</span>(text)
-  <span class="gm">GM_notification</span>({text: '...', image: '...', ....})
-
-  <span class="gm">GM.download</span>(url, fielname)
-  <span class="gm">GM_download</span>(url, fielname)
-
-
   <span class="comment">// ----- Synchronous Functions</span>
 
   <span class="gm">GM.addStyle</span>(css)
   <span class="gm">GM_addStyle</span>(css)
+
+  <span class="gm">GM.addScript</span>(code)      <span class="comment"><i>(FireMonkey only)</i></span>
+  <span class="gm">GM_addScript</span>(code)      <span class="comment"><i>(FireMonkey only)</i></span>
+
+  <span class="gm">GM.popup</span>(options)       <span class="comment"><i>(FireMonkey only)</i></span>
+  <span class="gm">GM_popup</span>(options)       <span class="comment"><i>(FireMonkey only)</i></span>
 
   <span class="gm">GM.getResourceUrl</span>(resourceName)
   <span class="gm">GM_getResourceUrl</span>(resourceName)
@@ -1395,7 +1409,7 @@ GM_fetch(url[, init]);</pre>
   password,                 // optional, password to send with the request
   timeout,                  // optional, number of milliseconds before terminating the request
                                (default 0 = no timeout)
-  withCredentials,          // optional, Boolean, for cross-site Access-Control
+  withCredentials,          // Optional, Boolean, for cross-site Access-Control
                                e.g. cookies, authorization headers or TLS client certificates,
                                defaults to false, no effect on same-site requests
   responseType              // Optional, '' or 'text' (default), 'arraybuffer', 'blob', 'document', 'json'
@@ -1632,6 +1646,208 @@ xhr.send(<span class="keyword">null</span>);
 <span class="gm">GM_download</span>(<span class="string">'https;//www.example.com/icon.jpg'</span>);
 <span class="gm">GM_download</span>(<span class="string">'https;//www.example.com/icon.jpg'</span>, <span class="string">'new-name.jpg'</span>);
 </pre>
+
+  <h3 id="addStyle">addStyle</h3>
+    <p>Utility function to inject style element e.g.</p>
+<pre><span class="keyword">const</span> script = <span class="property">document</span>.<span class="method">createElement</span>(<span class="string">'style'</span>);
+script.<span class="property">textContent</span> = <span class="string">`... css ...`</span>;
+<span class="property">document</span>.<span class="property">head</span>.<span class="method">appendChild</span>(script);
+</pre>
+
+  <figure>
+    <figcaption>Example</figcaption>
+<pre><span class="keyword">const</span> css = <span class="string">`body {
+  border-top: 2px solid grey;
+}`</span>;
+
+<span class="gm">GM_addStyle</span>(css);
+<span class="gm">GM.addStyle</span>(css);
+</pre>
+  </figure>
+
+  <h3 id="addScript">addScript</h3>
+    <p><i>FireMonkey</i> only utility function to inject script element (code runs in page/content scope) e.g.</p>
+<pre><span class="keyword">const</span> script = <span class="property">document</span>.<span class="method">createElement</span>(<span class="string">'script'</span>);
+script.<span class="property">textContent</span> = <span class="string">`... code ...`</span>;
+<span class="property">document</span>.<span class="property">body</span>.<span class="method">appendChild</span>(script);
+</pre>
+
+  <figure>
+    <figcaption>Example</figcaption>
+<pre><span class="comment">// Example 1: string</span>
+<span class="keyword">const</span> js = <span class="string">`function sum(x, y) {
+  return x + y;
+}`</span>;
+
+<span class="gm">GM_addScript</span>(js);
+<span class="gm">GM.addScript</span>(js);
+
+
+
+<span class="comment">// Example 2: function</span>
+<span class="keyword">function</span> someFunc() {
+
+  <span class="comment">// some code </span>
+}
+
+<span class="gm">GM_addScript</span>(<span class="string">'('</span> + someFunc + <span class="string">')();'</span>);
+<span class="gm">GM.addScript</span>(<span class="string">'('</span> + someFunc + <span class="string">')();'</span>);
+</pre>
+  </figure>
+
+
+  <h3 id="popup">popup</h3>
+  <p><i>FireMonkey</i> only utility function to create a <a href="https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM" target="_blank">shadow DOM</a> popup blank element with animation that can be customized.</p>
+
+
+  <h4>Popup Methods</h4>
+  <p>Utility functions to interact with the created popup e.g. <br>
+    <code>new GM_popup()</code>, <code><i>NAME</i>.addStyle()</code>, <code><i>NAME</i>.append()</code>, <code><i>NAME</i>.show()</code>, <code><i>NAME</i>.hide()</code>, and <code><i>NAME</i>.remove()</code></p>
+
+  <figure>
+    <figcaption>Example</figcaption>
+<pre>
+<span class="comment">// create a new popup (multiple different popups can be created)</span>
+<span class="comment">// the name used (e.g. popup here) can be anything</span>
+<span class="keyword">const</span> popup = <span class="gm">GM_popup</span>();       <span class="comment">// or GM.popup()</span>
+
+<span class="comment">// add overall style if needed</span>
+<span class="keyword">const</span> css = <span class="string">`p {
+  border: 2px solid #000;
+}`</span>;
+popup.addStyle(css);
+
+<span class="comment">// add content as string</span>
+<span class="keyword">const</span> str = <span class="string">'&lt;p&gt;Good &lt;span&gt;Morning&lt;/span&gt;&lt;/p&gt;'</span>;
+popup.append(str);
+
+<span class="comment">// add content as single node</span>
+<span class="keyword">const</span> div = <span class="property">document</span>.<span class="method">createElement</span>(<span class="string">'div'</span>);
+<span class="keyword">const</span> p = <span class="property">document</span>.<span class="method">createElement</span>(<span class="string">'p'</span>);
+p.<span class="method">setAttribute</span>(<span class="string">'style'</span>,<span class="string">'color: #fff; text-align: center; font-weight: bold;'</span>); <span class="comment">// add inline style if needed</span>
+div.<span class="method">appendChild</span>(p);
+popup.append(div);
+
+<span class="comment">// add content as several nodes (a, b, c, ...)</span>
+<span class="keyword">const</span> input = <span class="property">document</span>.<span class="method">createElement</span>(<span class="string">'input'</span>);
+popup.append(div, p);
+
+<span class="comment">// add JavaScript if needed</span>
+p.<span class="method">addEventListener</span>(<span class="string">'click'</span>, someFunc);
+input.<span class="method">addEventListener</span>(<span class="string">'change'</span>, otherFunc);
+
+<span class="comment">// show & hide</span>
+popup.show();
+popup.hide();
+
+<span class="comment">// remove (from document)</span>
+popup.remove();
+
+<span class="comment">// example with registerMenuCommand</span>
+<span class="gm">GM_registerMenuCommand</span>(<span class="string">'Configuration'</span>, <span class="keyword">function</span>() { popup.show(); });
+</pre>
+  </figure>
+
+  <h4>Popup Options <span>(Optional)</span></h4>
+  <p>Ready-made styles can be set when creating a popup e.g. <code>{type: 'panel-top', modal: false}</code></p>
+  <dl>
+    <dt>{type: 'center'}</dt>
+      <dd>Basic Center type: <i>center (default, same as omitted)</i></d>
+      <dd>Slide Center types: <i>slide-left</i> | <i>slide-right</i> | <i>slide-top</i> | <i>slide-bottom</i></dd>
+      <dd>Panel types: <i>panel-left</i> | <i>panel-right</i> | <i>panel-top</i> | <i>panel-bottom</i></dd>
+
+
+    <dt>{modal: true} <span>true (default)/false</span></dt>
+      <dd>By default, popup is modal. In modal mode, clicking the background closes the popup.</dd>
+      <dd>All Center Types are also Modal but the Panel Types can be non-Modal.</dd>
+      <dd>If modal is set to false, use CSS to control the width/height of both <code>:host</code> & <code>.content</code></dd>
+  </dl>
+
+<pre>
+<span class="keyword">const</span> popup = <span class="gm">GM_popup</span>({type: <span class="string">'panel-top'</span>});
+</pre>
+
+
+  <h4>Popup Elements</h4>
+  <p>Initial DOM elements of the popup can be accessed directly e.g. <code><i>NAME</i>.host</code>, <code><i>NAME</i>.style</code>, <code><i>NAME</i>.content</code> & <code><i>NAME</i>.close</code>.</p>
+
+  <figure>
+    <figcaption>Example</figcaption>
+<pre>
+popup.content.<span class="method">querySelector</span>(<span class="string">'button'</span>).<span class="method">addEventListener</span>(<span class="string">'click'</span>, someFunc);
+
+popup.content.<span class="method">setAttribute</span>(<span class="string">'style'</span>,<span class="string">
+   `color: #fff; text-align: center; font-weight: bold; font-size: 14px; padding: 5px;
+    background-color: #8b0000; position: fixed; left: 0px; top: -100px; width: 100%; z-index: 101;
+    box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.8); transition: all 1s ease-in-out 0s;`</span>);
+
+popup.contennt.<span class="property">style</span>.<span class="property">color</span> = <span class="string">'blue'</span>;
+
+<span class="keyword">const</span> p = <span class="property">document</span>.<span class="method">createElement</span>(<span class="string">'p'</span>);
+popup.content.<span class="method">appendChild</span>(p);
+
+<span class="keyword">const</span> button = <span class="property">document</span>.<span class="method">createElement</span>(<span class="string">'button'</span>);
+button.<span class="method">addEventListener</span>(<span class="string">'click'</span>, someFunc);
+popup.content.<span class="method">appendChild</span>(button);
+</pre>
+  </figure>
+
+
+
+  <h4>Popup Styling</h4>
+
+  <p>CSS selectors <code>:host</code> & <code>.content</code> can be used to change the popup overall style. The content that you add can be styled normally.</p>
+  <p>The default 'full-page' popup background cover the full page.</p>
+  <p>CSS selector <code>.close</code> can be used to style the close button <code>✖</code>.</p>
+  <figure>
+    <figcaption>Example</figcaption>
+<pre>
+<span class="comment">// styling background with :host</span>
+<span class="keyword">const</span> css = <span class="string">`:host {
+  background: transparent;
+}`</span>;
+popup.addStyle(css);
+
+<span class="comment">// styling content with .content</span>
+<span class="keyword">const</span> css = <span class="string">`.content {
+  width: 20em;
+  height: 15em;
+  color: #00f;
+  background: #f0f8ff;
+  text-align: center;
+  border: 2px solid #aaa;
+}`</span>;
+popup.addStyle(css);
+</pre>
+  </figure>
+
+
+  <div style="width: 60%; padding: 2em 2em 4em; margin: 2em auto 1em; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #ccc;">
+    <p style="text-align: center; margin: 0 auto 2em;">This is the background with CSS selector <code>:host</code></p>
+    <div style="padding: 4em; background: #fff; border-radius: 10px; border: 1px solid #777; text-align: center;"><span style="float: right; display: block; margin: -3.8em -3.5em; color: #ccc;">✖</span>This is content with CSS selector <code>.content</code></div>
+  </div>
+
+  <div style="display: flex; justify-content: space-around; margin-top: 1em; height: 10em;">
+    <div style="width: 40%; display: flex; justify-content: start; background: #ccc; border: 1px solid #ccc;">
+      <div style="padding: 1em; background: #fff; display: flex; align-items: center; justify-content: center; width: 6em;">
+        <code>{type: 'panel-left'}</code></div>
+    </div>
+
+    <div style="width: 40%; display: flex; justify-content: end; background: #ccc; border: 1px solid #ccc;">
+      <div style="padding: 1em; background: #fff; display: flex; align-items: center; justify-content: center; width: 6em;"><code>{type: 'panel-right'}</code></div>
+    </div>
+  </div>
+
+  <div style="display: flex; justify-content: space-around; margin-top: 1em; height: 10em;">
+    <div style="width: 40%; display: flex; align-items: start; background: #ccc; border: 1px solid #ccc;">
+      <div style="padding: 1em; background: #fff; display: flex; align-items: center; justify-content: center; height: 2em; width: 100%;"><code>{type: 'panel-top'}</code></div>
+    </div>
+
+    <div style="width: 40%; display: flex; align-items: end; background: #ccc; border: 1px solid #ccc;">
+      <div style="padding: 1em; background: #fff; display: flex; align-items: center; justify-content: center; height: 2em; width: 100%;"><code>{type: 'panel-bottom'}</code></div>
+    </div>
+  </div>
+
 
   <h3 id="info">info</h3>
 <pre>{

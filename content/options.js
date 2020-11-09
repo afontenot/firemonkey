@@ -44,7 +44,6 @@ class Options {
   }
 
   check() {
-
     // --- check Global Script Exclude Matches
     if(!Pattern.validate(this.globalScriptExcludeMatches)) { return; }
 
@@ -444,9 +443,12 @@ class Script {
     legend.textContent = chrome.i18n.getMessage('script');
     box.id = '';
     box.textContent = '';
+    box.classList.remove('invalid');
 
     // --- delete script storage
-    await browser.storage.local.remove(deleted.map(name => '_' + name));
+    const del = deleted.map(name => '_' + name);
+    del.forEach(item => delete pref[item]);
+    await browser.storage.local.remove(del);
 
     browser.storage.local.set({content: pref.content});     // update saved pref
   }

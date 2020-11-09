@@ -18,10 +18,10 @@
 
         <h3 data-i18n="otherScript"></h3>
         <ul class="other"></ul>
-        
+
         <h3 class="menu command"><span data-i18n="scriptCommands"></span><img src="../image/next.svg" alt=""></h3>
         <h3 class="menu scratchpad"><span data-i18n="scratchpad"></span><img src="../image/next.svg" alt=""></h3>
- 
+
         <div class="flex">
           <button type="button" data-i18n="options"><img src="../image/gear.svg" alt=""> </button>
           <button type="button" data-i18n="newJS|title">&#x2795;<img src="../image/js.svg" width="16" alt=""></button>
@@ -32,24 +32,38 @@
 
       <section class="info">
         <h3><span data-i18n="back"><img src="../image/back.svg" alt=""> </span></h3>
-        <dl class="infoList"></dl>
+
+        
+        <div class="infoList">
+          <dl></dl>
+          <div class="button flex edit">
+            <button type="button" class="edit" data-i18n="edit">&#x1f58c; </button>
+          </div>
+        </div>
+        
         <dl class="commandList"></dl>
+
         <div class="scratchpad">
           <h2>JavaScript <img class="bin scraptchpadJS" style="float: right;" src="../image/bin.svg" data-i18n="delete|title" alt=""></h2>
           <textarea id="js" rows="8" spellcheck="false"></textarea>
 
+          <div class="button flex">
+            <button type="button" id="js" data-i18n="run">&#x25b7; </button>
+          </div>
+
           <h2>CSS <img class="bin scraptchpadCSS" style="float: right;" src="../image/bin.svg" data-i18n="delete|title" alt=""></h2>
           <textarea id="css" rows="8" spellcheck="false"></textarea>
-        </div>
-        
-        <div class="button flex edit">
-          <button type="button" class="edit" data-i18n="edit">&#x1f58c; </button>
+
+          <div class="button flex">
+            <button type="button" id="css" data-i18n="run">&#x25b7; </button>
+            <button type="button" id="undo" data-i18n="undo">&#x238c; </button>
+          </div>
         </div>
 
-        <div class="button flex run">
-          <button type="button" class="run" data-i18n="run">&#x25b7; </button>
-        </div>        
-        
+
+
+
+
       </section>
 
 

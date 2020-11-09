@@ -301,13 +301,14 @@ class Highlight {
         'valueOf', 'warn', 'write', 'writeln'
       ],
       gm: [
-        'GM.addStyle', 'GM.getValue', 'GM.setValue', 'GM.listValues', 'GM.deleteValue', 'GM.fetch', 'GM.xmlHttpRequest',
-        'GM.openInTab', 'GM.setClipboard','GM.info', 'GM.notification', 'GM.download',
-        'GM.getResourceText', 'GM.getResourceUrl',
+        'GM.addScript', 'GM.addStyle', 'GM.getValue', 'GM.setValue', 'GM.listValues', 'GM.deleteValue',
+        'GM.popup', 'GM.openInTab', 'GM.setClipboard','GM.info', 'GM.notification', 'GM.download',
+        'GM.getResourceText', 'GM.getResourceUrl', 'GM.fetch', 'GM.xmlHttpRequest',
         'GM.registerMenuCommand', 'GM.unregisterMenuCommand', 'GM.addValueChangeListener', 'GM.removeValueChangeListener',
-        'GM_addStyle', 'GM_getValue', 'GM_setValue', 'GM_listValues', 'GM_deleteValue',  'GM_fetch', 'GM_xmlhttpRequest',
-        'GM_openInTab', 'GM_setClipboard', 'GM_info', 'GM_notification', 'GM_download',
-        'GM_getResourceText', 'GM_getResourceURL',
+        
+        'GM_addScript', 'GM_addStyle', 'GM_getValue', 'GM_setValue', 'GM_listValues', 'GM_deleteValue',
+        'GM_popup', 'GM_openInTab', 'GM_setClipboard', 'GM_info', 'GM_notification', 'GM_download',
+        'GM_getResourceText', 'GM_getResourceURL', 'GM_fetch', 'GM_xmlhttpRequest',
         'GM_registerMenuCommand', 'GM_unregisterMenuCommand', 'GM_addValueChangeListener', 'GM_removeValueChangeListener',
         'unsafeWindow'
       ]
