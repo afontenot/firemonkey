@@ -9,6 +9,10 @@ body {
   font-family: sans-serif;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 dl {
   margin-left: 2em;
 }
@@ -61,6 +65,14 @@ dt img, dd img {
 
 dt.indent {
   text-indent: 1.5em;
+}
+
+dt span {
+  margin-left: 0.5em;
+  color: #777;
+  font-style: italic;
+  font-weight: normal;
+  font-size: 0.8em; 
 }
 
 dd sup {

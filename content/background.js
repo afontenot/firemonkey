@@ -149,9 +149,6 @@ class ScriptRegister {
     // --- script only
     if (script.js) {
 
-      // --- unsafeWindow implementation
-      options.js.unshift({code: 'const unsafeWindow = window.wrappedJSObject;'});
-
       options.scriptMetadata = {
         name: id,
         resource: script.resource || {},
@@ -196,7 +193,7 @@ class ScriptRegister {
     try {                                                   // catches error throws before the Promise
       API.register(options)
       .then(reg => this.registered[id] = reg)               // contentScripts.RegisteredContentScript object
-      .catch(error => logger.set(id, error.message, 'error'));
+      .catch(error => logger.set(id, `Register ➜ ${error.message}`, 'error'));
     } catch(error) { this.processError(id, error.message); }
   }
 
@@ -213,7 +210,7 @@ class ScriptRegister {
     pref.content[id].error = error;                         // store error message
     pref.content[id].enabled = false;                       // disable the script
     browser.storage.local.set({content: pref.content});     // update saved pref
-    logger.set(id, error, 'error');                         // log message to display in Options -> Log
+    logger.set(id, `Register ➜ ${error}`, 'error');        // log message to display in Options -> Log
   }
 }
 const scriptReg = new ScriptRegister();
@@ -493,18 +490,21 @@ class Installer {
       scriptReg.unregister(name);                           // unregister old name
     }
 
-    // --- update from previous version
-    if (pref.content[data.name]) {
-      data.enabled = pref.content[data.name].enabled;
-      data.autoUpdate = pref.content[data.name].autoUpdate;
-      logger.set(data.name, 'Updated version ' + pref.content[data.name].version + ' to ' + data.version); // log message to display in Options -> Log
-    }
-
     // --- check for Web Install, set install URL
     if (updateURL.startsWith('https://greasyfork.org/scripts/') ||
         updateURL.startsWith('https://openuserjs.org/install/')) {
       data.updateURL = updateURL;
       data.autoUpdate = true;
+    }
+
+    // --- update from previous version
+    if (pref.content[data.name]) {
+      data.enabled = pref.content[data.name].enabled;
+      data.autoUpdate = pref.content[data.name].autoUpdate;
+      logger.set(data.name, `Updated version ${pref.content[data.name].version} to ${data.version}`); // log message to display in Options -> Log
+    }
+    else {
+      logger.set(data.name, `Installed version ${data.version}`); // log message to display in Options -> Log
     }
 
     pref.content[data.name] = data;                         // save to pref
@@ -586,10 +586,6 @@ class API {
         pref[storage] || (pref[storage] = {});              // make one if didn't exist
         if (pref[storage][e.key] === e.value) { return true; } // return if value hasn't changed
         oldValue = pref[storage][e.key];                    // need to cache it due to async processes
-        e.broadcast && browser.tabs.query({}).then(tabs => {
-          tabs.forEach(tab => browser.tabs.sendMessage(tab.id,
-            {name, valueChange: {key: e.key, oldValue, newValue: e.value, remote: tab.id !== sender.tab.id}}));
-        });
         pref[storage][e.key] = e.value;
         return browser.storage.local.set({[storage]: pref[storage]}); // Promise with no arguments OR reject with error message
 
@@ -602,12 +598,9 @@ class API {
       case 'deleteValue':
         if (!hasProperty(e.key)) { return true; }           // return if nothing to delete
         oldValue = pref[storage][e.key];                    // need to cache it due to async processes
-        e.broadcast && browser.tabs.query({}).then(tabs => {
-          tabs.forEach(tab => browser.tabs.sendMessage(tab.id,
-            {name, valueChange: {key: e.key, oldValue, newValue: e.value, remote: tab.id !== sender.tab.id}}));
-        });
         delete pref[storage][e.key];
         return browser.storage.local.set({[storage]: pref[storage]});
+
 
       case 'openInTab':
         browser.tabs.create({url: e.url, active: e.active}); // Promise with tabs.Tab OR reject with error message
@@ -616,7 +609,7 @@ class API {
       case 'setClipboard':
         navigator.clipboard.writeText(e.text)               // Promise with ? OR reject with error message
         .then(() => {})
-        .catch(error => logger.set(name, error.message, 'error'));
+        .catch(error => logger.set(name, `${message.api} ➜ ${error.message}`, 'error'));
         break;
 
       case 'notification':
@@ -640,9 +633,8 @@ class API {
           conflictAction: 'uniquify'
         })
         .then(() => {})
-        .catch(error => logger.set(name, error.message, 'error'));  // failed notification
+        .catch(error => logger.set(name, `${message.api} ➜ ${error.message}`, 'error'));  // failed notification
         break;
-
 
       case 'fetch':
         // --- check url
@@ -668,7 +660,7 @@ class API {
               default: return response.text();
             }
           })
-          .catch(error => logger.set(name, error.message, 'error'));
+          .catch(error => logger.set(name, `${message.api} ${url} ➜ ${error.message}`, 'error'));
         break;
 
       case 'xmlHttpRequest':
@@ -704,13 +696,13 @@ class API {
 
     try { url = new URL(url, base); }
     catch (error) {
-      logger.set(name, error.message, 'error');
+      logger.set(name, `checkURL ${url} ➜ ${error.message}`, 'error');
       return;
     }
 
     // --- check protocol
     if (!['http:', 'https:', 'ftp:', 'ftps:'].includes(url.protocol)) {
-      logger.set(name, 'Unsupported Protocol ' + url.protocol, 'error');
+      logger.set(name, `checkURL ${url} ➜ Unsupported Protocol ${url.protocol}`, 'error');
       return;
     }
     return url.href;
@@ -747,8 +739,8 @@ class Logger {
   }
 
   set(ref, message, error = false) {
-    this.log = this.log.slice(-100);                        // slice to the last 100 entries
     this.log.push([new Date().toString().substring(0, 24), ref, message, error]);
+    this.log = this.log.slice(-100);                        // slice to the last 100 entries
     localStorage.setItem('log', JSON.stringify(this.log));
   }
 }

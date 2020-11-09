@@ -17,10 +17,29 @@
     <h2 id="changelog">Changelog</h2>
     <dl class="about">
 
+      <dt>1.47</dt>
+        <dd>Fixed an issue with <code>GM_addStyle()</code></dd>
+        <dd>Reverted back to async <code>GM_getValue/GM_listValues</code> due to errors</dd>
+        <dd>Added more info to Log</dd>
+
+      <dt>1.46</dt>
+        <dd>Fixed an issue when GM API is also defined in the userScript e.g. <code>GM_addStyle()</code></dd>
+
+      <dt>1.45</dt>
+        <dd>Added new script installations to the log</dd>
+        <dd>Added new GM <code>addScript</code> API</dd>
+        <dd>Added new GM <code>popup</code> API</dd>
+        <dd>Added separate CSS & JS insertion in Scatchpad</dd>
+        <dd>Added undo CSS in Scatchpad</dd>
+        <dd>Added more info to Log</dd>
+        <dd>Fixed an issue with <code>getResourceText()</code></dd>
+        <dd>Added quasi-synchronous <code>GM_getValue</code></dd>
+        <dd>Added quasi-synchronous <code>GM_listValues</code></dd>
+
+
       <dt>1.44</dt>
         <dd>New live Log adds new entries while log is open</dd>
         <dd>Code Improvement</dd>
-
 
       <dt>1.43</dt>
         <dd>Added Scratchpad to temporarily insert CSS & JavaScript</dd>
