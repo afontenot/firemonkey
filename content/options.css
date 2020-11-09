@@ -6,6 +6,7 @@ body {
   background: #f9f9fa;
   display: flex;
 }
+
 * {
   box-sizing: border-box;
 }

@@ -71,6 +71,7 @@
   
   "scratchpad": { "message": "Scratchpad" },
   "run": { "message": "Run" },
+  "undo": { "message": "Undo" },
   "errorInsert": { "message": "Failed to insert" },
 
   "about": { "message": "关于" },
