@@ -5,7 +5,73 @@
     <title data-i18n="options">FireMonkey </title>
     <link rel="icon" type="image/png" href="../image/icon.svg">
     <link rel="stylesheet" href="options.css">
-    <link rel="stylesheet" href="highlight.css">
+    <script type="module" src="options.js"></script>
+
+    <!-- CodeMirror -->
+    <script src="../lib/codemirror/codemirror.js" defer>></script>
+    <link rel="stylesheet" href="../lib/codemirror/codemirror.css">
+    <script src="cm-config.js" defer>></script>
+  
+    <!-- mode -->
+    <script src="../lib/codemirror/mode/css.js" defer></script>
+    <script src="../lib/codemirror/mode/fm-javascript.js" defer></script>
+  
+    <!-- addon -->
+    <script src="../lib/codemirror/addon/active-line.js" defer></script>
+    <script src="../lib/codemirror/addon/closebrackets.js" defer></script> 
+    <script src="../lib/codemirror/addon/matchbrackets.js" defer></script>
+    <script src="../lib/codemirror/addon/trailingspace.js" defer></script>     
+    
+    <script src="../lib/codemirror/addon/fullscreen.js" defer></script> 
+    <link rel="stylesheet" href="../lib/codemirror/addon/fullscreen.css">
+    
+    <script src="../lib/codemirror/addon/dialog.js" defer></script>
+    <link rel="stylesheet" href="../lib/codemirror/addon/dialog.css">
+    <script src="../lib/codemirror/addon/fm-search.js" defer></script>
+    <script src="../lib/codemirror/addon/searchcursor.js" defer></script>    
+    <script src="../lib/codemirror/addon/annotatescrollbar.js" defer></script>
+    <script src="../lib/codemirror/addon/fm-jump-to-line.js" defer></script>  
+    <script src="../lib/codemirror/addon/matchesonscrollbar.js" defer></script> 
+    <link rel="stylesheet" href="../lib/codemirror/addon/matchesonscrollbar.css">
+    
+    <script src="../lib/codemirror/addon/comment.js" defer></script>  
+    <script src="../lib/codemirror/addon/comment-fold.js" defer></script>
+    <script src="../lib/codemirror/addon/continuecomment.js" defer></script>
+  
+    <script src="../lib/codemirror/addon/foldcode.js" defer></script>
+    <script src="../lib/codemirror/addon/foldgutter.js" defer></script>
+    <link rel="stylesheet" href="../lib/codemirror/addon/foldgutter.css"> 
+    <script src="../lib/codemirror/addon/brace-fold.js" defer></script>
+    
+    <script src="../lib/codemirror/addon/show-hint.js" defer></script  
+    <script src="../lib/codemirror/addon/css-hint.js" defer></script>
+    <script src="../lib/codemirror/addon/fm-javascript-hint.js" defer></script>
+    <link rel="stylesheet" href="../lib/codemirror/addon/show-hint.css">
+    
+    <script src="../lib/codemirror/addon/fm-lint.js" defer></script>
+    <script src="../lib/codemirror/addon/css-lint.js" defer></script>
+    <script src="../lib/codemirror/addon/javascript-lint.js" defer></script>
+    <link rel="stylesheet" href="../lib/codemirror/addon/lint.css">
+  
+    <!-- external -->
+    <script src="../lib/codemirror/external/csslint.js" defer></script>
+    <script src="../lib/codemirror/external/jshint.js" defer></script>
+    <!-- /CodeMirror -->
+
+    <!-- CodeMirror Light -->
+    <link rel="stylesheet" href="../lib/codemirror/theme/eclipse.css">
+    <link rel="stylesheet" href="../lib/codemirror/theme/elegant.css">
+    <link rel="stylesheet" href="../lib/codemirror/theme/mdn-like.css">
+    <link rel="stylesheet" href="../lib/codemirror/theme/neat.css">
+    <!-- CodeMirror Dark -->
+    <link rel="stylesheet" href="../lib/codemirror/theme/cobalt.css">
+    <link rel="stylesheet" href="../lib/codemirror/theme/darcula.css">
+    <link rel="stylesheet" href="../lib/codemirror/theme/lucario.css">
+    <link rel="stylesheet" href="../lib/codemirror/theme/oceanic-next.css">
+    <link rel="stylesheet" href="../lib/codemirror/theme/rubyblue.css">
+
+    <!-- after CodeMirror to override -->
+    <link rel="stylesheet" href="cm.css">
   </head>
   <body>
 
@@ -25,8 +91,9 @@
           <label for="nav5" data-i18n="log"></label>
           <label for="nav1" data-i18n="help" style="cursor: help;"></label>
           <label for="nav2" data-i18n="about"></label>
-  
-  
+          <label for="nav10"><a href="/content/locale-maker.html" target="_blank" data-i18n="localeMaker" style="color: inherit; text-decoration: none;"></a></label>
+
+
       <h3><label for="nav4" data-i18n="script"></label></h3>
       <input type="checkbox" id="listEnable" checked>
       <input type="checkbox" id="listDisable" checked>
@@ -38,13 +105,12 @@
         <label for="listJS"><img src="../image/js.svg" alt=""></label>
         <label for="listCSS"><img src="../image/css.svg" alt=""></label>
       </div>
-      <ul>
-        <!-- template -->
-        <li class="template"></li>
-      </ul>
+      <!-- template -->
+      <template><li></li></template>
+      <ul></ul>
       <!-- counter -->
       <div></div>
-  
+
       <div class="flex">
         <input type="file" id="fileScript" accept=".js, .css" multiple>
         <label for="fileScript" data-i18n="importScript"></label>&nbsp;
@@ -84,8 +150,8 @@
             <div>
                 <textarea id="globalScriptExcludeMatches" rows="8" spellcheck="false" placeholder="*://*.example.com/*"></textarea>
             </div>
-          </div>          
-         
+          </div>
+
           <div style="margin-top: 1em;">
             <input type="checkbox" id="sync"><label for="sync" data-i18n="enableSync"></label>
           </div>
@@ -112,51 +178,89 @@
         <fieldset>
           <div class="menu">
             <button type="button" data-i18n="saveScript">&#x1f4be; </button>
-            <input type="checkbox" id="enable" checked><label for="enable" data-i18n="enable"></label>
-            <input type="checkbox" id="autoUpdate" checked><label for="autoUpdate" data-i18n="autoUpdate"></label>
-            
-            <button type="button" data-i18n="update">&#x1f4f6; </button>
-            <button type="button" data-i18n="newJS|title">&#x2795; <img src="../image/js.svg" alt=""></button>
-            <button type="button" data-i18n="newCSS|title">&#x2795; <img src="../image/css.svg" alt=""></button>
-            <button type="button" data-i18n="saveTemplate">&#x1f4be; </button>
 
+            <button type="button" data-i18n="update">&#x1f504; </button>
             <button type="button" data-i18n="exportScript"></button>
 
-            <span class="spacer"></span>
             <img class="bin" src="../image/bin.svg" data-i18n="delete|title" alt="">
+            <span class="spacer"></span>
 
-            <details class="popup">
-              <summary><img src="../image/menu-dot.svg" alt=""></summary>
-              <ul>
-                <li class="flex"><label data-i18n="syntax"></label> <input type="checkbox" id="syntax" checked><label for="syntax"></label></li>
-                <li class="flex"><label data-i18n="dark"></label> <input type="checkbox" id="dark"><label for="dark"></label></li>
-
-              </ul>
+            <details>
+              <summary>&#x2795;</summary>
+              <div>
+                <ul>
+                  <li class="button" data-i18n="newJS">&#x2795; <img src="../image/js.svg" alt=""> </li>
+                  <li class="button" data-i18n="newCSS">&#x2795; <img src="../image/css.svg" alt=""> </li>
+                  <li class="button" data-i18n="saveTemplate">&#x1f4be; </li>
+                </div>
             </details>
-            
-          </div>
-          
-          <fieldset>
-            <legend data-i18n="script"></legend>          
-            
-            <div class="container">
-              <pre id="" class="box syntax" data-type="css" spellcheck="false" contenteditable="true"></pre>
-              <textarea spellcheck="false"></textarea>
-            </div>
-            
-            <details class="user"> 
-              <summary data-i18n="userMatchesExcludeMatches|title"><img src="../image/menu.svg" alt=""></summary>
-             
-              <div class="flex">
-                <span data-i18n="userMatches"></span><span data-i18n="userExcludeMatches"></span>
-              </div>            
-              <div class="flex">
-                <textarea id="userMatches" rows="2" spellcheck="false" placeholder="*://*.example.com/*"></textarea>
-                <textarea id="userExcludeMatches" rows="2" spellcheck="false" placeholder="*://*.example.com/*"></textarea>
+
+            <details>
+              <summary>&#x1f5d2;</summary>
+                <div class="report">
+                  <h4 data-i18n="report"></h4>
+                  <ul><li>&#x2705;</li></ul>                  
+                </div>
+            </details>
+
+
+            <details>
+              <summary>&#x1f6e0;</summary>
+              <div>
+                <ul>
+                  <li class="button" data-i18n="tabToSpaces">➜ </li>
+                  <li class="button" data-i18n="trimTrailingSpaces">✂ </li>
+                  <li class="button" data-i18n="toUpperCase">&#x1F520; </li>
+                  <li class="button" data-i18n="toLowerCase">&#x1F521; </li>
+                </div>
+            </details>
+
+            <details>
+              <summary><img src="../image/menu-dot.svg" alt=""></summary>
+              <div class="user">
+                <ul>
+                  <li class="flex theme">
+                    <label data-i18n="theme"></label>
+                    <select id="theme">
+                      <optgroup data-type="light" data-i18n="light|label" label="">
+                        <option value="default" selected>default</option>
+                        <option value="eclipse">eclipse</option>
+                        <option value="elegant">elegant</option>
+                        <option value="mdn-like">mdn-like</option>
+                        <option value="neat">neat</option>
+                      </optgroup>
+                      <optgroup data-type="dark" data-i18n="dark|label" label="">
+                        <option value="cobalt">cobalt</option>
+                        <option value="darcula">darcula</option>
+                        <option value="lucario">lucario</option>
+                        <option value="oceanic-next">oceanic-next</option>
+                        <option value="rubyblue">rubyblue</option>
+                      </optgroup>
+                    </select>
+                  </li>
+                  <li class="flex"><label for="enable" data-i18n="enable"></label><input type="checkbox" id="enable" checked><label for="enable"></label></li>
+                  <li class="flex"><label for="autoUpdate" data-i18n="autoUpdate"></label><input type="checkbox" id="autoUpdate"><label for="autoUpdate"></label></li>
+                
+                  <li class="textarea"><label data-i18n="userMatches"></label><br>
+                  <textarea id="userMatches" rows="4" spellcheck="false" placeholder="*://*.example.com/*"></textarea></li>
+                  <li class="textarea"><label data-i18n="userExcludeMatches"></label><br>
+                  <textarea id="userExcludeMatches" rows="4" spellcheck="false" placeholder="*://*.example.com/*"></textarea></li>
+                </ul>
+
+
               </div>
             </details>
-          </fieldset>          
-        
+
+          </div>
+
+          <fieldset>
+            <legend data-i18n="script"></legend>
+
+            <div class="container">
+              <textarea class="box" data-type="css" spellcheck="false" disabled></textarea>
+            </div>
+          </fieldset>
+
           <footer></footer>
         </fieldset>
       </section>
@@ -171,28 +275,27 @@
                 <tr>
                   <th data-i18n="time"></th>
                   <th data-i18n="reference"></th>
-                  <th data-i18n="message"></th>
+                  <th class="flex">
+                    <div data-i18n="message"></div>
+                    <div style="text-align: right;">
+                      <span data-i18n="log"></span>
+                      <input type="number" id="logSize" min="100" max="1000" step="100" value="100">
+                    </div>
+                  </th>
                  </tr>
-                <!-- template -->
-                <tr class="template">
-                   <td></td>
-                   <td></td>
-                   <td></td>
-                </tr>
               </thead>
-    
-              <tbody></tbody>
-            </table>  
-          </div>      
+              <tbody>
+                <!-- template -->
+                <template><tr><td></td><td></td><td></td></tr></template>
+              </tbody>
+            </table>
+          </div>
       </div>
       </section>
 
 
 
     </article>
-  <script src="highlight.js"></script>
-  <script src="pref.js"></script>
-  <script src="common.js"></script>
-  <script src="options.js"></script>
+
   </body>
 </html>
