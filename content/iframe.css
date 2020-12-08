@@ -72,12 +72,14 @@ dt span {
   color: #777;
   font-style: italic;
   font-weight: normal;
-  font-size: 0.8em; 
+  font-size: 0.8em;
 }
 
 dd sup {
   color: #05f;
 }
+
+
 
 img {
   vertical-align: text-bottom;
@@ -91,11 +93,11 @@ h2 {
   color: #066;
   display: inline-block;
   background: #def linear-gradient(to right, #def, #bcd);
-  min-width: 10em;
+  min-width: 12em;
   padding: 0.2em 0.5em;
   text-align:right;
   border: 3px solid #fff;
-  box-shadow: 0px 5px 8px rgba(0,0,0,0.2);  
+  box-shadow: 0px 5px 8px rgba(0,0,0,0.2);
   text-shadow: 1px 1px 1px rgba(255,255,255,0.6);
   border-radius: 0 1em 1em 0;
   position: relative;
@@ -316,7 +318,7 @@ pre code::after {
   font-size: 2.5em;
   position: absolute;
   bottom: 0;
-  right: 0.2em; 
+  right: 0.2em;
 }
 
 pre code.deprecated {
@@ -392,7 +394,7 @@ blockquote::before {
 blockquote::after {
   content: '\201d';
   bottom: -0.5em;
-  right: 0.5em; 
+  right: 0.5em;
 }
 
 cite {
@@ -402,7 +404,7 @@ cite {
 }
 
 cite::before {
-  content: '\2014\00A0source: ';   
+  content: '\2014\00A0source: ';
 }
 
 code {
@@ -412,7 +414,7 @@ code {
 }
 
 kbd {
-  color: #333;  
+  color: #333;
   padding: 0.1em 0.3em;
   background: transparent linear-gradient(to bottom, #eaeaea, rgba(0,0,0,0) 60%);
   border-radius: 3px;
@@ -428,6 +430,17 @@ address {
   margin: 2em auto 2em 2em;
 }
 
+.footnote {
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 0.5em;
+}
+
+.footnote::before {
+  content: '\1f4cc';
+  margin-right: 0.5em;
+}
+
 /* ----- Table ----- */
 table {
   background: #fff;
@@ -441,7 +454,6 @@ caption {
   color: #fff;
   background-color: #abc;
   padding: 0.2em 0.5em 0.2em 1em;
-  min-width: 25em;
   border-radius: 1em;
   font-weight: bold;
   font-size: 0.9em;
@@ -489,7 +501,7 @@ td p {
 
 td code {
   background-color: transparent;
-  padding: 0; 
+  padding: 0;
   font-size: 1.2em;
   white-space: pre;
 }
@@ -498,12 +510,28 @@ td .pass, td .fail {
  font-family: monospace;
 }
 
+th span {
+  color: #777;
+  font-style: italic;
+  font-weight: normal;
+  font-size: 0.8em;
+}
+
+th sup {
+  color: #aaa;
+}
+
+.slim th, .slim td {
+  padding: 0 0.5em;
+}
+
+
 .pass {
   color: #080;
 }
 
 .pass::before {
-  content: '\2714\00A0'; 
+  content: '\2714\00A0';
   font-weight: 900;
 }
 
@@ -512,13 +540,13 @@ td .pass, td .fail {
 }
 
 .fail::before {
-  content: '\2718\00A0'; 
+  content: '\2718\00A0';
   font-weight: 900;
 }
 
 .unknown::before {
-  content: '\2753\00A0'; 
-  font-weight: 900; 
+  content: '\2753\00A0';
+  font-weight: 900;
 }
 
 
@@ -526,4 +554,19 @@ h3 sup {
   background-color: #cd853f;
   color: #fff;
   padding: 0.1em 0.4em;
+}
+
+.async::before {
+  content: '\24b6';
+  color: #080;
+  font-weight: 900;
+  margin-right: 0.5em;
+}
+
+
+.sync::before {
+  content: '\24c8';
+  color: #f50;
+  font-weight: 900;
+  margin-right: 0.5em;
 }

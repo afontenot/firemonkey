@@ -3,9 +3,9 @@
 
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
-  "version": "1.47",
+  "version": "2.0",
   "default_locale": "en",
-  "homepage_url": "https://addons.mozilla.org/user/azbb/",
+  "homepage_url": "https://github.com/erosman/support",
   "author": "erosman",
 
   "icons": {
@@ -17,7 +17,7 @@
   },
 
   "background": {
-    "scripts": ["content/pref.js", "content/common.js", "content/background.js"]
+    "page": "content/background.html"
   },
 
   "user_scripts": {

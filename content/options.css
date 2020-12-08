@@ -27,6 +27,11 @@ button > * {
   pointer-events: none;
 }
 
+label[for],
+summary {
+  cursor: pointer;
+}
+
 /* ----- Import/Export ----- */
 label[data-i18n^="import"]::before {
   content: '\1f4e5';
@@ -49,7 +54,7 @@ nav {
   width: 14em;
   min-height: 100vh;
   padding: 0.5em;
-  box-shadow: 0px 4px 10px 0 rgba(0,0,0,0.8);
+  box-shadow: 0 4px 10px 0 rgba(0,0,0,0.8);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -71,7 +76,6 @@ nav h3 img, nav h3 svg {
 
 nav label[for^="nav"] {
   display: block;
-  cursor: pointer;
   transition: all 0.5s ease-in-out;
 }
 
@@ -169,6 +173,9 @@ textarea {
 }
 
 .invalid {
+  box-shadow: none;
+  background-color: #fff0f5;
+  border-color: #f50;
   box-shadow: 1px 1px 4px #f20, -1px -1px 4px #f20;
 }
 
@@ -211,7 +218,7 @@ legend {
 
 .flat:hover:not(:disabled) {
   background-color: #fff;
-  box-shadow: 0px 1px 5px rgba(0,0,0,0.3);
+  box-shadow: 0 1px 5px rgba(0,0,0,0.3);
 }
 
 .template {
@@ -233,10 +240,10 @@ input[type="file"] {
 }
 
 img.bin {
-  width: 24px;
+  width: 20px;
   transition: all 0.5s ease-in-out;
   cursor: pointer;
-  margin-left: 1em;
+  margin-left: 0.5em;
   filter: opacity(0.4) grayscale(1);
 }
 
@@ -255,10 +262,10 @@ button[type="submit"] {
   border: solid 1px #186f8f;
   cursor: pointer;
   position: relative;
-  text-shadow: 0px -1px 1px #333;
+  text-shadow: 0 -1px 1px #333;
   display: block;
   margin: 1em auto;
-  box-shadow: inset 0px 1px 0px #2ab7ec, 0px 5px 0px 0px #048, 0px 10px 5px #999;
+  box-shadow: inset 0 1px 0 #2ab7ec, 0 5px 0 0 #048, 0 10px 5px #999;
 }
 
 button[type="submit"]::before {
@@ -273,12 +280,12 @@ button[type="submit"]::before {
   top: -0.5em;
   z-index: -1;
   border-radius: 5px;
-  box-shadow: inset 0px 1px 1px #909193, 0px 1px 3px #fff;
+  box-shadow: inset 0 1px 1px #909193, 0 1px 3px #fff;
 }
 
 button[type="submit"]:active {
   top: 0.3em;
-  box-shadow: inset 0px 1px 0px #2ab7ec, 0px 2px 0px 0px #008, 0px 5px 3px #999;
+  box-shadow: inset 0 1px 0 #2ab7ec, 0 2px 0 0 #008, 0 5px 3px #999;
 }
 
 button[type="submit"]:active::before {
@@ -303,8 +310,8 @@ input[type="checkbox"] + label::before {
   content: '\2714';
   color: transparent;
   display: inline-block;
-  padding: 0 0.3rem;
-  margin-right: 0.5em;
+  padding: 0 0.2rem;
+  margin-right: 0.3em;
   border-radius: 5px;
   border: 1px solid #ddd;
   transition: all 0.5s ease;
@@ -496,7 +503,7 @@ nav div button:hover, nav div label:hover {
 nav ul { counter-reset: n;  }
 
 nav li {
-  counter-increment: n; 
+  counter-increment: n;
 }
 
 nav ul + div {
@@ -536,8 +543,8 @@ section.script {
 
 legend.js::before, legend.css::before {
   content: '';
-  width: 20px;
-  height: 20px;
+  width: 1.2em;
+  height: 1.2em;
   display: inline-block;
   vertical-align: text-bottom;
   margin-left: 0.2em;
@@ -552,15 +559,32 @@ legend.css::before {
   background: url('../image/css.svg');
 }
 
+legend.disabled::before {
+  filter: grayscale(1);
+}
+
+legend.antifeature::after {
+  content: '\26a0\fe0f';
+  margin-left: 2em;
+}
+
+legend span {
+  margin-left: 0.5em;
+  font-size: 0.9em;
+  color: #999;
+}
+
+
 div.menu {
   display: flex;
   margin-bottom: 0.5em;
   border-bottom: 1px solid #eee;
 }
 
-.menu button, .menu > label {
+
+.menu button {
   background-color: transparent;
-  padding: 0.4em;
+  padding: 0.4em 0.2em;
   font-size: 0.8em;
   text-align: center;
   border: 0;
@@ -568,76 +592,70 @@ div.menu {
   transition: all 0.5s ease-in-out;
   cursor: pointer;
   color: #4284f3;
-  flex: 1;
+  min-width: 6em;
   white-space: nowrap;
-  /*position: relative;*/
-  /*user-select: none;*/
-}
-
-.menu button:nth-of-type(3), 
-.menu button:nth-of-type(4) {
-  flex-grow: 0.5;
+  outline: 0;
 }
 
 .menu button img {
   width: 16px;
 }
 
-.menu button:hover, .menu > label:hover {
+.menu button:hover {
   background-color: #f4f6f8;
-  color: #4284f3 !important;
   border-color: #4284f3;
 }
 
 
-/* menu popup */
-details.popup {
+/* --- menu popup --- */
+.menu details {
   position: relative;
   margin-left: 0.5em;
   padding: 0;
 }
 
-.popup summary {
+.menu summary {
   list-style: none;
   padding: 0.5em;
-  cursor: pointer;
   transition: all 0.5s ease-in-out;
+  outline: 0;
 }
 
-.popup summary img {
-  width: 20px;
+.menu summary img {
+  width: 1em;
   filter: opacity(0.4);
 }
 
-.popup summary:hover {
+.menu summary:hover, .menu details[open] {
   background-color: #f4f6f8;
 }
 
-details.popup[open] summary ~ * {
-  animation: fade-in2 0.5s ease-in-out;
+.menu details[open] summary ~ * {
+  animation: fade-in 0.5s ease-in-out;
 }
 
-@keyframes fade-in2 {
+@keyframes fade-in {
     0%  { opacity: 0; transform: translateY(-1em); }
   100%  { opacity: 1; transform: translateY(0); }
 }
 
-.popup > ul { 
-  list-style: none;
+
+.menu details > div {
   font-size: 0.9em;
   margin: 0;
   padding: 0;
-  min-width: 10em;
+  width: 15em;
   position: absolute;
   top: 3em;
   right: 0;
-  z-index: 1;
+  z-index: 10;
   background-color: #f5f5f5;
   border-radius: 5px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+  transition: all 0.5s ease-in-out;
 }
 
-.popup > ul::after {
+.menu details > div::after {
   content: '';
   position: absolute;
   top: -1.5em;
@@ -647,39 +665,76 @@ details.popup[open] summary ~ * {
   border-color: transparent transparent #eee transparent;
 }
 
-.popup li {
+.menu details > div.report::after,
+.menu details > div.user::after {
+  border-color: transparent transparent #abc transparent;
+}
+
+.menu details > div.expand {
+  width: 40vw;
+}
+
+
+.menu details ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu details li {
   padding: 0.5em;
   white-space: nowrap;
   transition: all 0.5s ease-in-out;
 }
 
-.popup li:hover {
+.menu details li:not(.theme):not(.textarea):hover {
   background-color: #fff;
 }
 
-.popup li.flex > label:last-child {
+.menu details li img {
+  width: 16px;
+}
+
+.menu details li.button {
+  cursor: pointer;
+}
+
+.menu details li.flex > label:last-child {
   margin-left: 1em;
   flex: 0 0 3em;
 }
 
-.popup input[type="checkbox"] + label {
+.menu details li.theme {
+  background: #abc;
+  border-radius: 5px 5px 0 0;
+  margin-bottom: 1em;
+}
+
+.menu details li.theme select {
+  width: 50%;
+  background: transparent;
+  border: 1px solid #cde;
+  color: #fff;
+}
+
+.menu details input[type="checkbox"] + label {
   display: inline-block;
   width: 3em;
   height: 0.5em;
   background: #ddd;
   border-radius: 5px;
-  box-shadow: 0px 1px 3px rgba(0,0,0,0.5);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5);
   position: relative;
   cursor: pointer;
   margin-top: 0.3em;
   transition: all 0.5s ease-in-out;
 }
 
-.popup input[type="checkbox"]:checked + label {
+.menu details input[type="checkbox"]:checked + label {
   background: #f90;
 }
 
-.popup input[type="checkbox"] + label::before {
+.menu details input[type="checkbox"] + label::before {
   content: '';
   display: block;
   position: absolute;
@@ -689,118 +744,101 @@ details.popup[open] summary ~ * {
   left: 0.2em;
   border-radius: 50px;
   background: #ccc;
-  box-shadow: inset 0px 1px 3px rgba(0,0,0,0.5);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
 }
 
-.popup input[type="checkbox"]:checked + label::before {
+.menu details input[type="checkbox"]:checked + label::before {
   background: #fff;
   left: 1.3em;
 }
+
+.menu details textarea {
+  resize: none;
+  border: none;
+  margin-top: 0.5em;
+}
+
+
+.menu div.report {
+  width: 40vw;
+}
+
+.menu div.report h4 {
+  background: #abc;
+  border-radius: 5px 5px 0 0;
+  margin-bottom: 1em;
+  margin: 0 0 2px;
+  padding: 0.5em;
+  text-align: center;
+  color: #fff;
+}
+
+.menu div.report ul {
+  max-height: 70vh;
+  overflow: auto;
+  scrollbar-color: #ddd #f5f5f5;
+  scrollbar-width: thin;
+}
+
+
+.menu div.report li {
+  display: flex;
+  color: #999;
+  padding: 0 0.5em;
+  white-space: normal;
+  background-repeat: no-repeat;
+  margin-bottom: 2px;
+  transition: none;
+  cursor: pointer;
+}
+
+
+.menu div.report li::before {
+  content: attr(data-line);
+  flex: 0 0 3em;
+  text-align: right;
+  margin: 0 0.5em auto 0.8em;
+  color: #080;
+}
+
+.menu div.report li.CodeMirror-lint-message-warning {
+  background-color: #ffe;
+}
+
+.menu div.report li.CodeMirror-lint-message-error {
+  background-color: #fff5f5;
+}
+
+.menu div.report li:hover {
+  background-color: transparent;
+}
+
+
+
+
+
+
+
 
 .script .container {
   flex-grow: 1;
   overflow: auto;
   height: 60vh;
-  scrollbar-color: #ddd #f5f5f5;
-  scrollbar-width: thin;
+  margin-top: 1em;
 }
 
 .container textarea {
   background-color: transparent;
-  resize: none;
-  flex-grow: 1;
-  width: calc(100% - 10px);
-  height: calc(100% - 20px);
   border: 0;
-  scrollbar-color: #ddd #f5f5f5;
-  scrollbar-width: thin;  
-}
-
-.box, .box.syntax ~ textarea {
-  display: none;
-}
-
-.box.syntax {
-  display: block;
-}
-
-.box {
-  margin: 0;
-  padding: 0.5em;
-  border: 1px solid transparent;
-  width: calc(100vw - 16rem);
-}
-
-.box:focus {
-  outline: 0;
-}
-
-.invalid {
-  box-shadow: none;
-  background-color: #fff0f5;
-  border-color: #f50;
+  resize: none;
 }
 
 footer {
-  color: #aaa;
+  color: #999;
   font-size: 0.7em;
   text-align: right;
   height: 1em;
-}
-
-details.user  {
-  position: relative;
-  margin-top: 1.5em;
-}
-
-details.user[open]  {
   margin-top: 0.5em;
-}
-
-details.user > div  {
-  margin-left: 2em;
-}
-
-.user summary {
-  list-style: none;
-  cursor: pointer;
-  color: #aaa;
-  position: absolute;
-  left: 0;
-  bottom: 0;
-}
-
-.user summary:focus{
-  outline: 0;
-}
-
-.user summary img {
-  width: 1.5em;
-  transition: all 0.5s ease;
-  filter: opacity(0.4) grayscale(1);
-}
-
-.user summary:hover img {
-  filter: opacity(1) grayscale(0);
-}
-
-details.user textarea {
-  font-size: 0.9em;
-  color: #555;
-  background-color: transparent;
-}
-
-details.user textarea:nth-of-type(1) {
-  margin-right: 0.4em;
-}
-
-details.user[open] summary ~ * {
-  animation: fade-in 0.5s ease-in-out;
-}
-
-@keyframes fade-in {
-    0%  { opacity: 0; }
-  100%  { opacity: 1; }
 }
 /* ----- /Scripts ----- */
 
@@ -865,7 +903,7 @@ details.user[open] summary ~ * {
 }
 
 .log tr.info {
-  background-color: #ffffe0;
+  background-color: #ffe;
 }
 
 .log tr.error {
@@ -888,11 +926,10 @@ details.user[open] summary ~ * {
 }
 /* ----- /log ----- */
 
-
 /* ----- Dark Theme ----- */
-.dark { 
+.dark {
   color: #fff;
-  background-color: #123;  
+  background-color: #123;
 }
 
 .dark fieldset:hover {
@@ -903,29 +940,17 @@ details.user[open] summary ~ * {
   color: #0ee;
 }
 
-.script.dark .container {
-  color: #fff;
-  font-size: 1.2em;
-  scrollbar-color: #567 #234;
-}
-
-.script.dark .container textarea {
-  color: inherit;
-  font-size: 1em;
-  scrollbar-color: #567 #234;
-}
-
 .dark div.menu {
   color: #fff;
   background-color: #567;
   border-bottom-color: transparent;
 }
 
-.dark .menu button, .dark .menu > label {
+.dark .menu button {
   color: #fff;
 }
 
-.dark .menu button:hover, .dark .menu > label:hover {
+.dark .menu button:hover {
   background-color: #789;
   color: #fff !important;
   border-color: #abc;
@@ -939,36 +964,57 @@ details.user[open] summary ~ * {
   filter: grayscale(1) invert(1) contrast(4);
 }
 
-.dark .popup summary img {
+.dark .menu details summary img {
   filter: opacity(0.4) invert(1);
 }
 
-.dark .popup summary:hover {
+.dark .menu details summary:hover, .dark .menu details[open] {
   background-color: #789;
 }
 
-.dark .popup ul { 
-  background-color: #123;
-  box-shadow: 0px 8px 16px 0px rgba(255,255,255,0.5);
+.dark .menu details > div {
+  background-color: #567;
+  box-shadow: 0 8px 16px 0 rgba(255,255,255,0.5);
 }
 
-.dark .popup ul::after {
-  border-color: transparent transparent #123 transparent;
+.dark .menu details > div::after {
+  border-color: transparent transparent #789 transparent;
 }
 
-.dark .popup li:hover {
+.dark .menu details li.theme {
   background-color: #789;
 }
 
-.dark .user summary img {
-  filter: invert(0.5);
+.dark .menu details li:not(.theme):not(.textarea):hover {
+  background-color: #789;
 }
 
-.dark .user summary:hover img {
-  filter: invert(1);
+.dark .menu details textarea {
+  color: #ddd;
+  background-color: #456;
 }
 
-.dark details.user textarea {
+.dark .menu div.report h4 {
+  background-color: #789;
+}
+
+.dark .menu div.report li::before {
+  color: #0c0;
+}
+
+.dark .menu div.report li.CodeMirror-lint-message-warning {
+  background-color: #345;
   color: #ddd;
 }
+
+.dark .menu div.report li.CodeMirror-lint-message-error {
+  background-color: #456;
+  color: #ddd;
+}
+
+.dark .menu div.report li:hover {
+  background-color: #567;
+}
+
 /* ----- /Dark Theme ----- */
+

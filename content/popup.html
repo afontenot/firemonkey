@@ -2,25 +2,27 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="popup.css">
     <title>Popup</title>
+    <link rel="stylesheet" href="popup.css">
+    <script type="module" src="popup.js"></script>
   </head>
   <body>
     <article>
 
       <div> <!-- Just for layout -->
       <section>
+        <!-- template -->
+        <template><li><span class="enable">&#x2714;</span><span class="name"></span><span class="next"></span></li></template>
+
         <h3 data-i18n="tabScript"></h3>
-        <ul class="tab">
-          <!-- template -->
-          <li class="template"><span class="enable">&#x2714;</span><span class="name"></span><img src="../image/next.svg" alt=""></li>
-        </ul>
+        <ul class="tab"></ul>
 
         <h3 data-i18n="otherScript"></h3>
         <ul class="other"></ul>
 
-        <h3 class="menu command"><span data-i18n="scriptCommands"></span><img src="../image/next.svg" alt=""></h3>
-        <h3 class="menu scratchpad"><span data-i18n="scratchpad"></span><img src="../image/next.svg" alt=""></h3>
+        <h3 class="menu command">&#x1f4e3; <span data-i18n="scriptCommands"></span><img src="../image/next.svg" alt=""></h3>
+        <h3 class="menu scratchpad">&#x1f4dd; <span data-i18n="scratchpad"></span><img src="../image/next.svg" alt=""></h3>
+        <h3 class="menu findScript">&#x1f50d; <span data-i18n="findScript"></span><img src="../image/next.svg" alt=""></h3>
 
         <div class="flex">
           <button type="button" data-i18n="options"><img src="../image/gear.svg" alt=""> </button>
@@ -33,14 +35,13 @@
       <section class="info">
         <h3><span data-i18n="back"><img src="../image/back.svg" alt=""> </span></h3>
 
-        
         <div class="infoList">
           <dl></dl>
           <div class="button flex edit">
             <button type="button" class="edit" data-i18n="edit">&#x1f58c; </button>
           </div>
         </div>
-        
+
         <dl class="commandList"></dl>
 
         <div class="scratchpad">
@@ -56,21 +57,14 @@
 
           <div class="button flex">
             <button type="button" id="css" data-i18n="run">&#x25b7; </button>
-            <button type="button" id="undo" data-i18n="undo">&#x238c; </button>
+            <button type="button" id="undo" data-i18n="undo">&#x25c1; </button>
           </div>
         </div>
-
-
-
-
 
       </section>
 
 
       </div> <!-- Just for layout -->
     </article>
-  <script src="pref.js"></script>
-  <script src="common.js"></script>
-  <script src="popup.js"></script>
   </body>
 </html>

@@ -83,7 +83,7 @@ li span {
 }
 
 li span.enable,
-li img {
+li span.next {
   width: 16px;
   flex: 0 0 16px;
   text-align: center;
@@ -93,19 +93,6 @@ li img {
 
 li.disabled span.enable {
   color: transparent;
-}
-
-li img {
-  opacity: 0;
-  transition: all 0.3s ease-in-out;
-}
-
-li:hover img {
-  opacity: 0.4;
-}
-
-li img:hover {
-  opacity: 1;
 }
 
 li span.name {
@@ -141,7 +128,28 @@ li.css span.name::before {
   background: url('../image/css.svg');
 }
 
+li span.next {
+  opacity: 0;
+  transition: all 0.3s ease-in-out;
+}
 
+li span.next::before {
+  content: '';
+  background: url('../image/next.svg') no-repeat center;
+  background-size: contain;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+}
+
+li:hover span.next {
+  opacity: 0.4;
+}
+
+li span.next:hover {
+  opacity: 1;
+}
 
 /* ----- Info ----- */
 section.info {
@@ -256,6 +264,7 @@ div.scratchpad div.button button:nth-of-type(2) {
 /* ----- menu ----- */
 h3.menu {
   opacity: 0.4;
+  cursor: pointer;  
   transition: all 0.3s ease-in-out;
 }
 h3.menu:hover {
@@ -265,7 +274,6 @@ h3.menu img {
   width: 16px;
   vertical-align: middle;
   float: right;
-  cursor: pointer;
 }
 /* ----- /menu ----- */
 
@@ -353,7 +361,7 @@ body.dark {
   color: #0cf;
 }
 
-.dark li img {
+.dark li span.next {
   filter: invert(1);
 }
 
