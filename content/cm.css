@@ -1,0 +1,48 @@
+﻿/* ----- CodeMirror ----- */
+.CodeMirror {
+  height: 100%;
+}
+
+.CodeMirror-sizer {
+  min-width: unset !important;
+  width: calc(100vw - 23rem);
+}
+
+.cm-tab, .cm-trailingspace {
+  background: #f5f5f5;
+  border-bottom: 1px solid #ccc;
+  border-radius: 5px;
+  line-height: 0.5;
+}
+
+.dark .cm-tab, .dark .cm-trailingspace {
+  background: #234;
+  border-color: #555;
+}
+
+.CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
+  background-color: transparent; /* The little square between H and V scrollbars */
+}
+
+.cm-gm {
+  color: maroon !important;
+}
+.dark .cm-gm {
+  color: gold !important;
+}
+
+.CodeMirror-lint-marker {
+  cursor: help;
+}
+
+.CodeMirror-lint-tooltip {
+  color: #050;
+  border-color: #ccc;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+
+div.CodeMirror-code > div:hover .CodeMirror-linenumber {
+  color: #f00;
+  font-weight: bold;
+}

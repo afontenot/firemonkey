@@ -1,21 +1,27 @@
-﻿'use strict';
+﻿import {pref, App, Meta, RemoteUpdate, CheckMatches} from './app.js';
+const RU = new RemoteUpdate();
 
 // ----------------- Context Menu --------------------------
 class ContextMenu {
 
   constructor() {
     const contextMenus = [
-      { id: 'options', contexts: ['browser_action'], icons: {16: 'image/gear.svg'} },
-      { id: 'newJS', contexts: ['browser_action'], icons: {16: 'image/js.svg'} },
-      { id: 'newCSS', contexts: ['browser_action'], icons: {16: 'image/css.svg'} },
-      { id: 'help', contexts: ['browser_action'], icons: {16: 'image/help32.png'} },
-      { id: 'log', contexts: ['browser_action'], icons: {16: 'image/document.svg'} }
+      { id: 'options', contexts: ['browser_action'], icons: {16: '/image/gear.svg'} },
+      { id: 'newJS', contexts: ['browser_action'], icons: {16: '/image/js.svg'} },
+      { id: 'newCSS', contexts: ['browser_action'], icons: {16: '/image/css.svg'} },
+      { id: 'help', contexts: ['browser_action'], icons: {16: '/image/help32.png'} },
+      { id: 'log', contexts: ['browser_action'], icons: {16: '/image/document.svg'} },
+      { id: 'localeMaker', contexts: ['browser_action'], icons: {16: '/content/locale-maker.svg'} },
+      
+      { id: 'stylish', contexts: ['all'], documentUrlPatterns: ['https://userstyles.org/styles/*/*'] }
     ];
 
     contextMenus.forEach(item => {
 
-      if (item.id && !item.title) { item.title = chrome.i18n.getMessage(item.id); } // always use the same ID for i18n
-      if (item.id) { item.onclick = this.process; }
+      if (item.id) { 
+        item.title = item.title || chrome.i18n.getMessage(item.id);  // always use the same ID for i18n
+        item.onclick = this.process; 
+      }
       browser.menus.create(item);
     });
   }
@@ -29,6 +35,8 @@ class ContextMenu {
       case 'newCSS': localStorage.setItem('nav', 'css'); break;
       case 'help': localStorage.setItem('nav', 'help'); break;
       case 'log': localStorage.setItem('nav', 'log'); break;
+      case 'localeMaker': browser.tabs.create({url: '/content/locale-maker.html'}); return;
+      case 'stylish': installer.stylish(tab.url); return;
     }
     chrome.runtime.openOptionsPage();
   }
@@ -126,7 +134,7 @@ class ScriptRegister {
     const require = script.require || [];
     require.forEach(item => {
 
-      if (item.startsWith('lib/')) { options[target].push({file: item}); }
+      if (item.startsWith('lib/')) { options[target].push({file: '/' + item}); }
       else if (pref.content[item] && pref.content[item][target]) {
         options[target].push({code: pref.content[item][target].replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'))});
       }
@@ -148,10 +156,14 @@ class ScriptRegister {
 
     // --- script only
     if (script.js) {
+      
+      // --- unsafeWindow implementation
+      options.js.unshift({code: 'const unsafeWindow = window.wrappedJSObject;'});
 
       options.scriptMetadata = {
         name: id,
         resource: script.resource || {},
+        storage: pref['_' + id] || {},
         info: {                                             // GM.info data
           scriptHandler: 'FireMonkey',
           version: this.FMV,
@@ -180,21 +192,21 @@ class ScriptRegister {
 
         options.matches = item.matches;
         options.css = [{code: item.css}];
-        this.register(id + 'style' + i, options);
+        this.register(id + 'style' + i, options, id);
       });
     }
     else { this.register(id, options); }
   }
 
-  register(id, options) {
+  register(id, options, originId) {
 
     const API = options.js ? browser.userScripts : browser.contentScripts;
     // --- register page script
     try {                                                   // catches error throws before the Promise
       API.register(options)
       .then(reg => this.registered[id] = reg)               // contentScripts.RegisteredContentScript object
-      .catch(error => logger.set(id, `Register ➜ ${error.message}`, 'error'));
-    } catch(error) { this.processError(id, error.message); }
+      .catch(error => App.log(originId || id, `Register ➜ ${error.message}`, 'error'));
+    } catch(error) { this.processError(originId || id, error.message); }
   }
 
   async unregister(id) {
@@ -210,16 +222,14 @@ class ScriptRegister {
     pref.content[id].error = error;                         // store error message
     pref.content[id].enabled = false;                       // disable the script
     browser.storage.local.set({content: pref.content});     // update saved pref
-    logger.set(id, `Register ➜ ${error}`, 'error');        // log message to display in Options -> Log
+    App.log(id, `Register ➜ ${error}`, 'error');           // log message to display in Options -> Log
   }
 }
 const scriptReg = new ScriptRegister();
 // ----------------- /Register Content Script|CSS ----------
 
 // ----------------- User Preference -----------------------
-Pref.get().then(() => {
-  new ProcessPref();
-});
+App.getPref().then(() => new ProcessPref());
 
 class ProcessPref {
 
@@ -299,8 +309,8 @@ class ProcessPref {
       const size = JSON.stringify(pref).length;
       if (size > 102400) {
         const text = chrome.i18n.getMessage('errorSync', (size/1024).toFixed(1));
-        Util.notify(text);
-        logger.set('Sync', text, 'error');
+        App.notify(text);
+        App.log('Sync', text, 'error');
         pref.sync = false;
         browser.storage.local.set({sync: false});
       }
@@ -314,35 +324,45 @@ class ProcessPref {
 
   async migrate() {
 
+    const m = 1.48;
     const version = (localStorage.getItem('migrate') || 0) *1;
-    if (version >= 1.36) { return; }
+    if (version >= m) { return; }
 
-    if (pref.hasOwnProperty('disableHighlight')) {          // v1.31 migrate
-      browser.storage.local.remove('disableHighlight');
-      delete pref.disableHighlight;
-    }
-
-    Object.keys(pref.content).forEach(item => {             // v1.36 migrate
+    
+    // --- v2.0 migrate 2020-11-
+    localStorage.getItem('dark') === 'true' && localStorage.setItem('theme', 'darcula');
+    localStorage.removeItem('syntax');
+    Object.keys(pref.content).forEach(item => {             
+      pref.content[item].i18n || (pref.content[item].i18n = {name: {}, description: {}});
+    });   
+     
+    // --- v1.36 migrate 2020-05-25
+    Object.keys(pref.content).forEach(item => {             
 
       pref.content[item].require && pref.content[item].require.forEach((lib, i) => {
 
         switch (lib) {
 
-          case 'lib/jquery-1.12.4.min.jsm': pref.content[item].require[i] = 'lib/jquery-1.jsm'; break;
-          case 'lib/jquery-2.2.4.min.jsm': pref.content[item].require[i] = 'lib/jquery-2.jsm'; break;
-          case 'lib/jquery-3.4.1.min.jsm': pref.content[item].require[i] = 'lib/jquery-3.jsm'; break;
-          case 'lib/jquery-ui-1.12.1.min.jsm': pref.content[item].require[i] = 'lib/jquery-ui-1.jsm'; break;
-          case 'lib/bootstrap-4.4.1.min.jsm': pref.content[item].require[i] = 'lib/bootstrap-4.jsm'; break;
-          case 'lib/moment-2.24.0.min.jsm': pref.content[item].require[i] = 'lib/moment-2.jsm'; break;
-          case 'lib/underscore-1.9.2.min.jsm': pref.content[item].require[i] = 'lib/underscore-1.jsm'; break;
+          case 'lib/jquery-1.12.4.min.jsm':     pref.content[item].require[i] = 'lib/jquery-1.jsm'; break;
+          case 'lib/jquery-2.2.4.min.jsm':      pref.content[item].require[i] = 'lib/jquery-2.jsm'; break;
+          case 'lib/jquery-3.4.1.min.jsm':      pref.content[item].require[i] = 'lib/jquery-3.jsm'; break;
+          case 'lib/jquery-ui-1.12.1.min.jsm':  pref.content[item].require[i] = 'lib/jquery-ui-1.jsm'; break;
+          case 'lib/bootstrap-4.4.1.min.jsm':   pref.content[item].require[i] = 'lib/bootstrap-4.jsm'; break;
+          case 'lib/moment-2.24.0.min.jsm':     pref.content[item].require[i] = 'lib/moment-2.jsm'; break;
+          case 'lib/underscore-1.9.2.min.jsm':  pref.content[item].require[i] = 'lib/underscore-1.jsm'; break;
         }
       });
     });
+    
+    // --- v1.31 migrate 2020-03-13
+    if (pref.hasOwnProperty('disableHighlight')) {          
+      browser.storage.local.remove('disableHighlight');
+      delete pref.disableHighlight;
+    }
 
     await browser.storage.local.set({content: pref.content});
 
-    // store migrate version locally
-    localStorage.setItem('migrate',  1.36);
+    localStorage.setItem('migrate', m);                     // store migrate version locally
   }
 }
 // ----------------- /User Preference ----------------------
@@ -404,9 +424,9 @@ class Installer {
         return confirm(chrome.i18n.getMessage('installConfirm', title)) ? title : null;
       })();`;
 
-      chrome.tabs.executeScript({code}, (result = []) => {
-        result[0] && RU.getScript({updateURL: e.url, name: result[0]});
-      });
+      chrome.tabs.executeScript({code}, (result = []) => 
+        result[0] && RU.getScript({updateURL: e.url, name: result[0]})
+      );
       return {cancel: true};
     }
   }
@@ -436,6 +456,47 @@ class Installer {
     chrome.tabs.executeScript({code}, (result = []) => {
       result[0] && this.processResponse(result[0][0], result[0][1], tab.url);
     });
+  }
+  
+  async stylish(url) {                                      // userstyles.org
+    
+    if (!/^https:\/\/userstyles\.org\/styles\/\d+/.test(url)) { return; }
+    
+    const code = `(() => {
+      const name = document.querySelector('meta[property="og:title"]').content.trim();
+      const description = document.querySelector('meta[name="twitter:description"]').content.trim().replace(/\s*<br>\s*/g, '').replace(/\s\s+/g, ' ');
+      const author = document.querySelector('#style_author a').textContent.trim();
+      const lastUpdate = document.querySelector('#left_information > div:last-of-type > div:last-of-type').textContent.trim();
+      const updateURL = (document.querySelector('link[rel="stylish-update-url"]') || {href: ''}).href;
+      return {name, description, author, lastUpdate, updateURL};
+    })();`;
+
+    const [{name, description, author, lastUpdate, updateURL}] = await browser.tabs.executeScript({code});
+    if (!name || !updateURL) { App.notify(chrome.i18n.getMessage('error')); return; }
+    
+    const version = lastUpdate ? new Date(lastUpdate).toLocaleDateString("en-GB").split('/').reverse().join('') : '';
+
+    const metaData = 
+`/*
+==UserStyle==
+@name           ${name}
+@description    ${description}
+@author         ${author}
+@version        ${version}
+@homepage       ${url}
+==/UserStyle==
+*/`;
+ 
+    fetch(updateURL)
+    .then(response => response.text())
+    .then(text =>  {
+      if (text.includes('@-moz-document')) {
+        this.processResponse(metaData + '\n\n' + text, name, updateURL);
+        App.notify(`${name}\nInstalled version ${version}`);
+      }
+      else { App.notify(chrome.i18n.getMessage('error')); } // <head><title>504 Gateway Time-out</title></head>
+    })
+    .catch(error => Util.log(item.name, `stylish ${cssURL} ➜ ${error.message}`, 'error'));
   }
   // --------------- /Web|Direct Installer -----------------
 
@@ -492,7 +553,8 @@ class Installer {
 
     // --- check for Web Install, set install URL
     if (updateURL.startsWith('https://greasyfork.org/scripts/') ||
-        updateURL.startsWith('https://openuserjs.org/install/')) {
+        updateURL.startsWith('https://openuserjs.org/install/') || 
+        updateURL.startsWith('https://userstyles.org/styles/') ) {
       data.updateURL = updateURL;
       data.autoUpdate = true;
     }
@@ -501,10 +563,10 @@ class Installer {
     if (pref.content[data.name]) {
       data.enabled = pref.content[data.name].enabled;
       data.autoUpdate = pref.content[data.name].autoUpdate;
-      logger.set(data.name, `Updated version ${pref.content[data.name].version} to ${data.version}`); // log message to display in Options -> Log
+      App.log(data.name, `Updated version ${pref.content[data.name].version} to ${data.version}`); // log message to display in Options -> Log
     }
     else {
-      logger.set(data.name, `Installed version ${data.version}`); // log message to display in Options -> Log
+      App.log(data.name, `Installed version ${data.version}`); // log message to display in Options -> Log
     }
 
     pref.content[data.name] = data;                         // save to pref
@@ -571,7 +633,7 @@ class API {
   }
 
   process(message, sender) {
-
+    
     if (!message.api) { return; }
 
     const e = message.data;
@@ -582,18 +644,18 @@ class API {
 
     switch (message.api) {
 
+      case 'getValue':
+        return Promise.resolve(hasProperty(e.key) ? pref[storage][e.key] : e.defaultValue);
+
+      case 'listValues':
+        return Promise.resolve(pref[storage] ? Object.keys(pref[storage]) : []);
+
       case 'setValue':
         pref[storage] || (pref[storage] = {});              // make one if didn't exist
         if (pref[storage][e.key] === e.value) { return true; } // return if value hasn't changed
         oldValue = pref[storage][e.key];                    // need to cache it due to async processes
         pref[storage][e.key] = e.value;
         return browser.storage.local.set({[storage]: pref[storage]}); // Promise with no arguments OR reject with error message
-
-      case 'getValue':
-        return Promise.resolve(hasProperty(e.key) ? pref[storage][e.key] : e.defaultValue);
-
-      case 'listValues':
-        return Promise.resolve(pref[storage] ? Object.keys(pref[storage]) : []);
 
       case 'deleteValue':
         if (!hasProperty(e.key)) { return true; }           // return if nothing to delete
@@ -609,7 +671,7 @@ class API {
       case 'setClipboard':
         navigator.clipboard.writeText(e.text)               // Promise with ? OR reject with error message
         .then(() => {})
-        .catch(error => logger.set(name, `${message.api} ➜ ${error.message}`, 'error'));
+        .catch(error => App.log(name, `${message.api} ➜ ${error.message}`, 'error'));
         break;
 
       case 'notification':
@@ -633,7 +695,7 @@ class API {
           conflictAction: 'uniquify'
         })
         .then(() => {})
-        .catch(error => logger.set(name, `${message.api} ➜ ${error.message}`, 'error'));  // failed notification
+        .catch(error => App.log(name, `${message.api} ➜ ${error.message}`, 'error'));  // failed notification
         break;
 
       case 'fetch':
@@ -660,7 +722,7 @@ class API {
               default: return response.text();
             }
           })
-          .catch(error => logger.set(name, `${message.api} ${url} ➜ ${error.message}`, 'error'));
+          .catch(error => App.log(name, `${message.api} ${url} ➜ ${error.message}`, 'error'));
         break;
 
       case 'xmlHttpRequest':
@@ -696,13 +758,13 @@ class API {
 
     try { url = new URL(url, base); }
     catch (error) {
-      logger.set(name, `checkURL ${url} ➜ ${error.message}`, 'error');
+      App.log(name, `checkURL ${url} ➜ ${error.message}`, 'error');
       return;
     }
 
     // --- check protocol
     if (!['http:', 'https:', 'ftp:', 'ftps:'].includes(url.protocol)) {
-      logger.set(name, `checkURL ${url} ➜ Unsupported Protocol ${url.protocol}`, 'error');
+      App.log(name, `checkURL ${url} ➜ Unsupported Protocol ${url.protocol}`, 'error');
       return;
     }
     return url.href;
@@ -729,20 +791,3 @@ class API {
 }
 new API();
 // ----------------- /Content Message Handler --------------
-
-// ----------------- Logger --------------------------------
-class Logger {
-
-  constructor() {
-    this.log = localStorage.getItem('log') || '';
-    try { this.log = JSON.parse(this.log); } catch (e) { this.log = []; }
-  }
-
-  set(ref, message, error = false) {
-    this.log.push([new Date().toString().substring(0, 24), ref, message, error]);
-    this.log = this.log.slice(-100);                        // slice to the last 100 entries
-    localStorage.setItem('log', JSON.stringify(this.log));
-  }
-}
-const logger = new Logger();
-// ----------------- /Logger -------------------------------

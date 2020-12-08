@@ -1,0 +1,136 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Locale Maker</title>
+    <link rel="icon" type="image/png" href="locale-maker.svg">
+    <link rel="stylesheet" href="locale-maker.css">
+    <script src="locale-maker.js" defer></script>
+  </head>
+  <body>
+    <article>
+
+
+
+<table>
+  <caption><img src="locale-maker.svg" alt=""> Locale Maker</caption>
+  <thead>
+    <tr>
+      <th>
+        <input type="file" id="import" accept=".json">
+        <label for="import" class="flat">Import</label>&nbsp;
+        <button type="button" id="export" class="flat">Export</button>
+      </th>
+      <th>
+        <select id="locale" autocomplete="off">
+          <option value="" disabled selected>Select Language</option>
+            <option value="af">Afrikaans</option>
+            <option value="ar">عربي</option>
+            <option value="ast">Asturianu</option>
+            <option value="az">Azərbaycanca</option>
+            <option value="bg">Български</option>
+            <option value="bn">বাংলা</option>
+            <option value="bs">Bosanski</option>
+            <option value="ca">Català</option>
+            <option value="cak">Maya Kaqchikel</option>
+            <option value="cs">Čeština</option>
+            <option value="da">Dansk</option>
+            <option value="de">Deutsch</option>
+            <option value="dsb">Dolnoserbšćina</option>
+            <option value="el">Ελληνικά</option>
+            <option value="en">English</option>
+            <option value="en_CA">English (Canadian)</option>
+            <option value="en_GB">English (British)</option>
+            <option value="en_US">English (US)</option>
+            <option value="es">Español</option>
+            <option value="et">Eesti keel</option>
+            <option value="eu">Euskara</option>
+            <option value="fa">فارسی</option>
+            <option value="fi">suomi</option>
+            <option value="fr">Français</option>
+            <option value="fy_NL">Frysk</option>
+            <option value="ga_IE">Gaeilge</option>
+            <option value="he">עברית</option>
+            <option value="hr">Hrvatski</option>
+            <option value="hsb">Hornjoserbsce</option>
+            <option value="hu">magyar</option>
+            <option value="ia">Interlingua</option>
+            <option value="id">Bahasa Indonesia</option>
+            <option value="it">Italiano</option>
+            <option value="ja">日本語</option>
+            <option value="ka">ქართული</option>
+            <option value="kab">Taqbaylit</option>
+            <option value="ko">한국어</option>
+            <option value="lt">lietuvių kalba</option>
+            <option value="lv">Latviešu</option>
+            <option value="mk">Македонски</option>
+            <option value="mn">Монгол</option>
+            <option value="ms">Melayu</option>
+            <option value="mt">Malti</option>
+            <option value="nb_NO">Norsk bokmål</option>
+            <option value="nl">Nederlands</option>
+            <option value="nn_NO">Norsk nynorsk</option>
+            <option value="pa_IN">ਪੰਜਾਬੀ (ਭਾਰਤ)</option>
+            <option value="pl">Polski</option>
+            <option value="pt_BR">Português (do&nbsp;Brasil)</option>
+            <option value="pt_PT">Português (Europeu)</option>
+            <option value="ro">Română</option>
+            <option value="ru">Русский</option>
+            <option value="sk">slovenčina</option>
+            <option value="sl">Slovenščina</option>
+            <option value="sq">Shqip</option>
+            <option value="sv_SE">Svenska</option>
+            <option value="te">తెలుగు</option>
+            <option value="th">ไทย</option>
+            <option value="tr">Türkçe</option>
+            <option value="uk">Українська</option>
+            <option value="ur">اُردو</option>
+            <option value="vi">Tiếng Việt</option>
+            <option value="zh_CN">中文 (简体)</option>
+            <option value="zh_TW">正體中文 (繁體)</option>
+        </select>
+   
+        <details>
+          <summary>
+            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 512 512">
+              <g><circle cx="256" cy="256" r="64"/><circle cx="256" cy="448" r="64"/><circle cx="256" cy="64" r="64"/></g></svg>
+          </summary>
+          <div>
+            <div class="help">
+              <h3>&#x1f1ed; Help</h3>
+              <dl>
+                <dt>&#x1f518; Select Language</dt>
+                  <dd>Select & load the locale from extension <code>_locale</code> if available</dd>
+    
+                <dt>&#x1f4e5; Import</dt>
+                  <dd>After selecting the language, import a locale from file</dd>
+    
+                <dt>&#x1f4e4; Export</dt>
+                  <dd>Export the current locale to <code>{language-code}/messages.json</code> (blank entries will be filled with default language)</dd>
+    
+                <dt>&#x2b07;&#xfe0f; Paste</dt>
+                  <dd>Usefull when copy/pasting from a translation API, on <code>paste</code>, if there are more than 3 lines of text, each line will fill the inputs starting from active input or the first one</dd>
+    
+                <dt>&#x1f465; Share</dt>
+                  <dd>Please share your translations to <a href="https://github.com/erosman/extension-translations" target="_blank">extension-translations</a></dd>
+    
+              </dl>
+            </div>
+          </div>
+        </details>
+      </th>
+    </tr>
+</thead>
+<tbody></tbody>
+<tfoot>
+  <tr><td colspan="2"></td></tr>
+</tfoot>
+</table>
+
+
+
+  </article>
+<!-- template -->
+<template><tr><td></td><td><input type="text"></td></tr></template>
+</body>
+</html>

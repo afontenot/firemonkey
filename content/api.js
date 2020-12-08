@@ -7,6 +7,9 @@ browser.userScripts.onBeforeScript.addListener(script => {
 
   // --------------- Script Storage ------------------------
   const store = '_' + name;
+  let storage = script.metadata.storage;
+  browser.storage.local.get(store).then((result = {}) => storage = result[store] || {});
+  
   const cache = {};
   const valueChange = {};
 
@@ -24,7 +27,6 @@ browser.userScripts.onBeforeScript.addListener(script => {
       );
     }
   }
-  // --------------- /Script Storage -----------------------
 
   // --------------- Script Command ------------------------
   const scriptCommand = {};
@@ -43,8 +45,8 @@ browser.userScripts.onBeforeScript.addListener(script => {
         break;
     }
   });
-  // --------------- Script /Command -----------------------
-
+  
+  // --------------- xmlHttpRequest callback --------------- 
   /*
     Ref: robwu (Rob Wu)
     In order to make callback functions visible
@@ -60,15 +62,12 @@ browser.userScripts.onBeforeScript.addListener(script => {
   // --------------- GM4 Object based functions ------------
   const GM = {
 
-    async setValue(key, value) {
+    _getValue(key, defaultValue) {
+      return storage.hasOwnProperty(key) ? storage[key] : defaultValue;
+    },
 
-      if (!['string', 'number', 'boolean'].includes(typeof value)) { throw `${name}: Unsupported value in setValue()`; }
-      cache[key] = value;
-      return await browser.runtime.sendMessage({
-        name,
-        api: 'setValue',
-        data: {key, value}
-      });
+    _listValues() {
+      return script.export(Object.keys(storage));
     },
 
     async getValue(key, defaultValue) {
@@ -88,6 +87,17 @@ browser.userScripts.onBeforeScript.addListener(script => {
         data: {}
       });
       return script.export(response);
+    },
+
+    async setValue(key, value) {
+
+      if (!['string', 'number', 'boolean'].includes(typeof value)) { throw `${name}: Unsupported value in setValue()`; }
+      cache[key] = value;
+      return await browser.runtime.sendMessage({
+        name,
+        api: 'setValue',
+        data: {key, value}
+      });
     },
 
     async deleteValue(key) {
@@ -191,11 +201,17 @@ browser.userScripts.onBeforeScript.addListener(script => {
       return response ? script.export(response) : null;
     },
 
-    getResourceURL(resourceName) { return resource[resourceName]; },
+    getResourceURL(resourceName) { 
+      return resource[resourceName]; 
+    },
 
-    registerMenuCommand(text, onclick, accessKey) { scriptCommand[text] = onclick; },
+    registerMenuCommand(text, onclick, accessKey) { 
+      scriptCommand[text] = onclick; 
+    },
 
-    unregisterMenuCommand(text) { delete scriptCommand[text]; },
+    unregisterMenuCommand(text) { 
+      delete scriptCommand[text]; 
+    },
 
     async download(url, filename) {
 
@@ -396,18 +412,17 @@ browser.userScripts.onBeforeScript.addListener(script => {
     },
 
     log(...text) { console.log(name + ':', ...text); },
-    info: script.metadata.info,
-    unsafeWindow: window.wrappedJSObject
+    info: script.metadata.info
   };
 
 
   script.defineGlobals({
 
     GM,
-    GM_setValue:                  GM.setValue,
-    GM_getValue:                  GM.getValue,
+    GM_getValue:                  GM._getValue,
+    GM_listValues:                GM._listValues,
     GM_deleteValue:               GM.deleteValue,
-    GM_listValues:                GM.listValues,
+    GM_setValue:                  GM.setValue,
     GM_addValueChangeListener:    GM.addValueChangeListener,
     GM_removeValueChangeListener: GM.removeValueChangeListener,
 
@@ -427,7 +442,6 @@ browser.userScripts.onBeforeScript.addListener(script => {
     GM_popup:                     GM.popup,
 
     GM_log:                       GM.log,
-    GM_info:                      GM.info,
-    unsafeWindow:                 GM.unsafeWindow
+    GM_info:                      GM.info
   });
 });
