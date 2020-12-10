@@ -222,27 +222,25 @@
   <h3 id="CodeMirror"><img src="../image/codemirror.png" alt=""> CodeMirror</h3>
   <p>Override allowed <i>(under consideration)</i> <a href="https://codemirror.net/doc/manual.html#config" target="_blank">CodeMirror Configuration</a> & <a href="https://jshint.com/docs/options/" target="_blank">JSHint Options</a> with a valid JSON for advanced users.</p>
   <p>JSHint is set to ECMAScript 2019 ES10 & fairly strict guidelines for coding excellence.</p>
+  
+  <dl>
+    <dt>CodeMirror Options</dt>
+      <dd>Any option except <code>extraKeys</code> | <code>lint</code> | <code>mode</code> | <code>search</code> | <code>theme</code></dd>
+
+    <dt>JSHint Options</dt>
+      <dd>Any option except <code>globals</code> | <code>jquery</code></dd>  	
+  </dl>
 
    <figure>
-    <figcaption>Allowed Configurations & their Current Values</figcaption>
+    <figcaption>Example</figcaption>
 <pre class="comment">
 {
-  "indentWithTabs": false,
-  "indentUnit": 2,
-  "tabSize": 2,
-  "lint": {
-    "curly": true,
-    "devel": true,
-    "eqeqeq": true,
-    "freeze": true,
-    "latedef": "nofunc",
-    "leanswitch": true,
-    "maxerr": 100,
-    "noarg": true,
-    "nonbsp": true,
-    "undef": true,
-    "unused": true,
-    "varstmt": true
+  "indentWithTabs": true,
+  "indentUnit": 4,
+  "tabSize": 4,
+  "jshint": {
+    "curly": false,
+    "varstmt": false
   }
 }
 </pre>

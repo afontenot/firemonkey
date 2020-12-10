@@ -8,6 +8,9 @@ App.i18n();
 App.getPref().then(() => {
   options.process();
   script.process();
+  
+  // --- add custom style
+  pref.customCSS && (document.querySelector('style').textContent = pref.customCSS);
 });
 // ----------------- /User Preference ----------------------
 
@@ -26,9 +29,6 @@ class Options {
       if (e.key === 'nav') { this.getNav(e.newValue); }
       else if (e.key === 'log') { showLog.update(e.newValue); }
     });
-    
-    // --- add custom style
-    document.querySelector('style').textContent = pref.customCSS;
   }
 
   process(save) {
@@ -52,25 +52,6 @@ class Options {
     if(!Pattern.validate(this.globalScriptExcludeMatches)) { return; }
     
     // Custom CodeMirror Options
-    const allowed = {
-      indentWithTabs: false,
-      indentUnit: 4,
-      tabSize: 4,
-      lint: {
-        curly: true,
-        devel: true,
-        eqeqeq: true,
-        freeze: true,
-        latedef: 'nofunc',
-        leanswitch: true,
-        maxerr: 100,
-        noarg: true,
-        nonbsp: true,
-        undef: true,
-        unused: true,
-        varstmt: true
-      }
-    };
     const cmOptionsNode = document.querySelector('#cmOptions');
     cmOptionsNode.value = cmOptionsNode.value.trim();
     if (cmOptionsNode.value) {
@@ -79,8 +60,11 @@ class Options {
         App.notify(chrome.i18n.getMessage('cmOptionsError')) ;
         return;
       }
-      Object.keys(cmOptions).forEach(item => !allowed.hasOwnProperty(item) && delete cmOptions[item]);
-      cmOptions.lint && Object.keys(cmOptions.lint).forEach(item => !allowed.lint.hasOwnProperty(item) && delete cmOptions.lint[item]);
+      // remove disallowed
+      Object.keys(cmOptions).forEach(item => 
+                ['extraKeys', 'lint', 'mode', 'search', 'theme'].includes(item) && delete cmOptions[item]); 
+      cmOptions.jshint && Object.keys(cmOptions.jshint).forEach(item => 
+                ['globals', 'jquery'].includes(item) && delete cmOptions.jshint[item]);
       cmOptionsNode.value = JSON.stringify(cmOptions, null, 2); // reset value with allowed options    
     }
     // --- progress bar
@@ -222,7 +206,7 @@ class Script {
   setCodeMirror() {
 
     const js =  this.legend.classList.contains('js');
-    const jslint = {
+    const jshint = {
         browser: true,
         curly: true,
         devel: true,
@@ -260,7 +244,7 @@ class Script {
       styleActiveLine: true,
       autoCloseBrackets: true,
       search: {bottom: true},
-      lint: js ? jslint : true,
+      lint: js ? jshint : true,
 //      hint: {hintOptions: {}},
       foldGutter: true,
       gutters: ['CodeMirror-lint-markers', 'CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
@@ -279,8 +263,8 @@ class Script {
     
     // Custom CodeMirror Options
     const cmOptions = App.JSONparse(pref.cmOptions) || {};
-    Object.keys(cmOptions).forEach(item => item !== 'lint' && (options[item] = cmOptions[item]));
-    cmOptions.lint && Object.keys(cmOptions.lint).forEach(item => jslint[item] = cmOptions.lint[item]);
+    Object.keys(cmOptions).forEach(item => item !== 'jshint' && (options[item] = cmOptions[item]));
+    cmOptions.jshint && Object.keys(cmOptions.jshint).forEach(item => jshint[item] = cmOptions.jshint[item]);
     this.cm = CodeMirror.fromTextArea(this.box, options);
     CodeMirror.commands.save = () => this.saveScript();
 
@@ -291,11 +275,8 @@ class Script {
   makeStats(js, text = this.box.value) {
 
     const nf = new Intl.NumberFormat();
-//    const js =  this.legend.classList.contains('js');
-
     const stats = [];
 
-//    stats.push(js ? 'JavaScript' : 'CSS');
     stats.push('Size  ' + nf.format(parseFloat((text.length/1024).toFixed(1))) + ' KB');
     stats.push('Lines ' + nf.format(this.cm.lineCount()));
 //    stats.push(/\r\n/.test(text) ? 'DOS' : 'UNIX');
