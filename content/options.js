@@ -279,7 +279,8 @@ class Script {
     
     // Custom CodeMirror Options
     const cmOptions = App.JSONparse(pref.cmOptions) || {};
-    Object.keys(cmOptions).forEach(item => options[item] = cmOptions[item]);
+    Object.keys(cmOptions).forEach(item => item !== 'lint' && (options[item] = cmOptions[item]));
+    cmOptions.lint && Object.keys(cmOptions.lint).forEach(item => jslint[item] = cmOptions.lint[item]);
     this.cm = CodeMirror.fromTextArea(this.box, options);
     CodeMirror.commands.save = () => this.saveScript();
 
