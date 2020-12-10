@@ -99,7 +99,7 @@ class App {
 
   static log(ref, message, type = '') {
 
-    const log = App.JSONparse(localStorage.getItem('log')) || [];
+    let log = App.JSONparse(localStorage.getItem('log')) || [];
     log.push([new Date().toString().substring(0, 24), ref, message, type]);
     log = log.slice(-(localStorage.getItem('logSize')*1 || 100)); // slice to the last n entries. default 100
     localStorage.setItem('log', JSON.stringify(log));
