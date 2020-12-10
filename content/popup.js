@@ -237,7 +237,7 @@ class Popup {
     localStorage.setItem('scraptchpadJS', code); // save last entry
     browser.tabs.executeScript({code})
     .then(() => {})
-    .catch(error => App.notify('JavaScript: ' + chrome.i18n.getMessage('errorInsert')));
+    .catch(error => App.notify('JavaScript: ' + chrome.i18n.getMessage('insertError')));
   }
 
   runCSS() {
@@ -247,7 +247,7 @@ class Popup {
     localStorage.setItem('scraptchpadCSS', code); // save last entry
     browser.tabs.insertCSS({code})
     .then(() => {})
-    .catch(error => App.notify('CSS: ' + chrome.i18n.getMessage('errorInsert')));
+    .catch(error => App.notify('CSS: ' + chrome.i18n.getMessage('insertError')));
   }
 
   undoCSS() {
