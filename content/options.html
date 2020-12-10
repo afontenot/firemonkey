@@ -72,6 +72,8 @@
 
     <!-- after CodeMirror to override -->
     <link rel="stylesheet" href="cm.css">
+    <!-- custom style -->
+    <style></style>
   </head>
   <body>
 
@@ -132,41 +134,43 @@
         <!-- user options -->
         <fieldset>
           <legend data-i18n="options"></legend>
-          <div class="flex">
-            <div>
-              <label data-i18n="autoUpdateInterval"></label>
-              <p class="description" data-i18n="autoUpdateIntervalDescription"></p>
-            </div>
-            <div>
-                <input type="number" id="autoUpdateInterval" min="0" max="30">
-            </div>
-          </div>
 
-          <div class="flex" style="margin-top: 1em;">
-            <div>
-              <label data-i18n="globalScriptExcludeMatches"></label>
-              <p class="description" data-i18n="globalScriptExcludeMatchesDescription"></p>
-            </div>
-            <div>
-                <textarea id="globalScriptExcludeMatches" rows="8" spellcheck="false" placeholder="*://*.example.com/*"></textarea>
-            </div>
-          </div>
+          <label data-i18n="autoUpdateInterval"></label> <input type="number" id="autoUpdateInterval" min="0" max="30">
+          <p class="description" data-i18n="autoUpdateIntervalDescription"></p>
 
-          <div style="margin-top: 1em;">
-            <input type="checkbox" id="sync"><label for="sync" data-i18n="enableSync"></label>
-          </div>
+          <input type="checkbox" id="sync"><label for="sync" data-i18n="enableSync"></label>
+          <input type="checkbox" id="counter"><label for="counter" data-i18n="counter"></label>
+          <br>
+          <label data-i18n="globalScriptExcludeMatches"></label>
+          <p class="description" data-i18n="globalScriptExcludeMatchesDescription"></p>
+          <textarea id="globalScriptExcludeMatches" spellcheck="false" autocomplete="off" placeholder="*://*.example.com/*"></textarea>
 
-          <div style="margin-top: 1em;">
-            <input type="checkbox" id="counter"><label for="counter" data-i18n="counter"></label>
-          </div>
+
+
+            <details>
+              <summary data-i18n="advanced">&#x2699;&#xfe0f; </summary>
+
+              <label data-i18n="customCSS"> </label>
+              <p class="description" data-i18n="customCSSDescription"></p>
+              <textarea id="customCSS" spellcheck="false" autocomplete="off" placeholder=".CodeMirror {
+  font-family: monospace;
+}"></textarea>
+
+              <label><img src="../image/codemirror.png" alt=""> CodeMirror</label>
+              <p class="description" data-i18n="cmOptionsDescription"></p>
+              <textarea id="cmOptions" spellcheck="false" autocomplete="off" placeholder='{
+  "indentWithTabs": false,
+  "indentUnit": 2,
+  "tabSize": 2
+}'></textarea>
+
+            </details>
 
         </fieldset>
 
-        <div style="display: flex;">
-          <input type="file" id="file" accept=".txt,.json">
-          <label for="file" class="flat" data-i18n="importPreference"></label>&nbsp;
-          <button type="button" id="export" class="flat" data-i18n="exportPreference"></button>
-        </div>
+        <input type="file" id="file" accept=".txt,.json">
+        <label for="file" class="flat" data-i18n="importPreference"></label>&nbsp;
+        <button type="button" id="export" class="flat" data-i18n="exportPreference"></button>
 
         <button type="submit" data-i18n="saveOptions"></button>
 
@@ -175,13 +179,10 @@
 
 
       <section class="script">
-        <fieldset>
           <div class="menu">
             <button type="button" data-i18n="saveScript">&#x1f4be; </button>
-
             <button type="button" data-i18n="update">&#x1f504; </button>
             <button type="button" data-i18n="exportScript"></button>
-
             <img class="bin" src="../image/bin.svg" data-i18n="delete|title" alt="">
             <span class="spacer"></span>
 
@@ -202,7 +203,6 @@
                   <ul><li>&#x2705;</li></ul>                  
                 </div>
             </details>
-
 
             <details>
               <summary>&#x1f6e0;</summary>
@@ -244,56 +244,43 @@
                   <li class="textarea"><label data-i18n="userMatches"></label><br>
                   <textarea id="userMatches" rows="4" spellcheck="false" placeholder="*://*.example.com/*"></textarea></li>
                   <li class="textarea"><label data-i18n="userExcludeMatches"></label><br>
-                  <textarea id="userExcludeMatches" rows="4" spellcheck="false" placeholder="*://*.example.com/*"></textarea></li>
+                  <textarea id="userExcludeMatches" rows="4" spellcheck="false" autocomplete="off" placeholder="*://*.example.com/*"></textarea></li>
                 </ul>
 
 
               </div>
             </details>
-
           </div>
 
           <fieldset>
             <legend data-i18n="script"></legend>
-
-            <div class="container">
-              <textarea class="box" data-type="css" spellcheck="false" disabled></textarea>
-            </div>
+            <textarea class="box" data-type="css" spellcheck="false" autocomplete="off" disabled></textarea>
           </fieldset>
 
           <footer></footer>
-        </fieldset>
+
       </section>
 
 
       <!-- log -->
-      <section>
-        <div class="log">
-          <div>
-            <table class="">
-              <thead>
-                <tr>
-                  <th data-i18n="time"></th>
-                  <th data-i18n="reference"></th>
-                  <th class="flex">
-                    <div data-i18n="message"></div>
-                    <div style="text-align: right;">
-                      <span data-i18n="log"></span>
-                      <input type="number" id="logSize" min="100" max="1000" step="100" value="100">
-                    </div>
-                  </th>
-                 </tr>
-              </thead>
-              <tbody>
-                <!-- template -->
-                <template><tr><td></td><td></td><td></td></tr></template>
-              </tbody>
-            </table>
-          </div>
-      </div>
+      <section class="log">
+        <table>
+          <thead>
+            <tr><th data-i18n="time"></th><th data-i18n="reference"></th>
+              <th><span data-i18n="message"></span>
+                <div style="float: right;">
+                  <span data-i18n="log"></span>
+                  <input type="number" id="logSize" min="100" max="1000" step="100" value="100">
+                </div>
+              </th>
+             </tr>
+          </thead>
+          <tbody>
+            <!-- template -->
+            <template><tr><td></td><td></td><td></td></tr></template>
+          </tbody>
+        </table>
       </section>
-
-
 
     </article>
 

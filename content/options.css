@@ -32,6 +32,12 @@ summary {
   cursor: pointer;
 }
 
+
+::placeholder {
+  color: #555;
+  font-style: italic;
+}
+
 /* ----- Import/Export ----- */
 label[data-i18n^="import"]::before {
   content: '\1f4e5';
@@ -131,6 +137,7 @@ nav label[for^="nav"]:hover::before {
 /* ----- /Navigation ----- */
 
 
+
 article {
   padding: 0;
   margin: 0;
@@ -139,15 +146,12 @@ article {
   flex-direction: column;
 }
 
-.spacer {
-  flex-grow: 1;
-}
-
 section {
   padding: 1em;
-  width: 100%;
-  height: 100%;
+  flex-grow: 1;
+  height: 99vh;
   display: none;
+  overflow-y: auto;
 }
 
 iframe {
@@ -155,6 +159,68 @@ iframe {
   margin: 0;
   width: 100%;
   height: 100%;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex > * {
+  flex: 1;
+}
+
+.spacer {
+  flex-grow: 1;
+}
+
+fieldset {
+  transition: all 0.5s ease-in-out;
+}
+
+fieldset:not(:first-of-type) {
+  margin-top: 1em;
+}
+
+
+
+legend {
+  color: #066;
+  font-size: 1.1em;
+  margin-bottom: 0.5em;
+}
+
+/* ----- Options ----- */
+.options fieldset {
+  border-radius: 10px;
+  margin-bottom: 1em;
+  border: 1px solid #ccc;
+}
+
+.options legend {
+  border: 1px solid #ccc;
+  padding: 0.4em 1em;
+  border-radius: 10px;
+  transition: all 0.5s ease-in-out;
+}
+
+.options fieldset:hover, .options fieldset:hover legend {
+  background-color: #fff;
+}
+
+
+.options br {
+  border: 0;
+  margin-bottom: 1em;
+}
+
+.options fieldset label {
+  display: inline-block;
+  min-width: 30%;
+  margin-right: 1em;
+}
+
+.options fieldset label img {
+  width: 1.2em;
 }
 
 .description {
@@ -167,9 +233,33 @@ iframe {
   padding-left: 0.2em;
 }
 
+.options textarea {
+  height: 7em;
+}
+
+.options details {
+  margin-top: 1em;
+}
+
+.options summary {
+  margin-bottom: 1em;
+  list-style: none;
+  outline: 0;
+}
+
+.options summary ~ * {
+  opacity: 0;
+  transition: all 0.5s ease-in-out;
+}
+
+.options details[open] summary ~ * {
+  opacity: 1;
+}
+
 textarea {
   vertical-align: top;
   width: 100%;
+  margin-bottom: 1em;
 }
 
 .invalid {
@@ -179,29 +269,9 @@ textarea {
   box-shadow: 1px 1px 4px #f20, -1px -1px 4px #f20;
 }
 
-.flex {
-  display: flex;
-}
 
-.flex > * {
-  flex: 1;
-}
 
-fieldset {
-  border-radius: 10px;
-  margin-bottom: 1em;
-  border: 1px solid #ccc;
-  transition: all 0.5s ease-in-out;
-}
 
-fieldset:hover {
-  background-color: #fff;
-}
-
-legend {
-  color: #066;
-  font-size: 1.1em;
-}
 
 .flat {
   background-color: #f5f5f5;
@@ -250,7 +320,7 @@ img.bin {
 img.bin:hover {
   filter: opacity(1) grayscale(0);
 }
-
+/* ----- /Options ----- */
 
 /* ----- Submit Button ----- */
 button[type="submit"] {
@@ -522,65 +592,14 @@ nav ul + div::after {
 
 /* ----- Scripts ----- */
 section.script {
-  height: 100%;
-  padding: 0;
+  padding: 0 1em;
 }
-
-.script fieldset {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  border: 0;
-  padding: 0;
-  border-radius: 0;
-}
-
-.script > fieldset {
-  margin-left: 0.8em;
-  padding: 0.5em;
-}
-
-legend.js::before, legend.css::before {
-  content: '';
-  width: 1.2em;
-  height: 1.2em;
-  display: inline-block;
-  vertical-align: text-bottom;
-  margin-left: 0.2em;
-  margin-right: 0.5em;
-}
-
-legend.js::before {
-  background: url('../image/js.svg');
-}
-
-legend.css::before {
-  background: url('../image/css.svg');
-}
-
-legend.disabled::before {
-  filter: grayscale(1);
-}
-
-legend.antifeature::after {
-  content: '\26a0\fe0f';
-  margin-left: 2em;
-}
-
-legend span {
-  margin-left: 0.5em;
-  font-size: 0.9em;
-  color: #999;
-}
-
 
 div.menu {
   display: flex;
-  margin-bottom: 0.5em;
+  margin: 0 -1em 0.5em;
   border-bottom: 1px solid #eee;
 }
-
 
 .menu button {
   background-color: transparent;
@@ -639,7 +658,6 @@ div.menu {
   100%  { opacity: 1; transform: translateY(0); }
 }
 
-
 .menu details > div {
   font-size: 0.9em;
   margin: 0;
@@ -673,7 +691,6 @@ div.menu {
 .menu details > div.expand {
   width: 40vw;
 }
-
 
 .menu details ul {
   list-style: none;
@@ -780,7 +797,6 @@ div.menu {
   scrollbar-width: thin;
 }
 
-
 .menu div.report li {
   display: flex;
   color: #999;
@@ -791,7 +807,6 @@ div.menu {
   transition: none;
   cursor: pointer;
 }
-
 
 .menu div.report li::before {
   content: attr(data-line);
@@ -814,21 +829,48 @@ div.menu {
 }
 
 
-
-
-
-
-
-
-.script .container {
-  flex-grow: 1;
-  overflow: auto;
-  height: 60vh;
-  margin-top: 1em;
+.script fieldset {
+  border: 0;
+  padding: 0;
+  height: calc(100vh - 5em);
 }
 
-.container textarea {
+legend.js::before, legend.css::before {
+  content: '';
+  width: 1.2em;
+  height: 1.2em;
+  display: inline-block;
+  vertical-align: text-bottom;
+  margin-left: 0.2em;
+  margin-right: 0.5em;
+}
+
+legend.js::before {
+  background: url('../image/js.svg');
+}
+
+legend.css::before {
+  background: url('../image/css.svg');
+}
+
+legend.disabled::before {
+  filter: grayscale(1);
+}
+
+legend.antifeature::after {
+  content: '\26a0\fe0f';
+  margin-left: 2em;
+}
+
+legend span {
+  margin-left: 0.5em;
+  font-size: 0.9em;
+  color: #999;
+}
+
+.script fieldset textarea {
   background-color: transparent;
+  color: transparent;
   border: 0;
   resize: none;
 }
@@ -843,34 +885,22 @@ footer {
 /* ----- /Scripts ----- */
 
 /* ----- log ----- */
-.log {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-.log > div {
-  flex-grow: 1;
-  overflow-y: auto;
-  height: 60vh;
-  scrollbar-color: #ddd #f5f5f5;
-  scrollbar-width: thin;
-}
-
 .log table {
   margin: 0 auto;
   width: 100%;
+  border-collapse: collapse;
 }
 
-.log th {
+.log thead th {
   background-color: #e9eef1;
   padding: 0.5em;
-  border-top: 1px solid #abc;
 }
 
 .log tr {
-  animation: sect 0.5s ease-in-out;
-  font-size: 0.9em;
   color: #555;
+  font-size: 0.9em;
+  border-bottom: 1px solid #fff;
+  animation: sect 0.5s ease-in-out;
 }
 
 .log tr:nth-child(odd) {
@@ -879,10 +909,6 @@ footer {
 
 .log tr:nth-child(even) {
   background-color: #f8fafb;
-}
-
-.log tr:hover {
-  background-color: #def;
 }
 
 .log td {
@@ -909,6 +935,10 @@ footer {
 .log tr.error {
   color: #b44;
   background-color: #fff5f5;
+}
+
+.log tr:hover {
+  background-color: #def;
 }
 
 .log tbody { counter-reset: n; }
