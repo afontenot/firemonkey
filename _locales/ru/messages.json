@@ -29,7 +29,7 @@
   "enableSync": {
     "message": "Включить синхронизацию хранилища"
   },
-  "errorSync": {
+  "syncError": {
     "message": "Невозможно синхронизироватьхранилище ($1KB) больше, чем 100 КБ. Синхронизация будет отключена."
   },
   "counter": {
@@ -116,16 +116,16 @@
   "installConfirm": {
     "message": "Установить '$1'?Script/CSS с таким же именем будет заменён, если он имеет более низкий номер версии."
   },
-  "errorMeta": {
+  "metaError": {
     "message": "Ошибка метаданных"
   },
-  "errorNoName": {
+  "noNameError": {
     "message": "Необходимо ввести название."
   },
-  "errorName": {
+  "nameError": {
     "message": "Такое название уже существует.Хотите заменить существующее?"
   },
-  "errorUpdate": {
+  "updateUrlError": {
     "message": "Нет updateURL или version."
   },
   "noNewUpdate": {
@@ -155,16 +155,16 @@
   "exportPreference": {
     "message": "Экспорт настроек"
   },
-  "errorSize": {
+  "fileSizeError": {
     "message": "Размер файла больше допустимого ($1kb)"
   },
-  "errorType": {
+  "fileTypeError": {
     "message": "Неподдерживаемый формат файла"
   },
-  "errorRead": {
+  "fileReadError": {
     "message": "Произошла ошибка при чтении файла"
   },
-  "errorParse": {
+  "fileParseError": {
     "message": "Произошла ошибка при разборе файла"
   },
   "log": {
@@ -188,11 +188,26 @@
   "undo": {
     "message": "Undo"
   },
-  "errorInsert": {
+  "insertError": {
     "message": "Failed to insert"
   },
   "findScript": {
     "message": "Find scripts for this site"
+  },
+  "advanced": {
+    "message": "Advanced"
+  },
+  "customCSS": {
+    "message": "Custom CSS"
+  },
+  "customCSSDescription": {
+    "message": "Customize Options page & CodeMirror style configuration."
+  },
+  "cmOptionsDescription": {
+    "message": "Customize CodeMirror, addons & JavaScript lint configuration."
+  },
+  "cmOptionsError": {
+    "message": "Invalid CodeMirror JSON"
   },
   "localeMaker": {
     "message": "Locale Maker"

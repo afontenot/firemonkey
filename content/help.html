@@ -24,9 +24,11 @@
     <div><a href="#options">Options</a>
       <ul>
         <li><a href="#auto-update-interval">Auto-Update Interval</a></li>
-        <li><a href="#global-script-exclude">Global Script Exclude Matches</a></li>
         <li><a href="#enable-storage">Enable Storage Sync</a></li>
         <li><a href="#counter">Counter</a></li>
+        <li><a href="#global-script-exclude">Global Script Exclude Matches</a></li>
+        <li><a href="#Custom-CSS">Custom CSS</a></li>
+        <li><a href="#CodeMirror">CodeMirror</a></li>
         <li><a href="#import-export">Preferences: Import/Export</a></li>
         <li><a href="#save">Save</a></li>
       </ul>
@@ -195,14 +197,6 @@
   <p>In order to minimise the impact on your browsing, auto-update is set to run when Firefox is idle and then 10 updates at a time (until the next idle time).</p>
   <p>Please note that updating each script can take around 4-5 seconds. If there are many scripts, that can add up to consider amount of time. I would suggest manually updating Scripts/CSS or enabling auto-update only on the ones that require regular update.</p>
 
-  <h3 id="global-script-exclude">Global Script Exclude Matches</h3>
-  <p>Exclude Match pattens (one per line) to prevent all scripts (not CSS) from running on them.</p>
-  <p>Changes to Global Script Exclude Matches will unregister all running script. Once tab is reloaded or on new tab, new settings will take effect.</p>
-  <p>Note: Invalid match pattern will cause all scripts to fail and thus get disabled.</p>
-
-
-
-
   <h3 id="enable-storage">Enable Storage Sync</h3>
   <p>Enable to sync storage if it is under 100KB. If the storage is over 100KB, there will be a notification and the Sync will be turned off automatically to avoid repeated errors.</p>
 
@@ -215,6 +209,46 @@
 
   <h3 id="counter">Counter</h3>
   <p>Enable/Disable Script/CSS counter (Toolbar Iocn Badge & Toolbar Icon Title)</p>
+
+
+  <h3 id="global-script-exclude">Global Script Exclude Matches</h3>
+  <p>Exclude Match pattens (one per line) to prevent all scripts (not CSS) from running on them.</p>
+  <p>Changes to Global Script Exclude Matches will unregister all running script. Once tab is reloaded or on new tab, new settings will take effect.</p>
+  <p>Note: Invalid match pattern will cause all scripts to fail and thus get disabled.</p>
+
+  <h3 id="Custom-CSS">Custom CSS</h3>
+  <p>Override Options page style configuration and.or CodeMIrror style/them with valid CSS for advanced users as it can break the HTML of the page.</p>
+
+  <h3 id="CodeMirror"><img src="../image/codemirror.png" alt=""> CodeMirror</h3>
+  <p>Override allowed <i>(under consideration)</i> <a href="https://codemirror.net/doc/manual.html#config" target="_blank">CodeMirror Configuration</a> & <a href="https://jshint.com/docs/options/" target="_blank">JSHint Options</a> with a valid JSON for advanced users.</p>
+  <p>JSHint is set to ECMAScript 2019 ES10 & fairly strict guidelines for coding excellence.</p>
+
+   <figure>
+    <figcaption>Allowed Configurations & their Current Values</figcaption>
+<pre class="comment">
+{
+  "indentWithTabs": false,
+  "indentUnit": 2,
+  "tabSize": 2,
+  "lint": {
+    "curly": true,
+    "devel": true,
+    "eqeqeq": true,
+    "freeze": true,
+    "latedef": "nofunc",
+    "leanswitch": true,
+    "maxerr": 100,
+    "noarg": true,
+    "nonbsp": true,
+    "undef": true,
+    "unused": true,
+    "varstmt": true
+  }
+}
+</pre>
+  </figure>
+
+
 
   <h3 id="import-export">Preferences: Import/Export</h3>
   <p>You can export/import Preferences (for backup or share) to/from a local file on your computer. Import is non-destructive. Click save to apply the new settings.</p>
@@ -334,8 +368,8 @@
           <dt>&#x1F521; Selection to Lowercase</dt>
             <dd></dd>
 
-       
-        
+
+
         </dl>
       </dd>
 
@@ -545,7 +579,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
     <tr><th>@downloadURL</th>       <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
 
     <tr><th>@antifeatures</th>      <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
-    
+
     <tr><th>@namespace</th>         <td class="fail"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@grant</th>             <td class="fail"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@icon</th>              <td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
@@ -583,12 +617,12 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <p>Under-development feature on <i>GreasyFork</i> (ref: <a href="https://github.com/JasonBarnabe/greasyfork/issues/604" target="_blank">#604</a>) to mark possibly undesirable behaviour e.g. miners, ads etc.</p>
 
   <blockquote>Anti-Features are flags packagers apply to apps, warning of possibly undesirable behaviour from the user's perspective, often serving the interest of the developer or a third party.
-  
-  <cite><a href="https://f-droid.org/wiki/page/AntiFeatures" target="_blank">AntiFeatures</a></cite></blockquote>
-  
-  
 
-  
+  <cite><a href="https://f-droid.org/wiki/page/AntiFeatures" target="_blank">AntiFeatures</a></cite></blockquote>
+
+
+
+
 
   <h4>matchAboutBlank</h4>
   <p>The code cannot be inserted in top-level <code>about:</code> frames.</p>
@@ -1602,9 +1636,9 @@ injected.js</code></td>
     <tr><th>@-moz-document domain</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@-moz-document url-prefix</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@-moz-document regexp</th><td class="fail"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    
+
     <tr><th>&nbsp;</th><td colspan="6"></td></tr>
-    
+
     <tr>
       <th>&#x1f4e5; Injected Scripts
           <br><span>✔ every page</span>

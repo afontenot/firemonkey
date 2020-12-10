@@ -8,7 +8,9 @@ let pref = {
   counter: true,
   globalScriptExcludeMatches: '',
   sync: false,
-  template: { css: '', js: '' }
+  template: { css: '', js: '' },
+  customCSS: '',
+  cmOptions: ''
 };
 // ----------------- /Default Preference -------------------
 
@@ -36,13 +38,13 @@ class App {
 
       case !file: App.notify(chrome.i18n.getMessage('error')); return;
       case !['text/plain', 'application/json'].includes(file.type): // check file MIME type
-        App.notify(chrome.i18n.getMessage('errorType'));
+        App.notify(chrome.i18n.getMessage('fileTypeError'));
         return;
     }
 
     const reader  = new FileReader();
     reader.onloadend = () => App.readData(reader.result);
-    reader.onerror = () => App.notify(chrome.i18n.getMessage('errorRead'));
+    reader.onerror = () => App.notify(chrome.i18n.getMessage('fileReadError'));
     reader.readAsText(file);
   }
 
@@ -51,7 +53,7 @@ class App {
     let importData;
     try { importData = JSON.parse(data); }                  // Parse JSON
     catch(e) {
-      App.notify(chrome.i18n.getMessage('errorParse'));     // display the error
+      App.notify(chrome.i18n.getMessage('fileParseError'));     // display the error
       return;
     }
 
@@ -97,12 +99,15 @@ class App {
 
   static log(ref, message, type = '') {
 
-    let log = localStorage.getItem('log') || '';
-    try { log = JSON.parse(log); } catch { log = []; }
-
+    const log = App.JSONparse(localStorage.getItem('log')) || [];
     log.push([new Date().toString().substring(0, 24), ref, message, type]);
     log = log.slice(-(localStorage.getItem('logSize')*1 || 100)); // slice to the last n entries. default 100
     localStorage.setItem('log', JSON.stringify(log));
+  }
+  
+  static JSONparse(str) {
+    
+    try { return JSON.parse(str); } catch (e) { return null; }
   }
 }
 // ----------------- /Helper functions ----------------------
@@ -148,7 +153,7 @@ class Meta {
       // --- API related data
       allFrames: false,
       js: js ? str : '',
-      css: !js ? str.replace(/[\u200B-\u200D\uFEFF]/g, '') : '', // avoid CSS parse error on invisible characters
+      css: !js ? str.replace(/[\u200b-\u200d\ufeff]/g, '') : '', // avoid CSS parse error on invisible characters
       style: [],
       matches: [],
       excludeMatches: [],

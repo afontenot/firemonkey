@@ -308,7 +308,7 @@ class ProcessPref {
     if (pref.sync) {
       const size = JSON.stringify(pref).length;
       if (size > 102400) {
-        const text = chrome.i18n.getMessage('errorSync', (size/1024).toFixed(1));
+        const text = chrome.i18n.getMessage('syncError', (size/1024).toFixed(1));
         App.notify(text);
         App.log('Sync', text, 'error');
         pref.sync = false;
@@ -447,9 +447,9 @@ class Installer {
 
     const code = String.raw`(() => {
       const pre = document.body;
-      if (!pre || !pre.textContent.trim()) { alert(chrome.i18n.getMessage('errorMeta')); return; }
+      if (!pre || !pre.textContent.trim()) { alert(chrome.i18n.getMessage('metaError')); return; }
       const name = pre.textContent.match(/(?:\/\/)?\s*@name\s+([^\r\n]+)/);
-      if (!name) { alert(chrome.i18n.getMessage('errorMeta')); return; }
+      if (!name) { alert(chrome.i18n.getMessage('metaError')); return; }
       return confirm(chrome.i18n.getMessage('installConfirm', name[1])) ? [pre.textContent, name[1]] : null;
     })();`;
 

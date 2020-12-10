@@ -29,7 +29,7 @@
   "enableSync": {
     "message": "Enable Storage Sync"
   },
-  "errorSync": {
+  "syncError": {
     "message": "Unable to syncStorage ($1KB) is larger than 100KB. Sync will be turned off."
   },
   "counter": {
@@ -116,16 +116,16 @@
   "installConfirm": {
     "message": "Do you want to install '$1'?Script/CSS with the same name will be replaced if it has a lower version number."
   },
-  "errorMeta": {
+  "metaError": {
     "message": "詮釋資料錯誤"
   },
-  "errorNoName": {
+  "noNameError": {
     "message": "指令稿/CSS 必須有名稱。"
   },
-  "errorName": {
+  "nameError": {
     "message": "指令稿/CSS 名稱已存在。您想要取代既有的項目嗎？"
   },
-  "errorUpdate": {
+  "updateUrlError": {
     "message": "指令稿/CSS 沒有 updateURL 或版本。"
   },
   "noNewUpdate": {
@@ -155,16 +155,16 @@
   "exportPreference": {
     "message": "匯出偏好設定"
   },
-  "errorSize": {
+  "fileSizeError": {
     "message": "檔案大小超過允許的 $1kb"
   },
-  "errorType": {
+  "fileTypeError": {
     "message": "不支援的檔案格式"
   },
-  "errorRead": {
+  "fileReadError": {
     "message": "讀取檔案錯誤"
   },
-  "errorParse": {
+  "fileParseError": {
     "message": "解析檔案錯誤"
   },
   "log": {
@@ -188,11 +188,26 @@
   "undo": {
     "message": "Undo"
   },
-  "errorInsert": {
+  "insertError": {
     "message": "Failed to insert"
   },
   "findScript": {
     "message": "Find scripts for this site"
+  },
+  "advanced": {
+    "message": "Advanced"
+  },
+  "customCSS": {
+    "message": "Custom CSS"
+  },
+  "customCSSDescription": {
+    "message": "Customize Options page & CodeMirror style configuration."
+  },
+  "cmOptionsDescription": {
+    "message": "Customize CodeMirror, addons & JavaScript lint configuration."
+  },
+  "cmOptionsError": {
+    "message": "Invalid CodeMirror JSON"
   },
   "localeMaker": {
     "message": "Locale Maker"

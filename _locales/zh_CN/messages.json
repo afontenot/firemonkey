@@ -29,7 +29,7 @@
   "enableSync": {
     "message": "Enable Storage Sync"
   },
-  "errorSync": {
+  "syncError": {
     "message": "无法同步存储 ($1KB) 大于 100KB。同步将关闭。"
   },
   "counter": {
@@ -116,16 +116,16 @@
   "installConfirm": {
     "message": "您想要安装 '$1' 吗？同名脚本/样式如果版本号较低将被替换。"
   },
-  "errorMeta": {
+  "metaError": {
     "message": "元数据错误"
   },
-  "errorNoName": {
+  "noNameError": {
     "message": "脚本/样式必须有名称。"
   },
-  "errorName": {
+  "nameError": {
     "message": "脚本/样式名称已经存在。是否替换现有的同名脚本/样式？"
   },
-  "errorUpdate": {
+  "updateUrlError": {
     "message": "脚本/样式没有 updateURL 或 version。"
   },
   "noNewUpdate": {
@@ -155,16 +155,16 @@
   "exportPreference": {
     "message": "导出设置"
   },
-  "errorSize": {
+  "fileSizeError": {
     "message": "文件大小超过允许的 $1kb"
   },
-  "errorType": {
+  "fileTypeError": {
     "message": "不支持的文件格式"
   },
-  "errorRead": {
+  "fileReadError": {
     "message": "读取该文件出错"
   },
-  "errorParse": {
+  "fileParseError": {
     "message": "解析该文件出错"
   },
   "log": {
@@ -188,11 +188,26 @@
   "undo": {
     "message": "Undo"
   },
-  "errorInsert": {
+  "insertError": {
     "message": "Failed to insert"
   },
   "findScript": {
     "message": "Find scripts for this site"
+  },
+  "advanced": {
+    "message": "Advanced"
+  },
+  "customCSS": {
+    "message": "Custom CSS"
+  },
+  "customCSSDescription": {
+    "message": "Customize Options page & CodeMirror style configuration."
+  },
+  "cmOptionsDescription": {
+    "message": "Customize CodeMirror, addons & JavaScript lint configuration."
+  },
+  "cmOptionsError": {
+    "message": "Invalid CodeMirror JSON"
   },
   "localeMaker": {
     "message": "Locale Maker"

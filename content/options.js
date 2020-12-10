@@ -26,6 +26,9 @@ class Options {
       if (e.key === 'nav') { this.getNav(e.newValue); }
       else if (e.key === 'log') { showLog.update(e.newValue); }
     });
+    
+    // --- add custom style
+    document.querySelector('style').textContent = pref.customCSS;
   }
 
   process(save) {
@@ -47,15 +50,44 @@ class Options {
   check() {
     // --- check Global Script Exclude Matches
     if(!Pattern.validate(this.globalScriptExcludeMatches)) { return; }
-
+    
+    // Custom CodeMirror Options
+    const allowed = {
+      indentWithTabs: false,
+      indentUnit: 4,
+      tabSize: 4,
+      lint: {
+        curly: true,
+        devel: true,
+        eqeqeq: true,
+        freeze: true,
+        latedef: 'nofunc',
+        leanswitch: true,
+        maxerr: 100,
+        noarg: true,
+        nonbsp: true,
+        undef: true,
+        unused: true,
+        varstmt: true
+      }
+    };
+    const cmOptionsNode = document.querySelector('#cmOptions');
+    cmOptionsNode.value = cmOptionsNode.value.trim();
+    if (cmOptionsNode.value) {
+      let cmOptions = App.JSONparse(cmOptionsNode.value);
+      if (!cmOptions) { 
+        App.notify(chrome.i18n.getMessage('cmOptionsError')) ;
+        return;
+      }
+      Object.keys(cmOptions).forEach(item => !allowed.hasOwnProperty(item) && delete cmOptions[item]);
+      cmOptions.lint && Object.keys(cmOptions.lint).forEach(item => !allowed.lint.hasOwnProperty(item) && delete cmOptions.lint[item]);
+      cmOptionsNode.value = JSON.stringify(cmOptions, null, 2); // reset value with allowed options    
+    }
     // --- progress bar
     this.progressBar();
 
     // --- save options
     this.process(true);
-
-    // --- process Syntax Highlight
-    //highlight.process();
   }
 
   getNav(nav) {
@@ -85,7 +117,7 @@ class Options {
     }
   }
 }
-const options = new Options('#autoUpdateInterval, #globalScriptExcludeMatches, #sync, #counter');
+const options = new Options('#autoUpdateInterval, #globalScriptExcludeMatches, #sync, #counter, #customCSS, #cmOptions');
 // ----------------- /Options ------------------------------
 
 // ----------------- Scripts -------------------------------
@@ -244,7 +276,10 @@ class Script {
         Esc: (cm) => cm.getOption('fullScreen') && cm.setOption('fullScreen', false)
       }
     };
-
+    
+    // Custom CodeMirror Options
+    const cmOptions = App.JSONparse(pref.cmOptions) || {};
+    Object.keys(cmOptions).forEach(item => options[item] = cmOptions[item]);
     this.cm = CodeMirror.fromTextArea(this.box, options);
     CodeMirror.commands.save = () => this.saveScript();
 
@@ -351,11 +386,12 @@ class Script {
 
   saveTemplate() {
 
+    this.cm && this.cm.save();                              // save CodeMirror to textarea
     const box = this.box;
     const text = this.box.value;
     const metaData = text.match(Meta.regEx);
 
-    if (!metaData) { App.notify(chrome.i18n.getMessage('errorMeta')); return; }
+    if (!metaData) { App.notify(chrome.i18n.getMessage('metaError')); return; }
     const type = metaData[1].toLowerCase() === 'userscript' ? 'js' : 'css';
     pref.template[type] = text.trimStart();
     browser.storage.local.set({template: pref.template});   // update saved pref
@@ -513,7 +549,7 @@ class Script {
     const canUpdate = pref.content[id].updateURL && pref.content[id].version;
     pref.content[id].autoUpdate = canUpdate ? autoUpdate.checked : false;
     if (!canUpdate) {
-      App.notify(chrome.i18n.getMessage('errorUpdate'));
+      App.notify(chrome.i18n.getMessage('updateUrlError'));
       autoUpdate.checked = false;
       return;
     }
@@ -567,11 +603,12 @@ class Script {
     }
 
     // --- reset box
+    this.cm && this.cm.toTextArea();                        // reset CodeMirror
     legend.className = '';
     legend.textContent = chrome.i18n.getMessage('script');
     box.id = '';
     box.value = '';
-    this.cm.setValue('');
+    
 
 
     // --- delete script storage
@@ -599,17 +636,17 @@ class Script {
     const data = Meta.get(text.trim(), this.userMatches.value, this.userExcludeMatches.value);
     if (!data) { throw 'Meta Data Error'; }
     else if (data.error) {
-      App.notify(chrome.i18n.getMessage('errorMeta'));
+      App.notify(chrome.i18n.getMessage('metaError'));
       return;
     }
 
     // --- check name
     if (!data.name) {
-      App.notify(chrome.i18n.getMessage('errorNoName'));
+      App.notify(chrome.i18n.getMessage('noNameError'));
       return;
     }
     if (data.name !== box.id && pref.content[data.name] &&
-              !confirm(chrome.i18n.getMessage('errorName'))) { return; }
+              !confirm(chrome.i18n.getMessage('nameError'))) { return; }
 
     // --- check matches
     if (!data.matches[0] && !data.includeGlobs[0] && !data.style[0]) {
@@ -629,13 +666,16 @@ class Script {
 
     pref.content[data.name] = data;                         // save to pref
     const li = document.querySelector('nav li.on');
-    li.classList.remove('error');                           // reset error
+    li && li.classList.remove('error');                     // reset error
 
     switch (true) {
 
       // --- new script
       case !box.id:
         this.addScript(data);
+        const index = [...this.navUL.children].findIndex(item => Intl.Collator().compare(item.id, data.name) > 0);
+        index !== -1 ? this.navUL.insertBefore(this.docfrag, this.navUL.children[index]) : this.navUL.appendChild(this.docfrag);
+        this.navUL.children[index].classList.toggle('on', true);
         break;
 
       // --- update new name
@@ -673,7 +713,7 @@ class Script {
     const id = box.id;
 
     if (!pref.content[id].updateURL || !pref.content[id].version) {
-      App.notify(chrome.i18n.getMessage('errorUpdate'));
+      App.notify(chrome.i18n.getMessage('updateUrlError'));
       return;
     }
 
@@ -737,13 +777,13 @@ class Script {
 
         case !file: App.notify(chrome.i18n.getMessage('error')); return;
         case !['text/css', 'application/x-javascript'].includes(file.type): // check file MIME type CSS/JS
-          App.notify(chrome.i18n.getMessage('errorType'));
+          App.notify(chrome.i18n.getMessage('fileTypeError'));
           return;
       }
 
       const reader  = new FileReader();
       reader.onloadend = () => script.readDataScript(reader.result);
-      reader.onerror = () => App.notify(chrome.i18n.getMessage('errorRead'));
+      reader.onerror = () => App.notify(chrome.i18n.getMessage('fileReadError'));
       reader.readAsText(file);
     });
   }
@@ -754,7 +794,7 @@ class Script {
     const data = Meta.get(text);
     if (!data) { throw 'Meta Data Error'; }
     else if (data.error) {
-      App.notify(chrome.i18n.getMessage('errorMeta'));
+      App.notify(chrome.i18n.getMessage('metaError'));
       return;
     }
 
@@ -791,16 +831,15 @@ class Script {
 
     const reader  = new FileReader();
     reader.onloadend = () => script.prepareStylus(reader.result);
-    reader.onerror = () => App.notify(chrome.i18n.getMessage('errorRead'));
+    reader.onerror = () => App.notify(chrome.i18n.getMessage('fileReadError'));
     reader.readAsText(file);
   }
 
   prepareStylus(data) {
 
-    let importData;
-    try { importData = JSON.parse(data); }                    // Parse JSON
-    catch(e) {
-      App.notify(chrome.i18n.getMessage('errorParse'));           // display the error
+    const importData = App.JSONparse(data);
+    if (!importData) {
+      App.notify(chrome.i18n.getMessage('fileParseError'));           // display the error
       return;
     }
 
@@ -957,8 +996,7 @@ class ShowLog {
     this.template = logTemplate.content.firstElementChild;
     this.tbody = logTemplate.parentNode;
 
-    this.log = localStorage.getItem('log') || '';
-    try { this.log = JSON.parse(this.log); } catch (e) { this.log = []; }
+    this.log = App.JSONparse(localStorage.getItem('log')) || [];
     this.log[0] && this.process(this.log);
     const logSize = document.querySelector('#logSize');
     logSize.value = localStorage.getItem('logSize') || 100;
@@ -983,7 +1021,7 @@ class ShowLog {
 
   update(newLog) {
 
-    try { newLog = JSON.parse(newLog); } catch (e) { newLog = []; }
+    newLog = App.JSONparse(newLog) || [];
     if (!newLog[0]) { return; }
 
     const old = this.log.map(item => item.toString());      // need to conver to array of strings for Array.includes()
