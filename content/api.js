@@ -1,6 +1,4 @@
-﻿'use strict';
-
-browser.userScripts.onBeforeScript.addListener(script => {
+﻿browser.userScripts.onBeforeScript.addListener(script => {
 
   const name = script.metadata.name;
   const resource = script.metadata.resource;
@@ -9,7 +7,7 @@ browser.userScripts.onBeforeScript.addListener(script => {
   const store = '_' + name;
   let storage = script.metadata.storage;
   browser.storage.local.get(store).then((result = {}) => storage = result[store] || {});
-  
+
   const cache = {};
   const valueChange = {};
 
@@ -22,7 +20,7 @@ browser.userScripts.onBeforeScript.addListener(script => {
 
        // process addValueChangeListener (only for remote) (key, oldValue, newValue, remote)
       Object.keys(valueChange).forEach(item =>
-         oldValue[item] !== newValue[item] && 
+         oldValue[item] !== newValue[item] &&
           (valueChange[item])(item, oldValue[item], newValue[item], newValue[item] !== cache[item])
       );
     }
@@ -45,8 +43,8 @@ browser.userScripts.onBeforeScript.addListener(script => {
         break;
     }
   });
-  
-  // --------------- xmlHttpRequest callback --------------- 
+
+  // --------------- xmlHttpRequest callback ---------------
   /*
     Ref: robwu (Rob Wu)
     In order to make callback functions visible
@@ -101,7 +99,7 @@ browser.userScripts.onBeforeScript.addListener(script => {
     },
 
     async deleteValue(key) {
-      
+
       delete cache[key];
       return await browser.runtime.sendMessage({
         name,
@@ -201,16 +199,16 @@ browser.userScripts.onBeforeScript.addListener(script => {
       return response ? script.export(response) : null;
     },
 
-    getResourceURL(resourceName) { 
-      return resource[resourceName]; 
+    getResourceURL(resourceName) {
+      return resource[resourceName];
     },
 
-    registerMenuCommand(text, onclick, accessKey) { 
-      scriptCommand[text] = onclick; 
+    registerMenuCommand(text, onclick, accessKey) {
+      scriptCommand[text] = onclick;
     },
 
-    unregisterMenuCommand(text) { 
-      delete scriptCommand[text]; 
+    unregisterMenuCommand(text) {
+      delete scriptCommand[text];
     },
 
     async download(url, filename) {
@@ -405,14 +403,25 @@ browser.userScripts.onBeforeScript.addListener(script => {
           host.remove();
         }
       };
-      
+
       host.addEventListener('click', obj.hide);
-      
+
       return script.export(obj);
     },
 
     log(...text) { console.log(name + ':', ...text); },
-    info: script.metadata.info
+    info: script.metadata.info,
+
+    // --- auxiliary regex include/exclude test function
+    matchURL() {
+      const url = location.href;
+      const includes = script.metadata.info.script.includes;
+      const excludes = script.metadata.info.script.excludes;
+      return (!includes[0] || GM.arrayTest(includes, url)) && (!excludes[0] || !GM.arrayTest(excludes, url));
+    },
+    arrayTest(arr, url) {
+      return  new RegExp(arr.map(item => `(${item.slice(1, -1)})`).join('|'), 'i').test(url);
+    }
   };
 
 
@@ -444,4 +453,6 @@ browser.userScripts.onBeforeScript.addListener(script => {
     GM_log:                       GM.log,
     GM_info:                      GM.info
   });
+
 });
+

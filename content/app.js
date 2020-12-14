@@ -104,9 +104,9 @@ class App {
     log = log.slice(-(localStorage.getItem('logSize')*1 || 100)); // slice to the last n entries. default 100
     localStorage.setItem('log', JSON.stringify(log));
   }
-  
+
   static JSONparse(str) {
-    
+
     try { return JSON.parse(str); } catch (e) { return null; }
   }
 }
@@ -137,7 +137,7 @@ class Meta {
       enabled: optionPage ? script.enable.checked : true,
       autoUpdate: optionPage ? script.autoUpdate.checked : false,
       version: '',
-      antifeature: '',
+      antifeatures: [],
 
       require: [],
       requireRemote: [],
@@ -159,6 +159,8 @@ class Meta {
       excludeMatches: [],
       includeGlobs: [],
       excludeGlobs: [],
+      includes: [],
+      excludes: [],
       matchAboutBlank: false,
       runAt: !js ? 'document_start' : 'document_idle'  // "document_start" "document_end" "document_idle" (default)
     };
@@ -189,14 +191,18 @@ class Meta {
           break;
 
 
-        case 'match':                                       // convert match/include to matches
-        case 'include':
-          prop = 'matches';
-          break;
+        case 'match': prop = 'matches'; break;
+        case 'exclude-match': prop = 'excludeMatches'; break;
+        case 'includeGlob': prop = 'includeGlobs'; break;
+        case 'excludeGlob': prop = 'excludeGlobs'; break;
+        case 'antifeature': prop = 'antifeatures'; break;
 
-        case 'exclude':                                     // convert exclude|exclude-match to excludeMatches
-        case 'exclude-match':
-          prop = 'excludeMatches';
+        case 'include':                                     // keep regex in include, rest in includeGlobs
+          prop = value.startsWith('/') &&  value.endsWith('/') ? 'includes' : 'includeGlobs';
+          break;
+          
+        case 'exclude':                                     // keep regex in exclude rest in excludeGlobs
+          prop = value.startsWith('/') &&  value.endsWith('/') ? 'excludes' : 'excludeGlobs';
           break;
 
         case 'updateURL':                                   // disregarding .meta.js
@@ -313,9 +319,13 @@ class Meta {
     // --- check auto-update criteria, must have updateURL & version
     if (data.autoUpdate && (!data.updateURL || !data.version)) { data.autoUpdate = false; }
 
-    // --- convert to match pattern
+    // --- convert TLD
     data.matches = data.matches.flatMap(this.checkPattern);        // flatMap() FF62
     data.excludeMatches = data.excludeMatches.flatMap(this.checkPattern);
+    
+    // --- prepare for include/exclude
+   (data.includes[0] || data.excludes[0] || data.includeGlobs[0] || data.excludeGlobs[0]) && 
+        !data.matches[0] && data.matches.push('*://*/*', 'file:///*');
 
     // --- remove duplicates
     Object.keys(data).forEach(item => Array.isArray(data[item]) && (data[item] = [...new Set(data[item])]));
@@ -373,43 +383,6 @@ class Meta {
 
   static checkPattern(p) {
 
-    // --- convert some common incompatibilities with matches API
-    switch (true) {
-
-      // No change
-      case p[0] === '/' && p[1] !== '/': return p;            // RegEx: can't fix
-      case p === '<all_urls>': return p;
-
-      // fix complete pattern
-      case p === '*':  return '*://*/*';
-      case p === 'http://*': return 'http://*/*';
-      case p === 'https://*': return 'https://*/*';
-      case p === 'http*://*': return '*://*/*';
-
-
-      // fix scheme
-      case p.startsWith('http*'): p = p.substring(4); break;  // *://.....
-      case p.startsWith('*//'): p = '*:' + p.substring(1); break; // bad protocol wildcard
-      case p.startsWith('//'): p = '*:' + p; break;           // Protocol-relative URL
-      case !p.includes('://'): p = '*://' + p; break;         // no protocol
-    }
-
-    let [scheme, host, ...path] = p.split(/:\/{2,3}|\/+/);
-
-
-    if (scheme === 'file') { return p; }                      // handle file only
-
-    // http/https schemes
-    if (!['http', 'https', 'file', '*'].includes(scheme.toLowerCase())) { scheme = '*'; } // bad scheme
-    if (host.includes(':')) { host = host.replace(/:.+/, ''); } // host with port
-    if (host.endsWith('.co*.*')) { host = host.slice(0, -5) + 'TLD'; } // TLD wildcard google.co*.*
-    if (host.endsWith('.*')) { host = host.slice(0, -1) + 'TLD'; } // TLD wildcard google.*
-    if (host.startsWith('*') && host[1] && host[1] !== '.') { host = '*.' + host.substring(1); } // starting wildcard *google.com
-    p = scheme +  '://' + [host, ...path].join('/');          // rebuild pattern
-
-    if (!path[0] && !p.endsWith('/')) { p += '/'; }           // fix trailing slash
-
-
     // --- process TLD
     const TLD = ['.com', '.au', '.br', '.ca', '.ch', '.cn', '.co.uk', '.de', '.es', '.fr',
                 '.in', '.it', '.jp', '.mx', '.nl', '.no', '.pl', '.ru', '.se', '.uk', '.us'];
@@ -439,7 +412,7 @@ class Meta {
       '.tk', '.tl', '.tm', '.tn', '.to', '.tt', '.vg', '.vu', '.ws'];
 
 
-    if (/:\/\/[^/]+\.tld\/.*/i.test(p)) {
+    if (/^(https?|file):\/\/[^/]+\.tld\/.*/i.test(p)) {
 
       const plc = p.toLowerCase();
       const index = plc.indexOf('.tld/');
@@ -579,12 +552,16 @@ class CheckMatches {
       // --- about:blank
       case urls.includes('about:blank') && item.matchAboutBlank: return true;
 
-      // --- matches & globs
-      case !this.isMatch(urls, [...item.matches, ...userMatches, ...styleMatches]):
-      case item.excludeMatches[0] && this.isMatch(urls, item.excludeMatches):
-      case item.includeGlobs[0] && !this.isMatch(urls, item.includeGlobs, true):
-      case item.excludeGlobs[0] && this.isMatch(urls, item.excludeGlobs, true):
+      // --- includes & matches & globs
       case item.userExcludeMatches && this.isMatch(urls, item.userExcludeMatches.split(/\s+/)):
+      case !this.isMatch(urls, [...item.matches, ...userMatches, ...styleMatches]):
+      case item.includeGlobs[0] && !this.isMatch(urls, item.includeGlobs, true):
+      case item.includes[0] && !this.isMatch(urls, item.includes, false, true):
+      
+      case item.excludeMatches[0] && this.isMatch(urls, item.excludeMatches):
+      case item.excludeGlobs[0] && this.isMatch(urls, item.excludeGlobs, true):
+      case item.excludes[0] && !this.isMatch(urls, item.excludes, false, true):    
+      
         return false;
 
       default: return true;
@@ -592,29 +569,50 @@ class CheckMatches {
   }
 
   // here
-  static isMatch(urls, arr, glob) {
+  static isMatch(urls, arr, glob, regex) {
+    
+    if (regex) {
+      return !!urls.find(u => new RegExp(this.prepareRegEx(arr), 'i').test(u));
+    }
+    
+    if (glob) {
+      return !!urls.find(u => new RegExp(this.prepareGlob(arr), 'i').test(u));
+    }
 
     if (arr.includes('<all_urls>')) { return true; }
-
+   
     // checking *://*/* for http/https
     const idx = arr.indexOf('*://*/*');
     if (idx !== -1) {
       if(urls.find(item => item.startsWith('http'))) { return true; }
 
-      if (!arr[1])  { return false; }                         // it only has one item *://*/*
-      arr.splice(idx, 1);                                     // remove *://*/*
+      if (!arr[1])  { return false; }                       // it only has one item *://*/*
+      arr.splice(idx, 1);                                   // remove *://*/*
     }
-
-    return !!urls.find(u => new RegExp(this.prepareMatches(arr, glob), 'i').test(u));
+    
+    return !!urls.find(u => new RegExp(this.prepareMatch(arr), 'i').test(u));
   }
 
   // here
-  static prepareMatches(arr, glob) {
+  static prepareMatch(arr) {
 
-    const regexSpChar = glob ? /[-\/\\^$+.()|[\]{}]/g : /[-\/\\^$+?.()|[\]{}]/g; // Regular Expression Special Characters minus * ?
-    const str = arr.map(item => '^' +
-        item.replace(regexSpChar, '\\$&').replace(/\*/g, '.*').replace('/.*\\.', '/(.*\\.)?') + '$').join('|');
-    return glob ? str.replace(/\?/g, '.') : str;
+    const regexSpChar = /[-\/\\^$+?.()|[\]{}]/g;            // Regular Expression Special Characters
+    const str = arr.map(item => '(^' +
+        item.replace(regexSpChar, '\\$&').replace(/\*/g, '.*').replace('/.*\\.', '/(.*\\.)?') + '$)').join('|');
+    return str;
   }
+
+  static prepareGlob(arr) {
+
+    const regexSpChar = /[-\/\\^$+.()|[\]{}]/g;             // Regular Expression Special Characters minus * ?
+    const str = arr.map(item => '(^' +
+        item.replace(regexSpChar, '\\$&').replace(/\*/g, '.*').replace('/.*\\.', '/(.*\\.)?') + '$)').join('|');
+    return str.replace(/\?/g, '.');
+  }
+  
+  static prepareRegEx(arr) {
+    return arr.map(item => `(${item.slice(1, -1)})`).join('|');
+  }
+  
 }
 // ----------------- /Match Pattern Check ------------------

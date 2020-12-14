@@ -35,7 +35,6 @@ class Config {
     const js = cm.options.mode === 'javascript';
 
     // ------------- Lint Filter ---------------------------
-    //const idx =[];
     annotationsNotSorted.forEach((item, index) => {
 
       switch (true) {
@@ -53,21 +52,16 @@ class Config {
         case item.message === '`var` declarations are forbidden. Use `let` or `const` instead.':
           item.message = '`var` declarations are deprecated since ECMAScript 6 (2015). Use `let` or `const` instead.';
           break;
-
-/*
-        case item.message === 'Use the function form of \"use strict\".':
-          idx.push(index);
-          break;*/
       }
     });
-    //idx.reverse().forEach(i => annotationsNotSorted.splice(i, 1));
+
     // ------------- /Lint Filter --------------------------
 
     // ------------- Metadata Block lint -------------------
     const supported = ['@name', '@author', '@description', '@version', '@updateURL', '@match',
           '@matches', '@include', '@exclude', '@exclude-match', '@excludeMatches', '@includeGlobs',
           '@excludeGlobs', '@matchAboutBlank', '@allFrames', '@noframes', '@require', '@resource',
-          '@run-at', '@runAt', '@downloadURL', '@antifeature'];
+          '@run-at', '@runAt', '@downloadURL'];
 
     const unsupported = ['@namespace', '@grant', '@icon', '@inject-into', '@supportURL',
           '@homepageURL', '@connect', '@unwrap', '@nocompat'];
@@ -103,6 +97,11 @@ class Config {
           message = com ? 'It is recommended to put comments outside the Metadata Block.' : `${prop} is not supported.`;
           break;
 
+        case prop === '@antifeature':
+          message = 'Includes unexpected content e.g. ads, mineres etc.';
+          severity = 'error';
+          break;
+
         case unsupported.includes(prop):
           message = `${prop} is not processed.`;
           break;
@@ -112,6 +111,8 @@ class Config {
           message = `${prop} is not supported, use ${propLC} instead.`;
           severity = 'error';
           break;
+          
+          
 
         case prop.startsWith('@'):
           message = `${prop} is not processed.`;
@@ -135,8 +136,8 @@ class Config {
       switch (true) {
 
         case prop === '@include' && /^\/[^/]{1}.+\/$/.test(value):
-          message = 'Regular Expression is not supported.';
-          severity = 'error';
+        case prop === '@exclude' && /^\/[^/]{1}.+\/$/.test(value):
+          message = '@match performance is more efficient than Regular Expression.';
           break;
 
 
