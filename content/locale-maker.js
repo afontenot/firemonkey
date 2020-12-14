@@ -96,7 +96,7 @@ class LocaleMaker {
 
     const reader  = new FileReader();
     reader.onloadend = () => {
-      try { this.setLocale(JSON.parse(importData)); }       // Parse JSON
+      try { this.setLocale(JSON.parse(reader.result)); }    // Parse JSON
       catch(e) { this.notify(e.message ); }                 // display the error
     };
     reader.onerror = () => this.notify('There was an error with reading the file.');

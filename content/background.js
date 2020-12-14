@@ -12,15 +12,15 @@ class ContextMenu {
       { id: 'help', contexts: ['browser_action'], icons: {16: '/image/help32.png'} },
       { id: 'log', contexts: ['browser_action'], icons: {16: '/image/document.svg'} },
       { id: 'localeMaker', contexts: ['browser_action'], icons: {16: '/content/locale-maker.svg'} },
-      
+
       { id: 'stylish', contexts: ['all'], documentUrlPatterns: ['https://userstyles.org/styles/*/*'] }
     ];
 
     contextMenus.forEach(item => {
 
-      if (item.id) { 
+      if (item.id) {
         item.title = item.title || chrome.i18n.getMessage(item.id);  // always use the same ID for i18n
-        item.onclick = this.process; 
+        item.onclick = this.process;
       }
       browser.menus.create(item);
     });
@@ -129,6 +129,7 @@ class ScriptRegister {
     // Removing metaBlock since there would be an error with /* ... *://*/* ... */
     const target = script.js ? 'js' : 'css';
     options[target] = [];
+    const encodeId = encodeURI(id);
 
     // --- add @require
     const require = script.require || [];
@@ -146,19 +147,23 @@ class ScriptRegister {
 
       await Promise.all(requireRemote.map(url =>
         fetch(url).then(response => response.text())
-        .then(code => options[target].push({code}))
+        .then(code => options[target].push({code: code += `\n\n//# sourceURL=user-script:FireMonkey/${encodeId}/${encodeURI(url)}`}))
         .catch(() => null)
       ));
     }
 
+    // --- add debug
+    target === 'js' && (script[target] += `\n\n//# sourceURL=user-script:FireMonkey/${encodeId}/${encodeId}.user.js`);
+    
     // --- add code
     options[target].push({code: script[target].replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'))});
+      
 
     // --- script only
     if (script.js) {
-      
-      // --- unsafeWindow implementation
-      options.js.unshift({code: 'const unsafeWindow = window.wrappedJSObject;'});
+  
+      // --- unsafeWindow implementation & Regex include/exclude workaround
+      options.js.unshift({code: `if (!GM.matchURL()) { throw '${id}: regex not match'; } const unsafeWindow = window.wrappedJSObject;`});
 
       options.scriptMetadata = {
         name: id,
@@ -174,10 +179,12 @@ class ScriptRegister {
             name: id,
             version: script.version,
             description: script.description,
-            match: script.matches,
+            includes: script.includes || [],
+            excludes: script.excludes || [],
             matches: script.matches,
-            includes: script.matches,
-            excludes: script.excludeMatches,
+            excludeMatches: script.excludeMatches,
+            includeGlobs: script.includeGlobs,
+            excludeGlobs: script.excludeGlobs,
             'run-at': script.runAt.replace('_', '-'),
             namespace: null,
             resources: script.resource || {}
@@ -220,7 +227,7 @@ class ScriptRegister {
   processError(id, error) {
 
     pref.content[id].error = error;                         // store error message
-    pref.content[id].enabled = false;                       // disable the script
+//    pref.content[id].enabled = false;                       // disable the script
     browser.storage.local.set({content: pref.content});     // update saved pref
     App.log(id, `Register ➜ ${error}`, 'error');           // log message to display in Options -> Log
   }
@@ -324,20 +331,29 @@ class ProcessPref {
 
   async migrate() {
 
-    const m = 1.48;
-    const version = (localStorage.getItem('migrate') || 0) *1;
-    if (version >= m) { return; }
-
+    const m = 2.05;
+    const version = localStorage.getItem('migrate') || 0;
+    if (version*1 >= m) { return; }
     
-    // --- v2.0 migrate 2020-11-
+    // --- v2.5 migrate 2020-12-
+    Object.keys(pref.content).forEach(item => {
+
+      pref.content[item].includes = pref.content[item].includes || [];
+      pref.content[item].excludes = pref.content[item].excludes || [];
+      pref.content[item].antifeatures = pref.content[item].antifeatures || [];
+      pref.content[item].updateURL = pref.content[item].updateURL || '';
+    });    
+
+
+    // --- v2.0 migrate 2020-12-08
     localStorage.getItem('dark') === 'true' && localStorage.setItem('theme', 'darcula');
     localStorage.removeItem('syntax');
-    Object.keys(pref.content).forEach(item => {             
+    Object.keys(pref.content).forEach(item => {
       pref.content[item].i18n || (pref.content[item].i18n = {name: {}, description: {}});
-    });   
-     
+    });
+
     // --- v1.36 migrate 2020-05-25
-    Object.keys(pref.content).forEach(item => {             
+    Object.keys(pref.content).forEach(item => {
 
       pref.content[item].require && pref.content[item].require.forEach((lib, i) => {
 
@@ -353,9 +369,9 @@ class ProcessPref {
         }
       });
     });
-    
+
     // --- v1.31 migrate 2020-03-13
-    if (pref.hasOwnProperty('disableHighlight')) {          
+    if (pref.hasOwnProperty('disableHighlight')) {
       browser.storage.local.remove('disableHighlight');
       delete pref.disableHighlight;
     }
@@ -424,7 +440,7 @@ class Installer {
         return confirm(chrome.i18n.getMessage('installConfirm', title)) ? title : null;
       })();`;
 
-      chrome.tabs.executeScript({code}, (result = []) => 
+      chrome.tabs.executeScript({code}, (result = []) =>
         result[0] && RU.getScript({updateURL: e.url, name: result[0]})
       );
       return {cancel: true};
@@ -457,11 +473,11 @@ class Installer {
       result[0] && this.processResponse(result[0][0], result[0][1], tab.url);
     });
   }
-  
+
   async stylish(url) {                                      // userstyles.org
-    
+
     if (!/^https:\/\/userstyles\.org\/styles\/\d+/.test(url)) { return; }
-    
+
     const code = `(() => {
       const name = document.querySelector('meta[property="og:title"]').content.trim();
       const description = document.querySelector('meta[name="twitter:description"]').content.trim().replace(/\s*<br>\s*/g, '').replace(/\s\s+/g, ' ');
@@ -473,10 +489,10 @@ class Installer {
 
     const [{name, description, author, lastUpdate, updateURL}] = await browser.tabs.executeScript({code});
     if (!name || !updateURL) { App.notify(chrome.i18n.getMessage('error')); return; }
-    
+
     const version = lastUpdate ? new Date(lastUpdate).toLocaleDateString("en-GB").split('/').reverse().join('') : '';
 
-    const metaData = 
+    const metaData =
 `/*
 ==UserStyle==
 @name           ${name}
@@ -486,7 +502,7 @@ class Installer {
 @homepage       ${url}
 ==/UserStyle==
 */`;
- 
+
     fetch(updateURL)
     .then(response => response.text())
     .then(text =>  {
@@ -553,7 +569,7 @@ class Installer {
 
     // --- check for Web Install, set install URL
     if (updateURL.startsWith('https://greasyfork.org/scripts/') ||
-        updateURL.startsWith('https://openuserjs.org/install/') || 
+        updateURL.startsWith('https://openuserjs.org/install/') ||
         updateURL.startsWith('https://userstyles.org/styles/') ) {
       data.updateURL = updateURL;
       data.autoUpdate = true;
@@ -633,7 +649,7 @@ class API {
   }
 
   process(message, sender) {
-    
+
     if (!message.api) { return; }
 
     const e = message.data;

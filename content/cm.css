@@ -3,9 +3,17 @@
   height: 100%;
 }
 
-.CodeMirror-sizer {
-  min-width: unset !important;
-  width: calc(100vw - 23rem);
+.CodeMirror-scroll {
+  height: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0.5em;
+}
+
+.CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
+  background-color: transparent; /* The little square between H and V scrollbars */
 }
 
 .cm-tab, .cm-trailingspace {
@@ -18,10 +26,6 @@
 .dark .cm-tab, .dark .cm-trailingspace {
   background: #234;
   border-color: #555;
-}
-
-.CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
-  background-color: transparent; /* The little square between H and V scrollbars */
 }
 
 .cm-gm {

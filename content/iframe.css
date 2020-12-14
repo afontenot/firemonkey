@@ -13,6 +13,11 @@ body {
   box-sizing: border-box;
 }
 
+img {
+  vertical-align: text-bottom;
+}
+
+
 dl {
   margin-left: 2em;
 }
@@ -80,15 +85,6 @@ dd sup {
 }
 
 
-
-img {
-  vertical-align: text-bottom;
-}
-
-h2, h3, h4 {
- margin-top: 2em;
-}
-
 h2 {
   color: #066;
   display: inline-block;
@@ -101,6 +97,7 @@ h2 {
   text-shadow: 1px 1px 1px rgba(255,255,255,0.6);
   border-radius: 0 1em 1em 0;
   position: relative;
+  margin-top: 2em;
 }
 
 h2::before {
@@ -127,16 +124,22 @@ h2::after {
 
 
 h2 img, h3 img, h4 img {
-  width: 1.2em;
+  width: 1em;
 }
 
 h3 {
-  color: #004080;
-  margin-bottom: 0;
+  color: #048;
+  font-size: 1.4em;
 }
 
 h4 {
+  color: #333;
   margin-bottom: 0;
+  padding: 0.5em 0.5em 0.5em 1em;
+  border-left: 4px solid #777;
+  background: #eee;
+  display: inline-block;
+  border-radius: 4px;
 }
 
 h3 span, h4 span {
@@ -170,9 +173,10 @@ article li img {
 
 
 a {
-  color: #0080ff;
+  color: #08f;
   text-decoration: none;
 }
+
 
 /* ----- Navigation ----- */
 nav  {
@@ -430,15 +434,29 @@ address {
   margin: 2em auto 2em 2em;
 }
 
-.footnote {
-  font-size: 0.9em;
+.note, .footnote {
   font-style: italic;
-  margin-top: 0.5em;
+  margin-top: 0.5em; 
 }
 
-.footnote::before {
+.footnote {
+  font-size: 0.9em;
+}
+
+.note::before, .footnote::before {
   content: '\1f4cc';
   margin-right: 0.5em;
+}
+
+.experimental::after {
+  content: '';
+  width: 1.2em;
+  height: 1.2em;
+  display: inline-block;
+  vertical-align: text-bottom;
+  margin-left: 0.5em;
+  background: url('../image/beaker.svg') no-repeat center;
+  background-size: contain;
 }
 
 /* ----- Table ----- */
@@ -510,7 +528,7 @@ td .pass, td .fail {
  font-family: monospace;
 }
 
-th span {
+th span, .small {
   color: #777;
   font-style: italic;
   font-weight: normal;
@@ -550,7 +568,7 @@ th sup {
 }
 
 
-h3 sup {
+h4 sup {
   background-color: #cd853f;
   color: #fff;
   padding: 0.1em 0.4em;

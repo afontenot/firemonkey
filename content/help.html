@@ -12,13 +12,10 @@
     <a href="#Preamble">Preamble</a>
     <div><a href="#how_to">How to Use</a>
       <ul>
-        <li><a href="#toolbar-menu">Toolbar Icon Context Menu</a></li>
-        <li><a href="#toolbar-badge">Toolbar Icon Badge</a></li>
-        <li><a href="#toolbar-title">Toolbar Icon Title</a></li>
-        <li><a href="#toolbar-popup">Toolbar Icon Pop-up</a></li>
+        <li><a href="#toolbar">Toolbar Icon</a></li>
+        <li><a href="#page-menu">Page Context Menu</a></li>
         <li><a href="#web-install">Web Install</a></li>
         <li><a href="#direct-install">Direct Install</a></li>
-        <li><a href="#log">Log</a></li>
       </ul>
     </div>
     <div><a href="#options">Options</a>
@@ -41,14 +38,12 @@
         <li class="arrow"><a href="#metadata-block">Metadata Block</a>
           <ul>
             <li><a href="#match-patterns">Match Patterns</a></li>
-            <li><a href="#ftp">FTP</a></li>
-            <li><a href="#tld">TLD</a></li>
             <li><a href="#require">require</a></li>
-            <li><a href="#storing-require-resource">Storing require & resource Targets</a></li>
-            <li><a href="#grant">grant</a></li>
           </ul>
         </li>
-
+        <li><a href="#match-patterns">Match Patterns</a></li>
+        <li><a href="#require">require</a></li>
+        
         <li class="arrow"><a href="#script-api">Script API</a>
           <ul>
             <li><a href="#GM_getValue">GM_getValue & GM_listValues</a></li>
@@ -74,8 +69,6 @@
         <li><a href="#xray-vision">Xray Vision & Sharing objects with page scripts</a></li>
         <li><a href="#UserCSS">UserCSS</a></li>
         <li><a href="#UserStyle">UserStyle</a></li>
-        <li><a href="#stylish-stylus">Stylish/Stylus/xStyle Type UserStyle</a></li>
-        <li><a href="#escaping">Character Escapeing in CSS</a></li>
         <li><a href="#debugging">Debugging Script & CSS</a></li>
 
       </ul>
@@ -92,8 +85,9 @@
 
   <h2 id="how_to">How to Use</h2>
 
+  <h3 id="toolbar">Toolbar Icon</h3>
 
-  <h3 id="toolbar-menu"><img src="../image/icon.svg" alt=""> Toolbar Icon Context Menu</h3>
+  <h4>Toolbar Icon Context Menu</h4>
 
   <dl>
     <dt><img src="../image/gear.svg" alt=""> Options</dt>
@@ -111,26 +105,26 @@
     <dt><img src="../image/document.svg" alt=""> Log</dt>
       <dd>Display the latest (100) error and script-update messages when not in Private Window <sup>1</sup></dd>
 
-    <dt><img src="../image/translate.svg" alt=""> Locale Maker</dt>
+    <dt><img src="locale-maker.svg" alt=""> Locale Maker</dt>
       <dd>Open the Locale Maker stand alone module to create & share locale translations</dd>
 
   </dl>
   <p><sup>1</sup><i> In Private Window opens the Options page (ref <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1659998" target="_blank">Bug 1659998</a>).</i></p>
 
-  <h3 id="toolbar-badge"><sup>5</sup> Toolbar Icon Badge</h3>
+  <h4>Toolbar Icon Badge <sup>5</sup></h4>
     <p>Badge indicates the number of Script/CSS that are active in the tab (and all its iframes)</p>
 
-  <h3 id="toolbar-title"><img src="../image/icon.svg" alt=""> Toolbar Icon Title</h3>
+  <h4>Toolbar Icon Title</h4>
     <p>Mouse-over Title displays active Script/CSS</p>
 
-  <h3 id="toolbar-popup"><img src="../image/icon.svg" alt=""> Toolbar Icon Pop-up</h3>
+  <h4>Toolbar Icon Pop-up</h4>
     <p>The pop-up displays the installed Scripts/CSS. "Tab Scripts & CSS" shows the ones running on the active Tab</p>
 
     <dl>
       <dt style="color: #05f;">✔</dt>
         <dd>Shows Script/CSS is enabled. Disabled Script/CSS are greyed out and clicking that area toggles the enable/disable</dd>
 
-      <dt><span class="fail"></span></dt>
+      <dt style="color: #f00;">✘</dt>
         <dd>Shows that there was an error when registering the script & the Information page displays the error</dd>
 
 
@@ -147,16 +141,23 @@
         <dd>Insert CSS & JavaScript temporarily into the active tab</dd>
         <dd>Scratchpad recalls the last entries for repeated use</dd>
 
-        <dd style="color: #f00;">Warning on Inserting JS: The API has more access than the API used for userScript injection and therefore untrusted code should not be used.</dd>
+        <dd style="color: #f00;">&#x26a0;&#xfe0f; The injection API has more access than userScript API and untrusted JavaScript code should not be used.</dd>
 
-      <dt><img src="../image/bin.svg" alt=""></dt>
-        <dd>Click to clear the box and saved code</dd>
+        <dd>
+          <dl>
+            <dt>&#x25b7; Run</dt>
+              <dd>Insert the Scratchpad code (JS or CSS)</dd>
 
-      <dt>&#x25b7; Run</dt>
-        <dd>Insert the Scratchpad code (JS or CSS)</dd>
+            <dt style="color: #f00;">&#x25c1; Undo</dt>
+              <dd>Undo/Remove the CSS Inserted by Scratchpad</dd>
 
-      <dt>&#x238c; Undo</dt>
-        <dd>Undo/Remove the CSS Inserted by Scratchpad</dd>
+            <dt><img src="../image/bin.svg" alt=""></dt>
+              <dd>Click to clear the box and saved code</dd>
+          <dl>
+        </dd>
+
+      <dt style="margin-top: 1em;">Find scripts for this site &nbsp;&nbsp;&nbsp;<img src="../image/next.svg" alt=""></dt>
+        <dd>Search <i>greasyfork.org</i> for scripts for this site</dd>
 
       <dt style="margin-top: 2em;"><img src="../image/gear.svg" alt=""> Options</dt>
         <dd>Open the Options Page</dd>
@@ -173,7 +174,7 @@
 
     </dl>
 
-  <h3 id="toolbar-menu"><img src="../image/icon.svg" alt=""> Page Context Menu</h3>
+  <h3 id="page-menu">Page Context Menu</h3>
 
   <dl>
     <dt>Install Stylish Style</dt>
@@ -214,21 +215,77 @@
   <h3 id="global-script-exclude">Global Script Exclude Matches</h3>
   <p>Exclude Match pattens (one per line) to prevent all scripts (not CSS) from running on them.</p>
   <p>Changes to Global Script Exclude Matches will unregister all running script. Once tab is reloaded or on new tab, new settings will take effect.</p>
-  <p>Note: Invalid match pattern will cause all scripts to fail and thus get disabled.</p>
+  <p>Note: Invalid match pattern will cause all scripts to fail.</p>
 
-  <h3 id="Custom-CSS">Custom CSS</h3>
-  <p>Override Options page style configuration and.or CodeMIrror style/them with valid CSS for advanced users as it can break the HTML of the page.</p>
-
-  <h3 id="CodeMirror"><img src="../image/codemirror.png" alt=""> CodeMirror</h3>
-  <p>Override allowed <i>(under consideration)</i> <a href="https://codemirror.net/doc/manual.html#config" target="_blank">CodeMirror Configuration</a> & <a href="https://jshint.com/docs/options/" target="_blank">JSHint Options</a> with a valid JSON for advanced users.</p>
-  <p>JSHint is set to ECMAScript 2019 ES10 & fairly strict guidelines for coding excellence.</p>
+  <h3 id="Custom-CSS">Custom CSS <span>(advanced users)</span></h3>
+  <p>Customize Options page style and/or CodeMirror style/theme with valid CSS.</p>
   
+  <h4>Creating a Custom Theme</h4>
+  <p>You can create your own custom theme by overriding the <i>default</i> theme.</p>
+
+   <figure>
+    <figcaption>default Theme</figcaption>
+<pre class="comment">
+/* DEFAULT THEME */
+
+.cm-s-default .cm-header {color: blue;}
+.cm-s-default .cm-quote {color: #090;}
+.cm-negative {color: #d44;}
+.cm-positive {color: #292;}
+.cm-header, .cm-strong {font-weight: bold;}
+.cm-em {font-style: italic;}
+.cm-link {text-decoration: underline;}
+.cm-strikethrough {text-decoration: line-through;}
+
+.cm-s-default .cm-keyword {color: #708;}
+.cm-s-default .cm-atom {color: #219;}
+.cm-s-default .cm-number {color: #164;}
+.cm-s-default .cm-def {color: #00f;}
+.cm-s-default .cm-variable,
+.cm-s-default .cm-punctuation,
+.cm-s-default .cm-property,
+.cm-s-default .cm-operator {}
+.cm-s-default .cm-variable-2 {color: #05a;}
+.cm-s-default .cm-variable-3, .cm-s-default .cm-type {color: #085;}
+.cm-s-default .cm-comment {color: #a50;}
+.cm-s-default .cm-string {color: #a11;}
+.cm-s-default .cm-string-2 {color: #f50;}
+.cm-s-default .cm-meta {color: #555;}
+.cm-s-default .cm-qualifier {color: #555;}
+.cm-s-default .cm-builtin {color: #30a;}
+.cm-s-default .cm-bracket {color: #997;}
+.cm-s-default .cm-tag {color: #170;}
+.cm-s-default .cm-attribute {color: #00c;}
+.cm-s-default .cm-hr {color: #999;}
+.cm-s-default .cm-link {color: #00c;}
+
+.cm-s-default .cm-error {color: #f00;}
+.cm-invalidchar {color: #f00;}
+
+.CodeMirror-composing { border-bottom: 2px solid; }
+
+/* Default styles for common addons */
+
+div.CodeMirror span.CodeMirror-matchingbracket {color: #0b0;}
+div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
+.CodeMirror-matchingtag { background: rgba(255, 150, 0, .3); }
+.CodeMirror-activeline-background {background: #e8f2ff;}
+
+/* STOP */
+</pre>
+  </figure>
+
+  
+
+  <h3 id="CodeMirror"><img src="../image/codemirror.png" alt=""> CodeMirror  <span>(advanced users)</span></h3>
+  <p>Customize <a href="https://codemirror.net/doc/manual.html#config" target="_blank">CodeMirror Configuration</a> & <a href="https://jshint.com/docs/options/" target="_blank">JSHint Options</a> with a valid JSON. JSHint is set to ECMAScript 2019 ES10 & fairly strict guidelines for coding excellence.</p>
+
   <dl>
     <dt>CodeMirror Options</dt>
       <dd>Any option except <code>extraKeys</code> | <code>lint</code> | <code>mode</code> | <code>search</code> | <code>theme</code></dd>
 
     <dt>JSHint Options</dt>
-      <dd>Any option except <code>globals</code> | <code>jquery</code></dd>  	
+      <dd>Any option except <code>globals</code> | <code>jquery</code></dd>
   </dl>
 
    <figure>
@@ -249,7 +306,7 @@
 
 
   <h3 id="import-export">Preferences: Import/Export</h3>
-  <p>You can export/import Preferences (for backup or share) to/from a local file on your computer. Import is non-destructive. Click save to apply the new settings.</p>
+  <p>You can import/export Preferences (for backup or share) from/to a local file on your computer. Import is non-destructive. Click save to apply the new settings.</p>
 
   <h3 id="save">Save</h3>
   <p>Please note that changes will not take effect until they are saved.</p>
@@ -261,7 +318,7 @@
   <p>List of both UserScript and UserCSS</p>
   <p>Scripts and CSS have different icons and the icon for disabled ones are grey.</p>
   <p>Click on the Script/CSS to view/edit/enable/disable/delete or start a new Script/CSS.</p>
-  <p><span style="color: #f50;"><b>✘</b></span> shows that there was an error when registering the script. Scripts with errors get disabled automatically.</p>
+  <p><span style="color: #f50;"><b>✘</b></span> shows that there was an error when registering the script. <s>Scripts with errors get disabled automatically.</s></p>
 
   <dl>
     <dt>&#x2611; <img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></dt>
@@ -314,8 +371,7 @@
       <dd>Export all Script/CSS to <i>FireMonkey</i> folder in the download location set in <i>Firefox Options -> Downloads</i></dd>
 
     <dt>&#x1f4e5; Import from Stylus</dt>
-      <dd>Export styles from <i>Stylus</i> and Import the JSON (on pop-up change the file type selection to <i>All Files</i>), same name Script/CSS will be overwritten without warning<br>
-    Note: Not perfect (but helps), RegEx patterns are ignored, sections are separated into different files (<a href="#stylish-stylus">Stylish/Stylus/xStyle Type UserStyle</a>)</dd>
+      <dd>Export styles from <i>Stylus</i> and Import the JSON (on pop-up change the file type selection to <i>All Files</i>), same name Script/CSS will be overwritten without warning <i>(note: <a href="#UserStyle">UserStyle</a>)</i></dd>
   </dl>
 
 
@@ -361,12 +417,11 @@
           <dt>✂ Trim Trailing Spaces</dt>
             <dd>Remove trailing spaces</dd>
 
-          <dt>&#x1F520; Selection to Uppercase</dt>
+          <dt>&#x1f520; Selection to Uppercase</dt>
             <dd></dd>
-          <dt>&#x1F521; Selection to Lowercase</dt>
+            
+          <dt>&#x1f521; Selection to Lowercase</dt>
             <dd></dd>
-
-
 
         </dl>
       </dd>
@@ -422,40 +477,50 @@
   <p>Auto-update will only update enabled Scripts/CSS but manual update can update both enabled and disabled ones.</p>
   <p><code>@downloadURL/@installURL</code>, if present, is set for script update.</p>
 
+
 <table>
   <caption>Update Comparison</caption>
   <thead>
-  <tr>
-    <th>Manager</th>
-    <th>@updateURL</th>
-    <th>@downloadURL</th>
-    <th>install source</th>
-    <th>meta.js</th>
-    <th>meta.css</th>
-    <th>last-modified header</th>
-  </tr>
+    <tr>
+      <th></th>
+      <th>FireMonkey</th>
+      <th>GreaseMonkey</th>
+      <th>TamperMonkey</th>
+      <th>ViolentMonkey</th>
+    </tr>
+  </thead>
   </thead>
   <tbody>
-  <tr><th>FireMonkey</th><td>update target</td><td>sets updateURL</td><td>GreasyFork/OpenUserJS</td><td class="pass"></td><td class="pass"></td><td class="fail"></td></tr>
-  <tr><th>GreaseMonkey</th><td class="fail"></td><td class="fail"></td><td class="fail"></td><td>update target <a href="https://github.com/greasemonkey/greasemonkey/issues/3057" title="Auto-Update Scripts" target="_blank">[*]</a></td><td class="fail"></td><td class="fail"></td></tr>
-  <tr><th>TamperMonkey</th><td>JSON</td><td>update target</td><td class="unknown"></td><td class="pass"></td><td class="fail"></td><td class="unknown"></td></tr>
-  <tr><th>ViolentMonkey</th><td class="fail"></td><td>update target <a href="https://violentmonkey.github.io/api/metadata-block/#downloadurl" title="Metadata Block @downloadURL" target="_blank">[*]</a></td><td>update target <a href="https://violentmonkey.github.io/api/metadata-block/#downloadurl" title="Automatically added when using 'Install from URL.'" target="_blank">[*]</a></td><td class="pass"></td><td class="fail"></td><td class="unknown"></td></tr>
+
+    <tr><th>@updateURL</th><td class="pass">update target</td><td class="fail"></td><td>JSON</td><td class="fail"></td></tr>
+    <tr><th>@downloadURL</th><td class="pass">= @updateURL</td><td class="fail"></td><td>update target</td><td>update target <a href="https://violentmonkey.github.io/api/metadata-block/#downloadurl" title="Metadata Block @downloadURL" target="_blank">[*]</a></td></tr>
+    <tr><th>install source</th><td class="pass"></td><td class="fail"></td><td class="unknown"></td><td>update target <a href="https://violentmonkey.github.io/api/metadata-block/#downloadurl" title="Automatically added when using 'Install from URL.'" target="_blank">[*]</a></td></tr>
+    <tr><th>meta.js</th><td class="pass"></td><td>update target <a href="https://github.com/greasemonkey/greasemonkey/issues/3057" title="Auto-Update Scripts" target="_blank">[*]</a></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>meta.css</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+    <tr><th>last-modified header</th><td class="fail"></td><td class="fail"></td><td class="unknown"></td><td class="unknown"></td></tr>
+
 
   <tr>
-    <th><b>Repository</b></th>
-    <td colspan="6"></td>
+    <th></th>
+    <th><b>GreasyFork</b></th>
+    <th><b>GitHub/Gist</b></th>
+    <th><b>OpenUserJS</b></th>
+    <th></th>
   </tr>
+    <tr><th>@updateURL</th><td class="fail"><a href="https://greasyfork.org/en/help/meta-keys" title="@updateURL, @installURL, @downloadURL: Describe how user script managers should get updates. Greasy Fork will strip these keys, which makes any script installed from Greasy Fork only update from Greasy Fork." target="_blank">[*]</a></td><td class="fail"></td><td class="pass"></td><td></td></tr>
+    <tr><th>@downloadURL</th><td class="fail"></td><td class="fail"></td><td class="pass"></td><td></td></tr>
+    <tr><th>meta.js</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td></td></tr>
+    <tr><th>meta.css</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td></td></tr>
+    <tr><th>last-modified header</th><td class="fail"></td><td class="fail"></td><td class="pass"></td><td></td></tr>
 
-  <tr><th>GreasyFork</th><td class="fail"><a href="https://greasyfork.org/en/help/meta-keys" title="@updateURL, @installURL, @downloadURL: Describe how user script managers should get updates. Greasy Fork will strip these keys, which makes any script installed from Greasy Fork only update from Greasy Fork." target="_blank">[*]</a></td><td class="fail"></td><td></td><td class="pass"></td><td class="pass"></td><td class="fail"></td></tr>
-  <tr><th>GitHub/Gist</th><td class="fail"></td><td class="fail"></td><td></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
-  <tr><th>OpenUserJS</th><td class="pass"></td><td class="pass"></td><td></td><td class="pass"></td><td class="fail"></td><td class="fail"></td></tr>
   </tbody>
 </table>
 
 
+
   <h2 id="metadata-block">Metadata Block</h2>
   <p>For easier compatibility, format is similar to <i>GreaseMonkey</i> Metadata Block for UserScripts. The commenting is different for CSS and as a result a uniform commenting for Metadata Block can be used. The Metadata Block identifier (case-insensitive e.g. ==userscript== etc) for UserScript is <code>==UserScript== ... ==/UserScript==</code> and for UserCSS is <code>==UserCSS== ... ==/UserCSS==</code>. For clarity, it is best to have the Metadata Block on top (or after <code>'use strict';</code> if wanted, but <i>FireMonkey</i> can pick it up from anywhere within the code.</p>
-  <p>Note: Read <a href="#stylish-stylus">Stylish/Stylus/xStyle Type UserStyle</a> for <code>==UserStyle== ... ==/UserStyle==</code></p>
+  <p class="footnote">Read <a href="#UserStyle">UserStyle</a> for <code>==UserStyle== ... ==/UserStyle==</code></p>
 
    <figure>
     <figcaption>JS Single-line Comment</figcaption>
@@ -519,23 +584,27 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 @updateURL          <i>needed for updates</i>
 
 @match
-@matches            <i>browser API style same as match</i>
-@include            <i>entries will be merged into matches, use match/matches or includeGlobs instead</i>
-@exclude            <i>entries will be merged into excludeMatches</i>
 @exclude-match
-@excludeMatches     <i>browser API style same as exclude-match</i>
-@includeGlobs
-@excludeGlobs
-
-@matchAboutBlank    <i>true/false (default)</i>
-@allFrames          <i>true/false (default)</i>
-@noframes           <i>if present will set @allFrames to false (default)</i>
+@include            <i>merged into includeGlobs</i>
+@exclude            <i>merged into excludeMatches</i>
 
 @require            <i>(script-name/specific-library/other-URL)</i>
 @resource           <i>(resourceName resourceURL)</i>
-
+@noframes           <i>if present will set @allFrames to false (default)</i>
 @run-at             <i>document-start/document-end/document-idle (default)</i>
-@runAt              <i>browser API style same as run-at</i>
+
+@includeGlob
+@excludeGlob
+@matchAboutBlank    <i>true/false (default)</i>
+@allFrames          <i>true/false (default)</i>
+
+
+<span style="color: #999;">
+@matches            <i>browser API style same as @match</i>
+@excludeMatches     <i>browser API style same as @exclude-match</i>
+@includeGlobs       <i>browser API style same as @includeGlob</i>
+@excludeGlobs       <i>browser API style same as @excludeGlobs</i>
+@runAt              <i>browser API style same as @run-at</i></span>
 </pre>
   </figure>
 
@@ -543,13 +612,13 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 <table>
   <caption>Metadata Comparison</caption>
   <thead>
-  <tr>
-    <th>Metadata</th>
-    <th>FireMonkey</th>
-    <th>GreaseMonkey</th>
-    <th>TamperMonkey</th>
-    <th>ViolentMonkey</th>
-  </tr>
+    <tr>
+      <th>Metadata</th>
+      <th>FireMonkey</th>
+      <th>GreaseMonkey</th>
+      <th>TamperMonkey</th>
+      <th>ViolentMonkey</th>
+    </tr>
   </thead>
   <tbody class="slim">
     <tr><th>@name</th>              <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
@@ -561,12 +630,12 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
     <tr><th>@updateURL</th>         <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
     <tr><th>@match</th>             <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@matches</th>           <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
-    <tr><th>@include</th>           <td class="pass" style="background: #fff0f5;">no regex</td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@exclude</th>           <td class="pass" style="background: #fff0f5;">no regex</td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@include</th>           <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@exclude</th>           <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@exclude-match</th>     <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="pass"></td></tr>
     <tr><th>@excludeMatches</th>    <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
-    <tr><th>@includeGlobs</th>      <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
-    <tr><th>@excludeGlobs</th>      <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+    <tr><th>@includeGlob</th>       <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+    <tr><th>@excludeGlob</th>       <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>@matchAboutBlank</th>   <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>@allFrames</th>         <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>@noframes</th>          <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
@@ -576,7 +645,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
     <tr><th>@runAt</th>             <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>@downloadURL</th>       <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
 
-    <tr><th>@antifeatures</th>      <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@antifeature</th>      <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
 
     <tr><th>@namespace</th>         <td class="fail"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@grant</th>             <td class="fail"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
@@ -610,8 +679,10 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <h4>Localization <span>(v1.48+)</span></h4>
     <p>Some entries can be localized for display propose e.g. <code>@name:zh-CN</code>, <code>@description:kr</code>. The language code is case-sensitive and must match <a href="https://www.w3.org/TR/ltli/" target="_blank">Language Tags and Locale Identifiers </a> e.g. "en", "en-US", "de", "fr", etc.</p>
 
+  <h4>grant <span class="fail"></span></h4>
+  <p>Scripts will have access to all available APIs and therefore <code>@grant</code> is not needed or used.</p>
 
-  <h4>antifeatures</h4>
+  <h4>antifeature</h4>
   <p>Under-development feature on <i>GreasyFork</i> (ref: <a href="https://github.com/JasonBarnabe/greasyfork/issues/604" target="_blank">#604</a>) to mark possibly undesirable behaviour e.g. miners, ads etc.</p>
 
   <blockquote>Anti-Features are flags packagers apply to apps, warning of possibly undesirable behaviour from the user's perspective, often serving the interest of the developer or a third party.
@@ -671,29 +742,95 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <h4>defaults</h4>
   <p><i>FireMonkey</i> conforms to the Firefox (& Chrome) <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts" target="_blank">content_scripts</a> API defaults.</p>
 
+
 <table>
   <caption>Default Comparison</caption>
   <thead>
-  <tr>
-    <th>Manager</th>
-    <th>run-at</th>
-    <th>allFrames</th>
-    <th>matchAboutBlank</th>
-  </tr>
+    <tr>
+      <th></th>
+      <th>FireMonkey</th>
+      <th>GreaseMonkey</th>
+      <th>TamperMonkey</th>
+      <th>ViolentMonkey</th>
+    </tr>
   </thead>
   <tbody>
-  <tr><th>FireMonkey<br><span>UserScript</span></th><td>document-idle</td><td>false</td><td>false</td></tr>
-  <tr><th>FireMonkey<br><span>UserCSS/UserStyle (v2.0)</span></th><td>document-start</td><td>false</td><td>false</td></tr>
-  <tr><th>GreaseMonkey</th><td>document-end</td><td>true</td><td>via @include &nbsp;&nbsp;&nbsp;about:blank</td></tr>
-  <tr><th>TamperMonkey</th><td>document-idle</td><td>true</td><td class="unknown"></td></tr>
-  <tr><th>ViolentMonkey</th><td>document-end</td><td>true</td><td class="unknown"></td></tr>
+    <tr><th>run-at</th><td>document-idle <span class="small">(JS)</span><br>document-start <span class="small">(CSS)</span></td><td>document-end</td><td>document-idle</td><td>document-end</td></tr>
+    <tr><th>allFrames</th><td>false</td><td>true</td><td>true</td><td>true</td></tr>
+    <tr><th>matchAboutBlank</th><td>false</td><td>@include  &nbsp;  about:blank</td><td class="unknown"></td><td class="unknown"></td></tr>
+
   </tbody>
 </table>
 
 
+  <h4>&#x1f4ca; URL Matching Performance</h4>
+  <p>The performance from top (best) to bottom (worst):</p>
+  
+  <ol>
+    <li>match & exclude-match</li>
+    <li>includeGlob & excludeGlob</li>
+    <li>include & exclude</li>
+    <li>include & exclude with regular expresion</li>
+  </ol>
+  
 
-  <h4>include/exclude</h4>
-  <p>Entries under <code>@include/@exclude</code> will be merged into <code>@matches/@excludeMatches</code> (duplicates removed). Some common incompatibilities with <code>matches</code> API are automatically converted.</p>
+
+  <h4>include & exclude</h4>
+  <p>They are the old and error-prone method of matching which has been superseded by <code>@match</code>/<code>@exclude-match</code>.</p>
+  <p>Entries under <code>@include/@exclude</code> will be merged into <code>@includeGlob/@excludeGlob</code> <span class="small">(v2.5)</span> (duplicates removed).</p>
+  <p class="note">Please note that <code>@match</code>/<code>@exclude-match</code> performance is far more efficient.</p>
+  
+  
+
+  <blockquote>include_globs: Applied after matches to include only those URLs that also match this glob. Intended to emulate the @include Greasemonkey keyword.<br><br>
+  exclude_globs:  Applied after matches to exclude URLs that match this glob. Intended to emulate the @exclude Greasemonkey keyword.
+
+  <cite><a href="https://developer.chrome.com/docs/extensions/mv2/content_scripts/#matchAndGlob" target="_blank">Exclude matches and globs</a></cite></blockquote>
+
+  <h4 class="experimental">Regular Expression in include & exclude</h4>
+  <p>Regular Expression support has been implemented for <code>@include/@exclude</code> <span class="small">(v2.5)</span>.</p>
+
+
+  <ul>
+    <li>Regular Expressions start & end with forward-slash <code>/</code></li>
+    <li>Regular Expressions are proccessed with <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/RegExp" target="_blank">new RegExp()</a></li>
+    <li>Regular Expressions are set as case-insensitive</li>
+    <li>No need to escape forward-slashes</li>
+    <li>Regular Expression <a href="https://developer.mozilla.org/docs/Web/JavaScript/Guide/Regular_Expressions/Character_Classes" target="_blank">Character classes</a> should be escaped e.g. <code>\.</code> <code>\\d</code> <code>\\s</code> <code>\\w</code></li>
+  </ul>
+
+
+  <h4>includeGlob & excludeGlob</h4>
+  <p>Due to the following logic process in Firefox & Chrome, when using <code>includeGlob</code>, there must also be the mandatory <code>match</code>.</p>
+  
+  <blockquote>Since <code>matches</code> is the only mandatory key, the other three keys are used to limit further the URLs that match. To match the key as a whole, a URL must:
+
+    <ul>
+      <li>match the <code>matches</code> property</li>
+      <li>AND match the <code>include_globs</code> property, if present</li>
+      <li>AND NOT match the <code>exclude_matches</code> property, if present</li>
+      <li>AND NOT match the <code>exclude_globs</code> property, if present</li>
+    </ul>
+
+  <cite><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts" target="_blank">content_scripts</a></cite></blockquote>
+
+  <figure>
+    <figcaption>Example with includeGlob</figcaption>
+<pre><span class="comment">/*
+==UserCSS==
+@name               My CSS
+@description        CSS is fun
+@match              *://*/*
+@includeGlobs       http://www.example.*/*
+@version            1.0
+==/UserCSS==
+*/
+  </pre>
+  </figure>
+
+
+  <h4>Converting include/exclude to match/exclude-match</h4>
+  <p>Some example of how you can convert to more robust Match Patterns.</p>
 
 <table>
   <caption>Conversation Examples</caption>
@@ -870,42 +1007,14 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   </ul>
 
 
-  <h4>includeGlobs & excludeGlobs</h4>
-  <p>Due to the following logic process in Firefox & Chrome, when using <code>includeGlobs</code>, there must also be the mandatory <code>matches</code> (or <code>match</code>).</p>
-
-  <blockquote>Since <code>matches</code> is the only mandatory key, the other three keys are used to limit further the URLs that match. To match the key as a whole, a URL must:
-
-    <ul>
-      <li>match the <code>matches</code> property</li>
-      <li>AND match the <code>include_globs</code> property, if present</li>
-      <li>AND NOT match the <code>exclude_matches</code> property, if present</li>
-      <li>AND NOT match the <code>exclude_globs</code> property, if present</li>
-    </ul>
-
-  <cite><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts" target="_blank">content_scripts</a></cite></blockquote>
-
-  <figure>
-    <figcaption>Example with includeGlobs</figcaption>
-<pre><span class="comment">/*
-==UserCSS==
-@name               My CSS
-@description        CSS is fun
-@match              *://*/*
-@includeGlobs       http://www.example.*/*
-@version            1.0
-==/UserCSS==
-*/
-  </pre>
-  </figure>
-
-<h3 id="ftp">FTP &#x26a0;&#xfe0f;</h3>
+<h4>FTP &#x26a0;&#xfe0f;</h4>
 
   <blockquote>The Firefox platform development team recently <a href="https://groups.google.com/forum/#!msg/mozilla.dev.platform/FqCZUT9ay_o/jt4DLRDjAwAJ">announced plans</a> to first disable, and then remove the implementation for built-in <a href="https://developer.mozilla.org/docs/Glossary/FTP">FTP</a> from the browser.
 
   <cite><a href="https://blog.mozilla.org/addons/2020/04/13/what-to-expect-for-the-upcoming-deprecation-of-ftp-in-firefox/" target="_blank">What to expect for the upcoming deprecation of FTP in Firefox</a></cite></blockquote>
 
 
-  <h3 id="tld">TLD</h3>
+  <h4>TLD</h4>
   <p>A TLD (case-insensitive) wildcard can be used and <i>FireMonkey</i> will automatically generate a list of most common country TLD <code>@matches</code>. Due to the extra Firefox API processing for many <code>@matches</code>, it is best to use it only when necessary.</p>
 
 
@@ -1201,7 +1310,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <p>You can use <code>@require</code> for both scripts and CSS but it will be added as the same type i.e. <code>@require</code> in scripts will be injected as JavaScript and require in CSS will be injected as CSS.</p>
 
 
-  <h4>require &nbsp;&nbsp;&nbsp; script-name</h4>
+  <h4>require  <span style="font-size: inherit; margin-left: 8em;">script-name</span></h4>
   <p><code>@require</code> can be used to pre-include other existing scripts into a script (or other existing CSS into a CSS). For example:</p>
 <pre class="comment">
 @require            My Script
@@ -1265,7 +1374,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 */</pre>
   </figure>
 
-  <h4>require &nbsp;&nbsp;&nbsp; specific-library</h4>
+  <h4>require <span style="font-size: inherit; margin-left: 8em;">specific-library</span></h4>
   <p>Few libraries have been packed with <i>FireMonkey</i> which will be injected for user-scripts using <code>@require</code>. A shorthand (case-insensitive) can also be used.</p>
   <p>Based on data provided by <i>GreasyFork</i>, 8,011/31,170 (26%) use <code>@require</code> and from those 7,082/11,236 (63%) entries relate to these libraries (& <i>gm4-polyfill</i>).</p>
 
@@ -1296,7 +1405,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
     <th>Injected Library Version</th>
   </tr>
   </thead>
-  <tbody>
+  <tbody class="slim">
   <tr><td>bootstrap</td>      <td>bootstrap-4</td>    <td>4.5.3</td></tr>
   <tr><td>jquery 1.*</td>     <td>jquery-1</td>       <td>1.12.4</td></tr>
   <tr><td>jquery 2.*</td>     <td>jquery-2</td>       <td>2.2.4</td></tr>
@@ -1314,10 +1423,10 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 <pre class="comment">
 // @require         jquery-3
 // @require         https://code.jquery.com/jquery-3.5.1.js
-// @require         https://code.jquery.com/jquery-3.4.1.min.js
-// @require         https://code.jquery.com/jquery-3.*.*.slim.js
-// @require         https://code.jquery.com/jquery-3.*.*.slim.min.js
-// @require         https://ajax.googleapis.com/ajax/libs/jquery/3.*.*/jquery.js
+// @require         https://code.jquery.com/jquery-3.5.1.min.js
+// @require         https://code.jquery.com/jquery-3.5.0.slim.js
+// @require         https://code.jquery.com/jquery-3.5.0.slim.min.js
+// @require         https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.js
   ... etc
 // @require         https://unpkg.com/jquery@3.*.*/dist/jquery.js
   ... etc
@@ -1327,7 +1436,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
   <p>On popular demand, more libraries may be added in future.</p>
 
-  <h4>require &nbsp;&nbsp;&nbsp; other-URL &#x26a0;&#xfe0f;</h4>
+  <h4>require <span style="font-size: inherit; margin-left: 8em;">other-URL &#x26a0;&#xfe0f;</span></h4>
   <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers as the target is not not stored. It uses <code>fetch()</code> to get the target the first time but on subsequently <a href="https://developer.mozilla.org/docs/Web/API/Request/cache" target="_blank">Request.cache</a> will be used by the browser. Please note:</p>
   <ul>
     <li>Processing many scripts with many <code>@require</code> can take time when registering scripts (i.e. browser start-up, disabling & re-enabling <i>FireMonkey</i>)</li>
@@ -1336,7 +1445,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
 
 
-  <h3 id="storing-require-resource">Storing require & resource Targets &#x26d4;</h3>
+  <h4>&#x2139;&#xfe0f; Storing require & resource Targets</h4>
   <p>In legacy Firefox, extensions were able to save files to their folder in Firefox profile. Script managers would download <code>@require</code> & <code>@resource</code> targets, save it to users' HD and inject it when called.</p>
 
   <p>Firefox Quantum no longer allows extension to save fies to Fireofx profile folder. Script managers will have to use the storage assigned to the extension to save <code>@require</code> & <code>@resource</code> files in form of data.</p>
@@ -1389,10 +1498,6 @@ link.rel = <span class="string">'stylesheet'</span>;
 img.<span class="property">src</span> = <span class="string">'http://www.example.com/logo.jpg'</span>;
 <span class="property">document</span>.<span class="property">head</span>.<span class="method">appendChild</span>(img);</code></pre>
   </figure>
-
-
-  <h3 id="grant">grant &#x26d4;</h3>
-  <p>Scripts will have access to all available APIs and therefore <code>@grant</code> is not needed or used.</p>
 
 
   <h2 id="script-api"><img src="../image/js.svg" alt=""> Script API</h2>
@@ -1608,7 +1713,7 @@ injected.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>290</td>
+      <td>300</td>
       <td>323k</td>
       <td>345k</td>
       <td>38k</td>
@@ -1676,7 +1781,7 @@ content/apply.js</code>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>290</td>
+      <td>300</td>
       <td>67k</td>
       <td>86k</td>
       <td>490</td>
@@ -2259,9 +2364,12 @@ popup.addStyle(css);
     name:           'script name',
     version:        'script version',
     description:    'script description',
-    matches:        [array of match/matches/include],
-    includes:       [array of match/matches/include],
-    excludes:       [array of exclude/excludeMatches],
+    matches:        [array of match],
+    excludeMatches: [array of exclude-match],
+    includes:       [array of regex include],
+    excludes:       [array of regex exclude],
+    includeGlobs:   [array of include/includeGlob],
+    excludeGlobs:   [array of exclude/excludeGlob],
     'run-at':       'e.g. document-idle',
     namespace:      null,
     resources:      {object of name: url}
@@ -2336,7 +2444,7 @@ popup.addStyle(css);
 <span class="property">console</span>.<span class="method">log</span>(<span class="gm">unsafeWindow</span>.obj.text); <span class="comment">// hello from user-script</span></pre>
 
 
-  <h3 id="xray-vision">&#x2139;&#xFE0F; <a href="https://developer.mozilla.org/docs/Mozilla/Tech/Xray_vision" target="_blank">Xray Vision</a> & Sharing objects with page scripts</h3>
+  <h3 id="xray-vision">&#x2139;&#xfe0f; <a href="https://developer.mozilla.org/docs/Mozilla/Tech/Xray_vision" target="_blank">Xray Vision</a> & Sharing objects with page scripts</h3>
 
   <h4>Extension JavaScript Context/Scope</h4>
   <ol style="list-style-type: upper-roman;">
@@ -2435,7 +2543,7 @@ script.<span class="method">remove</span>();
 </pre>
 </figure>
 
-  <h2 id="UserCSS"><img src="../image/css.svg" alt=""> UserCSS</h2>
+  <h3 id="UserCSS"><img src="../image/css.svg" alt=""> UserCSS</h3>
 
   <p>CSS can be injected directly into a page. If the goal is to inject CSS, it is by far more efficient to inject CSS as UserCSS, instead of using UserScript to inject CSS. Here is an example of simple UserCSS that I use to mark watched/visited videos on YouTube.</p>
   <p>Furthermore, CSS rules will apply to newly created elements in dynamically updated pages (e.g. on scroll) while JavaScript would need additional listeners to wait for new element to be created and then run then code again.</p>
@@ -2464,7 +2572,7 @@ script.<span class="method">remove</span>();
 </figure>
 
 
-  <h2 id="UserStyle"><img src="../image/css.svg" alt=""> UserStyle</h2>
+  <h3 id="UserStyle"><img src="../image/css.svg" alt=""> UserStyle</h3>
 
   <p>Partial compatibility with <a href="https://www.w3schools.com/css/css_syntax.asp" target="_blank">standard CSS syntax</a> UserStyle <code>==UserStyle== ... ==/UserStyle==</code> is available. All <code>url()</code>, <code>url-prefix()</code> & <code>domain()</code> are processed. Few very basic <code>regexp()</code> are converted to match pattern but other sections with <code>regexp()</code> are ignored since browser API does not support Regular Expression.</p>
   <p>The default <code>'run-at'</code> is set to <code>'document-start'</code> for UserStyles.</p>
@@ -2478,9 +2586,9 @@ script.<span class="method">remove</span>();
   <p>Please note that <i>userstyles.org</i> is rather slow and may time out.</p>
 
 
-  <h3 id="stylish-stylus">&#x2139;&#xFE0F; Stylish/Stylus/xStyle Type UserStyle</h3>
+  <h4>&#x2139;&#xFE0F; Stylish/Stylus/xStyle Type UserStyle</h4>
 
-  <p>In Firefox Quantum, extension can not use <code>@-moz-document</code> and therefore would have to:</p>
+  <p>In Firefox Quantum, extension can not use <code>@-moz-document</code> and therefore extensions would have to:</p>
 
   <ul>
     <li>Break each UserStyle into sections for each <code>@-moz-document</code></li>
@@ -2538,7 +2646,7 @@ script.<span class="method">remove</span>();
 </table>
 
 
-  <h3 id="escaping">Character Escapeing in CSS</h3>
+  <h4>Character Escapeing in CSS</h4>
   <p>CSS Escaping in userScript requires double scaping.</p>
 
   <figure>
@@ -2572,7 +2680,7 @@ script.<span class="method">remove</span>();
 You can check the Console tab.</dd>
 
     <dt>View Inserted UserScript</dt>
-      <dd>You can see the actual blob JS in <b>Developer Tool</b> (<kbd>F12</kbd>) <b>Debugger</b> tab under <b>blob://</b> (you may have to refresh the page to show)</dd>
+      <dd>You can see the actual blob JS in <b>Developer Tool</b> (<kbd>F12</kbd>) <b>Debugger</b> tab under <b>user-script://</b> (you may have to refresh the page)</dd>
 
     <dt>CSS Errors</dt>
       <dd>The CSS error can be checked in <b>Developer Tool</b> (<kbd>F12</kbd>) for the page that the CSS is injected into.</dd>

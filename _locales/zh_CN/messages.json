@@ -27,7 +27,7 @@
     "message": "更新间隔天数（0 = 不更新）"
   },
   "enableSync": {
-    "message": "Enable Storage Sync"
+    "message": "启用存储同步"
   },
   "syncError": {
     "message": "无法同步存储 ($1KB) 大于 100KB。同步将关闭。"
@@ -66,10 +66,10 @@
     "message": "自动更新"
   },
   "theme": {
-    "message": "Theme"
+    "message": "主题"
   },
   "light": {
-    "message": "Light"
+    "message": "明亮"
   },
   "dark": {
     "message": "黑暗"
@@ -84,22 +84,22 @@
     "message": "模板"
   },
   "tabToSpaces": {
-    "message": "Tabs to Spaces"
+    "message": "制表符转换为空格"
   },
   "trimTrailingSpaces": {
-    "message": "Trim Trailing Spaces"
+    "message": "去除行尾空格"
   },
   "toUpperCase": {
-    "message": "Selection to Uppercase"
+    "message": "选中部分大写"
   },
   "toLowerCase": {
-    "message": "Selection to Lowercase"
+    "message": "选中部分小写"
   },
   "stylish": {
-    "message": "Install Stylish Style"
+    "message": "安装 Stylish 样式"
   },
   "report": {
-    "message": "Report"
+    "message": "报告"
   },
   "discardConfirm": {
     "message": "确定要放弃保存更改？"
@@ -168,49 +168,49 @@
     "message": "解析该文件出错"
   },
   "log": {
-    "message": "Log"
+    "message": "日志"
   },
   "time": {
-    "message": "Time"
+    "message": "时间"
   },
   "reference": {
-    "message": "Reference"
+    "message": "参考"
   },
   "message": {
-    "message": "Message"
+    "message": "消息"
   },
   "scratchpad": {
-    "message": "Scratchpad"
+    "message": "便签"
   },
   "run": {
-    "message": "Run"
+    "message": "运行"
   },
   "undo": {
-    "message": "Undo"
+    "message": "撤销"
   },
   "insertError": {
-    "message": "Failed to insert"
+    "message": "插入失败"
   },
   "findScript": {
-    "message": "Find scripts for this site"
+    "message": "查找此站点脚本"
   },
   "advanced": {
-    "message": "Advanced"
+    "message": "高级"
   },
   "customCSS": {
-    "message": "Custom CSS"
+    "message": "自定义 CSS"
   },
   "customCSSDescription": {
-    "message": "Customize Options page & CodeMirror style configuration."
+    "message": "自定义选项页面 & CodeMirror 样式配置。"
   },
   "cmOptionsDescription": {
-    "message": "Customize CodeMirror, addons & JavaScript lint configuration."
+    "message": "自定义 CodeMirror, 插件 & JavaScript lint 配置。"
   },
   "cmOptionsError": {
-    "message": "Invalid CodeMirror JSON"
+    "message": "无效 CodeMirror JSON"
   },
   "localeMaker": {
-    "message": "Locale Maker"
+    "message": "本地化制作器"
   },
   "about": {
     "message": "关于"

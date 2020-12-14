@@ -8,7 +8,7 @@ App.i18n();
 App.getPref().then(() => {
   options.process();
   script.process();
-  
+
   // --- add custom style
   pref.customCSS && (document.querySelector('style').textContent = pref.customCSS);
 });
@@ -50,22 +50,22 @@ class Options {
   check() {
     // --- check Global Script Exclude Matches
     if(!Pattern.validate(this.globalScriptExcludeMatches)) { return; }
-    
+
     // Custom CodeMirror Options
     const cmOptionsNode = document.querySelector('#cmOptions');
     cmOptionsNode.value = cmOptionsNode.value.trim();
     if (cmOptionsNode.value) {
       let cmOptions = App.JSONparse(cmOptionsNode.value);
-      if (!cmOptions) { 
+      if (!cmOptions) {
         App.notify(chrome.i18n.getMessage('cmOptionsError')) ;
         return;
       }
       // remove disallowed
-      Object.keys(cmOptions).forEach(item => 
-                ['extraKeys', 'lint', 'mode', 'search', 'theme'].includes(item) && delete cmOptions[item]); 
-      cmOptions.jshint && Object.keys(cmOptions.jshint).forEach(item => 
+      Object.keys(cmOptions).forEach(item =>
+                ['extraKeys', 'lint', 'mode', 'search', 'theme'].includes(item) && delete cmOptions[item]);
+      cmOptions.jshint && Object.keys(cmOptions.jshint).forEach(item =>
                 ['globals', 'jquery'].includes(item) && delete cmOptions.jshint[item]);
-      cmOptionsNode.value = JSON.stringify(cmOptions, null, 2); // reset value with allowed options    
+      cmOptionsNode.value = JSON.stringify(cmOptions, null, 2); // reset value with allowed options
     }
     // --- progress bar
     this.progressBar();
@@ -221,7 +221,7 @@ class Script {
           GM_registerMenuCommand: false, GM_removeValueChangeListener: false, GM_setClipboard: false,
           GM_setValue: false, GM_unregisterMenuCommand: false, GM_xmlhttpRequest: false, unsafeWindow: false
         },
-        jquery: js && !!this.box.id && !!pref.content[this.box.id].require.find(item => /lib\/jquery-\d/.test(item)),
+        jquery: js && !!this.box.id && !!(pref.content[this.box.id].require || []).find(item => /lib\/jquery-\d/.test(item)),
         latedef: 'nofunc',
         leanswitch: true,
         maxerr: 100,
@@ -260,7 +260,7 @@ class Script {
         Esc: (cm) => cm.getOption('fullScreen') && cm.setOption('fullScreen', false)
       }
     };
-    
+
     // Custom CodeMirror Options
     const cmOptions = App.JSONparse(pref.cmOptions) || {};
     Object.keys(cmOptions).forEach(item => item !== 'jshint' && (options[item] = cmOptions[item]));
@@ -307,6 +307,7 @@ class Script {
       case 'trimTrailingSpaces':
       case 'toLowerCase':
       case 'toUpperCase':
+      case 'includeToMatch':
         return this.edit(action);
     }
   }
@@ -333,11 +334,11 @@ class Script {
 
       case 'toLowerCase':
         this.cm.replaceSelection(this.cm.getSelection().toLowerCase());
-        return;
+        break;
 
       case 'toUpperCase':
         this.cm.replaceSelection(this.cm.getSelection().toUpperCase());
-        return;
+        break;
     }
   }
 
@@ -449,10 +450,10 @@ class Script {
     if (pref.content[id].error) {
       App.notify(pref.content[id].error, id);
     }
-    
-    if (pref.content[id].antifeature) {
+
+    if (pref.content[id].antifeatures[0]) {
       this.legend.classList.add('antifeature');
-    }    
+    }
 
     this.userMatches.value = pref.content[id].userMatches || '';
     this.userExcludeMatches.value = pref.content[id].userExcludeMatches || '';
@@ -585,12 +586,14 @@ class Script {
     }
 
     // --- reset box
-    this.cm && this.cm.toTextArea();                        // reset CodeMirror
+    if (this.cm) {                                          // reset CodeMirror
+      this.cm.setValue('');
+      this.cm.toTextArea();
+    }
     legend.className = '';
     legend.textContent = chrome.i18n.getMessage('script');
     box.id = '';
     box.value = '';
-    
 
 
     // --- delete script storage
@@ -638,7 +641,7 @@ class Script {
     // --- check for Web Install, set install URL
     if (!data.updateURL && pref.content[data.name] &&
         (pref.content[data.name].updateURL.startsWith('https://greasyfork.org/scripts/') ||
-          pref.content[data.name].updateURL.startsWith('https://openuserjs.org/install/') || 
+          pref.content[data.name].updateURL.startsWith('https://openuserjs.org/install/') ||
           pref.content[data.name].updateURL.startsWith('https://userstyles.org/styles/'))
         ) {
       data.updateURL = pref.content[data.name].updateURL;
@@ -929,7 +932,7 @@ class Pattern {
       const error = this.check(item.toLowerCase());
       if (error) {
         node.classList.add('invalid');
-        
+
         App.notify(`${chrome.i18n.getMessage(node.id)}\n${item}\n${error}`);
         return false;                                       // end execution
       }
