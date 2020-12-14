@@ -127,7 +127,8 @@ class Popup {
       li.children[0].textContent = '\u2718';
       li.children[0].style.color = '#f00';
     }
-    else { li.children[0].addEventListener('click', this.toggleState); }
+//    else { li.children[0].addEventListener('click', this.toggleState); }
+    li.children[0].addEventListener('click', this.toggleState);
     li.children[2].addEventListener('click', e => this.showInfo(e));
     return li;
   }
@@ -159,7 +160,8 @@ class Popup {
     const docfrag = document.createDocumentFragment();
 
     const infoArray = ['name', 'description', 'author', 'version', 'updateURL', 'matches',
-                        'excludeMatches', 'require', 'userMatches', 'userExcludeMatches'];
+                        'excludeMatches', 'includes', 'excludes', 'includeGlobs', 'excludeGlobs', 
+                        'require', 'userMatches', 'userExcludeMatches'];
     pref.content[id].error && infoArray.push('error');
 
     infoArray.forEach(item => {
