@@ -113,16 +113,18 @@ class Script {
 
     this.docfrag = document.createDocumentFragment();
     this.liTemplate = document.querySelector('nav template').content.firstElementChild;
-    this.navUL = document.querySelector('nav ul')
+    this.navUL = document.querySelector('nav ul');
     this.legend = document.querySelector('.script legend');
     this.box = document.querySelector('.script .box');
     this.box.value = '';                                    // Browser retains textarea content on refresh
 
     this.enable = document.querySelector('#enable');
     this.enable.addEventListener('change', () => this.toggleEnable());
+    Meta.enable = this.enable;
 
     this.autoUpdate = document.querySelector('#autoUpdate');
     this.autoUpdate.addEventListener('change', () => this.toggleAutoUpdate());
+    Meta.autoUpdate = this.autoUpdate;
 
     this.userMatches = document.querySelector('#userMatches');
     this.userMatches.value = '';
@@ -181,7 +183,6 @@ class Script {
     this.cm;
     this.footer = document.querySelector('footer');
     const script = document.querySelector('.script');
-    script.classList.toggle('dark', localStorage.getItem('dark') === 'true');
 
     const themeSelect = document.querySelector('#theme');
     this.theme = localStorage.getItem('theme') || 'defualt';
@@ -191,16 +192,37 @@ class Script {
       themeSelect.value = this.theme;
     }
 
+    const defaultLink = document.querySelector('link[href="../lib/codemirror/codemirror.css"]');
+    this.addTheme(this.theme, defaultLink, script, localStorage.getItem('dark') === 'true');
+
     themeSelect.addEventListener('change', (e) => {
       const opt = themeSelect.selectedOptions[0];
       this.theme = opt.value;
       localStorage.setItem('theme', this.theme);
-      this.cm && this.cm.setOption('theme', this.theme);
 
       const dark = opt.parentNode.dataset.type === 'dark';
       localStorage.setItem('dark', dark);
-      script.classList.toggle('dark', dark);
+      this.addTheme(this.theme, defaultLink, script, dark);
     });
+  }
+  
+  addTheme(theme, defaultLink, script, dark) {
+
+    const url =  `../lib/codemirror/theme/${theme}.css`;
+    if (theme === 'default' || document.querySelector(`link[href="${url}"]`)) { // already added
+      script.classList.toggle('dark', dark);
+      this.cm && this.cm.setOption('theme', theme);
+      return;
+    }
+
+    const link = defaultLink.cloneNode();
+    link.href = url;
+    defaultLink.after(link);
+    link.onload = () => {
+      link.onload = null;
+      script.classList.toggle('dark', dark);
+      this.cm && this.cm.setOption('theme', theme);
+    };
   }
 
   setCodeMirror() {
