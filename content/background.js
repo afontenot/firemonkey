@@ -335,7 +335,7 @@ class ProcessPref {
     const version = localStorage.getItem('migrate') || 0;
     if (version*1 >= m) { return; }
     
-    // --- v2.5 migrate 2020-12-
+    // --- v2.5 migrate 2020-12-14
     Object.keys(pref.content).forEach(item => {
 
       pref.content[item].includes = pref.content[item].includes || [];
@@ -343,7 +343,6 @@ class ProcessPref {
       pref.content[item].antifeatures = pref.content[item].antifeatures || [];
       pref.content[item].updateURL = pref.content[item].updateURL || '';
     });    
-
 
     // --- v2.0 migrate 2020-12-08
     localStorage.getItem('dark') === 'true' && localStorage.setItem('theme', 'darcula');
@@ -538,7 +537,7 @@ class Installer {
     sect.forEach(item => pref.content.hasOwnProperty(item) && RU.getUpdate(pref.content[item])); // check if script wasn't deleted
   }
 
-  processResponse(text, name, updateURL) {                  // from class RemoteUpdate in common.js
+  processResponse(text, name, updateURL) {                  // from class RU.callback in app.js
 
     const userMatches = pref.content[name] ? pref.content[name].userMatches : '';
     const userExcludeMatches = pref.content[name] ? pref.content[name].userExcludeMatches : '';

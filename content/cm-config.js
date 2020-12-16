@@ -111,8 +111,8 @@ class Config {
           message = `${prop} is not supported, use ${propLC} instead.`;
           severity = 'error';
           break;
-          
-          
+
+
 
         case prop.startsWith('@'):
           message = `${prop} is not processed.`;

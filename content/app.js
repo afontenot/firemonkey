@@ -122,8 +122,6 @@ class Meta {
     const metaData = str.match(this.regEx);
     if (!metaData) { return null; }
 
-    const optionPage = typeof script !== 'undefined';
-
     const js = metaData[1].toLowerCase() === 'userscript';
     const userStyle = metaData[1].toLowerCase() === 'userstyle';
     // Metadata Block
@@ -133,9 +131,9 @@ class Meta {
       author: '',
       description: '',
       updateURL: '',
-      // enable & autoUpdate are defined in options.js but not from background.js
-      enabled: optionPage ? script.enable.checked : true,
-      autoUpdate: optionPage ? script.autoUpdate.checked : false,
+      // this.enable & this.autoUpdate are defined in options.js but not from background.js
+      enabled: this.enable ? this.enable.checked : true,
+      autoUpdate: this.autoUpdate ? this.autoUpdate.checked : false,
       version: '',
       antifeatures: [],
 
