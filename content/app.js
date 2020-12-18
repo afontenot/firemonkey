@@ -300,7 +300,8 @@ class Meta {
           break;
 
           default:                                          // i18n
-            /^(name|description):([A-Za-z-]+)$/.test(prop) && (data.i18n[RegExp.$1][RegExp.$2] = value);
+            const m = prop.match(/^(name|description):([A-Za-z-]+)$/);
+            m && (data.i18n[m[1]][m[2]] = value);
       }
 
       if (data.hasOwnProperty(prop) && value !== '') {
@@ -322,8 +323,8 @@ class Meta {
     data.excludeMatches = data.excludeMatches.flatMap(this.checkPattern);
     
     // --- prepare for include/exclude
-   (data.includes[0] || data.excludes[0] || data.includeGlobs[0] || data.excludeGlobs[0]) && 
-        !data.matches[0] && data.matches.push('*://*/*', 'file:///*');
+    (data.includes[0] || data.excludes[0] || data.includeGlobs[0] || data.excludeGlobs[0]) && 
+          data.matches.push('*://*/*', 'file:///*');
 
     // --- remove duplicates
     Object.keys(data).forEach(item => Array.isArray(data[item]) && (data[item] = [...new Set(data[item])]));
@@ -476,7 +477,8 @@ class RemoteUpdate {
     fetch(url)
     .then(response => response.text())
     .then(text => {
-      const version = /@version\s+(\S+)/.test(text) ? RegExp.$1.substring(2,10) : '';
+      const m = text.match(/@version\s+(\S+)/);
+      const version = m ? m[1].substring(2,10) : '';
       version > item.version ? this.getStylish(item, version) : manual && App.notify(chrome.i18n.getMessage('noNewUpdate'), item.name);
     })
     .catch(error => App.log(item.name, `getMeta ${url} ➜ ${error.message}`, 'error'));
@@ -558,7 +560,7 @@ class CheckMatches {
       
       case item.excludeMatches[0] && this.isMatch(urls, item.excludeMatches):
       case item.excludeGlobs[0] && this.isMatch(urls, item.excludeGlobs, true):
-      case item.excludes[0] && !this.isMatch(urls, item.excludes, false, true):    
+      case item.excludes[0] && this.isMatch(urls, item.excludes, false, true):    
       
         return false;
 
@@ -577,15 +579,13 @@ class CheckMatches {
       return !!urls.find(u => new RegExp(this.prepareGlob(arr), 'i').test(u));
     }
 
-    if (arr.includes('<all_urls>')) { return true; }
-   
-    // checking *://*/* for http/https
-    const idx = arr.indexOf('*://*/*');
-    if (idx !== -1) {
-      if(urls.find(item => item.startsWith('http'))) { return true; }
-
-      if (!arr[1])  { return false; }                       // it only has one item *://*/*
-      arr.splice(idx, 1);                                   // remove *://*/*
+    // catch all checks
+    switch (true) {
+  
+      case arr.includes('<all_urls>'):
+      case arr.includes('*://*/*') && urls.find(item => item.startsWith('http')):
+      case arr.includes('file:///*') && urls.find(item => item.startsWith('file:///')):
+        return true;
     }
     
     return !!urls.find(u => new RegExp(this.prepareMatch(arr), 'i').test(u));
@@ -603,8 +603,7 @@ class CheckMatches {
   static prepareGlob(arr) {
 
     const regexSpChar = /[-\/\\^$+.()|[\]{}]/g;             // Regular Expression Special Characters minus * ?
-    const str = arr.map(item => '(^' +
-        item.replace(regexSpChar, '\\$&').replace(/\*/g, '.*').replace('/.*\\.', '/(.*\\.)?') + '$)').join('|');
+    const str = arr.map(item => '(^' + item.replace(regexSpChar, '\\$&').replace(/\*/g, '.*') + '$)').join('|');
     return str.replace(/\?/g, '.');
   }
   
