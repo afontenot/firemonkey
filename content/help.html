@@ -14,8 +14,7 @@
       <ul>
         <li><a href="#toolbar">Toolbar Icon</a></li>
         <li><a href="#page-menu">Page Context Menu</a></li>
-        <li><a href="#web-install">Web Install</a></li>
-        <li><a href="#direct-install">Direct Install</a></li>
+        <li><a href="#install">Script/CSS Install</a></li>
       </ul>
     </div>
     <div><a href="#options">Options</a>
@@ -43,7 +42,7 @@
         </li>
         <li><a href="#match-patterns">Match Patterns</a></li>
         <li><a href="#require">require</a></li>
-        
+
         <li class="arrow"><a href="#script-api">Script API</a>
           <ul>
             <li><a href="#GM_getValue">GM_getValue & GM_listValues</a></li>
@@ -83,9 +82,9 @@
   <p><i>FireMonkey</i> is a totally new combined user-script and user-style manager. While it has similar functions to other user-Script managers like <i>GreaseMonkey/TamperMonkey/ViolentMonkey</i>, and user-style managers like <i>Stylish/Stylus/xStyle</i>, there are also differences. Similar to <i>GreaseMonkey</i>, scripts (or CSS) are injected in tabs and for a new script/CSS to have an effect, tab must be reloaded. The behaviour differs from <i>Stylus</i> which can inject CSS into a tab and remove it without having to reload the tab.</p>
 
 
-  <h2 id="how_to">How to Use</h2>
+  <h2 id="how_to">How to Use</h2><br>
 
-  <h3 id="toolbar">Toolbar Icon</h3>
+  <h3 id="toolbar">Toolbar Icon</h3><br>
 
   <h4>Toolbar Icon Context Menu</h4>
 
@@ -174,26 +173,27 @@
 
     </dl>
 
-  <h3 id="page-menu">Page Context Menu</h3>
+  <h3 id="page-menu">Page Context Menu</h3><br>
 
-  <dl>
-    <dt>Install Stylish Style</dt>
-      <dd>Install styles on <i>userstyles.org</i></dd>
-  </dl>
+  <h4>Install Stylish Style</h4>
+  <p>Install styles on <i>userstyles.org</i></p>
 
 
-  <h3 id="web-install">Web Install</h3>
+  <h3 id="install">Script/CSS Install</h3><br>
+
+  <h4>Web Install</h4>
   <p>Web Install is available from <i>greasyfork.org</i> & <i>openuserjs.org</i>. Script install URL will be set for script update.</p>
 
-  <h3 id="direct-install">Direct Install</h3>
+  <h4>Direct Install</h4>
   <p>Scripts can be directly installed from any script ending in <code>.user.js </code> (remote or local file system) if loaded into a tab (open or drag & drop)</p>
   <p>In case of <i>greasyfork.org</i> & <i>openuserjs.org</i> links, the same link will be set for script update.</p>
   <p>Due to sandbox CSP header on <code>https://raw.githubusercontent.com/........uers.js</code> tab is forwarded to <code>cdn.jsdelivr.net</code> mirror. (ref: <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1411641" target="_blank">Bug 1411641</a>).</p>
 
 
-  <h2 id="options">Options</h2>
+  <h2 id="options">Options</h2><br>
 
-  <h3 id="auto-update-interval">Auto-Update Interval</h3>
+  <h3 id="auto-update-interval">Auto-Update Interval</h3><br>
+
   <p>You can set the number of days between updates. Setting 0 (default) means there will be no auto-update.</p>
   <p>In order to minimise the impact on your browsing, auto-update is set to run when Firefox is idle and then 10 updates at a time (until the next idle time).</p>
   <p>Please note that updating each script can take around 4-5 seconds. If there are many scripts, that can add up to consider amount of time. I would suggest manually updating Scripts/CSS or enabling auto-update only on the ones that require regular update.</p>
@@ -219,9 +219,9 @@
 
   <h3 id="Custom-CSS">Custom CSS <span>(advanced users)</span></h3>
   <p>Customize Options page style and/or CodeMirror style/theme with valid CSS.</p>
-  
+
   <h4>Creating a Custom Theme</h4>
-  <p>You can create your own custom theme by overriding the <i>default</i> theme.</p>
+  <p>You can create your own custom theme by overriding a theme like the <i>default</i> theme.</p>
 
    <figure>
     <figcaption>default Theme</figcaption>
@@ -275,17 +275,17 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 </pre>
   </figure>
 
-  
+
 
   <h3 id="CodeMirror"><img src="../image/codemirror.png" alt=""> CodeMirror  <span>(advanced users)</span></h3>
   <p>Customize <a href="https://codemirror.net/doc/manual.html#config" target="_blank">CodeMirror Configuration</a> & <a href="https://jshint.com/docs/options/" target="_blank">JSHint Options</a> with a valid JSON. JSHint is set to ECMAScript 2019 ES10 & fairly strict guidelines for coding excellence.</p>
 
   <dl>
     <dt>CodeMirror Options</dt>
-      <dd>Any option except <code>extraKeys</code> | <code>lint</code> | <code>mode</code> | <code>search</code> | <code>theme</code></dd>
+      <dd>Any option except <code>lint</code> | <code>mode</code></dd>
 
     <dt>JSHint Options</dt>
-      <dd>Any option except <code>globals</code> | <code>jquery</code></dd>
+      <dd>Any option except <code>globals</code></dd>
   </dl>
 
    <figure>
@@ -387,13 +387,37 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
     <dt>&#x1f4e4; Export</dt>
       <dd>Export the currently displaying Script/CSS to file</dd>
 
+    <dt>&#x2611;&#xfe0f; Enable</dt>
+      <dd>Enable/Disable the currently displaying Script/CSS</dd>
+
+    <dt>&#x2611;&#xfe0f; Auto-update</dt>
+      <dd>Enable/Disable the Auto-Update of the currently displaying Script/CSS</dd>
+
+
     <dt><img src="../image/bin.svg" alt=""> Delete</dt>
       <dd>Delete the currently displaying Script/CSS after confirmation</dd>
+
+
+
 
 
     <dt>&#x2795; Menu</dt>
       <dd>
         <dl>
+
+        </dl>
+      </dd>
+
+    <dt>&#x1f5d2; Menu</dt>
+      <dd>Display Lint Report with click-able lines to go to the corresponding line in the Script/CSS</dd>
+
+
+    <dt><img src="../image/menu-dot.svg" alt=""> Menu</dt>
+      <dd>
+        <dl>
+          <dt>Theme</dt>
+            <dd>Select Light/Dark Theme for the editor</dd>
+
           <dt>&#x2795; <img src="../image/js.svg" alt=""></dt>
             <dd>Display a new Script Template that you can edit and Save</dd>
 
@@ -402,15 +426,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
           <dt>&#x1f4be; Save Template</dt>
             <dd>Save the currently displaying Script/CSS as a Template</dd>
-        </dl>
-      </dd>
 
-    <dt>&#x1f5d2; Menu</dt>
-      <dd>Display Lint Report with click-able lines to go to the corresponding line in the Script/CSS</dd>
-
-    <dt>&#x1f6e0; Menu</dt>
-      <dd>
-        <dl>
           <dt>➜ Tabs to Spaces</dt>
             <dd>Convert Tabs to spaces (2 per tab)</dd>
 
@@ -418,35 +434,14 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
             <dd>Remove trailing spaces</dd>
 
           <dt>&#x1f520; Selection to Uppercase</dt>
-            <dd></dd>
-            
+            <dd>&nbsp;</dd>
+
           <dt>&#x1f521; Selection to Lowercase</dt>
-            <dd></dd>
-
-        </dl>
-      </dd>
-
-    <dt><img src="../image/menu-dot.svg" alt=""> Menu</dt>
-      <dd>
-        <dl>
-          <dt>Theme</dt>
-            <dd>Select Light/Dark Theme for the editor</dd>
-
-          <dt>Enable</dt>
-            <dd>Enable/Disable the currently displaying Script/CSS</dd>
-
-          <dt>Auto-update</dt>
-            <dd>Enable/Disable the Auto-Update of the currently displaying Script/CSS</dd>
+            <dd>&nbsp;</dd>
 
           <dt>User Matches & Exclude Matches</dt>
             <dd>Persistent user matches & excludeMatches (one per line using Match Patterns) can be set for each script to supplement script's matches & excludeMatches. Please note that invalid match pattern will cause the script to fail and thus get disabled.</dd>
 
-
-          <dt></dt>
-            <dd></dd>
-
-          <dt></dt>
-            <dd></dd>
         </dl>
       </dd>
 
@@ -490,7 +485,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
     </tr>
   </thead>
   </thead>
-  <tbody>
+  <tbody class="slim">
 
     <tr><th>@updateURL</th><td class="pass">update target</td><td class="fail"></td><td>JSON</td><td class="fail"></td></tr>
     <tr><th>@downloadURL</th><td class="pass">= @updateURL</td><td class="fail"></td><td>update target</td><td>update target <a href="https://violentmonkey.github.io/api/metadata-block/#downloadurl" title="Metadata Block @downloadURL" target="_blank">[*]</a></td></tr>
@@ -676,7 +671,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <p><i>FireMonkey</i> uses the <code>name</code> (case-sensitive) as ID for Scripts & CSS, therefore names must be unique. A shorter & concise name is recommended.</p>
 
 
-  <h4>Localization <span>(v1.48+)</span></h4>
+  <h4>Localization</h4>
     <p>Some entries can be localized for display propose e.g. <code>@name:zh-CN</code>, <code>@description:kr</code>. The language code is case-sensitive and must match <a href="https://www.w3.org/TR/ltli/" target="_blank">Language Tags and Locale Identifiers </a> e.g. "en", "en-US", "de", "fr", etc.</p>
 
   <h4>grant <span class="fail"></span></h4>
@@ -765,7 +760,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
   <h4>&#x1f4ca; URL Matching Performance</h4>
   <p>The performance from top (best) to bottom (worst):</p>
-  
+
   <ol>
     <li>match & exclude-match</li>
     <li>includeGlob & excludeGlob</li>
@@ -775,20 +770,29 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
 
   <h4>&#x26a0;&#xfe0f Warning: Mixed types</h4>
-  <p>Due to matching order in Firefox/Chrome APIs, having mixed <code>@match/@exclude-match</code> with <code>@include/@exclude/includeGlob/excludeGlob</code> might have unexpected unmatched results.</p>  
+  <p>Due to matching order in Firefox/Chrome APIs, having mixed <code>@match/@exclude-match</code> with <code>@include/@exclude/includeGlob/excludeGlob</code> might have unexpected unmatched results.</p>
 
 
   <h4>include & exclude</h4>
   <p>They are the old and error-prone method of matching which has been superseded by <code>@match</code>/<code>@exclude-match</code>.</p>
   <p>Entries under <code>@include/@exclude</code> will be merged into <code>@includeGlob/@excludeGlob</code> <span class="small">(v2.5)</span> (duplicates removed).</p>
   <p class="note">Please note that <code>@match</code>/<code>@exclude-match</code> performance is far more efficient.</p>
-  
-  
+
+
 
   <blockquote>include_globs: Applied after matches to include only those URLs that also match this glob. Intended to emulate the @include Greasemonkey keyword.<br><br>
   exclude_globs:  Applied after matches to exclude URLs that match this glob. Intended to emulate the @exclude Greasemonkey keyword.
 
   <cite><a href="https://developer.chrome.com/docs/extensions/mv2/content_scripts/#matchAndGlob" target="_blank">Exclude matches and globs</a></cite></blockquote>
+
+
+  <blockquote>The <code>@match</code> metadata imperative is very similar to <code>@include</code>, however it is safer. It sets more strict rules on what the <code>*</code> character means.
+
+  <cite><a href="https://wiki.greasespot.net/Metadata_Block#.40match" target="_blank">Greasemonkey @match</a></cite></blockquote>
+
+  <blockquote>It is recommended to use <code>@match</code> / <code>@exclude-match</code> rather than <code>@include</code> / <code>@exclude</code> because the match rules are safer and more strict.
+
+  <cite><a href="https://violentmonkey.github.io/api/matching/" target="_blank">Violentmonkey Matching</a></cite></blockquote>
 
   <h4 class="experimental">Regular Expression in include & exclude</h4>
   <p>Regular Expression support has been implemented for <code>@include/@exclude</code> <span class="small">(v2.5)</span>.</p>
@@ -805,7 +809,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
   <h4>includeGlob & excludeGlob</h4>
   <p>Due to the following logic process in Firefox & Chrome, when using <code>includeGlob</code>, there must also be the mandatory <code>match</code>.</p>
-  
+
   <blockquote>Since <code>matches</code> is the only mandatory key, the other three keys are used to limit further the URLs that match. To match the key as a whole, a URL must:
 
     <ul>
@@ -1717,7 +1721,7 @@ sandbox/injected-web.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>300</td>
+      <td>310</td>
       <td>323k</td>
       <td>345k</td>
       <td>38k</td>
@@ -1784,7 +1788,7 @@ js/promisify.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>300</td>
+      <td>310</td>
       <td>67k</td>
       <td>86k</td>
       <td>490</td>
@@ -1819,7 +1823,7 @@ js/promisify.js</code></td>
     <li class="async">The only way to update storage is via an async operation</li>
   </ul>
 
-  <h3 id="GM_getValue">GM_getValue & GM_listValues <span>(v2.0)</span></h3>
+  <h3 id="GM_getValue">GM_getValue & GM_listValues</h3>
   <p>Partial compatibility has been implemented. Please note:</p>
 
   <ul>
@@ -2037,6 +2041,7 @@ xhr.send(<span class="keyword">null</span>);
   </ul>
 
   <p>After confirmation from AMO (ref 2019-09-28 Rob W), modification to the following Forbidden headers will be allowed:</p>
+
   <ul style="columns: 2;">
     <li>Cookie</li>
     <li>Host</li>
@@ -2447,7 +2452,7 @@ popup.addStyle(css);
 <span class="property">console</span>.<span class="method">log</span>(<span class="gm">unsafeWindow</span>.obj.text); <span class="comment">// hello from user-script</span></pre>
 
 
-  <h3 id="xray-vision">&#x2139;&#xfe0f; <a href="https://developer.mozilla.org/docs/Mozilla/Tech/Xray_vision" target="_blank">Xray Vision</a> & Sharing objects with page scripts</h3>
+  <h3 id="xray-vision">&#x2139;&#xfe0f; <a href="https://developer.mozilla.org/docs/Mozilla/Tech/Xray_vision" target="_blank">Xray Vision</a> & Sharing objects with page scripts</h3><br>
 
   <h4>Extension JavaScript Context/Scope</h4>
   <ol style="list-style-type: upper-roman;">
@@ -2492,8 +2497,13 @@ script.<span class="property">textContent</span> = <span class="string">`... cod
 <span class="property">document</span>.<span class="property">body</span>.<span class="method">appendChild</span>(script);
 script.<span class="method">remove</span>();
 </pre>
-<p>More: <a href="https://stackoverflow.com/questions/9515704/insert-code-into-the-page-context-using-a-content-script/9517879#9517879" target="_blank">Insert code into the page context using a content script</a> by Rob W</p>
-
+  <p>Further information:</p>
+  <ul>
+    <li><a href="https://stackoverflow.com/questions/9515704/insert-code-into-the-page-context-using-a-content-script/9517879#9517879" target="_blank">Insert code into the page context using a content script</a> by Rob W</li>
+    <li><a href="https://stackoverflow.com/questions/10314534/how-can-i-prevent-a-webpage-from-detecting-i-am-running-a-script" target="_blank">How can I prevent a webpage from detecting I am running a script?</a> by Brock Adams</li>
+    <li><a href="https://stackoverflow.com/questions/8548141/can-a-website-know-if-i-am-running-a-userscript" target="_blank">Can a website know if I am running a userscript?</a> by Brock Adams</li>
+    <li><a href="https://stackoverflow.com/questions/56821042/can-a-webpage-detect-a-tampermonkey-userscript" target="_blank">Can a webpage detect a tampermonkey userscript?</a> by Brock Adams</li>
+  </ul>
   <h4>Receiving data from page scripts</h4>
   <p><a href="https://developer.mozilla.org/docs/Web/API/CustomEvent" target="_blank">CustomEvent</a> can be used send data from a page script.</p>
 

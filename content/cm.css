@@ -85,3 +85,22 @@ span.fm-convert::after {
   top: 0;
   right: -2em;;
 }
+
+/* ----- Lint ----- */
+.CodeMirror-lint-mark-info {
+  border-bottom: 2px dotted #7cf;
+}
+
+.CodeMirror-lint-marker-info, .CodeMirror-lint-message-info {
+  padding-left: 0.2em;
+}
+
+.CodeMirror-lint-marker-info, .CodeMirror-lint-message-info::before {
+  content: '\2139\fe0f';
+  margin-left: 0;
+  margin-right: 0.2em;
+}
+
+li.CodeMirror-lint-message-info {
+  background-color: #eee;
+}

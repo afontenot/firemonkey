@@ -128,18 +128,18 @@ h2 img, h3 img, h4 img {
 }
 
 h3 {
-  color: #048;
-  font-size: 1.4em;
-}
-
-h4 {
+  font-size: 1.2em;
   color: #333;
   margin-bottom: 0;
-  padding: 0.5em 0.5em 0.5em 1em;
+  padding: 0.5em;
   border-left: 4px solid #777;
   background: #eee;
   display: inline-block;
   border-radius: 4px;
+}
+
+h4 {
+  margin-bottom: 0;
 }
 
 h3 span, h4 span {
@@ -149,6 +149,7 @@ h3 span, h4 span {
   font-weight: normal;
   font-size: 0.8em;
 }
+
 
 p {
   margin: 0.2em auto 0.2em 2em;
@@ -177,6 +178,11 @@ a {
   text-decoration: none;
 }
 
+a[href^="http"]::after {
+  content: '\1f517';
+  margin-left: 0.5em;
+  font-size: 0.4em;
+}
 
 /* ----- Navigation ----- */
 nav  {
@@ -539,7 +545,7 @@ th sup {
   color: #aaa;
 }
 
-.slim th, .slim td {
+.slim th:first-of-type, .slim td {
   padding: 0 0.5em;
 }
 
