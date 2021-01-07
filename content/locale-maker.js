@@ -1,8 +1,11 @@
-﻿// ----------------- Locale Maker --------------------------
+﻿// ----------------- Locale Maker 1.1 ----------------------
 class LocaleMaker {
 
   constructor() {
-
+    
+    // --- Light/Dark Theme
+    document.body.classList.toggle('dark', localStorage.getItem('dark') === 'true'); 
+    
     this.setDefault = this.setDefault.bind(this);
     this.import = this.import.bind(this);
     this.export = this.export.bind(this);

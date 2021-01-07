@@ -42,15 +42,6 @@ class Config {
       'lightslategrey': true,
       'slategrey': true,
     });
-    
-/*
-  CodeMirror.defineOption('fmColor', {}, function(cm, val, prev) {
-    
-    if (cm.options.mode 1== 'css') { return; }
-    console.log(cm, val, prev);
-
-  });
-    */
   }
 
   lint(cm, annotationsNotSorted) {
@@ -75,7 +66,7 @@ class Config {
           break;
 
         case item.message === '`var` declarations are forbidden. Use `let` or `const` instead.':
-          item.message = '`var` declarations are deprecated since ECMAScript 6 (2015). Use `let` or `const` instead.';
+          item.message = 'Since ECMAScript 6 (2015), it is recommended to use `let` & `const` instead of `var`.';
           break;
       }
     });
@@ -120,6 +111,7 @@ class Config {
 
         case !prop.startsWith('@'):
           message = com ? 'It is recommended to put comments outside the Metadata Block.' : `${prop} is not supported.`;
+          severity = 'info';
           break;
 
         case prop === '@antifeature':
@@ -129,6 +121,7 @@ class Config {
 
         case unsupported.includes(prop):
           message = `${prop} is not processed.`;
+          severity = 'info';
           break;
 
         case supported.includes(propLC):
@@ -141,6 +134,7 @@ class Config {
 
         case prop.startsWith('@'):
           message = `${prop} is not processed.`;
+          severity = 'info';
           break;
 
         default:                                            // unsuported
@@ -163,6 +157,7 @@ class Config {
         case prop === '@include' && /^\/[^/]{1}.+\/$/.test(value):
         case prop === '@exclude' && /^\/[^/]{1}.+\/$/.test(value):
           message = '@match performance is more efficient than Regular Expression.';
+          severity = 'info';
           break;
 
 
@@ -181,7 +176,7 @@ class Config {
         // all js & grant
         case ['GM_getValue', 'GM_listValues'].includes(value):
           message = value + ' is partially supported. Read the Help for more information.';
-          severity = 'error';
+          severity = 'warning';
           break;
 
         case ['GM_setValue', 'GM_deleteValue'].includes(value):

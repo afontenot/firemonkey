@@ -3,6 +3,8 @@ const RU = new RemoteUpdate();
 
 // ----------------- Internationalization ------------------
 App.i18n();
+document.body.classList.toggle('dark', localStorage.getItem('dark') === 'true'); // Light/Dark Theme
+document.body.style.opacity = 1;                            // show after i18n
 
 // ----------------- User Preference -----------------------
 App.getPref().then(() => {
@@ -62,9 +64,9 @@ class Options {
       }
       // remove disallowed
       Object.keys(cmOptions).forEach(item =>
-                ['extraKeys', 'lint', 'mode', 'search', 'theme'].includes(item) && delete cmOptions[item]);
+                ['lint', 'mode'].includes(item) && delete cmOptions[item]);
       cmOptions.jshint && Object.keys(cmOptions.jshint).forEach(item =>
-                ['globals', 'jquery'].includes(item) && delete cmOptions.jshint[item]);
+                ['globals'].includes(item) && delete cmOptions.jshint[item]);
       cmOptionsNode.value = JSON.stringify(cmOptions, null, 2); // reset value with allowed options
     }
     // --- progress bar
@@ -112,7 +114,7 @@ class Script {
     RU.callback = this.processResponse.bind(this);
 
     this.docfrag = document.createDocumentFragment();
-    this.liTemplate = document.querySelector('nav template').content.firstElementChild;
+    this.liTemplate = document.createElement('li');
     this.navUL = document.querySelector('nav ul');
     this.legend = document.querySelector('.script legend');
     this.box = document.querySelector('.script .box');
@@ -182,7 +184,7 @@ class Script {
     // --- CodeMirror & Theme
     this.cm;
     this.footer = document.querySelector('footer');
-    const script = document.querySelector('.script');
+    this.script = document.querySelector('.script');
 
     const themeSelect = document.querySelector('#theme');
     this.theme = localStorage.getItem('theme') || 'defualt';
@@ -192,8 +194,8 @@ class Script {
       themeSelect.value = this.theme;
     }
 
-    const defaultLink = document.querySelector('link[href="../lib/codemirror/codemirror.css"]');
-    this.addTheme(this.theme, defaultLink, script, localStorage.getItem('dark') === 'true');
+    this.defaultLink = document.querySelector('link[href="../lib/codemirror/codemirror.css"]');
+    this.addTheme(localStorage.getItem('dark') === 'true');
 
     themeSelect.addEventListener('change', (e) => {
       const opt = themeSelect.selectedOptions[0];
@@ -202,7 +204,7 @@ class Script {
 
       const dark = opt.parentNode.dataset.type === 'dark';
       localStorage.setItem('dark', dark);
-      this.addTheme(this.theme, defaultLink, script, dark);
+      this.addTheme(dark);
     });
 
     // --- color picker
@@ -210,22 +212,22 @@ class Script {
     this.inputColor.addEventListener('change', (e) => this.changeColor());
   }
 
-  addTheme(theme, defaultLink, script, dark) {
+  addTheme(dark) {
 
-    const url =  `../lib/codemirror/theme/${theme}.css`;
-    if (theme === 'default' || document.querySelector(`link[href="${url}"]`)) { // already added
-      script.classList.toggle('dark', dark);
-      this.cm && this.cm.setOption('theme', theme);
+    const url =  `../lib/codemirror/theme/${this.theme}.css`;
+    if (this.theme === 'default' || document.querySelector(`link[href="${url}"]`)) { // already added
+      document.body.classList.toggle('dark', dark);
+      this.cm && this.cm.setOption('theme', this.theme);
       return;
     }
 
-    const link = defaultLink.cloneNode();
+    const link = this.defaultLink.cloneNode();
     link.href = url;
-    defaultLink.after(link);
+    this.defaultLink.after(link);
     link.onload = () => {
       link.onload = null;
-      script.classList.toggle('dark', dark);
-      this.cm && this.cm.setOption('theme', theme);
+      document.body.classList.toggle('dark', dark);
+      this.cm && this.cm.setOption('theme', this.theme);
     };
   }
 
@@ -247,7 +249,7 @@ class Script {
           GM_registerMenuCommand: false, GM_removeValueChangeListener: false, GM_setClipboard: false,
           GM_setValue: false, GM_unregisterMenuCommand: false, GM_xmlhttpRequest: false, unsafeWindow: false
         },
-        jquery: js && !!this.box.id && !!(pref.content[this.box.id].require || []).find(item => /lib\/jquery-\d/.test(item)),
+        jquery: js && !!this.box.id && (pref.content[this.box.id].require || []).some(item => /lib\/jquery-\d/.test(item)),
         latedef: 'nofunc',
         leanswitch: true,
         maxerr: 100,
@@ -255,6 +257,7 @@ class Script {
         nonbsp: true,
         undef: true,
         unused: true,
+        validthis: true,
         varstmt: true
       };
 
@@ -305,6 +308,7 @@ class Script {
     this.cm.on('mousedown', (cm, e) => {
       const node = e.explicitOriginalTarget;
       if (node.nodeName === '#text') { return; }
+      e.stopPropagation();
       if (node.classList.contains('cm-fm-color')) { this.colorPicker(cm, node); }
       else if (node.classList.contains('fm-convert')) { this.convertInclude(cm, node); }
     });
@@ -542,17 +546,16 @@ class Script {
 
   convertInclude(cm, node) {
 
-    const line = node.dataset.line;
-    const text = this.cm.getLine(line);
+    const line = node.dataset.line*1;
+    const text = cm.getLine(line);
     const index = node.dataset.index;
     let p = node.textContent;
     const start = text.substring(0, index).replace('@include', '@match  ').replace('@exclude', '@exclude-match');
-    const from = {line, ch: 0};
-    const to = {line, ch: text.length};
+    const fromTo = [{line, ch: 0}, {line}];
 
     // --- check if pattern is already a valid match mattern
     if (!Pattern.check(p)) {                                // valid match pattern;
-      this.cm.replaceRange(start + p, from, to);
+      cm.replaceRange(start + p, ...fromTo);
       return;
     }
 
@@ -565,14 +568,14 @@ class Script {
       case p === 'https://*': p = 'https://*/*'; break;
     }
     if (p !==  node.textContent) {                          // it has changed
-      this.cm.replaceRange(start + p, from, to);
+      cm.replaceRange(start + p, ...fromTo);
       return;
     }
 
     // --- check file:///
     if (p.startsWith('file:')) {
       const error = !Pattern.check(p);
-      !error ? this.cm.replaceRange(start + p, from, to) : App.notify(p + '\n' + error);
+      !error ? cm.replaceRange(start + p, ...fromTo) : App.notify(p + '\n' + error);
       return;
     }
 
@@ -601,7 +604,7 @@ class Script {
 
     // --- check if it is valid
     const error = Pattern.check(p);
-    !error ? this.cm.replaceRange(start + p, from, to) : App.notify(p + '\n' + error);
+    !error ? cm.replaceRange(start + p, ...fromTo) : App.notify(p + '\n' + error);
   }
 
   makeStats(js, text = this.box.value) {
@@ -632,8 +635,8 @@ class Script {
       case 'newJS': return this.newScript('js');
       case 'newCSS': return this.newScript('css');
       case 'saveTemplate': return this.saveTemplate();
-      case 'exportScript': return this.exportScript();
-      case 'exportAllScript': return this.exportAllScript();
+      case 'export': return this.exportScript();
+      case 'exportAll': return this.exportScriptAll();
 
       case 'tabToSpaces':
       case 'trimTrailingSpaces':
@@ -980,6 +983,11 @@ class Script {
       data.autoUpdate = true;
     }
 
+    // --- check type conversion UserStyle to UserCSS & vice versa
+    if (pref.content[data.name] && pref.content[data.name].style[0]) {
+      pref.content[data.name].enabled = false;              // diable old one to force unregister old one
+      await browser.storage.local.set({content: pref.content}); // update saved pref
+    }
 
     pref.content[data.name] = data;                         // save to pref
     const li = document.querySelector('nav li.on');
@@ -1214,7 +1222,7 @@ class Script {
     this.export(data, ext, id);
   }
 
-  exportAllScript() {
+  exportScriptAll() {
 
     Object.keys(pref.content).forEach(id => {
 

@@ -41,7 +41,7 @@ class Popup {
     this.css = document.querySelector('#css');
     this.css.value = localStorage.getItem('scraptchpadCSS') || ''; // recall last entry
 
-    document.querySelector('h3.scratchpad').addEventListener('click', () => {
+    document.querySelector('h3.scratch').addEventListener('click', () => {
       this.toggleOn(this.scratchpad);
       this.info.parentNode.style.transform = 'translateX(-50%)';
     });
@@ -91,7 +91,7 @@ class Popup {
   async process() {
 
     const docfrag = document.createDocumentFragment();
-    const docfrag2 = document.createDocumentFragment();
+    const docfrag2 = docfrag.cloneNode();
     
     const tabs = await browser.tabs.query({currentWindow: true, active: true});
     const tabId = tabs[0].id;                                 // active tab id
@@ -99,12 +99,11 @@ class Popup {
 
     const frames = await browser.webNavigation.getAllFrames({tabId});
     const urls = [...new Set(frames.map(item => item.url).filter(item => /^(https?|wss?|file|about:blank)/.test(item)))];
-    const gExclude = pref.globalScriptExcludeMatches ? pref.globalScriptExcludeMatches.split(/\s+/) : []; // cache the array
+    const gExclude = pref.globalScriptExcludeMatches ? pref.globalScriptExcludeMatches.split(/\s+/) : []; // cache the array  
     Object.keys(pref.content).sort(Intl.Collator().compare).forEach(item => {
        const li = this.addScript(pref.content[item]);
        (CheckMatches.get(pref.content[item], urls, gExclude) ? docfrag : docfrag2).appendChild(li);
     });
-
     this.ulTab.appendChild(docfrag);
     this.ulOther.appendChild(docfrag2);
 

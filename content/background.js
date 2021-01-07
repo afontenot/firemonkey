@@ -12,7 +12,7 @@ class ContextMenu {
       { id: 'help', contexts: ['browser_action'], icons: {16: '/image/help32.png'} },
       { id: 'log', contexts: ['browser_action'], icons: {16: '/image/document.svg'} },
       { id: 'localeMaker', contexts: ['browser_action'], icons: {16: '/content/locale-maker.svg'} },
-
+      
       { id: 'stylish', contexts: ['all'], documentUrlPatterns: ['https://userstyles.org/styles/*/*'] }
     ];
 
@@ -157,11 +157,11 @@ class ScriptRegister {
     
     // --- add code
     options[target].push({code: script[target].replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'))});
-      
+
 
     // --- script only
     if (script.js) {
-  
+
       // --- unsafeWindow implementation & Regex include/exclude workaround
       options.js.unshift({code: `if (!GM.matchURL()) { throw '${id}: regex not match'; } const unsafeWindow = window.wrappedJSObject;`});
 
@@ -227,7 +227,6 @@ class ScriptRegister {
   processError(id, error) {
 
     pref.content[id].error = error;                         // store error message
-//    pref.content[id].enabled = false;                       // disable the script
     browser.storage.local.set({content: pref.content});     // update saved pref
     App.log(id, `Register ➜ ${error}`, 'error');           // log message to display in Options -> Log
   }
@@ -281,7 +280,7 @@ class ProcessPref {
 
   processPrefUpdate(changes) {
 
-    if (!Object.keys(changes).find(item => this.notEqual(changes[item].oldValue, changes[item].newValue))) { return; }
+    if (!Object.keys(changes).some(item => this.notEqual(changes[item].oldValue, changes[item].newValue))) { return; }
 
     // --- check counter preference has changed
     if (changes.counter && changes.counter.newValue !== changes.counter.oldValue) {
@@ -334,7 +333,7 @@ class ProcessPref {
     const m = 2.05;
     const version = localStorage.getItem('migrate') || 0;
     if (version*1 >= m) { return; }
-    
+
     // --- v2.5 migrate 2020-12-14
     Object.keys(pref.content).forEach(item => {
 
@@ -342,7 +341,7 @@ class ProcessPref {
       pref.content[item].excludes = pref.content[item].excludes || [];
       pref.content[item].antifeatures = pref.content[item].antifeatures || [];
       pref.content[item].updateURL = pref.content[item].updateURL || '';
-    });    
+    });
 
     // --- v2.0 migrate 2020-12-08
     localStorage.getItem('dark') === 'true' && localStorage.setItem('theme', 'darcula');
