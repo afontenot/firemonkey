@@ -3,8 +3,12 @@
 class Config {
 
   constructor() {
+    
+    this.lint = this.lint.bind(this);
+
+
     // add custom meta lint in fm-lint.js 167-168
-    CodeMirror.registerHelper('firemonkey', 'lint', (cm, annotationsNotSorted) => this.lint(cm, annotationsNotSorted));
+    CodeMirror.registerHelper('firemonkey', 'lint', this.lint);
 
 
     // add to window global for lint & hint fm-javascript.js 132-134
@@ -27,6 +31,26 @@ class Config {
 
     this.reportUL = document.querySelector('div.report ul');
     this.reportDefault = this.reportUL.firstElementChild.cloneNode(true);
+    
+    // CCS Mode
+    Object.assign(CodeMirror.mimeModes['text/css'].colorKeywords, {
+      'darkgrey': true,
+      'darkslategrey': true,
+      'dimgrey': true,
+      'grey': true,
+      'lightgrey': true,
+      'lightslategrey': true,
+      'slategrey': true,
+    });
+    
+/*
+  CodeMirror.defineOption('fmColor', {}, function(cm, val, prev) {
+    
+    if (cm.options.mode 1== 'css') { return; }
+    console.log(cm, val, prev);
+
+  });
+    */
   }
 
   lint(cm, annotationsNotSorted) {
@@ -37,17 +61,18 @@ class Config {
     // ------------- Lint Filter ---------------------------
     annotationsNotSorted.forEach((item, index) => {
 
+      const m = item.message.match(/'(GM_getValue|GM_listValues|GM_getTabs?|GM_saveTab)' is not defined/)
+      
       switch (true) {
-
-        case /'(GM_getValue|GM_listValues)' is not defined/.test(item.message):
-          item.message = RegExp.$1 + ' is partially supported. Read the Help for more information.';
+        
+        case m && ['GM_getValue', 'GM_listValues'].includes(m[1]):
+          item.message = m[1] + ' is partially supported. Read the Help for more information.';
           break;
-
-        case /'(GM_getTabs?|GM_saveTab)' is not defined/.test(item.message):
-          item.message = RegExp.$1 + ' is not supported.';
+                  
+        case m && ['GM_getTab', 'GM_getTabs', 'GM_saveTab'].includes(m[1]):
+          item.message = m[1] + ' is not supported.';
           item.severity = 'error';
           break;
-
 
         case item.message === '`var` declarations are forbidden. Use `let` or `const` instead.':
           item.message = '`var` declarations are deprecated since ECMAScript 6 (2015). Use `let` or `const` instead.';
@@ -139,6 +164,17 @@ class Config {
         case prop === '@exclude' && /^\/[^/]{1}.+\/$/.test(value):
           message = '@match performance is more efficient than Regular Expression.';
           break;
+
+
+        case prop === '@include':
+        case prop === '@exclude':
+          ch = item.indexOf(value);
+          cm.markText({line, ch},{line, ch: ch + value.length}, {
+            className: 'fm-convert', 
+            attributes: {'data-line': line, 'data-index': ch}
+          });
+          break;
+
 
 
         case !js || prop !== '@grant': break;

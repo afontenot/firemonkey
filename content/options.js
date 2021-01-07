@@ -204,8 +204,12 @@ class Script {
       localStorage.setItem('dark', dark);
       this.addTheme(this.theme, defaultLink, script, dark);
     });
+
+    // --- color picker
+    this.inputColor = document.querySelector('.script input[type="color"]');
+    this.inputColor.addEventListener('change', (e) => this.changeColor());
   }
-  
+
   addTheme(theme, defaultLink, script, dark) {
 
     const url =  `../lib/codemirror/theme/${theme}.css`;
@@ -287,11 +291,317 @@ class Script {
     const cmOptions = App.JSONparse(pref.cmOptions) || {};
     Object.keys(cmOptions).forEach(item => item !== 'jshint' && (options[item] = cmOptions[item]));
     cmOptions.jshint && Object.keys(cmOptions.jshint).forEach(item => jshint[item] = cmOptions.jshint[item]);
+
     this.cm = CodeMirror.fromTextArea(this.box, options);
     CodeMirror.commands.save = () => this.saveScript();
 
     // --- stats
     this.makeStats(js);
+
+    // color picker
+    //options.mode === 'css' && this.cm.on('mousedown', (cm, e) => this.colorPicker(cm, e));
+
+    // converter + color picker
+    this.cm.on('mousedown', (cm, e) => {
+      const node = e.explicitOriginalTarget;
+      if (node.nodeName === '#text') { return; }
+      if (node.classList.contains('cm-fm-color')) { this.colorPicker(cm, node); }
+      else if (node.classList.contains('fm-convert')) { this.convertInclude(cm, node); }
+    });
+  }
+
+  colorPicker(cm, node) {
+
+    this.oldColor = node.style.getPropertyValue('--fm-color');
+    let color = this.oldColor;
+
+    switch (true) {
+
+      case this.oldColor.startsWith('rgb'):                 // convert rgba?() -> #rrggbb
+        color = this.rgbToHex(color);
+        break;
+
+      case /^#\w{3}$/.test(this.oldColor):                  // convert #rgb -> #rrggbb
+        color = this.hex3to6(color);
+        break;
+
+      case !this.oldColor.startsWith('#'):                  // convert named -> #rrggbb
+        color = this.namedColors(color);
+        break;
+    }
+
+    this.inputColor.value = color;
+    this.inputColor.click();
+  }
+
+  changeColor() {
+
+    if (this.oldColor === this.inputColor.value) { return; }     // no change
+
+    let color = this.inputColor.value;
+    switch (true) {
+
+      case this.oldColor.startsWith('rgb'):                 // convert #rrggbb -> rgba?()
+        color = this.hexToRgb(color);
+        break;
+
+      case /^#\w{3}$/.test(this.oldColor):                  // convert #rrggbb -> #rgb
+        const m = this.oldColor.match(/[\d.]+/g);
+        color = this.hex6to3(color, m && m[3]);
+        break;
+
+      case !this.oldColor.startsWith('#'):
+        color = this.namedColors(color, true);              // // convert #rrggbb -> named
+        break;
+    }
+
+    const {line, ch} = this.cm.getCursor();
+    this.cm.replaceRange(color, {line, ch}, {line, ch: ch + this.oldColor.length});
+  }
+
+  rgbToHex(color) {
+
+    const m = color.replace(/\s+/g, '').match(/rgba?\((\d+),(\d+),(\d+)/);
+    return m ? '#' + m.slice(1).map(d => (d*1).toString(16).padStart(2, 0)).join('') : color;
+  }
+
+  hexToRgb(color) {
+
+    const m = color.substring(1).match(/.{2}/g).map(hex => parseInt(hex, 16));
+    const op = this.oldColor.match(/[\d.]+/g)[3];
+    op && m.push(op);
+    return (op ? 'rgba(' : 'rgb(') + m.join(',') + ')';
+  }
+
+  hex3to6(color) {
+
+    return color.split('').map(hex => hex+hex).join('').substring(1);
+  }
+  hex6to3(color) {
+
+    const m = color.match(/#(.)\1(.)\2(.)\3/);
+    return m ? '#' + m.slice(1).join('') : color;
+  }
+
+  namedColors(color, back) {
+
+    const names = {
+      'aliceblue': '#f0f8ff',
+      'antiquewhite': '#faebd7',
+      'aqua': '#00ffff',
+      'aquamarine': '#7fffd4',
+      'azure': '#f0ffff',
+      'beige': '#f5f5dc',
+      'bisque': '#ffe4c4',
+      'black': '#000000',
+      'blanchedalmond': '#ffebcd',
+      'blue': '#0000ff',
+      'blueviolet': '#8a2be2',
+      'brown': '#a52a2a',
+      'burlywood': '#deb887',
+      'cadetblue': '#5f9ea0',
+      'chartreuse': '#7fff00',
+      'chocolate': '#d2691e',
+      'coral': '#ff7f50',
+      'cornflowerblue': '#6495ed',
+      'cornsilk': '#fff8dc',
+      'crimson': '#dc143c',
+      'cyan': '#00ffff',
+      'darkblue': '#00008b',
+      'darkcyan': '#008b8b',
+      'darkgoldenrod': '#b8860b',
+      'darkgray': '#a9a9a9',
+      'darkgrey': '#a9a9a9',
+      'darkgreen': '#006400',
+      'darkkhaki': '#bdb76b',
+      'darkmagenta': '#8b008b',
+      'darkolivegreen': '#556b2f',
+      'darkorange': '#ff8c00',
+      'darkorchid': '#9932cc',
+      'darkred': '#8b0000',
+      'darksalmon': '#e9967a',
+      'darkseagreen': '#8fbc8f',
+      'darkslateblue': '#483d8b',
+      'darkslategray': '#2f4f4f',
+      'darkslategrey': '#2f4f4f',
+      'darkturquoise': '#00ced1',
+      'darkviolet': '#9400d3',
+      'deeppink': '#ff1493',
+      'deepskyblue': '#00bfff',
+      'dimgray': '#696969',
+      'dimgrey': '#696969',
+      'dodgerblue': '#1e90ff',
+      'firebrick': '#b22222',
+      'floralwhite': '#fffaf0',
+      'forestgreen': '#228b22',
+      'fuchsia': '#ff00ff',
+      'gainsboro': '#dcdcdc',
+      'ghostwhite': '#f8f8ff',
+      'gold': '#ffd700',
+      'goldenrod': '#daa520',
+      'gray': '#808080',
+      'grey': '#808080',
+      'green': '#008000',
+      'greenyellow': '#adff2f',
+      'honeydew': '#f0fff0',
+      'hotpink': '#ff69b4',
+      'indianred': '#cd5c5c',
+      'indigo': '#4b0082',
+      'ivory': '#fffff0',
+      'khaki': '#f0e68c',
+      'lavender': '#e6e6fa',
+      'lavenderblush': '#fff0f5',
+      'lawngreen': '#7cfc00',
+      'lemonchiffon': '#fffacd',
+      'lightblue': '#add8e6',
+      'lightcoral': '#f08080',
+      'lightcyan': '#e0ffff',
+      'lightgoldenrodyellow': '#fafad2',
+      'lightgray': '#d3d3d3',
+      'lightgrey': '#d3d3d3',
+      'lightgreen': '#90ee90',
+      'lightpink': '#ffb6c1',
+      'lightsalmon': '#ffa07a',
+      'lightseagreen': '#20b2aa',
+      'lightskyblue': '#87cefa',
+      'lightslategray': '#778899',
+      'lightslategrey': '#778899',
+      'lightsteelblue': '#b0c4de',
+      'lightyellow': '#ffffe0',
+      'lime': '#00ff00',
+      'limegreen': '#32cd32',
+      'linen': '#faf0e6',
+      'magenta': '#ff00ff',
+      'maroon': '#800000',
+      'mediumaquamarine': '#66cdaa',
+      'mediumblue': '#0000cd',
+      'mediumorchid': '#ba55d3',
+      'mediumpurple': '#9370db',
+      'mediumseagreen': '#3cb371',
+      'mediumslateblue': '#7b68ee',
+      'mediumspringgreen': '#00fa9a',
+      'mediumturquoise': '#48d1cc',
+      'mediumvioletred': '#c71585',
+      'midnightblue': '#191970',
+      'mintcream': '#f5fffa',
+      'mistyrose': '#ffe4e1',
+      'moccasin': '#ffe4b5',
+      'navajowhite': '#ffdead',
+      'navy': '#000080',
+      'oldlace': '#fdf5e6',
+      'olive': '#808000',
+      'olivedrab': '#6b8e23',
+      'orange': '#ffa500',
+      'orangered': '#ff4500',
+      'orchid': '#da70d6',
+      'palegoldenrod': '#eee8aa',
+      'palegreen': '#98fb98',
+      'paleturquoise': '#afeeee',
+      'palevioletred': '#db7093',
+      'papayawhip': '#ffefd5',
+      'peachpuff': '#ffdab9',
+      'peru': '#cd853f',
+      'pink': '#ffc0cb',
+      'plum': '#dda0dd',
+      'powderblue': '#b0e0e6',
+      'purple': '#800080',
+      'rebeccapurple': '#663399',
+      'red': '#ff0000',
+      'rosybrown': '#bc8f8f',
+      'royalblue': '#4169e1',
+      'saddlebrown': '#8b4513',
+      'salmon': '#fa8072',
+      'sandybrown': '#f4a460',
+      'seagreen': '#2e8b57',
+      'seashell': '#fff5ee',
+      'sienna': '#a0522d',
+      'silver': '#c0c0c0',
+      'skyblue': '#87ceeb',
+      'slateblue': '#6a5acd',
+      'slategray': '#708090',
+      'slategrey': '#708090',
+      'snow': '#fffafa',
+      'springgreen': '#00ff7f',
+      'steelblue': '#4682b4',
+      'tan': '#d2b48c',
+      'teal': '#008080',
+      'thistle': '#d8bfd8',
+      'tomato': '#ff6347',
+      'turquoise': '#40e0d0',
+      'violet': '#ee82ee',
+      'wheat': '#f5deb3',
+      'white': '#ffffff',
+      'whitesmoke': '#f5f5f5',
+      'yellow': '#ffff00',
+      '#9acd32': 'yellowgreen'
+    };
+
+    if (back) { return Object.keys(names).find(item => names[item] === color) || color; }
+    return names[color] || color;
+  }
+
+  convertInclude(cm, node) {
+
+    const line = node.dataset.line;
+    const text = this.cm.getLine(line);
+    const index = node.dataset.index;
+    let p = node.textContent;
+    const start = text.substring(0, index).replace('@include', '@match  ').replace('@exclude', '@exclude-match');
+    const from = {line, ch: 0};
+    const to = {line, ch: text.length};
+
+    // --- check if pattern is already a valid match mattern
+    if (!Pattern.check(p)) {                                // valid match pattern;
+      this.cm.replaceRange(start + p, from, to);
+      return;
+    }
+
+    // --- convert specific patterns
+    switch (true) {
+
+      // fix complete pattern
+      case ['*', 'http*://*'].includes(p):  p = '*://*/*'; break;
+      case p === 'http://*': p = 'http://*/*'; break;
+      case p === 'https://*': p = 'https://*/*'; break;
+    }
+    if (p !==  node.textContent) {                          // it has changed
+      this.cm.replaceRange(start + p, from, to);
+      return;
+    }
+
+    // --- check file:///
+    if (p.startsWith('file:')) {
+      const error = !Pattern.check(p);
+      !error ? this.cm.replaceRange(start + p, from, to) : App.notify(p + '\n' + error);
+      return;
+    }
+
+    // --- convert some common incompatibilities with matches API
+    switch (true) {
+
+      // fix scheme
+      case p.startsWith('http*'): p = p.substring(4); break; // *://.....
+      case p.startsWith('*//'): p = '*:' + p.substring(1); break; // bad protocol wildcard
+      case p.startsWith('//'): p = '*:' + p; break;         // Protocol-relative URL
+      case !p.includes('://'): p = '*://' + p; break;       // no protocol
+    }
+
+    let [scheme, host, ...path] = p.split(/:\/{2,3}|\/+/);
+
+    // http/https schemes
+    if (!['http', 'https', 'file', '*'].includes(scheme.toLowerCase())) { scheme = '*'; } // bad scheme
+    if (host.includes(':')) { host = host.replace(/:.+/, ''); } // host with port
+    if (host.endsWith('.co*.*')) { host = host.slice(0, -5) + 'TLD'; } // TLD wildcard google.co*.*
+    if (host.endsWith('.*')) { host = host.slice(0, -1) + 'TLD'; } // TLD wildcard google.*
+    if (host.startsWith('*') && host[1] && host[1] !== '.') { host = '*.' + host.substring(1); } // starting wildcard *google.com
+    p = scheme +  '://' + [host, ...path].join('/');        // rebuild pattern
+
+    if (!path[0] && !p.endsWith('/')) { p += '/'; }         // fix trailing slash
+
+
+    // --- check if it is valid
+    const error = Pattern.check(p);
+    !error ? this.cm.replaceRange(start + p, from, to) : App.notify(p + '\n' + error);
   }
 
   makeStats(js, text = this.box.value) {
@@ -951,7 +1261,7 @@ class Pattern {
 
     for (const item of node.value.split(/\s+/)) {           // use for loop to be able to break
 
-      const error = this.check(item.toLowerCase());
+      const error = this.check(item);
       if (error) {
         node.classList.add('invalid');
 
@@ -963,6 +1273,8 @@ class Pattern {
   }
 
   static check(pattern) {
+
+    pattern = pattern.toLowerCase();
 
     const [scheme, host, path] = pattern.split(/:\/{2,3}|\/+/);
 

@@ -772,7 +772,10 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
     <li>include & exclude</li>
     <li>include & exclude with regular expresion</li>
   </ol>
-  
+
+
+  <h4>&#x26a0;&#xfe0f Warning: Mixed types</h4>
+  <p>Due to matching order in Firefox/Chrome APIs, having mixed <code>@match/@exclude-match</code> with <code>@include/@exclude/includeGlob/excludeGlob</code> might have unexpected unmatched results.</p>  
 
 
   <h4>include & exclude</h4>
@@ -852,6 +855,8 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 </table>
 
 
+  <h4>&#x1f501; include/exclude Converter</h4>
+  <p>Click on &#x1f501; next to URL in metadata block to convert <code>@include/@exclude</code> to <code>@match/@exclude-match</code>, if possible.</p>
 
 
   <h3 id="match-patterns">Match Patterns</h3>
@@ -1007,7 +1012,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   </ul>
 
 
-<h4>FTP &#x26a0;&#xfe0f;</h4>
+<h4 id="ftp">FTP &#x26a0;&#xfe0f;</h4>
 
   <blockquote>The Firefox platform development team recently <a href="https://groups.google.com/forum/#!msg/mozilla.dev.platform/FqCZUT9ay_o/jt4DLRDjAwAJ">announced plans</a> to first disable, and then remove the implementation for built-in <a href="https://developer.mozilla.org/docs/Glossary/FTP">FTP</a> from the browser.
 
@@ -2569,6 +2574,10 @@ script.<span class="method">remove</span>();
 </pre>
 </figure>
 
+  <h4>Color Picker</h4>
+  <p>Color indicator before CSS colors (<i>named color, #rgb, #rrggbb, rgb(n,n,n) & rgba(n,n,n,a)</i>) shows the colors. Clicking the indicator will open the HTML5 Color Picker.</p>
+  <p>New values from Color picker replace the old entries in the same format as the original e.g. <i>named color</i> to <i>named color</i> (if available), <code>#rgb</code> to <code>#rgb</code> etc.</p>
+
 
   <h3 id="UserStyle"><img src="../image/css.svg" alt=""> UserStyle</h3>
 
@@ -2581,7 +2590,7 @@ script.<span class="method">remove</span>();
   <h4>Installing Styles from userstyles.org <span>(v2.0)</span></h4>
   <p>Right-click context-menu on the style page and FireMonkey will create a UserStyle based on the details. UserCSS/UserStyle are by far more efficient and use less resources than a UserScript only for injecting CSS/Style.</p>
   <p>Please note that <code>@-moz-document regexp()</code> in not supported.</p>
-  <p>Please note that <i>userstyles.org</i> is rather slow and may time out.</p>
+  <p>Please note that <i>userstyles.org</i> is sometimes slow and may time out.</p>
 
 
   <h4>&#x2139;&#xFE0F; Stylish/Stylus/xStyle Type UserStyle</h4>

@@ -50,3 +50,38 @@ div.CodeMirror-code > div:hover .CodeMirror-linenumber {
   color: #f00;
   font-weight: bold;
 }
+
+
+/* ----- CSS Colors ----- */
+span.cm-fm-color{
+  position: relative;
+  margin-left: 1.5em;
+}
+span.cm-fm-color::before {
+  content: '';
+  width: 0.9em;
+  height: 0.9em;
+  display: inline-block;
+  background-color: var(--fm-color);
+  user-select: none;
+  cursor: pointer;
+  border: 1px solid #999;
+  border-radius: 5em;
+  position: absolute;
+  top: 0;
+  left: -1.4em;;
+}
+
+/* ----- Convert ----- */
+span.fm-convert {
+  position: relative;
+}
+span.fm-convert::after {
+  content: '\1f501';
+  display: inline-block;
+  pointer-events: auto;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: -2em;;
+}

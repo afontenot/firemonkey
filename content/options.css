@@ -269,11 +269,10 @@ textarea {
 
 
 
-
-
 .flat {
   background-color: #f5f5f5;
   border: 1px solid #ddd;
+  border-top: 2px solid #3be;
   border-radius: 5px;
   padding: 0.4em 1em;
   font-size: 0.9em;
