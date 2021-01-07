@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Popup</title>
     <link rel="stylesheet" href="popup.css">
     <script type="module" src="popup.js"></script>
@@ -20,9 +21,9 @@
         <h3 data-i18n="otherScript"></h3>
         <ul class="other"></ul>
 
-        <h3 class="menu command">&#x1f4e3; <span data-i18n="scriptCommands"></span><img src="../image/next.svg" alt=""></h3>
-        <h3 class="menu scratchpad">&#x1f4dd; <span data-i18n="scratchpad"></span><img src="../image/next.svg" alt=""></h3>
-        <h3 class="menu findScript">&#x1f50d; <span data-i18n="findScript"></span><img src="../image/next.svg" alt=""></h3>
+        <h3 class="menu command" data-i18n="scriptCommands">&#x1f4e3; </h3>
+        <h3 class="menu scratch" data-i18n="scratchpad">&#x1f4dd; </h3>
+        <h3 class="menu findScript" data-i18n="findScript">&#x1f50d; </h3>
 
         <div class="flex">
           <button type="button" data-i18n="options"><img src="../image/gear.svg" alt=""> </button>
@@ -45,14 +46,14 @@
         <dl class="commandList"></dl>
 
         <div class="scratchpad">
-          <h2>JavaScript <img class="bin scraptchpadJS" style="float: right;" src="../image/bin.svg" data-i18n="delete|title" alt=""></h2>
+          <h2>JavaScript <img class="bin scraptchpadJS" src="../image/bin.svg" data-i18n="delete|title" alt=""></h2>
           <textarea id="js" rows="8" spellcheck="false"></textarea>
 
           <div class="button flex">
             <button type="button" id="js" data-i18n="run">&#x25b7; </button>
           </div>
 
-          <h2>CSS <img class="bin scraptchpadCSS" style="float: right;" src="../image/bin.svg" data-i18n="delete|title" alt=""></h2>
+          <h2>CSS <img class="bin scraptchpadCSS" src="../image/bin.svg" data-i18n="delete|title" alt=""></h2>
           <textarea id="css" rows="8" spellcheck="false"></textarea>
 
           <div class="button flex">

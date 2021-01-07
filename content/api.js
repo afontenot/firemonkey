@@ -226,6 +226,7 @@
       try {
         const style = document.createElement('style');
         style.textContent = css;
+        style.dataset.src = name + '.user.js';
         (document.head || document.body || document.documentElement || document).appendChild(style);
       } catch(error) { console.error(name, error.message); }
     },
@@ -236,6 +237,7 @@
       try {
         const script = document.createElement('script');
         script.textContent = js;
+        script.dataset.src = name + '.user.js';
         (document.body || document.head || document.documentElement || document).appendChild(script);
       } catch(error) { console.error(name, error.message); }
     },

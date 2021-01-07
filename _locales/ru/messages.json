@@ -134,13 +134,7 @@
   "scriptUpdated": {
     "message": "Обновлён до версии $1"
   },
-  "importScript": {
-    "message": "Импорт"
-  },
-  "exportScript": {
-    "message": "Экспорт"
-  },
-  "exportAllScript": {
+  "exportAll": {
     "message": "Экспорт всех"
   },
   "import": {
@@ -229,8 +223,5 @@
   },
   "saveOptions": {
     "message": "Сохранить"
-  },
-  "settings": {
-    "message": "Настройки"
   }
-}
+} 

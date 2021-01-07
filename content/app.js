@@ -110,7 +110,6 @@ class App {
     try { return JSON.parse(str); } catch (e) { return null; }
   }
 }
-// ----------------- /Helper functions ----------------------
 
 // ----------------- Parse Metadata Block ------------------
 // bg options
@@ -572,23 +571,23 @@ class CheckMatches {
   static isMatch(urls, arr, glob, regex) {
     
     if (regex) {
-      return !!urls.find(u => new RegExp(this.prepareRegEx(arr), 'i').test(u));
+      return urls.some(u => new RegExp(this.prepareRegEx(arr), 'i').test(u));
     }
     
     if (glob) {
-      return !!urls.find(u => new RegExp(this.prepareGlob(arr), 'i').test(u));
+      return urls.some(u => new RegExp(this.prepareGlob(arr), 'i').test(u));
     }
 
     // catch all checks
     switch (true) {
   
       case arr.includes('<all_urls>'):
-      case arr.includes('*://*/*') && urls.find(item => item.startsWith('http')):
-      case arr.includes('file:///*') && urls.find(item => item.startsWith('file:///')):
+      case arr.includes('*://*/*') && urls.some(item => item.startsWith('http')):
+      case arr.includes('file:///*') && urls.some(item => item.startsWith('file:///')):
         return true;
     }
     
-    return !!urls.find(u => new RegExp(this.prepareMatch(arr), 'i').test(u));
+    return urls.some(u => new RegExp(this.prepareMatch(arr), 'i').test(u));
   }
 
   // here
@@ -610,6 +609,5 @@ class CheckMatches {
   static prepareRegEx(arr) {
     return arr.map(item => `(${item.slice(1, -1)})`).join('|');
   }
-  
 }
 // ----------------- /Match Pattern Check ------------------

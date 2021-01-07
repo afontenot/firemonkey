@@ -134,13 +134,7 @@
   "scriptUpdated": {
     "message": "指令稿/CSS 已更新至版本 $1"
   },
-  "importScript": {
-    "message": "匯入"
-  },
-  "exportScript": {
-    "message": "匯出"
-  },
-  "exportAllScript": {
+  "exportAll": {
     "message": "匯出"
   },
   "import": {
@@ -229,8 +223,5 @@
   },
   "saveOptions": {
     "message": "儲存"
-  },
-  "settings": {
-    "message": "設定"
   }
-}
+} 

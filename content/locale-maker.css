@@ -1,5 +1,51 @@
 ﻿/* ----- General ----- */
+:root {
+  --bg: #fff;
+  --border: #ddd;
+  --color: #000;  
+  --hover: #eee;
+  --shadow: #0004;
+  --btn-bg: #f9f9fa;
+  --btn-hover: #fff;
+  --bg2: #ddda;
+  --bg3: #fff;
+  --bg-even: #eee;
+  --bg-odd: #ddd4;
+}
+
+@media screen and (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000;
+    --border: #777; 
+    --color: #fff;  
+    --hover: #888;
+    --shadow: #fff8;
+    --btn-bg: #666;
+    --btn-hover: #444;
+    --bg2: #777;
+    --bg3: #999;
+    --bg-even: #444;
+    --bg-odd: #555; 
+  }  
+}
+
+body.dark {
+  --bg: #000;
+  --border: #777; 
+  --color: #fff;  
+  --hover: #888;
+  --shadow: #fff8;
+  --btn-bg: #666;
+  --btn-hover: #444;
+  --bg2: #777;
+  --bg3: #999;
+  --bg-even: #444;
+  --bg-odd: #555; 
+}
+
 body {
+  color: var(--color);
+  background: var(--bg);
   padding: 0;
   margin: 0;
   font-family: sans-serif;
@@ -15,47 +61,26 @@ article {
 
 /* ----- Table ----- */
 table {
-  background: #fff;
   border-collapse: collapse;
   width: 100%;
   margin: 0 auto;
 }
 
-tr:nth-child(odd) td {
-  background-color: #f4f6f8;
-}
-
-tr:nth-child(even) td {
-  background-color: #f8fafb;
-}
-
-tr:not(:last-of-type) {
-  border-bottom: 1px solid #fff;
-}
-
-td {
- width: 50%;
-}
-
-td:nth-child(1) {
- padding-left: 0.5em;
- font-size: 0.9em;
-}
-
 caption {
   color: #fff;
-  background-color: #abc;
+  background: #444;
   padding: 0.2em 0.5em 0.2em 1em;
   font-size: 1.5em;
 }
 
 caption img {
   width: 1em;
+  filter: invert(1);
 }
 
 thead th {
   padding: 0.2em 0.5em;
-  background-color: #e9eef1;
+  background: var(--bg2);
   position: sticky;
   top: 0;
   z-index: 1;
@@ -70,11 +95,38 @@ th:nth-child(2) {
   text-align: right;
 }
 
+tr:nth-child(even) {
+  background: var(--bg-even);
+}
+
+tr:nth-child(odd) {
+  background: var(--bg-odd);
+}
+
+tr td:last-of-type {
+  background: var(--bg);;
+}
+
+tr:not(:last-of-type) {
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+ width: 50%;
+}
+
+td:nth-child(1) {
+ padding-left: 0.5em;
+ font-size: 0.9em;
+}
+
 input {
   width: 100%;
   border: none;
   padding: 0.2em;
   outline: 0;
+  color: inherit;
+  background: transparent;
 }
 
 tfoot td {
@@ -84,11 +136,10 @@ tfoot td {
   z-index: 1;
   height: 1em;
   color: #800;
-  background-color: #fff5f5 !important;
-  transition: all 0.5s ease-in-out;
+  background: #fff5f5 !important;
+  transition: 0.5s;
   opacity: 1;
 }
-
 
 tfoot td:empty {
   opacity: 0;
@@ -106,16 +157,18 @@ summary {
   outline: 0;
   padding: 0.4em 0.6em;
   cursor: pointer;
-  transition: all 0.5s ease-in-out;
+  transition: 0.5s;
 }
 
 summary svg {
   width: 1em;
   vertical-align: bottom;
+  fill: var(--color);
 }
 
+
 summary:hover, details[open] {
-  background-color: #abc;
+  background: var(--hover);
 }
 
 details[open] summary ~ * {
@@ -127,7 +180,6 @@ details[open] summary ~ * {
   100%  { opacity: 1; transform: translateY(0); }
 }
 
-
 details > div {
   margin: 0;
   padding: 0;
@@ -136,10 +188,10 @@ details > div {
   top: 3.5em;
   right: 0.6em;
   z-index: 10;
-  background-color: #abc;
+  background: #777;
   border-radius: 5px;
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-  transition: all 0.5s ease-in-out;
+  box-shadow: 0 8px 16px 0 var(--shadow);
+  transition: 0.5s;
   text-align: initial;
 }
 
@@ -150,21 +202,21 @@ details > div::after {
   right: 0.5em;
   border-width: 0.8em;
   border-style: solid;
-  border-color: transparent transparent #abc transparent;
+  border-color: transparent transparent #777 transparent;
 }
 
 div.help {
- margin: 0.5em;
- padding: 0.5em;
- background-color: #fff;
- border-radius: 5px;
- font-size: 0.9em;
+  background: var(--bg3);
+  margin: 0.5em;
+  padding: 0.5em;
+  border-radius: 5px;
+  font-size: 0.9em;
 }
 
 code {
   font-size: 1.2em;
   padding: 0 0.2em;
-  background-color: #eee;
+  background: var(--hover);
 }
 
 h3 {
@@ -189,6 +241,14 @@ input[type="file"] {
   display: none;
 }
 
+label[for="import"] {
+  border-top-color: #6a4;
+}
+
+button[id="export"] {
+  border-top-color: #d24;
+}
+
 label[for="import"]::before {
   content: '\1f4e5';
   margin-right: 0.3em;
@@ -200,16 +260,19 @@ button[id="export"]::before {
 }
 
 .flat {
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
+  color: inherit;
+  background: var(--btn-bg);
+  border: 1px solid var(--border);
+  border-top: 3px solid #3be;
   border-radius: 5px;
   padding: 0.4em 1em;
   font-size: 0.9em;
-  transition: all 0.5s ease-in-out;
+  transition: 0.5s;
   cursor: pointer;
+  text-align: center;
 }
 
 .flat:hover {
-  background-color: #fff;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+  background: var(--btn-hover);
+  box-shadow: 0 1px 5px var(--shadow);
 }

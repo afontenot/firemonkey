@@ -134,13 +134,7 @@
   "scriptUpdated": {
     "message": "脚本/样式已更新至 $1 版本"
   },
-  "importScript": {
-    "message": "导入"
-  },
-  "exportScript": {
-    "message": "导出"
-  },
-  "exportAllScript": {
+  "exportAll": {
     "message": "导出"
   },
   "import": {
@@ -229,8 +223,5 @@
   },
   "saveOptions": {
     "message": "保存"
-  },
-  "settings": {
-    "message": "设置"
   }
-}
+} 
