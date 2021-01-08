@@ -19,7 +19,7 @@
 @media screen and (prefers-color-scheme: dark) {
   :root {
     --bg: #444;
-    --border: #777; 
+    --border: #777;
     --color: #fff;
     --hover: #888;
     --scrollbar: #888 #222;
@@ -30,13 +30,13 @@
     --btn-bg: #666;
     --btn-hover: #444;
     --fieldset-color: #0cf;
-    --bg2: #444;  
-  }  
+    --bg2: #444;
+  }
 }
 
 body.dark {
   --bg: #444;
-  --border: #777; 
+  --border: #777;
   --color: #fff;
   --hover: #888;
   --scrollbar: #888 #222;
@@ -47,7 +47,7 @@ body.dark {
   --btn-bg: #666;
   --btn-hover: #444;
   --fieldset-color: #0cf;
-  --bg2: #444;  
+  --bg2: #444;
 }
 
 
@@ -124,7 +124,6 @@ iframe {
 .spacer {
   flex-grow: 1;
 }
-
 
 fieldset {
   transition: 0.5s;
@@ -272,16 +271,12 @@ input[name="nav"] {
 }
 
 nav {
-  /*color: var(--nav-color);*/
   background: var(--nav-bg);
   width: var(--nav-width);
   min-width: var(--nav-width);
   height: 100vh;
   position: fixed;
   padding: 0.5em 0;
-  /*box-shadow: 0 4px 10px 0 rgba(0,0,0,0.8);
-  box-shadow: 0 4px 10px 0 #000c;
-  */
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
@@ -299,7 +294,6 @@ nav > label {
 }
 
 nav > label:hover {
-  /*color: #bcd;*/
   background: var(--hover);
 }
 
@@ -493,8 +487,6 @@ nav ul + div::after {
 /* ----- /Counter ----- */
 /* ----- /Nav Scripts ----- */
 
-
-
 /* ----- Options ----- */
 .options fieldset {
   background: var(--nav-bg);
@@ -629,16 +621,11 @@ section.script {
   white-space: nowrap;
   outline: 0;
 }
-/*
-.menu > button img {
-  width: 16px;
-}*/
 
 .menu > button:hover {
   background: var(--hover);
   border-color: var(--selected-border);
 }
-
 
 /* --- menu popup --- */
 .menu details {
@@ -789,7 +776,6 @@ section.script {
   color: var(--fieldset-color);
 }
 
-
 .script fieldset {
   border: 0;
   padding: 0;
@@ -830,7 +816,10 @@ legend span {
 }
 
 .script fieldset textarea {
-  visibility: hidden;
+  background-color: transparent;
+  color: transparent;
+  border: 0;
+  resize: none;
 }
 
 footer {
@@ -889,7 +878,6 @@ footer {
   margin-right: 0.5em;
 }
 
-
 .log tr:hover {
   background: var(--hover);
 }
@@ -923,7 +911,6 @@ footer {
 .dark .bin {
   filter: grayscale(1) invert(1) contrast(4);
 }
-
 
 .dark #nav1:checked ~ article,
 .dark #nav2:checked ~ article {

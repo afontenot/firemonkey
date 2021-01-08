@@ -184,7 +184,6 @@ class Script {
     // --- CodeMirror & Theme
     this.cm;
     this.footer = document.querySelector('footer');
-    this.script = document.querySelector('.script');
 
     const themeSelect = document.querySelector('#theme');
     this.theme = localStorage.getItem('theme') || 'defualt';
@@ -300,9 +299,6 @@ class Script {
 
     // --- stats
     this.makeStats(js);
-
-    // color picker
-    //options.mode === 'css' && this.cm.on('mousedown', (cm, e) => this.colorPicker(cm, e));
 
     // converter + color picker
     this.cm.on('mousedown', (cm, e) => {
