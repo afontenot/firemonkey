@@ -1,4 +1,4 @@
-﻿// ----------------- Locale Maker 1.1 ----------------------
+﻿// ----------------- Locale Maker ----------------------
 class LocaleMaker {
 
   constructor() {
