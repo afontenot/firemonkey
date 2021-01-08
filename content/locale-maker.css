@@ -78,6 +78,10 @@ caption img {
   filter: invert(1);
 }
 
+caption span {
+  font-size: 0.5em;
+}
+
 thead th {
   padding: 0.2em 0.5em;
   background: var(--bg2);
