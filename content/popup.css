@@ -2,8 +2,8 @@
 :root {
   --color: #000;
   --bg: #fff;
-  --scrollbar: #ddd #f5f5f5;  
-  --hover: #eee;  
+  --scrollbar: #ddd #f5f5f5;
+  --hover: #eee;
   --btn-bg: #f9f9fa;
 }
 
@@ -11,17 +11,17 @@
   :root {
     --color: #fff;
     --bg: #000;
-    --scrollbar: #888 #222;  
-    --hover: #555; 
+    --scrollbar: #888 #222;
+    --hover: #555;
     --btn-bg: #666;
-  }  
+  }
 }
 
 body.dark {
   --color: #fff;
   --bg: #000;
-  --scrollbar: #888 #222;  
-  --hover: #555; 
+  --scrollbar: #888 #222;
+  --hover: #555;
   --btn-bg: #666;
 }
 
@@ -91,6 +91,7 @@ h3.menu {
   position: relative;
   margin-bottom: 1px;
   opacity: 0.5;
+  transition: 0.5s;
 }
 
 h3.menu:hover {
@@ -106,6 +107,12 @@ h3.menu::after {
   height: 1em;
   position: absolute;
   right: 0.5em;
+  opacity: 0.5;
+  transition: 0.5s;
+}
+
+h3.menu:hover::after {
+  opacity: 1;
 }
 /* ----- /menu ----- */
 
@@ -157,26 +164,23 @@ li {
   margin: 0;
   display: flex;
   transition: 0.3s;
-}
-
-li:hover {
-  background: var(--hover);
+  position: relative;
+  cursor: pointer;
 }
 
 li span {
   display: inline-block;
 }
 
-li span.enable,
-li span.next {
-  width: 1.5em;
-  flex: 0 0 1.5em;
-  text-align: center;
-  cursor: pointer;
-  color: #05f;
+li span:hover {
+  background: var(--hover);
 }
 
 li span.enable {
+  width: 1.5em;
+  flex: 0 0 1.5em;
+  text-align: center;
+  color: #05f;
   border: 1px dashed transparent;
   border-radius: 5px;
 }
@@ -222,26 +226,21 @@ li.css span.name::before {
   background: url('../image/css.svg');
 }
 
-li span.next {
-  opacity: 0;
-  transition: 0.3s;
-}
-
-li span.next::before {
+li span.name::after {
   content: '';
   background: url('../image/next.svg') no-repeat center;
   background-size: contain;
   display: inline-block;
   width: 1em;
-  height: 1em;
-  vertical-align: middle;
+  height: 100%;
+  position: absolute;
+  right: 0.5em;
+  opacity: 0;
+  transition: 0.5s;
+  box-sizing: border-box;
 }
 
-li:hover span.next {
-  opacity: 0.4;
-}
-
-li span.next:hover {
+li span.name:hover::after {
   opacity: 1;
 }
 /* ----- /Scripts ----- */
@@ -288,6 +287,8 @@ dd {
 
 dd + dt {
   margin-top: 0.5em;
+  padding-top: 0.5em;
+  border-top: 1px solid var(--hover);
 }
 
 dt.error,
@@ -364,7 +365,7 @@ img.bin:hover {
   filter: brightness(3);
 }
 
-h3.menu::after,
+.dark h3.menu::after,
 .dark li span.next,
 .dark .info h3 img {
   filter: invert(1);
