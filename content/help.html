@@ -127,7 +127,7 @@
         <dd>Shows that there was an error when registering the script & the Information page displays the error</dd>
 
 
-      <dt><img src="../image/next.svg" alt=""></dt>
+      <dt><i>{name}</i> <img src="../image/next.svg" alt=""></dt>
         <dd>Shows the Information for the Script/CSS</dd>
 
       <dt>&#x1f58c; Edit</dt>
@@ -396,17 +396,6 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
     <dt><img src="../image/bin.svg" alt=""> Delete</dt>
       <dd>Delete the currently displaying Script/CSS after confirmation</dd>
-
-
-
-
-
-    <dt>&#x2795; Menu</dt>
-      <dd>
-        <dl>
-
-        </dl>
-      </dd>
 
     <dt>&#x1f5d2; Menu</dt>
       <dd>Display Lint Report with click-able lines to go to the corresponding line in the Script/CSS</dd>
@@ -750,7 +739,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
     </tr>
   </thead>
   <tbody>
-    <tr><th>run-at</th><td>document-idle <span class="small">(JS)</span><br>document-start <span class="small">(CSS)</span></td><td>document-end</td><td>document-idle</td><td>document-end</td></tr>
+    <tr><th>run-at</th><td>document-idle <span class="small">(JS)</span><br>document-start <span class="small">(CSS)</span></td><td>document-end</td><td>document-idle <a href="https://www.tampermonkey.net/documentation.php#_run_at" target="_blank">[&#x2753;]</a></td><td>document-end</td></tr>
     <tr><th>allFrames</th><td>false</td><td>true</td><td>true</td><td>true</td></tr>
     <tr><th>matchAboutBlank</th><td>false</td><td>@include  &nbsp;  about:blank</td><td class="unknown"></td><td class="unknown"></td></tr>
 
@@ -1717,6 +1706,14 @@ sandbox/injected-web.js</code></td>
       <td></td>
       <td><a href="https://addons.mozilla.org/firefox/addon/tampermonkey/privacy/" target="_blank">Privacy policy</a></td>
       <td><a href="https://addons.mozilla.org/firefox/addon/violentmonkey/privacy/" target="_blank">Privacy policy</a></td>
+    </tr>
+
+    <tr>
+      <th>&#x1f441; Tracking</th>
+      <td class="pass"></td>
+      <td></td>
+      <td>By Google via favicon <span class="unknown" title="https://www.google.com/s2/favicons?domain=***"></span></td>
+      <td></td>
     </tr>
 
     <tr>

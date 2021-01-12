@@ -1,8 +1,10 @@
 ﻿// ----------------- Locale Maker ----------------------
+// Locale Maker requires "downloads" permission to save the generated locale
+// localStorage.setItem('dark', 'true') for Dark theme
+
 class LocaleMaker {
 
   constructor() {
-    
     // --- Light/Dark Theme
     document.body.classList.toggle('dark', localStorage.getItem('dark') === 'true'); 
     
@@ -45,7 +47,6 @@ class LocaleMaker {
   }
 
   setDefault(data) {
-
     this.default = JSON.parse(JSON.stringify(data));
     const docfrag = document.createDocumentFragment();
 
@@ -74,7 +75,6 @@ class LocaleMaker {
   }
 
   setLocale(data) {
-
     this.inputs.forEach(item => data[item.id] && (item.value = this.showSpecial(data[item.id].message)));
   }
   
@@ -83,7 +83,6 @@ class LocaleMaker {
   }
 
   import(e) {
-    
     this.footer.textContent = '';                           // reset
     const file = e.target.files[0];
     switch (true) {
@@ -107,7 +106,6 @@ class LocaleMaker {
   }
 
   export() {
-
     let data = JSON.parse(JSON.stringify(this.default));
     this.inputs.forEach(item => item.value && (data[item.id].message = JSON.parse(`"${item.value}"`)));   
     data = JSON.stringify(data, null, 2);

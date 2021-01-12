@@ -516,7 +516,7 @@ nav ul + div::after {
 }
 
 .options fieldset label img {
-  width: 1.2em;
+  width: 1em;
 }
 
 .description {
@@ -524,9 +524,9 @@ nav ul + div::after {
   color: var(--fieldset-color);
   font-size: 0.9em;
   font-style: italic;
-  margin-left: 0.7rem;
+  margin-left: 0.5em;
   margin-top: 0;
-  padding-left: 0.2em;
+  padding-left: 0.3em;
 }
 
 .options textarea {
@@ -815,11 +815,8 @@ legend span {
   color: #999;
 }
 
-.script fieldset textarea {
-  background-color: transparent;
-  color: transparent;
-  border: 0;
-  resize: none;
+.script textarea.box {
+  visibility: hidden;
 }
 
 footer {
@@ -845,8 +842,9 @@ footer {
   padding: 0.5em;
 }
 
-.log tr {
+.log tbody tr {
   font-size: 0.9em;
+  background: var(--nav-bg);
   border-bottom: 1px solid var(--border);
   animation: sect 0.5s ease-in-out;
 }
@@ -868,12 +866,12 @@ footer {
   white-space: nowrap;
 }
 
-.log tr.info td:last-of-type::before {
+.log tr.info td:nth-of-type(3)::before {
   content: '\26a0\fe0f';
   margin-right: 0.5em;
 }
 
-.log tr.error td:last-of-type::before {
+.log tr.error td:nth-of-type(3)::before {
   content: '\1f6ab';
   margin-right: 0.5em;
 }

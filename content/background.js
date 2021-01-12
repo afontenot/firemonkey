@@ -11,7 +11,7 @@ class ContextMenu {
       { id: 'newCSS', contexts: ['browser_action'], icons: {16: '/image/css.svg'} },
       { id: 'help', contexts: ['browser_action'], icons: {16: '/image/help32.png'} },
       { id: 'log', contexts: ['browser_action'], icons: {16: '/image/document.svg'} },
-      { id: 'localeMaker', contexts: ['browser_action'], icons: {16: '/content/locale-maker.svg'} },
+      { id: 'localeMaker', contexts: ['browser_action'], icons: {16: '/locale-maker/locale-maker.svg'} },
       
       { id: 'stylish', contexts: ['all'], documentUrlPatterns: ['https://userstyles.org/styles/*/*'] }
     ];
@@ -35,7 +35,7 @@ class ContextMenu {
       case 'newCSS': localStorage.setItem('nav', 'css'); break;
       case 'help': localStorage.setItem('nav', 'help'); break;
       case 'log': localStorage.setItem('nav', 'log'); break;
-      case 'localeMaker': browser.tabs.create({url: '/content/locale-maker.html'}); return;
+      case 'localeMaker': browser.tabs.create({url: '/locale-maker/locale-maker.html'}); return;
       case 'stylish': installer.stylish(tab.url); return;
     }
     chrome.runtime.openOptionsPage();

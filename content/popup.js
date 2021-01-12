@@ -128,7 +128,7 @@ class Popup {
     }
 //    else { li.children[0].addEventListener('click', this.toggleState); }
     li.children[0].addEventListener('click', this.toggleState);
-    li.children[2].addEventListener('click', e => this.showInfo(e));
+    li.children[1].addEventListener('click', e => this.showInfo(e));
     return li;
   }
 
@@ -158,7 +158,7 @@ class Popup {
     const ddTemp = this.ddTemp;
     const docfrag = document.createDocumentFragment();
 
-    const infoArray = ['name', 'description', 'author', 'version', 'updateURL', 'matches',
+    const infoArray = ['name', 'description', 'author', 'version', 'size', 'updateURL', 'matches',
                         'excludeMatches', 'includes', 'excludes', 'includeGlobs', 'excludeGlobs', 
                         'require', 'userMatches', 'userExcludeMatches'];
     pref.content[id].error && infoArray.push('error');
@@ -183,6 +183,11 @@ class Popup {
 
         case 'matches':                                     // --- add UserStyle matches to matches
           pref.content[id].style && pref.content[id].style[0] && arr.push(...pref.content[id].style.flatMap(i => i.matches));
+          break;
+        
+        case 'size':
+          const text = pref.content[id].js || pref.content[id].css;
+          arr.push(new Intl.NumberFormat().format(parseFloat((text.length/1024).toFixed(1))) + ' KB');
           break;
       }
 

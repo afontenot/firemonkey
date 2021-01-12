@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title data-i18n="options">FireMonkey </title>
-    <link rel="icon" type="image/png" href="../image/icon.svg">   
+    <link rel="icon" type="image/png" href="../image/icon.svg">
     <link rel="stylesheet" href="options.css">
     <script type="module" src="options.js"></script>
 
@@ -17,41 +17,43 @@
     <script src="../lib/codemirror/mode/fm-javascript.js" defer></script>
 
     <!-- addon -->
-    <script src="../lib/codemirror/addon/active-line.js" defer></script>
-    <script src="../lib/codemirror/addon/closebrackets.js" defer></script>
-    <script src="../lib/codemirror/addon/matchbrackets.js" defer></script>
-    <script src="../lib/codemirror/addon/trailingspace.js" defer></script>
+    <script src="../lib/codemirror/addon/comment/comment.js" defer></script>
+    <script src="../lib/codemirror/addon/comment/continuecomment.js" defer></script>
 
-    <script src="../lib/codemirror/addon/fullscreen.js" defer></script>
-    <link rel="stylesheet" href="../lib/codemirror/addon/fullscreen.css">
+    <script src="../lib/codemirror/addon/dialog/dialog.js" defer></script>
+    <link rel="stylesheet" href="../lib/codemirror/addon/dialog/dialog.css">
 
-    <script src="../lib/codemirror/addon/dialog.js" defer></script>
-    <link rel="stylesheet" href="../lib/codemirror/addon/dialog.css">
-    <script src="../lib/codemirror/addon/fm-search.js" defer></script>
-    <script src="../lib/codemirror/addon/searchcursor.js" defer></script>
-    <script src="../lib/codemirror/addon/annotatescrollbar.js" defer></script>
-    <script src="../lib/codemirror/addon/fm-jump-to-line.js" defer></script>
-    <script src="../lib/codemirror/addon/matchesonscrollbar.js" defer></script>
-    <link rel="stylesheet" href="../lib/codemirror/addon/matchesonscrollbar.css">
+    <script src="../lib/codemirror/addon/display/fullscreen.js" defer></script>
+    <link rel="stylesheet" href="../lib/codemirror/addon/display/fullscreen.css">
 
-    <script src="../lib/codemirror/addon/comment.js" defer></script>
-    <script src="../lib/codemirror/addon/comment-fold.js" defer></script>
-    <script src="../lib/codemirror/addon/continuecomment.js" defer></script>
+    <script src="../lib/codemirror/addon/edit/closebrackets.js" defer></script>
+    <script src="../lib/codemirror/addon/edit/matchbrackets.js" defer></script>
+    <script src="../lib/codemirror/addon/edit/trailingspace.js" defer></script>
 
-    <script src="../lib/codemirror/addon/foldcode.js" defer></script>
-    <script src="../lib/codemirror/addon/foldgutter.js" defer></script>
-    <link rel="stylesheet" href="../lib/codemirror/addon/foldgutter.css">
-    <script src="../lib/codemirror/addon/brace-fold.js" defer></script>
+    <script src="../lib/codemirror/addon/fold/brace-fold.js" defer></script>
+    <script src="../lib/codemirror/addon/fold/comment-fold.js" defer></script>
+    <script src="../lib/codemirror/addon/fold/foldcode.js" defer></script>
+    <script src="../lib/codemirror/addon/fold/foldgutter.js" defer></script>
+    <link rel="stylesheet" href="../lib/codemirror/addon/fold/foldgutter.css">
 
-    <script src="../lib/codemirror/addon/show-hint.js" defer></script
-    <script src="../lib/codemirror/addon/css-hint.js" defer></script>
-    <script src="../lib/codemirror/addon/fm-javascript-hint.js" defer></script>
-    <link rel="stylesheet" href="../lib/codemirror/addon/show-hint.css">
+    <script src="../lib/codemirror/addon/hint/css-hint.js" defer></script>
+    <script src="../lib/codemirror/addon/hint/fm-javascript-hint.js" defer></script>
+    <script src="../lib/codemirror/addon/hint/show-hint.js" defer></script>
+    <link rel="stylesheet" href="../lib/codemirror/addon/hint/show-hint.css">
 
-    <script src="../lib/codemirror/addon/fm-lint.js" defer></script>
-    <script src="../lib/codemirror/addon/css-lint.js" defer></script>
-    <script src="../lib/codemirror/addon/javascript-lint.js" defer></script>
-    <link rel="stylesheet" href="../lib/codemirror/addon/lint.css">
+    <script src="../lib/codemirror/addon/lint/css-lint.js" defer></script>
+    <script src="../lib/codemirror/addon/lint/fm-lint.js" defer></script>
+    <script src="../lib/codemirror/addon/lint/javascript-lint.js" defer></script>
+    <link rel="stylesheet" href="../lib/codemirror/addon/lint/lint.css">
+
+    <script src="../lib/codemirror/addon/scroll/annotatescrollbar.js" defer></script>
+    <script src="../lib/codemirror/addon/search/jump-to-line.js" defer></script>
+    <script src="../lib/codemirror/addon/search/matchesonscrollbar.js" defer></script>
+    <script src="../lib/codemirror/addon/search/search.js" defer></script>
+    <script src="../lib/codemirror/addon/search/searchcursor.js" defer></script>
+    <link rel="stylesheet" href="../lib/codemirror/addon/search/matchesonscrollbar.css">
+
+    <script src="../lib/codemirror/addon/selection/active-line.js" defer></script>
 
     <!-- external -->
     <script src="../lib/codemirror/external/csslint.js" defer></script>
@@ -64,7 +66,7 @@
 
     <!-- custom style -->
     <style data-src="custom-css"></style>
-  
+
   </head>
   <body>
 
@@ -82,11 +84,11 @@
       <label for="nav5" data-i18n="log">&#x1f4c4; </label>
       <label for="nav1" data-i18n="help" style="cursor: help;">&#x1f1ed; </label>
       <label for="nav2" data-i18n="about">&#x2139;&#xfe0f; </label>
-      <label for="nav10"><a href="/content/locale-maker.html" target="_blank" data-i18n="localeMaker"><img src="locale-maker.svg" alt=""> </a></label>
+      <label for="nav10"><a href="/locale-maker/locale-maker.html" target="_blank" data-i18n="localeMaker"><img src="/locale-maker/locale-maker.svg" alt=""> </a></label>
 
 
       <label for="nav4" data-i18n="script"><img src="../image/js.svg" alt=""> </label>
-      
+
       <input type="checkbox" id="listEnable" class="control" checked>
       <input type="checkbox" id="listDisable" class="control" checked>
       <input type="checkbox" id="listJS" class="control" checked>
@@ -124,13 +126,13 @@
         <fieldset>
           <legend data-i18n="options"></legend>
 
-          <label data-i18n="autoUpdateInterval"></label> <input type="number" id="autoUpdateInterval" min="0" max="30">
+          <label data-i18n="autoUpdateInterval">&#x1f4c5; </label> <input type="number" id="autoUpdateInterval" min="0" max="30">
           <p class="description" data-i18n="autoUpdateIntervalDescription"></p>
 
           <label class="pointer" data-i18n="enableSync"><input type="checkbox" id="sync"></label>
           <label class="pointer" data-i18n="counter"><input type="checkbox" id="counter"></label>
           <br>
-          <label data-i18n="globalScriptExcludeMatches"></label>
+          <label data-i18n="globalScriptExcludeMatches">&#x1f310; </label>
           <p class="description" data-i18n="globalScriptExcludeMatchesDescription"></p>
           <textarea id="globalScriptExcludeMatches" rows="6" spellcheck="false" autocomplete="off" placeholder="*://*.example.com/*"></textarea>
 
@@ -139,7 +141,7 @@
             <details>
               <summary data-i18n="advanced">&#x2699;&#xfe0f; </summary>
 
-              <label data-i18n="customCSS"> </label>
+              <label data-i18n="customCSS"><img src="../image/css.svg" alt=""> </label>
               <p class="description" data-i18n="customCSSDescription"></p>
               <textarea id="customCSS" rows="6" spellcheck="false" autocomplete="off" placeholder=".CodeMirror {
   font-family: monospace;
