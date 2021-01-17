@@ -996,7 +996,7 @@ class Script {
         this.addScript(data);
         const index = [...this.navUL.children].findIndex(item => Intl.Collator().compare(item.id, data.name) > 0);
         index !== -1 ? this.navUL.insertBefore(this.docfrag, this.navUL.children[index]) : this.navUL.appendChild(this.docfrag);
-        this.navUL.children[index].classList.toggle('on', true);
+        this.navUL.children[index !== -1 ? index : 0].classList.toggle('on', true);
         break;
 
       // --- update new name

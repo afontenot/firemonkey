@@ -422,7 +422,7 @@
       return (!includes[0] || GM.arrayTest(includes, url)) && (!excludes[0] || !GM.arrayTest(excludes, url));
     },
     arrayTest(arr, url) {
-      return  new RegExp(arr.map(item => `(${item.slice(1, -1)})`).join('|'), 'i').test(url);
+      return new RegExp(arr.map(item => `(${item.slice(1, -1)})`).join('|'), 'i').test(url);
     }
   };
 
