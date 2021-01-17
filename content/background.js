@@ -12,7 +12,7 @@ class ContextMenu {
       { id: 'help', contexts: ['browser_action'], icons: {16: '/image/help32.png'} },
       { id: 'log', contexts: ['browser_action'], icons: {16: '/image/document.svg'} },
       { id: 'localeMaker', contexts: ['browser_action'], icons: {16: '/locale-maker/locale-maker.svg'} },
-      
+
       { id: 'stylish', contexts: ['all'], documentUrlPatterns: ['https://userstyles.org/styles/*/*'] }
     ];
 
@@ -152,18 +152,23 @@ class ScriptRegister {
       ));
     }
 
-    // --- add debug
-    target === 'js' && (script[target] += `\n\n//# sourceURL=user-script:FireMonkey/${encodeId}/${encodeId}.user.js`);
-    
     // --- add code
     options[target].push({code: script[target].replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'))});
 
-
     // --- script only
     if (script.js) {
+      
+      // --- add debug
+      script.js += `\n\n//# sourceURL=user-script:FireMonkey/${encodeId}/${encodeId}.user.js`;
 
+      const includes = script.includes || [];
+      const excludes = script.excludes || [];
+      
       // --- unsafeWindow implementation & Regex include/exclude workaround
-      options.js.unshift({code: `if (!GM.matchURL()) { throw '${id}: regex not match'; } const unsafeWindow = window.wrappedJSObject;`});
+      const code = (includes[0] || excludes[0] ? `if (!GM.matchURL()) { throw '${id}: regex not match'; } ` : '') + 
+        `const unsafeWindow = window.wrappedJSObject;`;
+
+      options.js.unshift({code});
 
       options.scriptMetadata = {
         name: id,
@@ -179,8 +184,8 @@ class ScriptRegister {
             name: id,
             version: script.version,
             description: script.description,
-            includes: script.includes || [],
-            excludes: script.excludes || [],
+            includes,
+            excludes,
             matches: script.matches,
             excludeMatches: script.excludeMatches,
             includeGlobs: script.includeGlobs,
