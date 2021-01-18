@@ -1230,7 +1230,7 @@ class Script {
 
   export(data, ext, id, folder = '', saveAs = true) {
 
-    navigator.oscpu.includes('Windows') && (data = data.replace(/\r?\n/g, '\r\n'));
+    navigator.userAgent.includes('Windows') && (data = data.replace(/\r?\n/g, '\r\n'));
     const blob = new Blob([data], {type : 'text/plain;charset=utf-8'});
     const filename = folder + id.replace(/[<>:"/\\|?*]/g, '') + '.user' + ext; // removing disallowed characters
 
