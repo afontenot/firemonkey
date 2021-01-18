@@ -22,7 +22,7 @@ class ContextMenu {
         item.title = item.title || chrome.i18n.getMessage(item.id);  // always use the same ID for i18n
         item.onclick = this.process;
       }
-      browser.menus.create(item);
+      !navigator.userAgent.includes('Android') && browser.menus.create(item); // prepare for Andriod
     });
   }
 
@@ -152,14 +152,14 @@ class ScriptRegister {
       ));
     }
 
+    // --- add debug
+    target === 'js' && (script[target] += `\n\n//# sourceURL=user-script:FireMonkey/${encodeId}/${encodeId}.user.js`);
+
     // --- add code
     options[target].push({code: script[target].replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'))});
 
     // --- script only
     if (script.js) {
-      
-      // --- add debug
-      script.js += `\n\n//# sourceURL=user-script:FireMonkey/${encodeId}/${encodeId}.user.js`;
 
       const includes = script.includes || [];
       const excludes = script.excludes || [];
@@ -406,7 +406,8 @@ class Installer {
       ['blocking']
     );
 
-    browser.tabs.onUpdated.addListener(this.directInstall,{
+    // prepare for Andriod, extraParameters not supported on FF for Android
+    !navigator.userAgent.includes('Android') && browser.tabs.onUpdated.addListener(this.directInstall,{
       urls: [ '*://*/*.user.js', '*://*/*.user.css',
               'file:///*.user.js', 'file:///*.user.css' ]
     });
