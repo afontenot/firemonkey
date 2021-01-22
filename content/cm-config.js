@@ -77,10 +77,9 @@ class Config {
     const supported = ['@name', '@author', '@description', '@version', '@updateURL', '@match',
           '@matches', '@include', '@exclude', '@exclude-match', '@excludeMatches', '@includeGlobs',
           '@excludeGlobs', '@matchAboutBlank', '@allFrames', '@noframes', '@require', '@resource',
-          '@run-at', '@runAt', '@downloadURL'];
+          '@run-at', '@runAt', '@downloadURL', '@inject-into'];
 
-    const unsupported = ['@namespace', '@grant', '@icon', '@inject-into', '@supportURL',
-          '@homepageURL', '@connect', '@unwrap', '@nocompat'];
+    const unsupported = ['@namespace', '@grant', '@icon', '@supportURL', '@homepageURL', '@connect', '@unwrap', '@nocompat'];
 
 
     const meta = text.match(/^([\s\S]+)==(UserScript|UserCSS|UserStyle)==([\s\S]+)==\/\2==/i);

@@ -166,7 +166,7 @@ class Script {
     document.getElementById('fileScript').addEventListener('change', (e) => this.processFileSelect(e));
 
     // --- menu dropdown
-    const details = document.querySelectorAll('.menu details');
+    const details = document.querySelectorAll('.menu details, nav details');
     document.body.addEventListener('click', (e) =>
       details.forEach(item => !item.contains(e.explicitOriginalTarget) && (item.open = false))
     );
