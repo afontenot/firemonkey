@@ -314,7 +314,9 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
 
 
-  <h2 id="Script-CSS">Script & CSS</h2>
+  <h2 id="Script-CSS">Script & CSS</h2><br>
+
+  <h3><img src="../image/menu-dot.svg" alt=""> Menu</h3>
   <p>List of both UserScript and UserCSS</p>
   <p>Scripts and CSS have different icons and the icon for disabled ones are grey.</p>
   <p>Click on the Script/CSS to view/edit/enable/disable/delete or start a new Script/CSS.</p>
@@ -576,6 +578,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 @resource           <i>(resourceName resourceURL)</i>
 @noframes           <i>if present will set @allFrames to false (default)</i>
 @run-at             <i>document-start/document-end/document-idle (default)</i>
+@inject-into        <i>page</i>
 
 @includeGlob
 @excludeGlob
@@ -629,12 +632,12 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
     <tr><th>@runAt</th>             <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>@downloadURL</th>       <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
 
-    <tr><th>@antifeature</th>      <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@antifeature</th>       <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@inject-into</th>       <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="pass"></td></tr>
 
     <tr><th>@namespace</th>         <td class="fail"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@grant</th>             <td class="fail"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@icon</th>              <td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@inject-into</th>       <td class="fail"></td><td class="fail"></td><td class="fail"></td><td class="pass"></td></tr>
     <tr><th>@supportURL</th>        <td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@homepageURL</th>       <td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@connect</th>           <td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
@@ -665,6 +668,53 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
   <h4>grant <span class="fail"></span></h4>
   <p>Scripts will have access to all available APIs and therefore <code>@grant</code> is not needed or used.</p>
+
+  <h4 class="experimental">inject-into</h4>
+  <p>Setting the value <code>page</code> will inject the entire userscript in the page context (more: <a href="#xray-vision">Xray Vision & Sharing objects with page scripts</a>).</p>
+
+  <ul>
+    <li>Only applies to userscripts</li>
+    <li>Only <code>page</code> is supported</li>
+    <li>In <code>page</code> mode, userscript injection might get blocked by page <a href="https://developer.mozilla.org/docs/Web/HTTP/CSP" target="_blank">Content Security Policy (CSP)</a></li>
+    <li>In <code>page</code> mode, userscripts have no access to GM functions</li>
+    <li>In <code>page</code> mode, <code>unsafeWindow</code> refers to the <code>window</code> object <i>(for compatibility with ViolentMonkey)</i></li>
+
+  </ul>
+
+
+
+<table>
+  <caption>Context Comparison</caption>
+  <thead>
+    <tr>
+      <th></th>
+      <th>FireMonkey</th>
+      <th>GreaseMonkey</th>
+      <th>TamperMonkey</th>
+      <th>ViolentMonkey</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><th>default</th><td>userScript</td><td>content</td><td>content</td><td>page <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" target="_blank">[*]</a</td></tr>
+
+    <tr>
+      <th>@inject-into</th>
+      <td>page</td>
+      <td class="fail"></td>
+      <td class="fail"></td>
+      <td>page<br>content<br>auto</td>
+    </tr>
+
+    <tr><th>@grant &nbsp;&nbsp;&nbsp; xyz</th><td>userScript</td><td>content</td><td>content</td><td>content &#x2753;</td></tr>
+
+
+    <tr><th>@grant &nbsp;&nbsp;&nbsp; none</th><td>userScript</td><td>content</td><td>page <a href="https://www.tampermonkey.net/documentation.php#_grant" target="_blank">[*]</a></td><td>page</td></tr>
+
+  </tbody>
+</table>
+
+
+
 
   <h4>antifeature</h4>
   <p>Under-development feature on <i>GreasyFork</i> (ref: <a href="https://github.com/JasonBarnabe/greasyfork/issues/604" target="_blank">#604</a>) to mark possibly undesirable behaviour e.g. miners, ads etc.</p>
@@ -1722,7 +1772,7 @@ sandbox/injected-web.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>310</td>
+      <td>320</td>
       <td>323k</td>
       <td>345k</td>
       <td>38k</td>
@@ -1789,7 +1839,7 @@ js/promisify.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>310</td>
+      <td>320</td>
       <td>67k</td>
       <td>86k</td>
       <td>490</td>
@@ -1843,9 +1893,11 @@ js/promisify.js</code></td>
   <p>For simplicity and compatibility, the same GM style naming is kept for <code>fetch</code> API although it is not available in <i>GreaseMonkey</i>.</p>
   <p><i>FireMonkey</i> <code>fetch</code> returns response object/string or <code>null</code> (check console for errors e.g.: <i>TypeError: "NetworkError when attempting to fetch resource.</i>").</p>
 
+  <p class="note"><i>FireMonkey</i> GM<code> fetch</code> fixes Bug 1405971 <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1405971" target="_blank">Webextension UUID leak via Fetch requests</a>.</p>
 
 <pre>GM.fetch(url[, init]);
 GM_fetch(url[, init]);</pre>
+
 
     <h4>url</h4>
     <p>http, https, <s>ftp, ftps</s> <a href="#ftp" title="What to expect for the upcoming deprecation of FTP in Firefox">[*]</a>, (file not allowed), can be relative to the web page</p>
@@ -2457,11 +2509,13 @@ popup.addStyle(css);
 
   <h4>Extension JavaScript Context/Scope</h4>
   <ol style="list-style-type: upper-roman;">
-    <li>Browser Scope: Trusted privileged code to interact with browser</li>
-    <li>Content Scope: Trusted extension JS injected into web page with API privileges</li>
-    <li>User-Script Scope: Untrusted unverified 3rd party JS injected into web page without direct API privileges</li>
-    <li>Page Scope: JS injected in a web page by the website</li>
+    <li>Browser Context: Trusted privileged code to interact with browser</li>
+    <li>Content Context: Trusted extension JS injected into web page with API privileges</li>
+    <li>User-Script Context: Untrusted unverified 3rd party JS injected into web page without direct API privileges</li>
+    <li>Page Context: JS injected in a web page by the website</li>
   </ol>
+
+
 
   <blockquote>As an extension developer you should consider that scripts running in arbitrary web pages are hostile code whose aim is to steal the user's personal information, damage their computer, or attack them in some other way.<br><br>
 
