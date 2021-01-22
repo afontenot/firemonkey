@@ -80,36 +80,42 @@
 
 
     <nav>
-      <label for="nav3" data-i18n="options">&#x2699;&#xfe0f; </label>
-      <label for="nav5" data-i18n="log">&#x1f4c4; </label>
-      <label for="nav1" data-i18n="help" style="cursor: help;">&#x1f1ed; </label>
-      <label for="nav2" data-i18n="about">&#x2139;&#xfe0f; </label>
-      <label for="nav10"><a href="/locale-maker/locale-maker.html" target="_blank" data-i18n="localeMaker"><img src="/locale-maker/locale-maker.svg" alt=""> </a></label>
+      <details>
+        <summary><img src="../image/menu-dot.svg" alt=""></summary>
+        <div>
+          <input type="checkbox" id="listEnable" class="control" checked>
+          <input type="checkbox" id="listDisable" class="control" checked>
+          <input type="checkbox" id="listJS" class="control" checked>
+          <input type="checkbox" id="listCSS" class="control" checked>
+
+          <div class="flex list">
+            <label for="listEnable"><img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></label>
+            <label for="listDisable"><img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></label>
+            <label for="listJS"><img src="../image/js.svg" alt=""></label>
+            <label for="listCSS"><img src="../image/css.svg" alt=""></label>
+          </div>
+
+          <ul></ul>
+          <!-- counter -->
+          <div></div>
+
+          <div class="flex">
+            <input type="file" id="fileScript" accept=".js, .css" multiple>
+            <label for="fileScript" class="flat" data-i18n="import"></label>&nbsp;
+            <button type="button" class="flat" data-i18n="exportAll"></button>
+          </div>
+        </div>
+      </details>
+
+      <label for="nav3">&#x2699;&#xfe0f; <span data-i18n="options"></span></label>
+      <label for="nav4"><img src="../image/js.svg" alt=""> <span data-i18n="script"></span></label>
+      <label for="nav5">&#x1f4c4; <span data-i18n="log"></span></label>
+      <label for="nav1" style="cursor: help;">&#x1f1ed; <span data-i18n="help"></span></label>
+      <label for="nav2">&#x2139;&#xfe0f; <span data-i18n="about"></span></label>
 
 
-      <label for="nav4" data-i18n="script"><img src="../image/js.svg" alt=""> </label>
-
-      <input type="checkbox" id="listEnable" class="control" checked>
-      <input type="checkbox" id="listDisable" class="control" checked>
-      <input type="checkbox" id="listJS" class="control" checked>
-      <input type="checkbox" id="listCSS" class="control" checked>
-
-      <div class="flex list">
-        <label for="listEnable"><img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></label>
-        <label for="listDisable"><img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></label>
-        <label for="listJS"><img src="../image/js.svg" alt=""></label>
-        <label for="listCSS"><img src="../image/css.svg" alt=""></label>
-      </div>
-
-      <ul></ul>
-      <!-- counter -->
-      <div></div>
-
-      <div class="flex">
-        <input type="file" id="fileScript" accept=".js, .css" multiple>
-        <label for="fileScript" class="flat" data-i18n="import"></label>&nbsp;
-        <button type="button" class="flat" data-i18n="exportAll"></button>
-      </div>
+      <label for="nav10"><a href="/locale-maker/locale-maker.html" target="_blank"><img src="/locale-maker/locale-maker.svg" alt="">
+        <span data-i18n="localeMaker"></span></a></label>
 
     </nav>
 
@@ -320,6 +326,5 @@
       </section>
 
     </article>
-
   </body>
 </html>

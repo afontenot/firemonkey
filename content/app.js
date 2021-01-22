@@ -135,6 +135,7 @@ class Meta {
       autoUpdate: this.autoUpdate ? this.autoUpdate.checked : false,
       version: '',
       antifeatures: [],
+      injectInto: '',
 
       require: [],
       requireRemote: [],
@@ -211,13 +212,17 @@ class Meta {
           prop = 'updateURL';
           break;
 
-        case 'run-at':                                        // convert run-at/runAt to runAt
+        case 'run-at':                                      // convert run-at/runAt to runAt
         case 'runAt':
           prop = 'runAt';
           value = value.replace('-', '_');
           ['document_start', 'document_end'].includes(value) || (value = 'document_idle');
           break;
 
+        case 'inject-into':                                 // only for js
+          prop = 'injectInto';
+          value = js && value === 'page' ? value : '';
+          break;
 
         case 'resource':
           const [resName, resURL] = value.split(/\s+/);

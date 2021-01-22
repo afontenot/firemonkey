@@ -128,45 +128,58 @@ class ScriptRegister {
     // --- add CSS & JS
     // Removing metaBlock since there would be an error with /* ... *://*/* ... */
     const target = script.js ? 'js' : 'css';
+    const js = target === 'js';
+    const page = js && script.injectInto === 'page';
     options[target] = [];
     const encodeId = encodeURI(id);
 
-    // --- add @require
     const require = script.require || [];
+    const requireRemote = script.requireRemote || [];
+    
+    // --- add @require
     require.forEach(item => {
 
-      if (item.startsWith('lib/')) { options[target].push({file: '/' + item}); }
+      if (item.startsWith('lib/')) { 
+        page ? requireRemote.push('/' + item) : options[target].push({file: '/' + item}); 
+      }
       else if (pref.content[item] && pref.content[item][target]) {
         options[target].push({code: pref.content[item][target].replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'))});
       }
     });
 
     // --- add @requireRemote
-    const requireRemote = script.requireRemote || [];
     if (requireRemote[0]) {
 
       await Promise.all(requireRemote.map(url =>
         fetch(url).then(response => response.text())
-        .then(code => options[target].push({code: code += `\n\n//# sourceURL=user-script:FireMonkey/${encodeId}/${encodeURI(url)}`}))
+        .then(code => {
+          url.startsWith('/lib/') && (url = url.substring(1));
+          js && (code += `\n\n//# sourceURL=user-script:FireMonkey/${encodeId}/${encodeURI(url)}`);
+          page && (code = `GM_addScript(${JSON.stringify(code)})`);
+          options[target].push({code});
+        })
         .catch(() => null)
       ));
     }
-
+    
     // --- add debug
-    target === 'js' && (script[target] += `\n\n//# sourceURL=user-script:FireMonkey/${encodeId}/${encodeId}.user.js`);
+    js && (script.js += `\n\n//# sourceURL=user-script:FireMonkey/${encodeId}/${encodeId}.user.js`); 
+
+    // --- process inject-into context
+    page && (script.js = `GM_addScript(${JSON.stringify(script[target])});`);
 
     // --- add code
     options[target].push({code: script[target].replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'))});
 
     // --- script only
-    if (script.js) {
+    if (js) {
 
       const includes = script.includes || [];
       const excludes = script.excludes || [];
       
       // --- unsafeWindow implementation & Regex include/exclude workaround
-      const code = (includes[0] || excludes[0] ? `if (!GM.matchURL()) { throw '${id}: regex not match'; } ` : '') + 
-        `const unsafeWindow = window.wrappedJSObject;`;
+      const code = (includes[0] || excludes[0] ? `if (!GM.matchURL()) { throw '${id}'; } ` : '') + 
+                    (page ? 'const unsafeWindow = window;' : 'const unsafeWindow = window.wrappedJSObject;');
 
       options.js.unshift({code});
 
