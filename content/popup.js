@@ -98,6 +98,8 @@ class Popup {
     this.url = tabs[0].url;                                   // used in find scripts
 
     const frames = await browser.webNavigation.getAllFrames({tabId});
+    document.querySelector('h3 span').textContent = frames.length; // display frame count
+    
     const urls = [...new Set(frames.map(item => item.url).filter(item => /^(https?|wss?|file|about:blank)/.test(item)))];
     const gExclude = pref.globalScriptExcludeMatches ? pref.globalScriptExcludeMatches.split(/\s+/) : []; // cache the array  
     Object.keys(pref.content).sort(Intl.Collator().compare).forEach(item => {
