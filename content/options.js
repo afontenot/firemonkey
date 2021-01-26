@@ -99,7 +99,7 @@ class Options {
         break;
 
       default:
-        document.getElementById(nav).click();
+        document.querySelector(`li[data-id="${nav}"]`).click();
     }
   }
 }
@@ -166,9 +166,9 @@ class Script {
     document.getElementById('fileScript').addEventListener('change', (e) => this.processFileSelect(e));
 
     // --- menu dropdown
-    const details = document.querySelectorAll('.menu details, nav details');
+    const menuDetails = document.querySelectorAll('.menu details');
     document.body.addEventListener('click', (e) =>
-      details.forEach(item => !item.contains(e.explicitOriginalTarget) && (item.open = false))
+      menuDetails.forEach(item => !item.contains(e.explicitOriginalTarget) && (item.open = false))
     );
 
     // --- textarea resize
@@ -209,6 +209,15 @@ class Script {
     // --- color picker
     this.inputColor = document.querySelector('.script input[type="color"]');
     this.inputColor.addEventListener('change', (e) => this.changeColor());
+    
+    // --- pinnned menu
+    const pinMenu = document.querySelector('#pinMenu');
+    pinMenu.checked = localStorage.getItem('pinMenu') === 'true';
+    const navDetails = document.querySelector('nav details');
+    navDetails.open = pinMenu.checked;
+    pinMenu.addEventListener('change', (e) => localStorage.setItem('pinMenu', pinMenu.checked));
+    document.body.addEventListener('click', (e) => 
+      !navDetails.contains(e.explicitOriginalTarget) && !pinMenu.checked && (navDetails.open = false));
   }
 
   addTheme(dark) {
@@ -732,7 +741,7 @@ class Script {
     item.enabled || li.classList.add('disabled');
     item.error && li.classList.add('error');
     li.textContent = item.name;
-    li.id = item.name;
+    li.dataset.id = item.name;
     this.docfrag.appendChild(li);
     li.addEventListener('click', e => this.showScript(e));
   }
@@ -759,7 +768,7 @@ class Script {
     last && last.classList.remove('on');
     li.classList.add('on');
 
-    const id = li.id;
+    const id = li.dataset.id;
     box.id = id;
     legend.textContent = '';
     legend.className = li.classList.contains('js') ? 'js' : 'css';
@@ -1012,7 +1021,7 @@ class Script {
 
         // update old one in menu list & legend
         li.textContent = data.name;
-        li.id = data.name;
+        li.dataset.id = data.name;
         break;
     }
 

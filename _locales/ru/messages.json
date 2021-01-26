@@ -50,6 +50,7 @@
   "userMatchesExcludeMatches": {
     "message": "Польз. совпадения и исключение совпадений (User Matches & Exclude Matches)"
   },
+  "pinMenu": { "message": "Pin Menu" },
   "script": {
     "message": "Скрипт и стиль CSS"
   },
@@ -142,12 +143,6 @@
   },
   "export": {
     "message": "Экспорт"
-  },
-  "importPreference": {
-    "message": "Импорт настроек"
-  },
-  "exportPreference": {
-    "message": "Экспорт настроек"
   },
   "fileSizeError": {
     "message": "Размер файла больше допустимого ($1kb)"

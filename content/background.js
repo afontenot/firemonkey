@@ -130,8 +130,10 @@ class ScriptRegister {
     const target = script.js ? 'js' : 'css';
     const js = target === 'js';
     const page = js && script.injectInto === 'page';
-    options[target] = [];
+    const pageURL = page ? '%20(page-context)'  : '';
     const encodeId = encodeURI(id);
+    const sourceURL = `\n\n//# sourceURL=user-script:FireMonkey/${encodeId}${pageURL}/`;
+    options[target] = [];
 
     const require = script.require || [];
     const requireRemote = script.requireRemote || [];
@@ -153,8 +155,8 @@ class ScriptRegister {
       await Promise.all(requireRemote.map(url =>
         fetch(url).then(response => response.text())
         .then(code => {
-          url.startsWith('/lib/') && (url = url.substring(1));
-          js && (code += `\n\n//# sourceURL=user-script:FireMonkey/${encodeId}/${encodeURI(url)}`);
+          url.startsWith('/lib/') && (url = url.slice(1, -1));
+          js && (code += sourceURL + encodeURI(url));
           page && (code = `GM_addScript(${JSON.stringify(code)})`);
           options[target].push({code});
         })
@@ -163,10 +165,10 @@ class ScriptRegister {
     }
     
     // --- add debug
-    js && (script.js += `\n\n//# sourceURL=user-script:FireMonkey/${encodeId}/${encodeId}.user.js`); 
+    js && (script.js += sourceURL + encodeId + '.user.js'); 
 
-    // --- process inject-into context
-    page && (script.js = `GM_addScript(${JSON.stringify(script[target])});`);
+    // --- process inject-into page context
+    page && (script.js = `GM_addScript('(() => {' + ${JSON.stringify(script[target])} + \`\n})();\`);`);
 
     // --- add code
     options[target].push({code: script[target].replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'))});
@@ -178,10 +180,10 @@ class ScriptRegister {
       const excludes = script.excludes || [];
       
       // --- unsafeWindow implementation & Regex include/exclude workaround
-      const code = (includes[0] || excludes[0] ? `if (!GM.matchURL()) { throw '${id}'; } ` : '') + 
-                    (page ? 'const unsafeWindow = window;' : 'const unsafeWindow = window.wrappedJSObject;');
+      const code = (includes[0] || excludes[0] ? `if (!matchURL()) { throw ''; } ` : '') + 
+                    (page ? '' : 'const unsafeWindow = window.wrappedJSObject;');
 
-      options.js.unshift({code});
+      code.trim() && options.js.unshift({code});
 
       options.scriptMetadata = {
         name: id,
@@ -676,6 +678,10 @@ class API {
     let oldValue;
 
     switch (message.api) {
+
+      case 'log':
+        App.log(name, e.message, e.type);
+        break;
 
       case 'getValue':
         return Promise.resolve(hasProperty(e.key) ? pref[storage][e.key] : e.defaultValue);

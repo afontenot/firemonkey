@@ -117,7 +117,8 @@
     <p>Mouse-over Title displays active Script/CSS</p>
 
   <h4>Toolbar Icon Pop-up</h4>
-    <p>The pop-up displays the installed Scripts/CSS. "Tab Scripts & CSS" shows the ones running on the active Tab</p>
+    <p>The pop-up displays the installed Scripts/CSS. "Tab Scripts & CSS" shows the ones running on the active Tab.</p>
+    <p>The number in the "Tab Scripts & CSS" shows the number of frames of the page. The minimum is 1 which is the main/top frame.</p>
 
     <dl>
       <dt style="color: #05f;">✔</dt>
@@ -320,19 +321,22 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   <p>List of both UserScript and UserCSS</p>
   <p>Scripts and CSS have different icons and the icon for disabled ones are grey.</p>
   <p>Click on the Script/CSS to view/edit/enable/disable/delete or start a new Script/CSS.</p>
-  <p><span style="color: #f50;"><b>✘</b></span> shows that there was an error when registering the script. <s>Scripts with errors get disabled automatically.</s></p>
+  <p><span class="fail"></span>shows that there was an error when registering the script. <s>Scripts with errors get disabled automatically.</s></p>
 
   <dl>
-    <dt>&#x2611; <img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></dt>
+    <dt>&#x2611;&#xfe0f; Pin Menu</dt>
+      <dd>Select to pin & keep the menu open and deselect to enable closing</dd>  
+    
+    <dt>&#x2611;&#xfe0f; <img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></dt>
       <dd>Hide/Show all enabled Script & CSS</dd>
 
-    <dt>&#x2611; <img src="../image/js.svg" style="filter: grayscale(1);" alt=""><img src="../image/css.svg" style="filter: grayscale(1);" alt=""></dt>
+    <dt>&#x2611;&#xfe0f; <img src="../image/js.svg" style="filter: grayscale(1);" alt=""><img src="../image/css.svg" style="filter: grayscale(1);" alt=""></dt>
       <dd>Hide/Show all disabled Script & CSS</dd>
 
-    <dt>&#x2611; <img src="../image/js.svg" alt=""></dt>
+    <dt>&#x2611;&#xfe0f; <img src="../image/js.svg" alt=""></dt>
       <dd>Hide/Show all Scripts</dd>
 
-    <dt>&#x2611; <img src="../image/css.svg" alt=""></dt>
+    <dt>&#x2611;&#xfe0f; <img src="../image/css.svg" alt=""></dt>
       <dd>Hide/Show all CSS</dd>
 
   </dl>
@@ -478,7 +482,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   </thead>
   <tbody class="slim">
 
-    <tr><th>@updateURL</th><td class="pass">update target</td><td class="fail"></td><td>JSON</td><td class="fail"></td></tr>
+    <tr><th>@updateURL</th><td class="pass">update target</td><td class="fail"></td><td>JSON</td><td class="unknown"></td></tr>
     <tr><th>@downloadURL</th><td class="pass">= @updateURL</td><td class="fail"></td><td>update target</td><td>update target <a href="https://violentmonkey.github.io/api/metadata-block/#downloadurl" title="Metadata Block @downloadURL" target="_blank">[*]</a></td></tr>
     <tr><th>install source</th><td class="pass"></td><td class="fail"></td><td class="unknown"></td><td>update target <a href="https://violentmonkey.github.io/api/metadata-block/#downloadurl" title="Automatically added when using 'Install from URL.'" target="_blank">[*]</a></td></tr>
     <tr><th>meta.js</th><td class="pass"></td><td>update target <a href="https://github.com/greasemonkey/greasemonkey/issues/3057" title="Auto-Update Scripts" target="_blank">[*]</a></td><td class="pass"></td><td class="pass"></td></tr>
@@ -614,7 +618,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
     <tr><th>@description</th>       <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@description:xx-YY</th> <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@version</th>           <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@updateURL</th>         <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
+    <tr><th>@updateURL</th>         <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="unknown"></td></tr>
     <tr><th>@match</th>             <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@matches</th>           <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>@include</th>           <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
@@ -670,15 +674,13 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <p>Scripts will have access to all available APIs and therefore <code>@grant</code> is not needed or used.</p>
 
   <h4 class="experimental">inject-into</h4>
-  <p>Setting the value <code>page</code> will inject the entire userscript in the page context (more: <a href="#xray-vision">Xray Vision & Sharing objects with page scripts</a>).</p>
+  <p>Setting the value <code>page</code> will inject the entire userscript in the <code>page</code> context (more: <a href="#xray-vision">Xray Vision & Sharing objects with page scripts</a>).</p>
 
   <ul>
     <li>Only applies to userscripts</li>
     <li>Only <code>page</code> is supported</li>
     <li>In <code>page</code> mode, userscript injection might get blocked by page <a href="https://developer.mozilla.org/docs/Web/HTTP/CSP" target="_blank">Content Security Policy (CSP)</a></li>
     <li>In <code>page</code> mode, userscripts have no access to GM functions</li>
-    <li>In <code>page</code> mode, <code>unsafeWindow</code> refers to the <code>window</code> object <i>(for compatibility with ViolentMonkey)</i></li>
-
   </ul>
 
 
@@ -695,20 +697,54 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
     </tr>
   </thead>
   <tbody>
-    <tr><th>default</th><td>userScript</td><td>content</td><td>content</td><td>page <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" target="_blank">[*]</a</td></tr>
+    <tr><th>default</th>
+      <td>userScript</td>
+      <td>content <a href="https://github.com/greasemonkey/greasemonkey/blob/master/src/bg/execute.js#L20" target="_blank">[*]</a></td>
+      <td>content</td><td>page <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" target="_blank">[*]</a>
+        <a href="https://github.com/violentmonkey/violentmonkey/blob/master/src/background/utils/preinject.js#L176" target="_blank">[*]</a></td></tr>
+
+    <tr>
+      <th>options</th>
+      <td class="fail"></td>
+      <td class="fail"></td>
+      <td class="fail"></td>
+      <td>page | content | auto</td>
+    </tr>
+
 
     <tr>
       <th>@inject-into</th>
       <td>page</td>
       <td class="fail"></td>
       <td class="fail"></td>
-      <td>page<br>content<br>auto</td>
+      <td>page | content | auto</td>
     </tr>
 
-    <tr><th>@grant &nbsp;&nbsp;&nbsp; xyz</th><td>userScript</td><td>content</td><td>content</td><td>content &#x2753;</td></tr>
+
+    <tr><th>@grant &nbsp;&nbsp;&nbsp; xyz</th><td>userScript</td><td>content</td><td>content</td><td>page</td></tr>
 
 
-    <tr><th>@grant &nbsp;&nbsp;&nbsp; none</th><td>userScript</td><td>content</td><td>page <a href="https://www.tampermonkey.net/documentation.php#_grant" target="_blank">[*]</a></td><td>page</td></tr>
+    <tr><th>@grant &nbsp;&nbsp;&nbsp; none</th><td>userScript</td><td>content</td><td>page <a href="https://www.tampermonkey.net/documentation.php#_grant" title="If @grant is followed by 'none' the sandbox is disabled and the script will run directly at the page context. In this mode no GM_* function but the GM_info property will be available." target="_blank">[*]</a></td><td>page</td></tr>
+
+
+    <tr>
+      <th>unsafeWindow</th>
+      <td>
+        <span class="pass">userScript</span><br>
+        <span class="fail">page</span>
+      </td>
+      <td><span class="pass">content</span> <a href="https://github.com/greasemonkey/greasemonkey/blob/master/src/user-script-obj.js#L327" title ="(= window.wrappedJSObject)" target="_blank">[*]</a></td>
+      <td>
+        <span class="pass">content (= window)</span><br>
+        <span class="pass">page (= window)</span>
+      </td>
+      <td>
+        <span class="fail">content</span> <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" title="In this mode, unsafeWindow refers to the global object in content script. As a result, the script can access and modify the page's DOM, but cannot access JavaScript objects of the web page.">[*]</a><br>
+        <span class="pass">page (= window)</span> <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" title="In this mode, unsafeWindow refers to the window object, allowing the script to access JavaScript objects of the web page, just like normal page scripts can." target="_blank">[*]</a>
+        
+      </td>
+    </tr>
+
 
   </tbody>
 </table>
@@ -1693,7 +1729,8 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
     <tr><th>GM.popup</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>GM.log</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
     <tr><th>GM.info</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>unsafeWindow</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>unsafeWindow</th><td class="pass"></td><td class="pass"><a href="https://github.com/greasemonkey/greasemonkey/blob/master/src/user-script-obj.js#L327" target="_blank">[*]</a></td><td class="pass"></td>
+      <td class="pass"><a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" target="_blank">[*]</a></td></tr>
 
     <tr><th>&nbsp;</th><td colspan="6"></td></tr>
 
@@ -2036,11 +2073,11 @@ GM_fetch(url[, init]);</pre>
 
 
   <h4>xmlHttpRequest withCredentials</h4>
-  <p><code>GM.xmlHttpRequest/GM_xmlhttpRequest</code> are sent from background script where credentials are not available. Sometimes it is necessary to send <code>xmlHttpRequest</code> from the page scope.</p>
+  <p><code>GM.xmlHttpRequest/GM_xmlhttpRequest</code> are sent from background script where credentials are not available. Sometimes it is necessary to send <code>xmlHttpRequest</code> from the page context.</p>
 
 
   <figure>
-    <figcaption>xmlHttpRequest from Page Scope</figcaption>
+    <figcaption>xmlHttpRequest from Page Context</figcaption>
 <pre>
 <span class="keyword">const</span> xhr = XPCNativeWrapper(<span class="keyword">new</span> <span class="object">window</span>.wrappedJSObject.XMLHttpRequest());
 xhr.<span class="method">open</span>(<span class="string">'GET'</span>, <span class="string">'https://example.com/etc'</span>);
@@ -2223,10 +2260,11 @@ script.<span class="property">textContent</span> = <span class="string">`... css
   </figure>
 
   <h3 id="addScript">addScript</h3>
-    <p><i>FireMonkey</i> only utility function to inject script element (code runs in page/content scope) e.g.</p>
+    <p><i>FireMonkey</i> only utility function to inject script element (code runs in page context) e.g.</p>
 <pre><span class="keyword">const</span> script = <span class="property">document</span>.<span class="method">createElement</span>(<span class="string">'script'</span>);
 script.<span class="property">textContent</span> = <span class="string">`... code ...`</span>;
 <span class="property">document</span>.<span class="property">body</span>.<span class="method">appendChild</span>(script);
+script.<span class="method">remove</span>();
 </pre>
 
   <figure>
@@ -2507,13 +2545,17 @@ popup.addStyle(css);
 
   <h3 id="xray-vision">&#x2139;&#xfe0f; <a href="https://developer.mozilla.org/docs/Mozilla/Tech/Xray_vision" target="_blank">Xray Vision</a> & Sharing objects with page scripts</h3><br>
 
-  <h4>Extension JavaScript Context/Scope</h4>
-  <ol style="list-style-type: upper-roman;">
-    <li>Browser Context: Trusted privileged code to interact with browser</li>
-    <li>Content Context: Trusted extension JS injected into web page with API privileges</li>
-    <li>User-Script Context: Untrusted unverified 3rd party JS injected into web page without direct API privileges</li>
-    <li>Page Context: JS injected in a web page by the website</li>
-  </ol>
+  <h4>Extension JavaScript Context (Scope)</h4>
+  <dl>
+    <dt>Browser Context</dt>
+      <dd>Trusted privileged code to interact with the browser</dd>
+    <dt>Content Context</dt>
+      <dd>Trusted extension's own JavaScript injected into web page with <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#webextension_apis" target="_blank">browser API privileges</a> (there can be many isolated Content Contexts)</dd>
+    <dt>UserScript Context</dt>
+      <dd>Untrusted unverified 3rd party JavaScript injected into web page without direct browser API privileges (there can be many isolated UserScript Contexts)</dd>
+    <dt>Page Context</dt>
+      <dd>JavaScript injected in a web page by the website (there is only one page context)</dd>
+  </dl>
 
 
 
@@ -2544,8 +2586,8 @@ popup.addStyle(css);
 
 
 
-  <h4>Injecting code into page scripts</h4>
-  <p>Sometimes it is necessary to have a script that is available to page spirit and/or run in page context, as an extension to page script functions.</p>
+  <h4>Injecting code into page context</h4>
+  <p>Sometimes it is necessary to have a script that is available to page script and/or run in page context, as an extension to the page script functions.</p>
 
 <pre><span class="keyword">const</span> script = <span class="property">document</span>.<span class="method">createElement</span>(<span class="string">'script'</span>);
 script.<span class="property">textContent</span> = <span class="string">`... code ...`</span>;
@@ -2559,7 +2601,7 @@ script.<span class="method">remove</span>();
     <li><a href="https://stackoverflow.com/questions/8548141/can-a-website-know-if-i-am-running-a-userscript" target="_blank">Can a website know if I am running a userscript?</a> by Brock Adams</li>
     <li><a href="https://stackoverflow.com/questions/56821042/can-a-webpage-detect-a-tampermonkey-userscript" target="_blank">Can a webpage detect a tampermonkey userscript?</a> by Brock Adams</li>
   </ul>
-  <h4>Receiving data from page scripts</h4>
+  <h4>Receiving data from page context</h4>
   <p><a href="https://developer.mozilla.org/docs/Web/API/CustomEvent" target="_blank">CustomEvent</a> can be used send data from a page script.</p>
 
   <figure>

@@ -54,7 +54,28 @@
     try {
       const cb = object.wrappedJSObject[name];
       typeof cb === 'function' && cb(...args);
-    } catch(error) { console.error(name, error.message); }
+    } catch(error) { log(`callUserScriptCallback ➜ ${error.message}`, 'error'); }
+  }
+
+  // --------------- log from background -------------------
+  function log(message, type) {
+    browser.runtime.sendMessage({
+      name,
+      api: 'log',
+      data: {message, type}
+    });
+  }
+
+  // --- auxiliary regex include/exclude test function
+  function matchURL() {
+    const url = location.href;
+    const includes = script.metadata.info.script.includes;
+    const excludes = script.metadata.info.script.excludes;
+    return (!includes[0] || arrayTest(includes, url)) && (!excludes[0] || !arrayTest(excludes, url));
+  }
+
+  function arrayTest(arr, url) {
+    return new RegExp(arr.map(item => `(${item.slice(1, -1)})`).join('|'), 'i').test(url);
   }
 
   // --------------- GM4 Object based functions ------------
@@ -228,7 +249,7 @@
         style.textContent = css;
         style.dataset.src = name + '.user.js';
         (document.head || document.body || document.documentElement || document).appendChild(style);
-      } catch(error) { console.error(name, error.message); }
+      } catch(error) { log(`addStyle ➜ ${error.message}`, 'error'); }
     },
 
     addScript(js) {
@@ -237,9 +258,9 @@
       try {
         const script = document.createElement('script');
         script.textContent = js;
-        script.dataset.src = name + '.user.js';
         (document.body || document.head || document.documentElement || document).appendChild(script);
-      } catch(error) { console.error(name, error.message); }
+        script.remove();
+      } catch(error) { log(`addScript ➜ ${error.message}`, 'error'); }
     },
 
     popup({type = 'center', modal = true} = {}) {
@@ -412,19 +433,9 @@
     },
 
     log(...text) { console.log(name + ':', ...text); },
-    info: script.metadata.info,
-
-    // --- auxiliary regex include/exclude test function
-    matchURL() {
-      const url = location.href;
-      const includes = script.metadata.info.script.includes;
-      const excludes = script.metadata.info.script.excludes;
-      return (!includes[0] || GM.arrayTest(includes, url)) && (!excludes[0] || !GM.arrayTest(excludes, url));
-    },
-    arrayTest(arr, url) {
-      return new RegExp(arr.map(item => `(${item.slice(1, -1)})`).join('|'), 'i').test(url);
-    }
+    info: script.metadata.info
   };
+
 
 
   script.defineGlobals({
@@ -453,7 +464,9 @@
     GM_popup:                     GM.popup,
 
     GM_log:                       GM.log,
-    GM_info:                      GM.info
+    GM_info:                      GM.info,
+
+    matchURL
   });
 
 });
