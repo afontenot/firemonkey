@@ -78,7 +78,7 @@
     <input type="radio" name="nav" id="nav5">
     <input type="radio" name="nav" id="nav6">
 
-
+    <input type="checkbox" id="pinMenu" class="control">
     <nav>
       <details>
         <summary><img src="../image/menu-dot.svg" alt=""></summary>
@@ -87,6 +87,10 @@
           <input type="checkbox" id="listDisable" class="control" checked>
           <input type="checkbox" id="listJS" class="control" checked>
           <input type="checkbox" id="listCSS" class="control" checked>
+          
+          <div class="list pinMenu">
+            <label for="pinMenu" data-i18n="pinMenu"></label>
+          </div>
 
           <div class="flex list">
             <label for="listEnable"><img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></label>
@@ -166,8 +170,8 @@
         </fieldset>
 
         <input type="file" id="file" accept=".txt,.json">
-        <label for="file" class="flat" data-i18n="importPreference"></label>&nbsp;
-        <button type="button" id="export" class="flat" data-i18n="exportPreference"></button>
+        <label for="file" class="flat" data-i18n="import"></label>&nbsp;
+        <button type="button" id="export" class="flat" data-i18n="export"></button>
 
         <button type="submit" data-i18n="saveOptions"></button>
 

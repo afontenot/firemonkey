@@ -50,6 +50,7 @@
   "userMatchesExcludeMatches": {
     "message": "用户匹配和排除匹配"
   },
+  "pinMenu": { "message": "Pin Menu" },
   "script": {
     "message": "脚本和样式"
   },
@@ -142,12 +143,6 @@
   },
   "export": {
     "message": "导出"
-  },
-  "importPreference": {
-    "message": "导入设置"
-  },
-  "exportPreference": {
-    "message": "导出设置"
   },
   "fileSizeError": {
     "message": "文件大小超过允许的 $1kb"

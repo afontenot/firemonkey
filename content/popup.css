@@ -84,6 +84,14 @@ h3 {
   padding: 0.5em;
   background: var(--btn-bg);
 }
+
+h3 span.frame{
+  float: right;
+  padding: 0.1em 0.3em;
+  background: var(--bg);
+  opacity: 0.6;
+  font-size: 0.8em;
+}
 /* ----- /General ----- */
 
 /* ----- menu ----- */

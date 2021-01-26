@@ -50,6 +50,7 @@
   "userMatchesExcludeMatches": {
     "message": "User Matches & Exclude Matches"
   },
+  "pinMenu": { "message": "Pin Menu" },
   "script": {
     "message": "指令稿與 CSS"
   },
@@ -142,12 +143,6 @@
   },
   "export": {
     "message": "匯出"
-  },
-  "importPreference": {
-    "message": "匯入偏好設定"
-  },
-  "exportPreference": {
-    "message": "匯出偏好設定"
   },
   "fileSizeError": {
     "message": "檔案大小超過允許的 $1kb"
