@@ -79,7 +79,7 @@
 
 
   <h2 id="Preamble">Preamble</h2>
-  <p><i>FireMonkey</i> is a totally new combined user-script and user-style manager. While it has similar functions to other user-Script managers like <i>GreaseMonkey/TamperMonkey/ViolentMonkey</i>, and user-style managers like <i>Stylish/Stylus/xStyle</i>, there are also differences. Similar to <i>FM|TM|VM</i>, scripts (or CSS) are injected in tabs and for a new script/CSS to have an effect, tab must be reloaded. The behaviour differs from <i>Stylus</i> which can inject CSS into a tab and remove it without having to reload the tab.</p>
+  <p><i>FireMonkey</i> is a totally new combined user-script and user-style manager. While it has similar functions to other user-Script managers like <i>GreaseMonkey/TamperMonkey/ViolentMonkey</i>, and user-style managers like <i>Stylish/Stylus/xStyle</i>, there are also differences. Similar to other userscript managers, scripts (or CSS) are injected in tabs and for a new script/CSS to have an effect, tab must be reloaded. The behaviour differs from <i>Stylus</i> which can inject CSS into a tab and remove it without having to reload the tab.</p>
 
 
   <h2 id="how_to">How to Use</h2><br>
@@ -104,7 +104,7 @@
     <dt><img src="../image/document.svg" alt=""> Log</dt>
       <dd>Display the latest (100) error and script-update messages when not in Private Window <sup>1</sup></dd>
 
-    <dt><img src="locale-maker.svg" alt=""> Locale Maker</dt>
+    <dt><img src="../locale-maker/locale-maker.svg" alt=""> Locale Maker</dt>
       <dd>Open the Locale Maker stand alone module to create & share locale translations</dd>
 
   </dl>
@@ -141,7 +141,7 @@
         <dd>Insert CSS & JavaScript temporarily into the active tab</dd>
         <dd>Scratchpad recalls the last entries for repeated use</dd>
 
-        <dd style="color: #f00;">&#x26a0;&#xfe0f; The injection API has more access than userScript API and untrusted JavaScript code should not be used.</dd>
+        <dd style="color: #f30;">&#x26a0;&#xfe0f; The injection API has more access than userScript API and untrusted JavaScript code should not be used.</dd>
 
         <dd>
           <dl>
@@ -325,8 +325,8 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
   <dl>
     <dt>&#x2611;&#xfe0f; Pin Menu</dt>
-      <dd>Select to pin & keep the menu open and deselect to enable closing</dd>  
-    
+      <dd>Select to pin & keep the menu open and deselect to enable closing</dd>
+
     <dt>&#x2611;&#xfe0f; <img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></dt>
       <dd>Hide/Show all enabled Script & CSS</dd>
 
@@ -613,12 +613,12 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   </thead>
   <tbody class="slim">
     <tr><th>@name</th>              <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@name:xx-YY</th>        <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@author</th>            <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
+    <tr><th>@name:xx-YY</th>        <td class="pass"></td><td class="pass">v4.11+</td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@author</th>            <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"><a href="https://violentmonkey.github.io/api/metadata-block/" target="_blank">undocumented </a> <a href="https://github.com/violentmonkey/violentmonkey/blob/master/src/common/options-defaults.js#L60" target="_blank">[*]</a></td></tr>
     <tr><th>@description</th>       <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@description:xx-YY</th> <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@description:xx-YY</th> <td class="pass"></td><td class="pass">v4.11+</td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@version</th>           <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@updateURL</th>         <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="unknown"></td></tr>
+    <tr><th>@updateURL</th>         <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"><a href="https://violentmonkey.github.io/api/metadata-block/" target="_blank">undocumented </a> <a href="https://github.com/violentmonkey/violentmonkey/blob/master/src/background/utils/update.js#L71" target="_blank">[*]</a></td></tr>
     <tr><th>@match</th>             <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@matches</th>           <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>@include</th>           <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
@@ -674,13 +674,18 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <p>Scripts will have access to all available APIs and therefore <code>@grant</code> is not needed or used.</p>
 
   <h4 class="experimental">inject-into</h4>
-  <p>Setting the value <code>page</code> will inject the entire userscript in the <code>page</code> context (more: <a href="#xray-vision">Xray Vision & Sharing objects with page scripts</a>).</p>
+  <p>Setting the value <code>page</code> will inject the entire userscript in the <code>page</code> context (more: <a href="#xray-vision">Extension JavaScript Context</a>).</p>
 
   <ul>
     <li>Only applies to userscripts</li>
     <li>Only <code>page</code> is supported</li>
     <li>In <code>page</code> mode, userscript injection might get blocked by page <a href="https://developer.mozilla.org/docs/Web/HTTP/CSP" target="_blank">Content Security Policy (CSP)</a></li>
-    <li>In <code>page</code> mode, userscripts have no access to GM functions</li>
+    <li>In <code>page</code> mode, userscripts have no access to GM functions however ...
+      <ul>
+        <li><code>unsafeWindow</code> is available for <i>ViolentMonkey</i> compatibility</li>
+        <li><code>GM.info|GM_info</code> is available for <i>TamperMonkey</i> & <i>ViolentMonkey</i> compatibility</li>
+      </ul>
+    </li>
   </ul>
 
 
@@ -720,37 +725,86 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
       <td>page | content | auto</td>
     </tr>
 
-
-    <tr><th>@grant &nbsp;&nbsp;&nbsp; xyz</th><td>userScript</td><td>content</td><td>content</td><td>page</td></tr>
-
-
-    <tr><th>@grant &nbsp;&nbsp;&nbsp; none</th><td>userScript</td><td>content</td><td>page <a href="https://www.tampermonkey.net/documentation.php#_grant" title="If @grant is followed by 'none' the sandbox is disabled and the script will run directly at the page context. In this mode no GM_* function but the GM_info property will be available." target="_blank">[*]</a></td><td>page</td></tr>
+    <tr>
+      <th>@grant <span style="margin: 0 2em;"></span> xyz<br>
+        @grant <span style="margin: 0 2em;"></span> none</th>
+      <td>no change</td>
+      <td>no change</td>
+      <td>content<br>
+        page <a href="https://www.tampermonkey.net/documentation.php#_grant" title="If @grant is followed by 'none' the sandbox is disabled and the script will run directly at the page context. In this mode no GM_* function but the GM_info property will be available." target="_blank">[*]</a></td>
+      <td>no change</td>
+    </tr>
 
 
     <tr>
       <th>unsafeWindow</th>
       <td>
         <span class="pass">userScript</span><br>
-        <span class="fail">page</span>
+        <span class="pass">page</span>
       </td>
-      <td><span class="pass">content</span> <a href="https://github.com/greasemonkey/greasemonkey/blob/master/src/user-script-obj.js#L327" title ="(= window.wrappedJSObject)" target="_blank">[*]</a></td>
+      <td><span class="pass">content</span> <a href="https://github.com/greasemonkey/greasemonkey/blob/master/src/user-script-obj.js#L327" title ="= window.wrappedJSObject" target="_blank">[*]</a></td>
       <td>
-        <span class="pass">content (= window)</span><br>
-        <span class="pass">page (= window)</span>
+        <span class="pass">content</span><br>
+        <span class="fail">page</span>
       </td>
       <td>
         <span class="fail">content</span> <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" title="In this mode, unsafeWindow refers to the global object in content script. As a result, the script can access and modify the page's DOM, but cannot access JavaScript objects of the web page.">[*]</a><br>
-        <span class="pass">page (= window)</span> <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" title="In this mode, unsafeWindow refers to the window object, allowing the script to access JavaScript objects of the web page, just like normal page scripts can." target="_blank">[*]</a>
-        
+        <span class="pass">page</span> <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" title="In this mode, unsafeWindow refers to the window object, allowing the script to access JavaScript objects of the web page, just like normal page scripts can." target="_blank">[*]</a>
+
       </td>
     </tr>
 
+    <tr>
+      <th>GM info</th>
+      <td>
+        <span class="pass">userScript</span><br>
+        <span class="pass">page</span>
+      </td>
+      <td><span class="pass">content</span></td>
+      <td>
+        <span class="pass">content</span><br>
+        <span class="pass">page</span>
+      </td>
+      <td>
+        <span class="pass">content</span><br>
+        <span class="pass">page</span>
+      </td>
+    </tr>
+
+    <tr>
+      <th>GM functions</th>
+      <td>
+        <span class="pass">userScript</span><br>
+        <span class="fail">page</span>
+      </td>
+      <td><span class="pass">content</span></td>
+      <td>
+        <span class="pass">content</span><br>
+        <span class="fail">page</span>
+      </td>
+      <td>
+        <span class="pass">content</span><br>
+        <span class="pass">page</span>
+      </td>
+
+    </tr>
+
+    <tr>
+      <th>isolated context <sup>1</sup></th>
+      <td class="pass"></td>
+      <td class="fail"></td>
+      <td class="fail"></td>
+      <td class="fail"></td>
+    </tr>
 
   </tbody>
 </table>
 
-
-
+  <p id="userscript-isolation"><sup>1</sup> Userscripts in <i>FireMonkey</i> are by default injected into separate islolated <code>userScript</code> contexts, and therefore there is no interaction between the userscripts. In <code>content</code> or <code>page</code> context, the userscripts will share the same context which can result in unexpected behaviour e.g.</p> 
+  <ul>
+    <li><a href="https://github.com/greasemonkey/greasemonkey/issues/3093" target="_blank">Scripts running on the same page share the same window wrapper</a></li>
+    <li><a href="https://github.com/violentmonkey/violentmonkey/issues/1102" target="_blank">[Firefox] Scripts share the same window wrapper if `@inject-into content` is used</a></li>
+  </ul>
 
   <h4>antifeature</h4>
   <p>Under-development feature on <i>GreasyFork</i> (ref: <a href="https://github.com/JasonBarnabe/greasyfork/issues/604" target="_blank">#604</a>) to mark possibly undesirable behaviour e.g. miners, ads etc.</p>
@@ -806,7 +860,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 
     <dt>document_end</dt>
       <dd>Corresponds to <code>interactive</code>. The DOM has finished loading, but resources such as scripts, images, stylesheets and frames may still be loading.</dd>
-      <dd>The state indicates that the <a href="https://developer.mozilla.org/docs/Web/API/Document/DOMContentLoaded_event" target="_blank">DOMContentLoaded</a> event is about to fire.</dd>
+      <dd>The state indicates that the <a href="https://developer.mozilla.org/docs/Web/API/Window/DOMContentLoaded_event" target="_blank">DOMContentLoaded</a> event is about to fire.</dd>
 
     <dt>document_idle</dt>
       <dd>Corresponds to <code>complete</code>. The document and all its resources have finished loading.</dd>
@@ -1722,15 +1776,33 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
     <tr><th>GM.download</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>GM.getResourceText</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>GM.getResourceURL</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>GM.registerMenuCommand</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
+    <tr><th>GM.registerMenuCommand</th><td class="pass"></td><td class="pass">v4.11+</td><td class="pass"></td><td class="fail"></td></tr>
     <tr><th>GM.unregisterMenuCommand</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
     <tr><th>GM.addStyle</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM.addScript</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>GM.popup</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>GM.log</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
     <tr><th>GM.info</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>unsafeWindow</th><td class="pass"></td><td class="pass"><a href="https://github.com/greasemonkey/greasemonkey/blob/master/src/user-script-obj.js#L327" target="_blank">[*]</a></td><td class="pass"></td>
-      <td class="pass"><a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" target="_blank">[*]</a></td></tr>
+
+    <tr>
+      <th>unsafeWindow</th>
+      <td>
+        <span class="pass">userScript</span><br>
+        <span class="pass">page</span>
+      </td>
+      <td><span class="pass">content</span> <a href="https://github.com/greasemonkey/greasemonkey/blob/master/src/user-script-obj.js#L327" title ="(= window.wrappedJSObject)" target="_blank">[*]</a></td>
+      <td>
+        <span class="pass">content</span><br>
+        <span class="fail">page</span>
+      </td>
+      <td>
+        <span class="fail">content</span> <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" title="In this mode, unsafeWindow refers to the global object in content script. As a result, the script can access and modify the page's DOM, but cannot access JavaScript objects of the web page.">[*]</a><br>
+        <span class="pass">page</span> <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" title="In this mode, unsafeWindow refers to the window object, allowing the script to access JavaScript objects of the web page, just like normal page scripts can." target="_blank">[*]</a>
+
+      </td>
+    </tr>
+
+
 
     <tr><th>&nbsp;</th><td colspan="6"></td></tr>
 
@@ -1809,7 +1881,7 @@ sandbox/injected-web.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>320</td>
+      <td>330</td>
       <td>323k</td>
       <td>345k</td>
       <td>38k</td>
@@ -1876,7 +1948,7 @@ js/promisify.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>320</td>
+      <td>330</td>
       <td>67k</td>
       <td>86k</td>
       <td>490</td>
@@ -1928,7 +2000,7 @@ js/promisify.js</code></td>
   <h3 id="fetch">fetch</h3>
   <p><i>FireMonkey</i> <code>fetch</code> API is based on the JavaScript <a href="https://developer.mozilla.org/docs/Web/API/WindowOrWorkerGlobalScope/fetch" target="_blank">Fetch API</a> which provides the new Promise based interface for fetching resources (including across the network). It will seem familiar to anyone who has used <code>XMLHttpRequest</code>, but it provides a more powerful and flexible feature set.</p>
   <p>For simplicity and compatibility, the same GM style naming is kept for <code>fetch</code> API although it is not available in <i>GreaseMonkey</i>.</p>
-  <p><i>FireMonkey</i> <code>fetch</code> returns response object/string or <code>null</code> (check console for errors e.g.: <i>TypeError: "NetworkError when attempting to fetch resource.</i>").</p>
+  <p><i>FireMonkey</i> <code>fetch</code> returns response object/string or <code>null</code> (check console & the log for errors e.g.: <i>TypeError: "NetworkError when attempting to fetch resource.</i>").</p>
 
   <p class="note"><i>FireMonkey</i> GM<code> fetch</code> fixes Bug 1405971 <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1405971" target="_blank">Webextension UUID leak via Fetch requests</a>.</p>
 
@@ -2447,7 +2519,7 @@ popup.addStyle(css);
   <h3 id="info">info</h3>
 <pre>{
   scriptHandler:    'FireMonkey',
-  version:          'e.g. 1.29',
+  version:          'e.g. 2.14',
   scriptMetaStr:    null,
   platform: {
     os:             'e.g. mac win android cros linux openbsd',
@@ -2550,11 +2622,11 @@ popup.addStyle(css);
     <dt>Browser Context</dt>
       <dd>Trusted privileged code to interact with the browser</dd>
     <dt>Content Context</dt>
-      <dd>Trusted extension's own JavaScript injected into web page with <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#webextension_apis" target="_blank">browser API privileges</a> (there can be many isolated Content Contexts)</dd>
+      <dd>Trusted extension's own JavaScript injected into web page with <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#webextension_apis" target="_blank">browser API privileges</a> (there is only one <code>content</code> context per extension per frame)</dd>
     <dt>UserScript Context</dt>
-      <dd>Untrusted unverified 3rd party JavaScript injected into web page without direct browser API privileges (there can be many isolated UserScript Contexts)</dd>
+      <dd>Untrusted unverified 3rd party JavaScript injected into web page without direct browser API privileges (there can be many isolated <code>userScript</code> contexts)</dd>
     <dt>Page Context</dt>
-      <dd>JavaScript injected in a web page by the website (there is only one page context)</dd>
+      <dd>JavaScript injected in a web page by the website (there is only one <code>page</code> context per frame)</dd>
   </dl>
 
 

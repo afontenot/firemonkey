@@ -162,7 +162,7 @@ class Popup {
 
     const infoArray = ['name', 'description', 'author', 'version', 'size', 'updateURL', 'matches',
                         'excludeMatches', 'includes', 'excludes', 'includeGlobs', 'excludeGlobs', 
-                        'require', 'userMatches', 'userExcludeMatches'];
+                        'require', 'userMatches', 'userExcludeMatches', 'injectInto', 'runAt'];
     pref.content[id].error && infoArray.push('error');
 
     infoArray.forEach(item => {
@@ -190,6 +190,15 @@ class Popup {
         case 'size':
           const text = pref.content[id].js || pref.content[id].css;
           arr.push(new Intl.NumberFormat().format(parseFloat((text.length/1024).toFixed(1))) + ' KB');
+          break;
+          
+        case 'injectInto':
+          item = 'inject-into';
+          break;
+          
+        case 'runAt':
+          item = 'run-at';
+          arr[0] = arr[0].replace('_', '-');
           break;
       }
 
