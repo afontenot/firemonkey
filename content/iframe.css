@@ -161,16 +161,15 @@ article {
 }
 
 article ul {
-
+  margin-top: 0.5em;
 }
 
 article li {
-  border-left: 2px solid #ddd;
-  padding-left: 0.8em;
+  margin-left: 1em;
 }
 
 article li::marker { /* FF 68+ */
-  color: #ddd;
+  color: #aaa;
 }
 
 article li img {
@@ -388,7 +387,7 @@ blockquote {
   font-style: italic;
   position: relative;
   border-radius: 1.5em;
-  background: rgba(233, 150, 122, 0.4) url("../image/blob.svg") center no-repeat;
+  background: #e9967a66 url("../image/blob.svg") center no-repeat; 
   background-size: 100% 100%;
 }
 
