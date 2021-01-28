@@ -306,6 +306,10 @@ dt.error,
 dt.error ~ dd {
   color: #f00;
 }
+
+dd:last-of-type {
+  padding-bottom: 1em;
+}
 /* ----- /Info ----- */
 
 .infoList,

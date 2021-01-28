@@ -137,12 +137,12 @@ class ScriptRegister {
 
     const require = script.require || [];
     const requireRemote = script.requireRemote || [];
-    
+
     // --- add @require
     require.forEach(item => {
 
-      if (item.startsWith('lib/')) { 
-        page ? requireRemote.push('/' + item) : options[target].push({file: '/' + item}); 
+      if (item.startsWith('lib/')) {
+        page ? requireRemote.push('/' + item) : options[target].push({file: '/' + item});
       }
       else if (pref.content[item] && pref.content[item][target]) {
         options[target].push({code: pref.content[item][target].replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'))});
@@ -163,28 +163,13 @@ class ScriptRegister {
         .catch(() => null)
       ));
     }
-    
-    // --- add debug
-    js && (script.js += sourceURL + encodeId + '.user.js'); 
 
-    // --- process inject-into page context
-    page && (script.js = `GM_addScript('(() => {' + ${JSON.stringify(script[target])} + \`\n})();\`);`);
-
-    // --- add code
-    options[target].push({code: script[target].replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'))});
 
     // --- script only
     if (js) {
 
       const includes = script.includes || [];
       const excludes = script.excludes || [];
-      
-      // --- unsafeWindow implementation & Regex include/exclude workaround
-      const code = (includes[0] || excludes[0] ? `if (!matchURL()) { throw ''; } ` : '') + 
-                    (page ? '' : 'const unsafeWindow = window.wrappedJSObject;');
-
-      code.trim() && options.js.unshift({code});
-
       options.scriptMetadata = {
         name: id,
         resource: script.resource || {},
@@ -211,7 +196,25 @@ class ScriptRegister {
           }
         }
       };
+
+      // --- add debug
+      script.js += sourceURL + encodeId + '.user.js';
+
+      // --- process inject-into page context
+      if (page) {
+        script.js = `GM_addScript('((unsafeWindow, GM, GM_info = GM.info) => {(() => { ' + ${JSON.stringify(script.js + '\n')} +
+                      '})();})(window, ${JSON.stringify({info:options.scriptMetadata.info})});');`;
+      }
+
+      // --- unsafeWindow implementation & Regex include/exclude workaround
+      const code = (includes[0] || excludes[0] ? `if (!matchURL()) { throw ''; } ` : '') +
+                    (page ? '' : 'const unsafeWindow = window.wrappedJSObject;');
+
+      code.trim() && options.js.push({code});
     }
+
+    // --- add code
+    options[target].push({code: script[target].replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'))});
 
     if (script.style[0]) {
       // --- UserStyle Multi-segment Process
