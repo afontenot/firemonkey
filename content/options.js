@@ -99,7 +99,7 @@ class Options {
         break;
 
       default:
-        document.querySelector(`li[data-id="${nav}"]`).click();
+        document.getElementById(nav).click();
     }
   }
 }
@@ -741,7 +741,7 @@ class Script {
     item.enabled || li.classList.add('disabled');
     item.error && li.classList.add('error');
     li.textContent = item.name;
-    li.dataset.id = item.name;
+    li.id = item.name;
     this.docfrag.appendChild(li);
     li.addEventListener('click', e => this.showScript(e));
   }
@@ -768,7 +768,7 @@ class Script {
     last && last.classList.remove('on');
     li.classList.add('on');
 
-    const id = li.dataset.id;
+    const id = li.id;
     box.id = id;
     legend.textContent = '';
     legend.className = li.classList.contains('js') ? 'js' : 'css';
@@ -1021,7 +1021,7 @@ class Script {
 
         // update old one in menu list & legend
         li.textContent = data.name;
-        li.dataset.id = data.name;
+        li.id = data.name;
         break;
     }
 

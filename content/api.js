@@ -437,7 +437,6 @@
   };
 
 
-
   script.defineGlobals({
 
     GM,
