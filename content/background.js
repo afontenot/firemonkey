@@ -66,7 +66,7 @@ class Counter {
     if (changeInfo.status !== 'complete') { return; }
 
     const frames = await browser.webNavigation.getAllFrames({tabId});
-    const urls = [...new Set(frames.map(item => item.url).filter(item => /^(https?|wss?|ftp|file|about:blank)/.test(item)))];
+    const urls = [...new Set(frames.map(item => item.url.replace(/#.*/, '')).filter(item => /^(https?|wss?|ftp|file|about:blank)/.test(item)))];
     const gExclude = pref.globalScriptExcludeMatches ? pref.globalScriptExcludeMatches.split(/\s+/) : []; // cache the array
     const count = Object.keys(pref.content).filter(item =>
       pref.content[item].enabled && CheckMatches.get(pref.content[item], urls, gExclude));

@@ -38,13 +38,6 @@ body {
   overflow-y: hidden;
 }
 
-/* overflow menu */
-@media (min-width: 340px) {
-  body {
-    width: auto;
-  }
-}
-
 * {
   box-sizing: border-box;
 }
