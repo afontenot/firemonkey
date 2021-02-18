@@ -184,8 +184,8 @@ a {
 
 a[href^="http"]::after {
   content: '\1f517';
-  margin-left: 0.5em;
-  font-size: 0.4em;
+  margin-left: 0.3em;
+  font-size: 0.7em;
 }
 
 /* ----- Navigation ----- */
