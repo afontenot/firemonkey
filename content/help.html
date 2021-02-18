@@ -69,7 +69,8 @@
         <li><a href="#UserCSS">UserCSS</a></li>
         <li><a href="#UserStyle">UserStyle</a></li>
         <li><a href="#debugging">Debugging Script & CSS</a></li>
-
+        <li><a href="#Injection-Compassion">Injection Compassion</a></li>
+        <li><a href="#Performance-Test">Performance Test</a></li>
       </ul>
     </div>
     <a href="#support">Support</a>
@@ -1881,7 +1882,7 @@ sandbox/injected-web.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>330</td>
+      <td>360</td>
       <td>323k</td>
       <td>345k</td>
       <td>38k</td>
@@ -1948,7 +1949,7 @@ js/promisify.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>330</td>
+      <td>360</td>
       <td>67k</td>
       <td>86k</td>
       <td>490</td>
@@ -2876,6 +2877,54 @@ You can check the Console tab.</dd>
       <dd>Check the Log page for recent errors</dd>
 
   </dl>
+
+  <h3 id="Injection-Compassion">Injection Compassion</h3>
+  
+  <h4>Other userscript & userStyle Managers</h4>
+  <ul>
+    <li>Add listeners to all HTTP requests</li>
+    <li>Loop through all scripts on every request to check if the there are scripts that match</li>
+    <li>If matches are found, process the scripts/CSS and inject the scripts/CSS</li>
+    <li>All injections are handled manually by the extension</li>
+    <li>Script injection is made into privileged & unsecured <code>content</code> context, or <code>page</code> context</li>
+  </ul>
+
+  <h4>FireMonkey</h4>
+  <ul>
+    <li>All scripts are prepared and passed to Firefox native engine at start-up</li>
+    <li>From then, FireMonkey does nothing and all script/CSS injections are handled by Firefox natively</li>
+    <li>Script injection is made into secure <code>userScript</code> context</li>
+  </ul>
+  
+
+<h3 id="Performance-Test">Performance Test</h3>
+
+  <h4>UserScript</h4>
+  <ul>
+    <li>Load the same userscript/s in FM|GM|TM|VM</li>
+    <li>Open <code>about:performance</code></li>
+    <li>Go to a page that above runs on</li>
+    <li>Compare</li>
+  </ul>
+
+  <h4>UserStyle/UserCSS</h4>
+  <ul>
+    <li>Load the same userStyle/userCSS in FM|Stylish|Stylus|xStyle</li>
+    <li>Open <code>about:performance</code></li>
+    <li>Go to a page that above runs on</li>
+    <li>Compare</li>
+  </ul>
+  
+  <h4>Combined UserScript + UserStyle/UserCSS</h4>
+  <ul>
+    <li>Load the same userscript/s in FM|GM|TM|VM plus the same userStyle/userCSS in FM|Stylish|Stylus|xStyle</li>
+    <li>Open <code>about:performance</code></li>
+    <li>Go to a page that above runs on</li>
+    <li>Compare FM with combined userscript manger + userstyle manager</li>
+  </ul>
+
+
+
 
 
 

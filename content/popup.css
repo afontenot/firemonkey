@@ -28,14 +28,25 @@ body.dark {
   --color2: #0ff;
 }
 
-
 body {
   color: var(--color);
   background: var(--bg);
   padding: 0;
-  font-family: sans-serif;
+  margin: 0;
+  font: 12px sans-serif;
   width: 25em;
-  overflow-y: hidden;
+  overflow: hidden;
+}
+
+/* overflow menu windows 348px Linux (GNOME) 425px */
+@media screen and (min-width: 348px) and (max-width: 425px) {
+  body {
+    width: auto;
+  }
+}
+
+body.android {
+  width: auto;
 }
 
 * {
@@ -54,22 +65,26 @@ article {
   padding: 0;
   margin: 0;
   overflow: hidden;
-}
-
-article > div {
   display: flex;
   width: 200%;
-  transition: 0.5s;
+  transition: 0.5s;  
 }
 
 section {
   padding: 0;
   width: 50%;
+  height: 560px;
 }
 
-.spacer {
-  flex-grow: 1;
+section.main {
+  display: flex;
+  flex-direction: column;
 }
+
+body.android section {
+  height: 100vh;
+}
+
 
 h3 {
   font-weight: normal;
@@ -89,7 +104,7 @@ h3 span.frame{
 
 /* ----- menu ----- */
 h3.menu {
-  padding: 0.3em 0.5em;
+  padding: 0.1em 0.5em;
   cursor: pointer;
   transition: 0.3s;
   position: relative;
@@ -160,20 +175,20 @@ ul {
 }
 
 ul.other {
-  height: 22em;
+  flex-grow: 1;
 }
 
 li {
   padding: 0 0.4em;;
   margin: 0;
   display: flex;
-  transition: 0.3s;
   position: relative;
   cursor: pointer;
 }
 
 li span {
   display: inline-block;
+  transition: 0.5s;
 }
 
 li span:hover {
