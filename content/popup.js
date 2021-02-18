@@ -6,6 +6,9 @@ App.i18n();
 // ----------------- User Preference -----------------------
 App.getPref().then(() => popup.process());
 
+// ----------------- Android ------------------------------- 
+document.body.classList.toggle('android', navigator.userAgent.includes('Android'));
+
 // ----------------- Popup ---------------------------------
 class Popup {
 
