@@ -30,6 +30,7 @@ class Options {
     window.addEventListener('storage', (e) => {
       if (e.key === 'nav') { this.getNav(e.newValue); }
       else if (e.key === 'log') { showLog.update(e.newValue); }
+      else if (e.key.startsWith('enable-')) { script.getEnable(e); }
     });
   }
 
@@ -110,7 +111,7 @@ const options = new Options('#autoUpdateInterval, #globalScriptExcludeMatches, #
 class Script {
 
   constructor() {
-    // class RemoteUpdate in common.js
+    // class RemoteUpdate in app.js
     RU.callback = this.processResponse.bind(this);
 
     this.docfrag = document.createDocumentFragment();
@@ -209,14 +210,14 @@ class Script {
     // --- color picker
     this.inputColor = document.querySelector('.script input[type="color"]');
     this.inputColor.addEventListener('change', (e) => this.changeColor());
-    
+
     // --- pinnned menu
     const pinMenu = document.querySelector('#pinMenu');
-    pinMenu.checked = localStorage.getItem('pinMenu') === 'true';
+    pinMenu.checked = localStorage.getItem('pinMenu') !== 'false'; // defaults to pinned
     const navDetails = document.querySelector('nav details');
     navDetails.open = pinMenu.checked;
     pinMenu.addEventListener('change', (e) => localStorage.setItem('pinMenu', pinMenu.checked));
-    document.body.addEventListener('click', (e) => 
+    document.body.addEventListener('click', (e) =>
       !navDetails.contains(e.explicitOriginalTarget) && !pinMenu.checked && (navDetails.open = false));
   }
 
@@ -285,14 +286,15 @@ class Script {
 //      hint: {hintOptions: {}},
       foldGutter: true,
       gutters: ['CodeMirror-lint-markers', 'CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
-      //extraKeys: {"Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }},
 
       extraKeys: {
-//        'Ctrl-Q': (cm)=> cm.foldCode(cm.getCursor()), // conflict with 'toggleComment'
+        // conflict with 'toggleComment'
+//      "Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }
+//      'Ctrl-Q': (cm)=> cm.foldCode(cm.getCursor()),
+
         'Ctrl-Q': 'toggleComment',
         'Ctrl-Space': 'autocomplete',
         'Alt-F': 'findPersistent',
-//        Tab: (cm) => cm.replaceSelection('  '), // conflict with multi-line selection
         F11: (cm) => cm.setOption('fullScreen', !cm.getOption('fullScreen')),
         Esc: (cm) => cm.getOption('fullScreen') && cm.setOption('fullScreen', false)
       }
@@ -300,8 +302,14 @@ class Script {
 
     // Custom CodeMirror Options
     const cmOptions = App.JSONparse(pref.cmOptions) || {};
-    Object.keys(cmOptions).forEach(item => item !== 'jshint' && (options[item] = cmOptions[item]));
+    Object.keys(cmOptions).forEach(item => !['jshint', 'extraKeys'].includes(item) && (options[item] = cmOptions[item]));
     cmOptions.jshint && Object.keys(cmOptions.jshint).forEach(item => jshint[item] = cmOptions.jshint[item]);
+    cmOptions.extraKeys && Object.keys(cmOptions.extraKeys).forEach(item => extraKeys[item] = cmOptions.extraKeys[item]);
+    // use Tab instead of spaces
+    if (cmOptions.indentWithTabs) {
+      delete cmOptions.extraKeys.Tab;
+      delete cmOptions.extraKeys['Shift-Tab'];
+    }
 
     this.cm = CodeMirror.fromTextArea(this.box, options);
     CodeMirror.commands.save = () => this.saveScript();
@@ -687,6 +695,7 @@ class Script {
 
     const box = this.box;
     const legend = this.legend;
+    this.enable.checked = true;
 
     const last = document.querySelector('nav li.on');
     last && last.classList.remove('on');
@@ -748,11 +757,17 @@ class Script {
 
   showScript(e) {
 
+    const li = e.target;
+    li.classList.add('on');
+    if (e.ctrlKey) { return; }
+    
+    // reset others
+    document.querySelectorAll('nav li.on').forEach (item => item !== li && item.classList.remove('on'));
+
     const box = this.box;
     const legend = this.legend;
     const enable = this.enable;
     const autoUpdate = this.autoUpdate;
-    const li = e.target;
 
     // --- if showing another page
     document.getElementById('nav4').checked = true;
@@ -764,9 +779,7 @@ class Script {
     // --- reset
     [this.userMatches, this.userExcludeMatches].forEach(item => item.classList.remove('invalid'));
 
-    const last = document.querySelector('nav li.on');
-    last && last.classList.remove('on');
-    li.classList.add('on');
+
 
     const id = li.id;
     box.id = id;
@@ -832,31 +845,15 @@ class Script {
     const box = this.box;
     const enable = this.enable;
 
-    // --- multi toggle
-    if (window.getSelection().toString().trim()) {
+    const multi = document.querySelectorAll('nav li.on');
+    if (!multi[0]) { return; }
+  
+    multi.forEach(item => {
+      pref.content[item.id].enabled = enable.checked;
+      item.classList.toggle('disabled', !enable.checked);
+    });
 
-      const li = this.getMulti();
-      if (li[0]) {
-
-        li.forEach(item => {
-
-          const id = item.id;
-          pref.content[id].enabled = enable.checked;
-          item.classList.toggle('disabled', !enable.checked);
-        });
-
-        browser.storage.local.set({content: pref.content}); // update saved pref
-        return;
-      }
-    }
-
-    if (!box.id) { return; }
-
-    const id = box.id;
-    pref.content[id].enabled = enable.checked;
-    const last = document.querySelector('nav li.on');
-    last && last.classList.toggle('disabled', !enable.checked);
-    this.legend.classList.toggle('disabled', !enable.checked);
+    box.id && this.legend.classList.toggle('disabled', !enable.checked);
 
     browser.storage.local.set({content: pref.content});     // update saved pref
   }
@@ -880,50 +877,30 @@ class Script {
     browser.storage.local.set({content: pref.content});     // update saved pref
   }
 
-  getMulti() {
 
-    // --- fitler the visible items in the selection only
-    const sel = window.getSelection();
-    if (!sel.toString().trim()) { return []; }
-    return [...document.querySelectorAll('li.js, li.css')].filter(item =>
-            sel.containsNode(item, true) && window.getComputedStyle(item).display !== 'none');
-  }
-
-  async deleteScript() {
+  deleteScript() {
 
     const box = this.box;
     const legend = this.legend;
 
-    const li = this.getMulti();
-    if (li[0] ? !confirm(chrome.i18n.getMessage('deleteMultiConfirm', li.length)) :
-                !confirm(chrome.i18n.getMessage('deleteConfirm', box.id))) { return; }
+    const multi = document.querySelectorAll('nav li.on');
+    if (!multi[0]) { return; }
+    
+    if (multi.length > 1 ? !confirm(chrome.i18n.getMessage('deleteMultiConfirm', multi.length)) : 
+        !confirm(chrome.i18n.getMessage('deleteConfirm', box.id))) { return; }
 
     const deleted = [];
+    multi.forEach(item => {
 
-
-    // --- multi delete
-    if (li[0]) {
-
-      li.forEach(item => {
-
-        const id = item.id;
-        item.remove();                                      // remove from menu list
-        delete pref.content[id];
-        deleted.push(id);
-      });
-    }
-    // --- single delete
-    else {
-
-      if (!box.id) { return; }
-      const id = box.id;
-
-      // --- remove from menu list
-      const li = document.getElementById(id);
-      li && li.remove();
+      const id = item.id;
+      item.remove();                                        // remove from menu list
       delete pref.content[id];
-      deleted.push(id);
-    }
+      delete pref.content['_' + id];                        // delete storage
+      deleted.push('_' + id);
+    });
+
+    browser.storage.local.remove(deleted);                  // delete storage       
+    browser.storage.local.set({content: pref.content});     // update saved pref
 
     // --- reset box
     if (this.cm) {                                          // reset CodeMirror
@@ -934,14 +911,6 @@ class Script {
     legend.textContent = chrome.i18n.getMessage('script');
     box.id = '';
     box.value = '';
-
-
-    // --- delete script storage
-    const del = deleted.map(name => '_' + name);
-    del.forEach(item => delete pref[item]);
-    await browser.storage.local.remove(del);
-
-    browser.storage.local.set({content: pref.content});     // update saved pref
   }
 
   async saveScript() {
@@ -1218,10 +1187,9 @@ class Script {
   // ----------------- Export ------------------------------
   exportScript() {
 
-    const box = this.box;
-    if (!box.id) { return; }
+    if (!this.box.id) { return; }
 
-    const id = box.id;
+    const id = this.box.id;
     const ext = pref.content[id].js ? '.js' : '.css';
     const data = pref.content[id].js || pref.content[id].css;
     this.export(data, ext, id);
@@ -1229,11 +1197,13 @@ class Script {
 
   exportScriptAll() {
 
-    Object.keys(pref.content).forEach(id => {
+    const multi = document.querySelectorAll('nav li.on');
+    const target = multi.length > 1 ? [...multi].map(item => item.id) : Object.keys(pref.content);
+    target.forEach(id => {
 
       const ext = pref.content[id].js ? '.js' : '.css';
       const data = pref.content[id].js || pref.content[id].css;
-      this.export(data, ext, id, 'FireMonkey/', false);
+      this.export(data, ext, id, 'FireMonkey_' + new Date().toISOString().substring(0, 10) + '/', false);
     });
   }
 
@@ -1249,6 +1219,16 @@ class Script {
       saveAs,
       conflictAction: 'uniquify'
     });
+  }
+
+  getEnable(e) {
+    const id = e.key.substring(7);
+    const value = e.newValue === 'true';
+    pref.content[id].enabled = value;
+    this.box.id === id && (this.enable.checked = value);
+    const li = document.getElementById(id);
+    li && li.classList.toggle('disabled', !value);
+    localStorage.removeItem(e.key);
   }
 }
 const script = new Script();

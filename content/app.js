@@ -198,7 +198,7 @@ class Meta {
         case 'include':                                     // keep regex in include, rest in includeGlobs
           prop = value.startsWith('/') &&  value.endsWith('/') ? 'includes' : 'includeGlobs';
           break;
-          
+
         case 'exclude':                                     // keep regex in exclude rest in excludeGlobs
           prop = value.startsWith('/') &&  value.endsWith('/') ? 'excludes' : 'excludeGlobs';
           break;
@@ -325,9 +325,9 @@ class Meta {
     // --- convert TLD
     data.matches = data.matches.flatMap(this.checkPattern);        // flatMap() FF62
     data.excludeMatches = data.excludeMatches.flatMap(this.checkPattern);
-    
+
     // --- prepare for include/exclude
-    (data.includes[0] || data.excludes[0] || data.includeGlobs[0] || data.excludeGlobs[0]) && 
+    (data.includes[0] || data.excludes[0] || data.includeGlobs[0] || data.excludeGlobs[0]) &&
           data.matches.push('*://*/*', 'file:///*');
 
     // --- remove duplicates
@@ -451,11 +451,12 @@ class RemoteUpdate {
     switch (true) {
       // --- get meta.js
       case item.updateURL.startsWith('https://greasyfork.org/scripts/'):
+      case item.updateURL.startsWith('https://sleazyfork.org/scripts/'):
       case item.js && item.updateURL.startsWith('https://openuserjs.org/install/'):
         this.getMeta(item, manual);
         break;
 
-      case /^https:\/\/userstyles\.org\/styles\/\d+\/.+\.css$/.test(item.updateURL):
+      case /^https:\/\/userstyles\.org\/styles\/\d+\/.+\.css/.test(item.updateURL):
         this.getStlylishVersion(item, manual);
         break;
 
@@ -477,7 +478,7 @@ class RemoteUpdate {
 
   getStlylishVersion(item, manual) {
 
-    const url = item.updateURL.replace(/(\d+\/.+)css$/i, 'userjs/$1user.js');
+    const url = item.updateURL.replace(/(\d+\/.+)css/i, 'userjs/$1user.js');
     fetch(url)
     .then(response => response.text())
     .then(text => {
@@ -540,6 +541,27 @@ class RemoteUpdate {
 // ----------------- Match Pattern Check -------------------
 class CheckMatches {
   // bg popup
+  static async process(tabId, bg) {
+
+    const frames = await browser.webNavigation.getAllFrames({tabId});
+    const urls = [...new Set(frames.map(item => item.url.replace(/#.*/, '').replace(/(:\/\/[^:/]+):\d+/, '$1'))
+                               .filter(item => /^(https?|wss?|file|about:blank)/.test(item)))];
+    const gExclude = pref.globalScriptExcludeMatches ? pref.globalScriptExcludeMatches.split(/\s+/) : []; // cache the array
+
+    // --- background
+    if (bg) {
+      return Object.keys(pref.content).filter(item =>
+                pref.content[item].enabled && this.get(pref.content[item], urls, gExclude));
+    }
+
+    // --- popup
+    const Tab = [], Other = [];
+    Object.keys(pref.content).sort(Intl.Collator().compare).forEach(item =>
+        (this.get(pref.content[item], urls, gExclude) ? Tab : Other).push(item));
+    return [Tab, Other, frames];
+  }
+
+  // here
   static get(item, urls, gExclude = []) {
 
     const styleMatches = item.style && item.style[0] ? item.style.flatMap(i => i.matches) : [];
@@ -561,11 +583,11 @@ class CheckMatches {
       case !this.isMatch(urls, [...item.matches, ...userMatches, ...styleMatches]):
       case item.includeGlobs[0] && !this.isMatch(urls, item.includeGlobs, true):
       case item.includes[0] && !this.isMatch(urls, item.includes, false, true):
-      
+
       case item.excludeMatches[0] && this.isMatch(urls, item.excludeMatches):
       case item.excludeGlobs[0] && this.isMatch(urls, item.excludeGlobs, true):
-      case item.excludes[0] && this.isMatch(urls, item.excludes, false, true):    
-      
+      case item.excludes[0] && this.isMatch(urls, item.excludes, false, true):
+
         return false;
 
       default: return true;
@@ -574,24 +596,24 @@ class CheckMatches {
 
   // here
   static isMatch(urls, arr, glob, regex) {
-    
+
     if (regex) {
       return urls.some(u => new RegExp(this.prepareRegEx(arr), 'i').test(u));
     }
-    
+
     if (glob) {
       return urls.some(u => new RegExp(this.prepareGlob(arr), 'i').test(u));
     }
 
     // catch all checks
     switch (true) {
-  
+
       case arr.includes('<all_urls>'):
       case arr.includes('*://*/*') && urls.some(item => item.startsWith('http')):
       case arr.includes('file:///*') && urls.some(item => item.startsWith('file:///')):
         return true;
     }
-    
+
     return urls.some(u => new RegExp(this.prepareMatch(arr), 'i').test(u));
   }
 
@@ -610,7 +632,7 @@ class CheckMatches {
     const str = arr.map(item => '(^' + item.replace(regexSpChar, '\\$&').replace(/\*/g, '.*') + '$)').join('|');
     return str.replace(/\?/g, '.');
   }
-  
+
   static prepareRegEx(arr) {
     return arr.map(item => `(${item.slice(1, -1)})`).join('|');
   }

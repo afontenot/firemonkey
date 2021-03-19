@@ -109,7 +109,7 @@
       <dd>Open the Locale Maker stand alone module to create & share locale translations</dd>
 
   </dl>
-  <p><sup>1</sup><i> In Private Window opens the Options page (ref <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1659998" target="_blank">Bug 1659998</a>).</i></p>
+  <p><sup>1</sup><i> In Private Window opens the Options page (ref <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1659998" title="localStorage accessibility within extension privileged pages in Private Window" target="_blank">Bug 1659998</a>).</i></p>
 
   <h4>Toolbar Icon Badge <sup>5</sup></h4>
     <p>Badge indicates the number of Script/CSS that are active in the tab (and all its iframes)</p>
@@ -189,7 +189,7 @@
   <h4>Direct Install</h4>
   <p>Scripts can be directly installed from any script ending in <code>.user.js </code> (remote or local file system) if loaded into a tab (open or drag & drop)</p>
   <p>In case of <i>greasyfork.org</i> & <i>openuserjs.org</i> links, the same link will be set for script update.</p>
-  <p>Due to sandbox CSP header on <code>https://raw.githubusercontent.com/........uers.js</code> tab is forwarded to <code>cdn.jsdelivr.net</code> mirror. (ref: <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1411641" target="_blank">Bug 1411641</a>).</p>
+  <p>Due to sandbox CSP header on <code>https://raw.githubusercontent.com/........uers.js</code> tab is forwarded to <code>cdn.jsdelivr.net</code> mirror. (ref <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1411641" title="CSP 'sandbox' directive prevents content scripts from matching, due to unique origin, breaking also browser features" target="_blank">Bug 1411641</a>).</p>
 
 
   <h2 id="options">Options</h2><br>
@@ -288,23 +288,43 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
     <dt>JSHint Options</dt>
       <dd>Any option except <code>globals</code></dd>
+
+    <dt>match-highlighter</dt>
+      <dd><a href="https://codemirror.net/addon/search/match-highlighter.js" target="_blank">match-highlighter</a> addon was added in v2.19 but it is off by default and can be enabled with custom configuartion</dd>
+
+    <dt>Tab to indent with spaces</dt>
+      <dd>Also relates to <code>tabSize</code>, <code>indentWithTabs</code> & <code>indentUnit</code></dd>
+      <dd class="note">The setting causes the whole line to move, no matter where the cursor is</dd>
   </dl>
 
    <figure>
     <figcaption>Example</figcaption>
 <pre class="comment">
 {
+  // CodeMirror Options
   "indentWithTabs": true,
   "indentUnit": 4,
   "tabSize": 4,
+  
+  // JSHint Options
   "jshint": {
     "curly": false,
     "varstmt": false
   }
+  
+  // match-highlighter examples
+  highlightSelectionMatches: true,
+  highlightSelectionMatches: {showToken: /\w/, annotateScrollbar: true},
+  
+  // Tab to indent with spaces
+  "extraKeys": {
+    "Tab": "indentMore",
+    "Shift-Tab": "indentLess"
+  }
 }
 </pre>
   </figure>
-
+  
 
 
   <h3 id="import-export">Preferences: Import/Export</h3>
@@ -443,8 +463,8 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
 
 
-    <dt>Multiple Enable/Disable & Delete</dt>
-      <dd>Make a selection of (highlight with mouse) items listed under Script & CSS to multiple Delete (after confirmation) or multiple Enable/Disable the selected items.</dd>
+    <dt>Multiple Enable/Disable, Delete & Export</dt>
+      <dd><kbd>Ctrl</kbd> click to select multiple of items listed under Script & CSS</dd>
 
   </dl>
 
@@ -484,9 +504,9 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   <tbody class="slim">
 
     <tr><th>@updateURL</th><td class="pass">update target</td><td class="fail"></td><td>JSON</td><td class="unknown"></td></tr>
-    <tr><th>@downloadURL</th><td class="pass">= @updateURL</td><td class="fail"></td><td>update target</td><td>update target <a href="https://violentmonkey.github.io/api/metadata-block/#downloadurl" title="Metadata Block @downloadURL" target="_blank">[*]</a></td></tr>
-    <tr><th>install source</th><td class="pass"></td><td class="fail"></td><td class="unknown"></td><td>update target <a href="https://violentmonkey.github.io/api/metadata-block/#downloadurl" title="Automatically added when using 'Install from URL.'" target="_blank">[*]</a></td></tr>
-    <tr><th>meta.js</th><td class="pass"></td><td>update target <a href="https://github.com/greasemonkey/greasemonkey/issues/3057" title="Auto-Update Scripts" target="_blank">[*]</a></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@downloadURL</th><td class="pass">= @updateURL</td><td class="fail"></td><td>update target</td><td>update target <a href="https://violentmonkey.github.io/api/metadata-block/#downloadurl" title="Metadata Block @downloadURL" target="_blank">&#x24d8;</a></td></tr>
+    <tr><th>install source</th><td class="pass"></td><td class="fail"></td><td class="unknown"></td><td>update target <a href="https://violentmonkey.github.io/api/metadata-block/#downloadurl" title="Automatically added when using 'Install from URL.'" target="_blank">&#x24d8;</a></td></tr>
+    <tr><th>meta.js</th><td class="pass"></td><td>update target <a href="https://github.com/greasemonkey/greasemonkey/issues/3057" title="Auto-Update Scripts" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>meta.css</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>last-modified header</th><td class="fail"></td><td class="fail"></td><td class="unknown"></td><td class="unknown"></td></tr>
 
@@ -498,7 +518,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
     <th><b>OpenUserJS</b></th>
     <th></th>
   </tr>
-    <tr><th>@updateURL</th><td class="fail"><a href="https://greasyfork.org/en/help/meta-keys" title="@updateURL, @installURL, @downloadURL: Describe how user script managers should get updates. Greasy Fork will strip these keys, which makes any script installed from Greasy Fork only update from Greasy Fork." target="_blank">[*]</a></td><td class="fail"></td><td class="pass"></td><td></td></tr>
+    <tr><th>@updateURL</th><td class="fail"><a href="https://greasyfork.org/en/help/meta-keys" title="@updateURL, @installURL, @downloadURL: Describe how user script managers should get updates. Greasy Fork will strip these keys, which makes any script installed from Greasy Fork only update from Greasy Fork." target="_blank">&#x24d8;</a></td><td class="fail"></td><td class="pass"></td><td></td></tr>
     <tr><th>@downloadURL</th><td class="fail"></td><td class="fail"></td><td class="pass"></td><td></td></tr>
     <tr><th>meta.js</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td></td></tr>
     <tr><th>meta.css</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td></td></tr>
@@ -514,7 +534,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   <p class="footnote">Read <a href="#UserStyle">UserStyle</a> for <code>==UserStyle== ... ==/UserStyle==</code></p>
 
    <figure>
-    <figcaption>JS Single-line Comment</figcaption>
+    <figcaption>JS Single-line Comment <span>(better compatibility)</span></figcaption>
 <pre class="comment">
 // ==UserScript==
 // @name            My Script
@@ -615,11 +635,11 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <tbody class="slim">
     <tr><th>@name</th>              <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@name:xx-YY</th>        <td class="pass"></td><td class="pass">v4.11+</td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@author</th>            <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"><a href="https://violentmonkey.github.io/api/metadata-block/" target="_blank">undocumented </a> <a href="https://github.com/violentmonkey/violentmonkey/blob/master/src/common/options-defaults.js#L60" target="_blank">[*]</a></td></tr>
+    <tr><th>@author</th>            <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"><a href="https://violentmonkey.github.io/api/metadata-block/" target="_blank">undocumented </a> <a href="https://github.com/violentmonkey/violentmonkey/blob/e49c64f7235ef4609fe0a33bc9e3670404cabb1c/src/common/options-defaults.js#L64" target="_blank">&#x24d8;</a></td></tr>
     <tr><th>@description</th>       <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@description:xx-YY</th> <td class="pass"></td><td class="pass">v4.11+</td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@version</th>           <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@updateURL</th>         <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"><a href="https://violentmonkey.github.io/api/metadata-block/" target="_blank">undocumented </a> <a href="https://github.com/violentmonkey/violentmonkey/blob/master/src/background/utils/update.js#L71" target="_blank">[*]</a></td></tr>
+    <tr><th>@updateURL</th>         <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"><a href="https://violentmonkey.github.io/api/metadata-block/" target="_blank">undocumented </a> <a href="https://github.com/violentmonkey/violentmonkey/blob/e49c64f7235ef4609fe0a33bc9e3670404cabb1c/src/background/utils/update.js#L71" target="_blank">&#x24d8;</a></td></tr>
     <tr><th>@match</th>             <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@matches</th>           <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>@include</th>           <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
@@ -705,9 +725,9 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <tbody>
     <tr><th>default</th>
       <td>userScript</td>
-      <td>content <a href="https://github.com/greasemonkey/greasemonkey/blob/master/src/bg/execute.js#L20" target="_blank">[*]</a></td>
-      <td>content</td><td>page <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" target="_blank">[*]</a>
-        <a href="https://github.com/violentmonkey/violentmonkey/blob/master/src/background/utils/preinject.js#L176" target="_blank">[*]</a></td></tr>
+      <td>content <a href="https://github.com/greasemonkey/greasemonkey/blob/efd22a93121225ada47f2fe9f021af0ab6100c21/src/bg/execute.js#L20" target="_blank">&#x24d8;</a></td>
+      <td>content</td><td>page <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" target="_blank">&#x24d8;</a>
+        <a href="https://github.com/violentmonkey/violentmonkey/blob/59b5aa4814204d08e66dfc92c4023ab79edf0178/src/background/utils/preinject.js#L189" target="_blank">&#x24d8;</a></td></tr>
 
     <tr>
       <th>options</th>
@@ -732,7 +752,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
       <td>no change</td>
       <td>no change</td>
       <td>content<br>
-        page <a href="https://www.tampermonkey.net/documentation.php#_grant" title="If @grant is followed by 'none' the sandbox is disabled and the script will run directly at the page context. In this mode no GM_* function but the GM_info property will be available." target="_blank">[*]</a></td>
+        page <a href="https://www.tampermonkey.net/documentation.php#_grant" title="If @grant is followed by 'none' the sandbox is disabled and the script will run directly at the page context. In this mode no GM_* function but the GM_info property will be available." target="_blank">&#x24d8;</a></td>
       <td>no change</td>
     </tr>
 
@@ -743,14 +763,14 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
         <span class="pass">userScript</span><br>
         <span class="pass">page</span>
       </td>
-      <td><span class="pass">content</span> <a href="https://github.com/greasemonkey/greasemonkey/blob/master/src/user-script-obj.js#L327" title ="= window.wrappedJSObject" target="_blank">[*]</a></td>
+      <td><span class="pass">content</span> <a href="https://github.com/greasemonkey/greasemonkey/blob/efd22a93121225ada47f2fe9f021af0ab6100c21/src/user-script-obj.js#L327" title ="= window.wrappedJSObject" target="_blank">&#x24d8;</a></td>
       <td>
         <span class="pass">content</span><br>
         <span class="fail">page</span>
       </td>
       <td>
-        <span class="fail">content</span> <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" title="In this mode, unsafeWindow refers to the global object in content script. As a result, the script can access and modify the page's DOM, but cannot access JavaScript objects of the web page.">[*]</a><br>
-        <span class="pass">page</span> <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" title="In this mode, unsafeWindow refers to the window object, allowing the script to access JavaScript objects of the web page, just like normal page scripts can." target="_blank">[*]</a>
+        <span class="fail">content</span> <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" title="In this mode, unsafeWindow refers to the global object in content script. As a result, the script can access and modify the page's DOM, but cannot access JavaScript objects of the web page.">&#x24d8;</a><br>
+        <span class="pass">page</span> <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" title="In this mode, unsafeWindow refers to the window object, allowing the script to access JavaScript objects of the web page, just like normal page scripts can." target="_blank">&#x24d8;</a>
 
       </td>
     </tr>
@@ -801,14 +821,14 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   </tbody>
 </table>
 
-  <p id="userscript-isolation"><sup>1</sup> Userscripts in <i>FireMonkey</i> are by default injected into separate islolated <code>userScript</code> contexts, and therefore there is no interaction between the userscripts. In <code>content</code> or <code>page</code> context, the userscripts will share the same context which can result in unexpected behaviour e.g.</p> 
+  <p id="userscript-isolation"><sup>1</sup> Userscripts in <i>FireMonkey</i> are by default injected into separate islolated <code>userScript</code> contexts, and therefore there is no interaction between the userscripts. In <code>content</code> or <code>page</code> context, the userscripts will share the same context which can result in unexpected behaviour e.g.</p>
   <ul>
     <li><a href="https://github.com/greasemonkey/greasemonkey/issues/3093" target="_blank">Scripts running on the same page share the same window wrapper</a></li>
     <li><a href="https://github.com/violentmonkey/violentmonkey/issues/1102" target="_blank">[Firefox] Scripts share the same window wrapper if `@inject-into content` is used</a></li>
   </ul>
 
   <h4>antifeature</h4>
-  <p>Under-development feature on <i>GreasyFork</i> (ref: <a href="https://github.com/JasonBarnabe/greasyfork/issues/604" target="_blank">#604</a>) to mark possibly undesirable behaviour e.g. miners, ads etc.</p>
+  <p>Under-development feature on <i>GreasyFork</i> (ref <a href="https://github.com/JasonBarnabe/greasyfork/issues/604" target="_blank">#604</a>) to mark possibly undesirable behaviour e.g. miners, ads etc.</p>
 
   <blockquote>Anti-Features are flags packagers apply to apps, warning of possibly undesirable behaviour from the user's perspective, often serving the interest of the developer or a third party.
 
@@ -1028,7 +1048,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
     <td>
       <p class="pass">http://example.org/</p>
       <p class="pass">https://files.example.org/</p>
-      <p class="pass"><s>ftp://example.org/some/path/</s> <a href="#ftp" title="What to expect for the upcoming deprecation of FTP in Firefox">[*]</a></p>
+      <p class="pass"><s>ftp://example.org/some/path/</s> <a href="#ftp" title="What to expect for the upcoming deprecation of FTP in Firefox">&#x24d8;</a></p>
     </td>
     <td>
     </td>
@@ -1552,7 +1572,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   <tr><td>bootstrap</td>      <td>bootstrap-4</td>    <td>4.5.3</td></tr>
   <tr><td>jquery 1.*</td>     <td>jquery-1</td>       <td>1.12.4</td></tr>
   <tr><td>jquery 2.*</td>     <td>jquery-2</td>       <td>2.2.4</td></tr>
-  <tr><td>jquery 3.*</td>     <td>jquery-3</td>       <td>3.5.1</td></tr>
+  <tr><td>jquery 3.*</td>     <td>jquery-3</td>       <td>3.6.0</td></tr>
   <tr><td>jquery-ui 1.*</td>  <td>jquery-ui-1</td>    <td>1.12.1</td></tr>
   <tr><td>moment</td>         <td>moment-2</td>       <td>2.29.1</td></tr>
   <tr><td>underscore</td>     <td>underscore-1</td>   <td>1.12.0</td></tr>
@@ -1652,7 +1672,7 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
 <pre>(<span class="keyword">async</span> () =&gt; {
 <span class="string">'use strict'</span>;
 
-  <span class="comment">// ----- Synchronous Partial <a href="#GM_getValue">[*]</a></span>
+  <span class="comment">// ----- Synchronous Partial <a href="#GM_getValue">&#x24d8;</a></span>
 
   <span class="comment">// stored value for key OR default</span>
   <span class="keyword">const</span> <span class="property">value</span> = <span class="gm">GM_getValue</span>(key, default);
@@ -1779,7 +1799,7 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
     <tr><th>GM.getResourceURL</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM.registerMenuCommand</th><td class="pass"></td><td class="pass">v4.11+</td><td class="pass"></td><td class="fail"></td></tr>
     <tr><th>GM.unregisterMenuCommand</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
-    <tr><th>GM.addStyle</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>GM.addStyle</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM.addScript</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>GM.popup</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>GM.log</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
@@ -1791,14 +1811,14 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
         <span class="pass">userScript</span><br>
         <span class="pass">page</span>
       </td>
-      <td><span class="pass">content</span> <a href="https://github.com/greasemonkey/greasemonkey/blob/master/src/user-script-obj.js#L327" title ="(= window.wrappedJSObject)" target="_blank">[*]</a></td>
+      <td><span class="pass">content</span> <a href="https://github.com/greasemonkey/greasemonkey/blob/efd22a93121225ada47f2fe9f021af0ab6100c21/src/user-script-obj.js#L327" title ="(= window.wrappedJSObject)" target="_blank">&#x24d8;</a></td>
       <td>
         <span class="pass">content</span><br>
         <span class="fail">page</span>
       </td>
       <td>
-        <span class="fail">content</span> <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" title="In this mode, unsafeWindow refers to the global object in content script. As a result, the script can access and modify the page's DOM, but cannot access JavaScript objects of the web page.">[*]</a><br>
-        <span class="pass">page</span> <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" title="In this mode, unsafeWindow refers to the window object, allowing the script to access JavaScript objects of the web page, just like normal page scripts can." target="_blank">[*]</a>
+        <span class="fail">content</span> <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" title="In this mode, unsafeWindow refers to the global object in content script. As a result, the script can access and modify the page's DOM, but cannot access JavaScript objects of the web page.">&#x24d8;</a><br>
+        <span class="pass">page</span> <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" title="In this mode, unsafeWindow refers to the window object, allowing the script to access JavaScript objects of the web page, just like normal page scripts can." target="_blank">&#x24d8;</a>
 
       </td>
     </tr>
@@ -1807,9 +1827,9 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
 
     <tr><th>&nbsp;</th><td colspan="6"></td></tr>
 
-    <tr><th>GM_getValue</th><td class="pass" style="background: #fff0f5;">partial <a href="#GM_getValue">[*]</a></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>GM_getValue</th><td class="pass" style="background: #fff0f5;">partial <a href="#GM_getValue">&#x24d8;</a></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_setValue</th><td class="pass" style="background: #fff0f5;">async</td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>GM_listValues</th><td class="pass" style="background: #fff0f5;">partial <a href="#GM_getValue">[*]</a></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>GM_listValues</th><td class="pass" style="background: #fff0f5;">partial <a href="#GM_getValue">&#x24d8;</a></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_deleteValue</th><td class="pass" style="background: #fff0f5;">async</td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_addValueChangeListener</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_removeValueChangeListener</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
@@ -1882,7 +1902,7 @@ sandbox/injected-web.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>360</td>
+      <td>400</td>
       <td>323k</td>
       <td>345k</td>
       <td>38k</td>
@@ -1949,7 +1969,7 @@ js/promisify.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>360</td>
+      <td>400</td>
       <td>67k</td>
       <td>86k</td>
       <td>490</td>
@@ -1966,7 +1986,8 @@ js/promisify.js</code></td>
   <dl>
     <dt>Extension Storage</dt>
       <dd>Asynchronous private permenent stroage accessible to the extension only</dd>
-    <dt>Web Sotrage</dt>
+      <dd>Synchronous private Web API storage accessible only to the extension domain's privileged pages (background, options, popup etc, but not contentScript or userscript)  e.g. <i>sessionStorage</i> | <i>localStorage</i> | <i>IndexedDB</i></dd>
+    <dt>Web Storage</dt>
       <dd>Synchronous public storage which is also accessible to web pages to read/write/delete e.g. <i>sessionStorage</i> | <i>localStorage</i> | <i>IndexedDB</i></dd>
   </dl>
 
@@ -2003,14 +2024,14 @@ js/promisify.js</code></td>
   <p>For simplicity and compatibility, the same GM style naming is kept for <code>fetch</code> API although it is not available in <i>GreaseMonkey</i>.</p>
   <p><i>FireMonkey</i> <code>fetch</code> returns response object/string or <code>null</code> (check console & the log for errors e.g.: <i>TypeError: "NetworkError when attempting to fetch resource.</i>").</p>
 
-  <p class="note"><i>FireMonkey</i> GM<code> fetch</code> fixes Bug 1405971 <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1405971" target="_blank">Webextension UUID leak via Fetch requests</a>.</p>
+  <p class="note"><i>FireMonkey</i> GM<code> fetch</code> fixes <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1405971" title="Webextension UUID leak via Fetch requests" target="_blank">Bug 1405971</a>.</p>
 
 <pre>GM.fetch(url[, init]);
 GM_fetch(url[, init]);</pre>
 
 
     <h4>url</h4>
-    <p>http, https, <s>ftp, ftps</s> <a href="#ftp" title="What to expect for the upcoming deprecation of FTP in Firefox">[*]</a>, (file not allowed), can be relative to the web page</p>
+    <p>http, https, <s>ftp, ftps</s> <a href="#ftp" title="What to expect for the upcoming deprecation of FTP in Firefox">&#x24d8;</a>, (file not allowed), can be relative to the web page</p>
 
     <h4>init <span>(Optional)</span></h4>
     <p>An options object containing any custom settings that you want to apply to the request. The possible options are:</p>
@@ -2065,7 +2086,7 @@ GM_fetch(url[, init]);</pre>
   <figure>
     <figcaption>Request</figcaption>
 <pre>GM.xmlHttpRequest({
-  url,                      // http, https, <s>ftp, ftps</s> <a href="#ftp" title="What to expect for the upcoming deprecation of FTP in Firefox">[*]</a>, (file not allowed), can be relative to the web page
+  url,                      // http, https, <s>ftp, ftps</s> <a href="#ftp" title="What to expect for the upcoming deprecation of FTP in Firefox">&#x24d8;</a>, (file not allowed), can be relative to the web page
 
   method,                   // Optional, defaults to 'GET' if omitted
   headers,                  // optional, header object to send with the request
@@ -2147,7 +2168,7 @@ GM_fetch(url[, init]);</pre>
 
   <h4>xmlHttpRequest withCredentials</h4>
   <p><code>GM.xmlHttpRequest/GM_xmlhttpRequest</code> are sent from background script where credentials are not available. Sometimes it is necessary to send <code>xmlHttpRequest</code> from the page context.</p>
-
+  <p class="note">XPCNativeWrapper is due to be removed (ref <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1481337" title="Get rid of XPCNativeWrapper JS global" target="_blank">Bug 1481337</a>).</p>
 
   <figure>
     <figcaption>xmlHttpRequest from Page Context</figcaption>
@@ -2226,7 +2247,7 @@ xhr.send(<span class="keyword">null</span>);
       <dd>a data URL, a blob URL, a http or https URL</dd>
 
     <dt>onclick</dt>
-      <dd><span class="fail"></span>Not processed, maybe added on popular demand</dd>
+      <dd><span class="fail"></span>Not processed, may be added on popular demand</dd>
 
   </dl>
 
@@ -2306,7 +2327,7 @@ xhr.send(<span class="keyword">null</span>);
 
   <h3 id="download">download(url <i>[, filename]</i>)</h3>
   <p>Simple file download from the Internet. <code>url</code> must be valid but <code>filename</code> is optional.</p>
-  <p><code>url</code>: http, https, <s>ftp, ftps</s> <a href="#ftp" title="What to expect for the upcoming deprecation of FTP in Firefox">[*]</a>, (file not allowed), can be relative to the web page</p>
+  <p><code>url</code>: http, https, <s>ftp, ftps</s> <a href="#ftp" title="What to expect for the upcoming deprecation of FTP in Firefox">&#x24d8;</a>, (file not allowed), can be relative to the web page</p>
   <p>If the specified <code>url</code> uses the HTTP or HTTPS protocol, then the request will include all cookies currently set for its hostname.</p>
 
 <pre>
@@ -2559,7 +2580,8 @@ popup.addStyle(css);
 
   <h3 id="unsafeWindow">unsafeWindow &#x26a0;&#xfe0f;</h3>
   <p><code>unsafeWindow</code> in <i>FireMonkey</i> is an alias for <code>window.wrappedJSObject</code>. You can also use <code>window.wrappedJSObject</code> or <code>window.eval()</code> to access page JavaScript <b>globals</b>.</p>
-  <p>Please note that <code>window.eval()</code> makes the object available to the page script as well while <code>unsafeWindow</code>, <code>window.wrappedJSObject</code> does not.</p>
+  <p><code>unsafeWindow</code>, <code>window.wrappedJSObject</code> or <code>window.eval()</code> can be used to create function & objects.</p>
+  <p class="note">Please note that <code>window.eval()</code> makes the object available to the page script as well while <code>unsafeWindow</code>, <code>window.wrappedJSObject</code> does not.</p>
 
   <figure>
     <figcaption>Example</figcaption>
@@ -2606,14 +2628,17 @@ popup.addStyle(css);
 
 
   <h4>exportFunction() & cloneInto()</h4>
-  <p><code>unsafeWindow</code>, <code>window.wrappedJSObject</code> or <code>window.eval()</code> can be used to create function & objects.</p>
+  <p>Support for <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts#exportfunction" target="_blank">exportFunction</a> & <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts#cloneinto" target="_blank">cloneinto</a> was added in v2.19.</p>
 
-<pre><span class="gm">unsafeWindow</span>.testFunc = <span class="keyword">function</span>() { <span class="property">console</span>.<span class="method">log</span>(location.<span class="property">href</span>); }
-<span class="gm">unsafeWindow</span>.testFunc(); <span class="comment">// https://example.com/</span>
+<pre><span class="gm">unsafeWindow</span>.setTimeout = exportFunction(<span class="property">setTimeout</span>, <span class="gm">unsafeWindow</span>);
 
+exportFunction(notify, <span class="object">window</span>, {defineAs: 'notify'});
 
-<span class="gm">unsafeWindow</span>.obj = {text: <span class="string">'hello from user-script'</span>};
-<span class="property">console</span>.<span class="method">log</span>(<span class="gm">unsafeWindow</span>.obj.text); <span class="comment">// hello from user-script</span></pre>
+<span class="gm">unsafeWindow</span>.messenger = cloneInto(
+  messenger,
+  <span class="object">window</span>,
+  {cloneFunctions: true});
+</pre>
 
 
   <h3 id="xray-vision">&#x2139;&#xfe0f; <a href="https://developer.mozilla.org/docs/Mozilla/Tech/Xray_vision" target="_blank">Xray Vision</a> & Sharing objects with page scripts</h3><br>
@@ -2738,7 +2763,8 @@ script.<span class="method">remove</span>();
   <figure>
     <figcaption>Example</figcaption>
 <pre>
-<span class="comment">==UserCSS==
+<span class="comment">/*
+==UserCSS==
 @name           YouTube
 @match          *://*.youtube.com/*
 @author         erosman
@@ -2757,6 +2783,74 @@ script.<span class="method">remove</span>();
   <h4>Color Picker</h4>
   <p>Color indicator before CSS colors (<i>named color, #rgb, #rrggbb, rgb(n,n,n) & rgba(n,n,n,a)</i>) shows the colors. Clicking the indicator will open the HTML5 Color Picker.</p>
   <p>New values from Color picker replace the old entries in the same format as the original e.g. <i>named color</i> to <i>named color</i> (if available), <code>#rgb</code> to <code>#rgb</code> etc.</p>
+
+
+  <h4>Customise 3rd party userCSS</h4>
+  <p>You can override a 3rd party userCSS with custom CSS.</p>
+
+  <ul>
+    <li>Disable the 3rd party script (it will auto-update in FM 2.19+)</li>
+    <li>Create a new userCSS</li>
+    <li>Copy the relevant data from the target userCSS e.g. <code>@match</code> etc</li>
+    <li>Give it a new name</li>
+    <li>Use <code>@require</code> to inject the 3rd party userCSS</li>
+  </ul>
+
+  <figure>
+    <figcaption>3rd Party userCSS Example</figcaption>
+<pre>
+<span class="comment">/*
+==UserCSS==
+@name           ABC Style
+@match          *://*.example.com/*
+@author         erosman
+@version        1.0
+==/UserCSS==
+*/</span>
+
+<span class="html">body</span> {
+  <span class="property">border-top</span>: 2px <span class="value">solid</span> <span class="color">grey</span>;
+}
+</pre>
+</figure>
+
+  <figure>
+    <figcaption>3rd Party userCSS Custom Example</figcaption>
+<pre>
+<span class="comment">/*
+==UserCSS==
+@name           ABC Style Custom
+@match          *://*.example.com/*
+@require        ABC Style
+==/UserCSS==
+*/</span>
+
+<span class="html">body</span> {
+  <span class="property">border-top-color</span>: <span class="color">blue</span>;
+}
+</pre>
+</figure>
+
+  <p>If the 3rd Party userCSS uses CSS custom properties (variables) e.g <code>color: var(--main-color)</code>, you can also override them.</p>
+
+  <figure>
+    <figcaption>3rd Party userCSS Custom Example</figcaption>
+<pre>
+<span class="comment">/*
+==UserCSS==
+@name           ABC Style Custom
+@match          *://*.example.com/*
+@require        ABC Style
+==/UserCSS==
+*/</span>
+
+:root {
+  --main-color: #fff;
+  --border: #ddd;
+  --color: #000;
+}
+</pre>
+</figure>
 
 
   <h3 id="UserStyle"><img src="../image/css.svg" alt=""> UserStyle</h3>
@@ -2879,7 +2973,7 @@ You can check the Console tab.</dd>
   </dl>
 
   <h3 id="Injection-Compassion">Injection Compassion</h3>
-  
+
   <h4>Other userscript & userStyle Managers</h4>
   <ul>
     <li>Add listeners to all HTTP requests</li>
@@ -2895,7 +2989,7 @@ You can check the Console tab.</dd>
     <li>From then, FireMonkey does nothing and all script/CSS injections are handled by Firefox natively</li>
     <li>Script injection is made into secure <code>userScript</code> context</li>
   </ul>
-  
+
 
 <h3 id="Performance-Test">Performance Test</h3>
 
@@ -2914,7 +3008,7 @@ You can check the Console tab.</dd>
     <li>Go to a page that above runs on</li>
     <li>Compare</li>
   </ul>
-  
+
   <h4>Combined UserScript + UserStyle/UserCSS</h4>
   <ul>
     <li>Load the same userscript/s in FM|GM|TM|VM plus the same userStyle/userCSS in FM|Stylish|Stylus|xStyle</li>

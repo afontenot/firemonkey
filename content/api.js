@@ -465,6 +465,8 @@
     GM_log:                       GM.log,
     GM_info:                      GM.info,
 
+    exportFunction,
+    cloneInto,
     matchURL
   });
 });
