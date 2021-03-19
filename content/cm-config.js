@@ -169,7 +169,11 @@ class Config {
           });
           break;
 
-
+        case !js && value.includes('*/'):
+         // cm.replaceRange({line, ch},{line, ch: ch + value.length}, value.replace(/\*\//, '✱✺/'));
+          //console.log(value.replace(/\*\//, '∗/'));
+          break;
+      
 
         case !js || prop !== '@grant': break;
         // all js & grant

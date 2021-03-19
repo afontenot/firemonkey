@@ -188,6 +188,11 @@ a[href^="http"]::after {
   font-size: 0.7em;
 }
 
+a[href^="https://bugzilla.mozilla.org/show_bug.cgi?id="]::before {
+  content: '\1f41e';
+  margin-right: 0.3em;
+}
+
 /* ----- Navigation ----- */
 nav  {
   background-color: #fff;

@@ -65,11 +65,7 @@ class Counter {
 
     if (changeInfo.status !== 'complete') { return; }
 
-    const frames = await browser.webNavigation.getAllFrames({tabId});
-    const urls = [...new Set(frames.map(item => item.url.replace(/#.*/, '')).filter(item => /^(https?|wss?|ftp|file|about:blank)/.test(item)))];
-    const gExclude = pref.globalScriptExcludeMatches ? pref.globalScriptExcludeMatches.split(/\s+/) : []; // cache the array
-    const count = Object.keys(pref.content).filter(item =>
-      pref.content[item].enabled && CheckMatches.get(pref.content[item], urls, gExclude));
+    const count = await CheckMatches.process(tabId, true);
     browser.browserAction.setBadgeText({tabId, text: (count[0] ? count.length.toString() : '')});
     browser.browserAction.setTitle({tabId, title: (count[0] ? count.join('\n') : '')});
   }
@@ -284,18 +280,8 @@ class ProcessPref {
       this.processPrefUpdate(changes);                      // apply changes
     });
 
-    const days = pref.autoUpdateInterval *1;
-    const doUpdate =  days && Date.now() > pref.autoUpdateLast + (days + 86400000); // 86400 * 1000 = 24hr
-
     await scriptReg.init();                                 // await data initialization
-    Object.keys(pref.content).forEach(item => {
-
-      scriptReg.process(item);
-      doUpdate && pref.content[item].enabled && pref.content[item].autoUpdate && pref.content[item].updateURL &&
-        pref.content[item].version && installer.cache.push(item);
-    });
-
-    installer.cache[0] && installer.initRemoteUpdate();
+    Object.keys(pref.content).forEach(item => scriptReg.process(item));
 
     // --- Script Counter
     pref.counter && counter.init();
@@ -408,7 +394,7 @@ class ProcessPref {
 class Installer {
 
   constructor() {
-    // class RemoteUpdate in common.js
+    // class RemoteUpdate in app.js
     RU.callback = this.processResponse.bind(this);
 
     // --- Web/Direct Installer
@@ -418,6 +404,8 @@ class Installer {
     browser.webRequest.onBeforeRequest.addListener(this.webInstall, {
         urls: [ 'https://greasyfork.org/scripts/*.user.js',
                 'https://greasyfork.org/scripts/*.user.css',
+                'https://sleazyfork.org/scripts/*.user.js',
+                'https://sleazyfork.org/scripts/*.user.css',
                 'https://openuserjs.org/install/*.user.js'],
         types: ['main_frame']
       },
@@ -433,6 +421,7 @@ class Installer {
     // --- Remote Update
     this.cache = [];
     this.onIdle = this.onIdle.bind(this);
+    browser.idle.onStateChanged.addListener(this.onIdle);
   }
 
   // --------------- Web/Direct Installer ------------------
@@ -443,8 +432,9 @@ class Installer {
 
       case !e.originUrl: return;                            // end execution if not Web Install
 
-      // --- GreasyFork
+      // --- GreasyFork & sleazyfork
       case e.originUrl.startsWith('https://greasyfork.org/') && e.url.startsWith('https://greasyfork.org/'):
+      case e.originUrl.startsWith('https://sleazyfork.org/') && e.url.startsWith('https://sleazyfork.org/'):
         q = 'header h2';
         break;
 
@@ -539,25 +529,27 @@ class Installer {
   // --------------- /Web|Direct Installer -----------------
 
   // --------------- Remote Update -------------------------
-  initRemoteUpdate() {
-    browser.idle.onStateChanged.addListener(this.onIdle);
-  }
+  onIdle(state) {
 
-  terminateRemoteUpdate() {
-    browser.idle.onStateChanged.removeListener(this.onIdle);
-  }
+    if (state !== 'idle') { return; }
+    
+    const now = Date.now();
+    const days = pref.autoUpdateInterval *1;
+    const doUpdate =  days && now > pref.autoUpdateLast + (days * 86400000); // 86400 * 1000 = 24hr
+    if (!doUpdate) { return; }
+    
+    if (!this.cache[0]) {                                   // rebuild the cache if empty
+      this.cache = Object.keys(pref.content).filter(item => {
+        const i = pref.content[item];
+        return i.autoUpdate && i.updateURL && i.version; 
+      });
+    }
 
-  onIdle() {
+    // --- do 10 updates at a time & check if script wasn't deleted
+    this.cache.splice(0, 10).forEach(item => pref.content.hasOwnProperty(item) && RU.getUpdate(pref.content[item])); 
 
-    if (state !== 'idle' || !this.cache[0]) { return; }
-
-    pref.autoUpdateLast = Date.now();
-    browser.storage.local.set({autoUpdateLast: pref.autoUpdateLast}); // update saved pref
-
-    // --- do 10 updates at a time
-    const sect = this.cache.splice(0, 10);
-    this.cache[0] || this.terminate();
-    sect.forEach(item => pref.content.hasOwnProperty(item) && RU.getUpdate(pref.content[item])); // check if script wasn't deleted
+    // --- set autoUpdateLast after updates are finished
+    !this.cache[0] && browser.storage.local.set({autoUpdateLast: now}); // update saved pref 
   }
 
   processResponse(text, name, updateURL) {                  // from class RU.callback in app.js
@@ -591,6 +583,7 @@ class Installer {
 
     // --- check for Web Install, set install URL
     if (updateURL.startsWith('https://greasyfork.org/scripts/') ||
+        updateURL.startsWith('https://sleazyfork.org/scripts/') ||
         updateURL.startsWith('https://openuserjs.org/install/') ||
         updateURL.startsWith('https://userstyles.org/styles/') ) {
       data.updateURL = updateURL;
