@@ -6,7 +6,7 @@ App.i18n();
 // ----------------- User Preference -----------------------
 App.getPref().then(() => popup.process());
 
-// ----------------- Android ------------------------------- 
+// ----------------- Android -------------------------------
 document.body.classList.toggle('android', navigator.userAgent.includes('Android'));
 
 // ----------------- Popup ---------------------------------
@@ -61,12 +61,11 @@ class Popup {
     this.url = '';
     document.querySelector('h3.findScript').addEventListener('click', () => {
       const [scheme, host, ...path] = this.url.split(/:\/{2,3}|\/+/);
-      if (scheme.startsWith('http') && host) { 
+      if (scheme.startsWith('http') && host) {
         browser.tabs.create({url: 'https://greasyfork.org/en/scripts/by-site/' + host.replace(/^www\./, '')});
         window.close();
       }
-    });    
-    
+    });
 
     // ----- Theme
     document.body.classList.toggle('dark', localStorage.getItem('dark') === 'true'); // defaults to false
@@ -93,24 +92,15 @@ class Popup {
 
   async process() {
 
-    const docfrag = document.createDocumentFragment();
-    const docfrag2 = docfrag.cloneNode();
-    
     const tabs = await browser.tabs.query({currentWindow: true, active: true});
     const tabId = tabs[0].id;                                 // active tab id
     this.url = tabs[0].url;                                   // used in find scripts
 
-    const frames = await browser.webNavigation.getAllFrames({tabId});
+    const [Tab, Other, frames] = await CheckMatches.process(tabId);
     document.querySelector('h3 span').textContent = frames.length; // display frame count
-    
-    const urls = [...new Set(frames.map(item => item.url.replace(/#.*/, '')).filter(item => /^(https?|wss?|file|about:blank)/.test(item)))];
-    const gExclude = pref.globalScriptExcludeMatches ? pref.globalScriptExcludeMatches.split(/\s+/) : []; // cache the array  
-    Object.keys(pref.content).sort(Intl.Collator().compare).forEach(item => {
-       const li = this.addScript(pref.content[item]);
-       (CheckMatches.get(pref.content[item], urls, gExclude) ? docfrag : docfrag2).appendChild(li);
-    });
-    this.ulTab.appendChild(docfrag);
-    this.ulOther.appendChild(docfrag2);
+
+    Tab.forEach(item => this.ulTab.appendChild(this.addScript(pref.content[item])));
+    Other.forEach(item => this.ulOther.appendChild(this.addScript(pref.content[item])));
 
     // --- check commands if there are active scripts in tab
     if(this.ulTab.querySelector('li.js:not(.disabled)')) {
@@ -121,7 +111,7 @@ class Popup {
 
   addScript(item) {
 
-    const li = this.liTemplate.cloneNode(true);    
+    const li = this.liTemplate.cloneNode(true);
     li.classList.add(item.js ? 'js' : 'css');
     item.enabled || li.classList.add('disabled');
     li.children[1].textContent = item.name;
@@ -146,6 +136,7 @@ class Popup {
     li.classList.toggle('disabled');
     pref.content[id].enabled = !li.classList.contains('disabled');
     browser.storage.local.set({content: pref.content});     // update saved pref
+    localStorage.setItem('enable-' + id, pref.content[id].enabled);
   }
 
   toggleOn(node) {
@@ -164,7 +155,7 @@ class Popup {
     const docfrag = document.createDocumentFragment();
 
     const infoArray = ['name', 'description', 'author', 'version', 'size', 'updateURL', 'matches',
-                        'excludeMatches', 'includes', 'excludes', 'includeGlobs', 'excludeGlobs', 
+                        'excludeMatches', 'includes', 'excludes', 'includeGlobs', 'excludeGlobs',
                         'require', 'userMatches', 'userExcludeMatches', 'injectInto', 'runAt'];
     pref.content[id].error && infoArray.push('error');
 
@@ -189,16 +180,16 @@ class Popup {
         case 'matches':                                     // --- add UserStyle matches to matches
           pref.content[id].style && pref.content[id].style[0] && arr.push(...pref.content[id].style.flatMap(i => i.matches));
           break;
-        
+
         case 'size':
           const text = pref.content[id].js || pref.content[id].css;
           arr.push(new Intl.NumberFormat().format(parseFloat((text.length/1024).toFixed(1))) + ' KB');
           break;
-          
+
         case 'injectInto':
           item = 'inject-into';
           break;
-          
+
         case 'runAt':
           item = 'run-at';
           arr[0] = arr[0].replace('_', '-');

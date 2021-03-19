@@ -8,17 +8,6 @@
   --color2: #05f;
 }
 
-@media screen and (prefers-color-scheme: dark) {
-  :root {
-    --color: #fff;
-    --bg: #000;
-    --scrollbar: #888 #222;
-    --hover: #555;
-    --btn-bg: #666;
-    --color2: #0ff;
-  }
-}
-
 body.dark {
   --color: #fff;
   --bg: #000;

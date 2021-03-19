@@ -19,29 +19,8 @@
 }
 
 @media (max-width: 600px) {
-  :root {
-
-  }
   nav label span {
-   display: none;
-  }
-}
-
-@media screen and (prefers-color-scheme: dark) {
-  :root {
-    --bg: #444;
-    --border: #777;
-    --color: #fff;
-    --hover: #888;
-    --scrollbar: #888 #222;
-    --shadow: #fff8;
-    --nav-bg: #000;
-    --selected-bg: #555;
-    --selected-border: #ccc;
-    --btn-bg: #666;
-    --btn-hover: #444;
-    --fieldset-color: #0cf;
-    --bg2: #444;
+    display: none;
   }
 }
 
@@ -441,7 +420,7 @@ nav details div div:last-of-type {
 
 .list.pinMenu {
   text-align: left;
-  border-bottom: 1px solid var(--border); 
+  border-bottom: 1px solid var(--border);
 }
 
 .list.pinMenu label::before {
