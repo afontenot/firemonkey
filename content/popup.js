@@ -1,4 +1,4 @@
-﻿import {pref, App, CheckMatches} from './app.js';
+﻿import {pref, App, Meta, CheckMatches} from './app.js';
 
 // ----------------- Internationalization ------------------
 App.i18n();
@@ -36,7 +36,7 @@ class Popup {
       this.toggleOn(this.commandList);
       this.info.parentNode.style.transform = 'translateX(-50%)';
     });
-    this.buttonDiv =  this.info.querySelector('div.button');
+//    this.buttonDiv =  this.info.querySelector('div.button');
 
     // ----- Scratchpad
     this.js = document.querySelector('#js');
@@ -83,8 +83,12 @@ class Popup {
       case 'newCSS|title': localStorage.setItem('nav', 'css'); break;
       case 'help': localStorage.setItem('nav', 'help'); break;
       case 'edit': localStorage.setItem('nav', this.id); break;
-      case 'run': this.id === 'js' ? popup.runJS() : popup.runCSS(); return;
-      case 'undo':  popup.undoCSS(); return;
+      case 'run':
+        if (this.id === 'infoRun') { popup.infoRun(this); return; }
+        this.id === 'js' ? popup.runJS() : popup.runCSS(); return;
+      case 'undo':
+        if (this.id === 'infoUndo') { popup.infoUndo(this); return; }
+        popup.undoCSS(); return;
     }
     chrome.runtime.openOptionsPage();
     window.close();
@@ -146,43 +150,48 @@ class Popup {
 
   showInfo(e) {
 
-    const id = e.target.parentNode.id;
+    const li = e.target.parentNode;
+    const id = li.id;
     this.infoListDL.textContent = '';                       // clearing previous content
     this.toggleOn(this.infoListDL.parentNode);
+
+    this.infoListDL.className = '';                         // reset
+    this.infoListDL.classList.add(...li.classList);
 
     const dtTemp = this.dtTemp;
     const ddTemp = this.ddTemp;
     const docfrag = document.createDocumentFragment();
+    const script =  pref.content[id];
 
     const infoArray = ['name', 'description', 'author', 'version', 'size', 'updateURL', 'matches',
                         'excludeMatches', 'includes', 'excludes', 'includeGlobs', 'excludeGlobs',
-                        'require', 'userMatches', 'userExcludeMatches', 'injectInto', 'runAt'];
-    pref.content[id].error && infoArray.push('error');
+                        'require', 'userMatches', 'userExcludeMatches', 'injectInto', 'runAt', 'userRunAt'];
+    script.error && infoArray.push('error');
 
     infoArray.forEach(item => {
 
-      const arr = pref.content[id][item] ?
-          (Array.isArray(pref.content[id][item]) ? pref.content[id][item] : pref.content[id][item].split(/\r?\n/)) : [];
+      if (!script[item]) { return; }                        // skip to next
+
+      const arr = Array.isArray(script[item]) ? script[item] : script[item].split(/\r?\n/);
+      if (!arr[0]) { return; }                              // skip to next
 
       switch (item) {
 
         case 'name':                                        // i18n if different
         case 'description':
-          pref.content[id].i18n[item][this.lang] &&
-            pref.content[id].i18n[item][this.lang] !== pref.content[id][item] &&
-              arr.push(pref.content[id].i18n[item][this.lang]);
+          script.i18n[item][this.lang] && script.i18n[item][this.lang] !== script[item] && arr.push(script.i18n[item][this.lang]);
           break;
 
         case 'require':                                     // --- add requireRemote to require
-          pref.content[id].requireRemote && arr.push(...pref.content[id].requireRemote);
+          script.requireRemote && arr.push(...script.requireRemote);
           break;
 
         case 'matches':                                     // --- add UserStyle matches to matches
-          pref.content[id].style && pref.content[id].style[0] && arr.push(...pref.content[id].style.flatMap(i => i.matches));
+          script.style && script.style[0] && arr.push(...script.style.flatMap(i => i.matches));
           break;
 
         case 'size':
-          const text = pref.content[id].js || pref.content[id].css;
+          const text = script.js || script.css;
           arr.push(new Intl.NumberFormat().format(parseFloat((text.length/1024).toFixed(1))) + ' KB');
           break;
 
@@ -194,26 +203,29 @@ class Popup {
           item = 'run-at';
           arr[0] = arr[0].replace('_', '-');
           break;
+
+        case 'userRunAt':
+          item = 'user run-at';
+          arr[0] = arr[0].replace('_', '-');
+          break;
       }
 
-      if (arr[0]) {
+      const dt = dtTemp.cloneNode();
+      item === 'error' && dt.classList.add('error');
+      dt.textContent = item;
+      docfrag.appendChild(dt);
 
-        const dt = dtTemp.cloneNode();
-        item === 'error' && dt.classList.add('error');
-        dt.textContent = item;
-        docfrag.appendChild(dt);
-
-        arr.forEach(item => {
-          const dd = ddTemp.cloneNode();
-          dd.textContent = item;
-          docfrag.appendChild(dd);
-        });
-      }
+      arr.forEach(item => {
+        const dd = ddTemp.cloneNode();
+        dd.textContent = item;
+        docfrag.appendChild(dd);
+      });
     });
 
     this.infoListDL.appendChild(docfrag);
-
-    document.querySelector('button.edit').id = id;
+    const edit= document.querySelector('button.edit');
+    edit.id = id;
+    edit.dataset.active = e.target.parentNode.parentNode.classList.contains('tab') && script.enabled;
     this.info.parentNode.style.transform = 'translateX(-50%)';
   }
 
@@ -238,6 +250,38 @@ class Popup {
       dd.addEventListener('click', () => browser.tabs.sendMessage(tabId, {name: message.name, command: item}));
       dl.appendChild(dd);
     });
+  }
+
+  // ----------------- Info Run/Undo -----------------------
+  infoRun(e) {
+
+    const btn = e.parentNode.firstElementChild;
+    if (btn.dataset.active === 'true') { return; }          // already injected in the tab
+
+    const item = pref.content[btn.id];
+    const code = (item.js || item.css).replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'));
+    if (!code.trim()) { return; }                           // e.g. in case of userStyle
+
+    browser.tabs[item.js ? 'executeScript' : 'insertCSS']({code})
+    .then(() => {})
+    .catch(error => App.notify(e.id + ':\n' + chrome.i18n.getMessage('insertError')));
+  }
+
+  infoUndo(e) {
+
+    const btn = e.parentNode.firstElementChild;
+    if (btn.dataset.active === 'true') { return; }          // already injected in the tab
+
+    const item = pref.content[btn.id];
+    if (!item.css) { return; }                              // only for userCSS
+
+    const code = item.css.replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'));
+    if (!code.trim()) { return; }                           // e.g. in case of userStyle
+
+    browser.tabs.removeCSS({code})
+    .then(() => {})
+    .catch(error => App.notify(e.id + ':\n' + error.message));
+
   }
 
   // ----------------- Scratchpad --------------------------

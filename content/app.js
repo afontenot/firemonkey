@@ -142,6 +142,7 @@ class Meta {
       resource: {},
       userMatches,
       userExcludeMatches,
+      userRunAt: this.userRunAt ? this.userRunAt.value : '',
       i18n: {
         name: {},
         description: {}
@@ -499,14 +500,14 @@ class RemoteUpdate {
 @description    ${item.description}
 @author         ${item.author}
 @version        ${version}
-@homepage       ${item.updateURL.slice(0, -4)}
+@homepage       ${item.updateURL.replace(/\.css(\?.*|$)/, '')}
 ==/UserStyle==
 */`;
 
     fetch(item.updateURL)
     .then(response => response.text())
     .then(text =>  this.callback(metaData + '\n\n' + text, name, updateURL))
-    .catch(error => App.log(item.name, `getStylish ${cssURL} ➜ ${error.message}`, 'error'));
+    .catch(error => App.log(item.name, `getStylish ${item.updateURL} ➜ ${error.message}`, 'error'));
   }
 
   needUpdate(text, item) { // here
