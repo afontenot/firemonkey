@@ -506,7 +506,7 @@ class RemoteUpdate {
 
     fetch(item.updateURL)
     .then(response => response.text())
-    .then(text =>  this.callback(metaData + '\n\n' + text, name, updateURL))
+    .then(text =>  this.callback(metaData + '\n\n' + text, item.name, item.updateURL))
     .catch(error => App.log(item.name, `getStylish ${item.updateURL} ➜ ${error.message}`, 'error'));
   }
 

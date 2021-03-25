@@ -755,8 +755,8 @@ class API {
           .then(response => {
 
             if (e.init.method === 'HEAD') {
-              const res = {};
-              // error on processing Response.headers
+              const res = {headers: {}};
+              response.headers.forEach((value, name) => res.headers[name] = value);
               ['ok', 'redirected', 'status', 'statusText', 'type', 'url'].forEach(item => res[item] = response[item]);
               return res;
             }
