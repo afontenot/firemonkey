@@ -9,7 +9,7 @@ class ContextMenu {
       { id: 'options', contexts: ['browser_action'], icons: {16: '/image/gear.svg'} },
       { id: 'newJS', contexts: ['browser_action'], icons: {16: '/image/js.svg'} },
       { id: 'newCSS', contexts: ['browser_action'], icons: {16: '/image/css.svg'} },
-      { id: 'help', contexts: ['browser_action'], icons: {16: '/image/help32.png'} },
+      { id: 'help', contexts: ['browser_action'], icons: {16: '/image/help.svg'} },
       { id: 'log', contexts: ['browser_action'], icons: {16: '/image/document.svg'} },
       { id: 'localeMaker', contexts: ['browser_action'], icons: {16: '/locale-maker/locale-maker.svg'} },
 
@@ -106,7 +106,7 @@ class ScriptRegister {
       excludeGlobs: script.excludeGlobs,
       matchAboutBlank: script.matchAboutBlank,
       allFrames: script.allFrames,
-      runAt: script.runAt
+      runAt: script.userRunAt || script.runAt
     };
 
     // --- add Global Script Exclude Matches
@@ -524,7 +524,7 @@ class Installer {
       }
       else { App.notify(chrome.i18n.getMessage('error')); } // <head><title>504 Gateway Time-out</title></head>
     })
-    .catch(error => Util.log(item.name, `stylish ${cssURL} ➜ ${error.message}`, 'error'));
+    .catch(error => Util.log(item.name, `stylish ${updateURL} ➜ ${error.message}`, 'error'));
   }
   // --------------- /Web|Direct Installer -----------------
 
@@ -532,24 +532,24 @@ class Installer {
   onIdle(state) {
 
     if (state !== 'idle') { return; }
-    
+
     const now = Date.now();
     const days = pref.autoUpdateInterval *1;
     const doUpdate =  days && now > pref.autoUpdateLast + (days * 86400000); // 86400 * 1000 = 24hr
     if (!doUpdate) { return; }
-    
+
     if (!this.cache[0]) {                                   // rebuild the cache if empty
       this.cache = Object.keys(pref.content).filter(item => {
         const i = pref.content[item];
-        return i.autoUpdate && i.updateURL && i.version; 
+        return i.autoUpdate && i.updateURL && i.version;
       });
     }
 
     // --- do 10 updates at a time & check if script wasn't deleted
-    this.cache.splice(0, 10).forEach(item => pref.content.hasOwnProperty(item) && RU.getUpdate(pref.content[item])); 
+    this.cache.splice(0, 10).forEach(item => pref.content.hasOwnProperty(item) && RU.getUpdate(pref.content[item]));
 
     // --- set autoUpdateLast after updates are finished
-    !this.cache[0] && browser.storage.local.set({autoUpdateLast: now}); // update saved pref 
+    !this.cache[0] && browser.storage.local.set({autoUpdateLast: now}); // update saved pref
   }
 
   processResponse(text, name, updateURL) {                  // from class RU.callback in app.js
@@ -559,6 +559,11 @@ class Installer {
 
     const data = Meta.get(text, userMatches, userExcludeMatches);
     if (!data) { throw `${name}: Meta Data error`; }
+    
+    // --- revert https://cdn.jsdelivr.net/gh/ URL to https://raw.githubusercontent.com/
+    if (updateURL.startsWith('https://cdn.jsdelivr.net/gh/')) {
+      updateURL = 'https://raw.githubusercontent.com/' + updateURL.substring(28).replace('@', '/')
+    }
 
     // --- check version, if update existing, not for local files
     if (!updateURL.startsWith('file:///') && pref.content[name] &&
@@ -585,7 +590,8 @@ class Installer {
     if (updateURL.startsWith('https://greasyfork.org/scripts/') ||
         updateURL.startsWith('https://sleazyfork.org/scripts/') ||
         updateURL.startsWith('https://openuserjs.org/install/') ||
-        updateURL.startsWith('https://userstyles.org/styles/') ) {
+        updateURL.startsWith('https://userstyles.org/styles/') || 
+        updateURL.startsWith('https://raw.githubusercontent.com/') ) {
       data.updateURL = updateURL;
       data.autoUpdate = true;
     }
@@ -747,6 +753,13 @@ class API {
 
         return fetch(url, init)
           .then(response => {
+
+            if (e.init.method === 'HEAD') {
+              const res = {};
+              // error on processing Response.headers
+              ['ok', 'redirected', 'status', 'statusText', 'type', 'url'].forEach(item => res[item] = response[item]);
+              return res;
+            }
 
             switch (e.init.responseType) {
 

@@ -99,7 +99,7 @@
     <dt><img src="../image/css.svg" alt=""> New UserCSS</dt>
       <dd>Open the Options page and display a new CSS Template that you can edit and Save <sup>1</sup></dd>
 
-    <dt><img src="../image/help32.png" alt=""> Help</dt>
+    <dt><img src="../image/help.svg" alt=""> Help</dt>
       <dd>Display Help document <sup>1</sup></dd>
 
     <dt><img src="../image/document.svg" alt=""> Log</dt>
@@ -132,8 +132,20 @@
       <dt><i>{name}</i> <img src="../image/next.svg" alt=""></dt>
         <dd>Shows the Information for the Script/CSS</dd>
 
-      <dt>&#x1f58c; Edit</dt>
-        <dd>Button on Information page opens the Options Page and selects the current Script/CSS</dd>
+        <dd>
+          <dl>
+            <dt>&#x1f58c; Edit</dt>
+            <dd>Button on Information page opens the Options Page and selects the current Script/CSS</dd>
+
+            <dt>&#x25b7; Run</dt>
+              <dd>Inject the displayed userScript or userCSS (not userStyle) as long as it was not already injected in the tab</dd>
+              <dd style="color: #f30;">&#x26a0;&#xfe0f; UserScript is injected into content context which has more access than userScript context and untrusted code should not be used.</dd>
+              <dd class="note">The userScript is injected as plain JavaScript. Its metadata block would not be processed and it has no access to GM API.</dd>
+
+            <dt style="color: #f00;">&#x25c1; Undo</dt>
+              <dd>Undo/Remove the displayed userCSS if it was injected temporarily by Run</dd>
+          <dl>
+        </dd>
 
       <dt style="margin-top: 2em;">Script Commands &nbsp;&nbsp;&nbsp;<img src="../image/next.svg" alt=""></dt>
         <dd>Shows available Script Commands, click on each to run</dd>
@@ -142,18 +154,18 @@
         <dd>Insert CSS & JavaScript temporarily into the active tab</dd>
         <dd>Scratchpad recalls the last entries for repeated use</dd>
 
-        <dd style="color: #f30;">&#x26a0;&#xfe0f; The injection API has more access than userScript API and untrusted JavaScript code should not be used.</dd>
+        <dd style="color: #f30;">&#x26a0;&#xfe0f; JavaScript is injected into content context which has more access than userScript context and untrusted code should not be used.</dd>
 
         <dd>
           <dl>
             <dt>&#x25b7; Run</dt>
-              <dd>Insert the Scratchpad code (JS or CSS)</dd>
+              <dd>Insert the Scratchpad code (JavaScript or CSS)</dd>
 
             <dt style="color: #f00;">&#x25c1; Undo</dt>
               <dd>Undo/Remove the CSS Inserted by Scratchpad</dd>
 
             <dt><img src="../image/bin.svg" alt=""></dt>
-              <dd>Click to clear the box and saved code</dd>
+              <dd>Click to clear the box and the saved code</dd>
           <dl>
         </dd>
 
@@ -305,17 +317,17 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   "indentWithTabs": true,
   "indentUnit": 4,
   "tabSize": 4,
-  
+
   // JSHint Options
   "jshint": {
     "curly": false,
     "varstmt": false
   }
-  
+
   // match-highlighter examples
   highlightSelectionMatches: true,
   highlightSelectionMatches: {showToken: /\w/, annotateScrollbar: true},
-  
+
   // Tab to indent with spaces
   "extraKeys": {
     "Tab": "indentMore",
@@ -324,7 +336,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 }
 </pre>
   </figure>
-  
+
 
 
   <h3 id="import-export">Preferences: Import/Export</h3>
@@ -455,7 +467,10 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
           <dt>&#x1f521; Selection to Lowercase</dt>
             <dd>&nbsp;</dd>
 
-          <dt>User Matches & Exclude Matches</dt>
+          <dt>run-at</dt>
+            <dd>Persistent user custom script run-at</dd>
+
+          <dt>&#x1f464; User Matches & Exclude Matches</dt>
             <dd>Persistent user matches & excludeMatches (one per line using Match Patterns) can be set for each script to supplement script's matches & excludeMatches. Please note that invalid match pattern will cause the script to fail and thus get disabled.</dd>
 
         </dl>
@@ -464,7 +479,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
 
     <dt>Multiple Enable/Disable, Delete & Export</dt>
-      <dd><kbd>Ctrl</kbd> click to select multiple of items listed under Script & CSS</dd>
+      <dd><kbd>Ctrl</kbd> or <kbd>Shift</kbd> click to select multiple of items listed under Script & CSS</dd>
 
   </dl>
 
@@ -634,13 +649,13 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   </thead>
   <tbody class="slim">
     <tr><th>@name</th>              <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@name:xx-YY</th>        <td class="pass"></td><td class="pass">v4.11+</td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@name:xx-YY</th>        <td class="pass"></td><td class="pass">v4.11+ <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@author</th>            <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"><a href="https://violentmonkey.github.io/api/metadata-block/" target="_blank">undocumented </a> <a href="https://github.com/violentmonkey/violentmonkey/blob/e49c64f7235ef4609fe0a33bc9e3670404cabb1c/src/common/options-defaults.js#L64" target="_blank">&#x24d8;</a></td></tr>
     <tr><th>@description</th>       <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@description:xx-YY</th> <td class="pass"></td><td class="pass">v4.11+</td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@description:xx-YY</th> <td class="pass"></td><td class="pass">v4.11+ <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@version</th>           <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@updateURL</th>         <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"><a href="https://violentmonkey.github.io/api/metadata-block/" target="_blank">undocumented </a> <a href="https://github.com/violentmonkey/violentmonkey/blob/e49c64f7235ef4609fe0a33bc9e3670404cabb1c/src/background/utils/update.js#L71" target="_blank">&#x24d8;</a></td></tr>
-    <tr><th>@match</th>             <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@match</th>             <td class="pass"></td><td class="pass">v0.9.8+ (2011) <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@matches</th>           <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>@include</th>           <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@exclude</th>           <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
@@ -1797,7 +1812,7 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
     <tr><th>GM.download</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>GM.getResourceText</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>GM.getResourceURL</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>GM.registerMenuCommand</th><td class="pass"></td><td class="pass">v4.11+</td><td class="pass"></td><td class="fail"></td></tr>
+    <tr><th>GM.registerMenuCommand</th><td class="pass"></td><td class="pass">v4.11+ <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="fail"></td></tr>
     <tr><th>GM.unregisterMenuCommand</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
     <tr><th>GM.addStyle</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM.addScript</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
@@ -2037,7 +2052,7 @@ GM_fetch(url[, init]);</pre>
     <p>An options object containing any custom settings that you want to apply to the request. The possible options are:</p>
 
     <ul>
-      <li><code>method:</code> The request method, e.g., GET, POST. (can be omitted, defaults to 'GET')</li>
+      <li><code>method:</code> The request method, e.g. GET, HEAD, POST, PUT, DELETE, etc. (can be omitted, defaults to 'GET')</li>
       <li><code>headers:</code> Any headers you want to add to your request, contained within a Headers object or an object literal with ByteString values.</li>
       <li><code>body:</code> Any body that you want to add to your request: this can be a Blob, BufferSource, FormData, URLSearchParams, or USVString object. Note that a request using the GET or HEAD method cannot have a body.</li>
       <li><code>mode:</code> The mode you want to use for the request, e.g., cors, no-cors, or same-origin.</li>
@@ -2075,7 +2090,21 @@ GM_fetch(url[, init]);</pre>
 <span class="comment">// if you don't need to wait for the response</span>
 <span class="gm">GM</span>.<span class="method">fetch</span>(<span class="string">'https://example.com/etc'</span>)
 .<span class="method">then</span>(response =&gt; callback(response))
-.<span class="keyword">catch</span>(<span class="method">error</span> =&gt; <span class="property">console</span>.<span class="method">error</span>(<span class="method">error</span>.message));</pre>
+.<span class="keyword">catch</span>(<span class="method">error</span> =&gt; <span class="property">console</span>.<span class="method">error</span>(<span class="method">error</span>.message));
+
+<span class="comment">// returns response object on HEAD request</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="method">fetch</span>(<span class="string">'https://example.com/etc'</span>, {method: <span class="string">'HEAD'</span>});
+
+<span class="comment">// example of response object on HEAD request
+{
+  "ok": true,
+  "redirected": true,
+  "status": 200,
+  "statusText": "OK",
+  "type": "basic",
+  "url": "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch"
+}</span>
+</pre>
   </figure>
 
 
@@ -3022,7 +3051,7 @@ You can check the Console tab.</dd>
 
 
 
-  <h2 id="support"><img src="../image/help32.png" alt=""> Support</h2>
+  <h2 id="support"><img src="../image/help.svg" alt=""> Support</h2>
   <p>Please use the GitHub Community <a href="https://github.com/erosman/support" target="_blank">Support</a>.</p>
 
     </article>

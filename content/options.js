@@ -119,7 +119,7 @@ class Script {
     this.navUL = document.querySelector('nav ul');
     this.legend = document.querySelector('.script legend');
     this.box = document.querySelector('.script .box');
-    this.box.value = '';                                    // Browser retains textarea content on refresh
+    this.box.value = '';                                    // browser retains textarea content on refresh
 
     this.enable = document.querySelector('#enable');
     this.enable.addEventListener('change', () => this.toggleEnable());
@@ -128,6 +128,10 @@ class Script {
     this.autoUpdate = document.querySelector('#autoUpdate');
     this.autoUpdate.addEventListener('change', () => this.toggleAutoUpdate());
     Meta.autoUpdate = this.autoUpdate;
+    
+    this.userRunAt = document.querySelector('#userRunAt');
+    this.userRunAt.selectedIndex = 0;                       // browser retains selected on refresh
+    Meta.userRunAt = this.userRunAt;
 
     this.userMatches = document.querySelector('#userMatches');
     this.userMatches.value = '';
@@ -757,14 +761,30 @@ class Script {
 
   showScript(e) {
 
+    const box = this.box;
+
     const li = e.target;
     li.classList.add('on');
     if (e.ctrlKey) { return; }
-    
-    // reset others
-    document.querySelectorAll('nav li.on').forEach (item => item !== li && item.classList.remove('on'));
+    else if (e.shiftKey) {
 
-    const box = this.box;
+      if (!box.id) { return; }
+      window.getSelection().removeAllRanges();
+      let st = false, end = false;
+      document.querySelectorAll('nav li').forEach(item => {
+
+        const stEnd = item === li || item.id === box.id;
+        if (!st && stEnd) { st = true; }
+        else if (st && stEnd) { end = true; }
+        !stEnd && item.classList.toggle('on', st && !end);
+      });
+      return;
+    }
+
+    // reset others
+    document.querySelectorAll('nav li.on').forEach(item => item !== li && item.classList.remove('on'));
+
+
     const legend = this.legend;
     const enable = this.enable;
     const autoUpdate = this.autoUpdate;
@@ -778,8 +798,6 @@ class Script {
 
     // --- reset
     [this.userMatches, this.userExcludeMatches].forEach(item => item.classList.remove('invalid'));
-
-
 
     const id = li.id;
     box.id = id;
@@ -795,6 +813,7 @@ class Script {
 
     enable.checked = pref.content[id].enabled;
     autoUpdate.checked = pref.content[id].autoUpdate;
+    
 
     const text = pref.content[id].js || pref.content[id].css;
     box.value = text;
@@ -808,6 +827,7 @@ class Script {
       this.legend.classList.add('antifeature');
     }
 
+    this.userRunAt.value = pref.content[id].userRunAt || '';
     this.userMatches.value = pref.content[id].userMatches || '';
     this.userExcludeMatches.value = pref.content[id].userExcludeMatches || '';
 
@@ -847,7 +867,7 @@ class Script {
 
     const multi = document.querySelectorAll('nav li.on');
     if (!multi[0]) { return; }
-  
+
     multi.forEach(item => {
       pref.content[item.id].enabled = enable.checked;
       item.classList.toggle('disabled', !enable.checked);
@@ -885,8 +905,8 @@ class Script {
 
     const multi = document.querySelectorAll('nav li.on');
     if (!multi[0]) { return; }
-    
-    if (multi.length > 1 ? !confirm(chrome.i18n.getMessage('deleteMultiConfirm', multi.length)) : 
+
+    if (multi.length > 1 ? !confirm(chrome.i18n.getMessage('deleteMultiConfirm', multi.length)) :
         !confirm(chrome.i18n.getMessage('deleteConfirm', box.id))) { return; }
 
     const deleted = [];
@@ -899,7 +919,7 @@ class Script {
       deleted.push('_' + id);
     });
 
-    browser.storage.local.remove(deleted);                  // delete storage       
+    browser.storage.local.remove(deleted);                  // delete storage
     browser.storage.local.set({content: pref.content});     // update saved pref
 
     // --- reset box

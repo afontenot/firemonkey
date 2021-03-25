@@ -792,11 +792,15 @@ section.script {
   border-radius: 5px 5px 0 0;
 }
 
-.menu details li.theme select {
+.menu details li select {
   color: inherit;
   width: 50%;
   background: transparent;
   border: 1px solid #ccc;
+}
+
+.menu details li.userRunAt select {
+  width: 9em;
 }
 
 .menu details textarea {

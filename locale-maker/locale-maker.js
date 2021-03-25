@@ -6,8 +6,8 @@ class LocaleMaker {
 
   constructor() {
     // --- Light/Dark Theme
-    document.body.classList.toggle('dark', localStorage.getItem('dark') === 'true'); 
-    
+    document.body.classList.toggle('dark', localStorage.getItem('dark') === 'true');
+
     this.setDefault = this.setDefault.bind(this);
     this.import = this.import.bind(this);
     this.export = this.export.bind(this);
@@ -77,7 +77,7 @@ class LocaleMaker {
   setLocale(data) {
     this.inputs.forEach(item => data[item.id] && (item.value = this.showSpecial(data[item.id].message)));
   }
-  
+
   showSpecial(str) {
     return JSON.stringify(str).slice(1, -1);
   }
@@ -87,10 +87,10 @@ class LocaleMaker {
     const file = e.target.files[0];
     switch (true) {
 
-      case !file: 
-        this.notify('There was an error with the operation.'); 
+      case !file:
+        this.notify('There was an error with the operation.');
         return;
-        
+
       case !['text/plain', 'application/json'].includes(file.type): // check file MIME type
         this.notify('Unsupported File Format.');
         return;
@@ -107,7 +107,7 @@ class LocaleMaker {
 
   export() {
     let data = JSON.parse(JSON.stringify(this.default));
-    this.inputs.forEach(item => item.value && (data[item.id].message = JSON.parse(`"${item.value}"`)));   
+    this.inputs.forEach(item => item.value && (data[item.id].message = JSON.parse(`"${item.value}"`)));
     data = JSON.stringify(data, null, 2);
     const blob = new Blob([data], {type : 'text/plain;charset=utf-8'});
     const filename = this.select.value ? this.select.value + '/messages.json' : 'messages.json';
