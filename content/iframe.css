@@ -151,7 +151,6 @@ h3 span, h4 span {
   font-size: 0.8em;
 }
 
-
 p {
   margin: 0.2em auto 0.2em 2em;
 }
@@ -175,7 +174,6 @@ article li::marker { /* FF 68+ */
 article li img {
   width: 1em;
 }
-
 
 a {
   color: #08f;
@@ -434,14 +432,13 @@ code {
 
 kbd {
   color: #333;
-  padding: 0.1em 0.3em;
+  padding: 0.1em 0.4em;
   background: transparent linear-gradient(to bottom, #eee, #fff 60%);
-  border-radius: 3px;
+  border-radius: 6px;
   border: 1px solid #ccc;
-  border-bottom-width: 2px;
   line-height: 1;
-  margin-bottom: 0.1em;
   display: inline-block;
+  font-family: monospace;
 }
 
 address {

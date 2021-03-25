@@ -37,7 +37,7 @@
 
   "newJS": { "message": "Nieuw gebruikersscript" },
   "newCSS": { "message": "Nieuwe gebruikersstijl" },
-  "saveTemplate": { "message": "Sjabloon" },
+  "saveTemplate": { "message": "Save as Sjabloon" },
 
   "tabToSpaces": { "message": "Tabs omzetten in spaties" },
   "trimTrailingSpaces": { "message": "Witruimtes aan einde inkorten" },

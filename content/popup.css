@@ -283,6 +283,29 @@ dl {
   overflow-y: auto;
   scrollbar-color: var(--scrollbar);
   scrollbar-width: thin;
+  position: relative;
+}
+
+dl.js::after,
+dl.css::after {
+  content: '';
+  background: url('../image/js.svg') no-repeat center;
+  background-size: contain;
+  display: inline-block;
+  width: 2em;
+  height: 2em;
+  position: absolute;
+  top: 0;
+  right: 0.5em;
+  opacity: 0.6;
+}
+
+dl.css::after {
+  background-image: url('../image/css.svg')
+}
+
+dl.disabled::after {
+  filter: grayscale(1);
 }
 
 dt {
@@ -323,6 +346,10 @@ dd:last-of-type {
   display: flex;
 }
 
+button[data-i18n="undo"] {
+  color: #f00;
+}
+
 /* ----- command----- */
 .commandList dd {
   cursor: pointer;
@@ -352,10 +379,6 @@ dd:last-of-type {
   margin: 0 auto 1em;
   resize: none;
   opacity: 0.7;
-}
-
-.scratchpad div.button button:nth-of-type(2) {
-  color: #f00;
 }
 
 img.bin {
