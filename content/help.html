@@ -112,80 +112,82 @@
   <p><sup>1</sup><i> In Private Window opens the Options page (ref <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1659998" title="localStorage accessibility within extension privileged pages in Private Window" target="_blank">Bug 1659998</a>).</i></p>
 
   <h4>Toolbar Icon Badge <sup>5</sup></h4>
-    <p>Badge indicates the number of Script/CSS that are active in the tab (and all its iframes)</p>
+  <p>Badge indicates the number of Script/CSS that are active in the tab (and all its iframes)</p>
 
   <h4>Toolbar Icon Title</h4>
-    <p>Mouse-over Title displays active Script/CSS</p>
+  <p>Mouse-over Title displays active Script/CSS</p>
 
   <h4>Toolbar Icon Pop-up</h4>
-    <p>The pop-up displays the installed Scripts/CSS. "Tab Scripts & CSS" shows the ones running on the active Tab.</p>
-    <p>The number in the "Tab Scripts & CSS" shows the number of frames of the page. The minimum is 1 which is the main/top frame.</p>
+  <p>The pop-up displays the installed Scripts/CSS. "Tab Scripts & CSS" shows the ones running on the active Tab.</p>
+  <p>The number in the "Tab Scripts & CSS" shows the number of frames of the page. The minimum is 1 which is the main/top frame.</p>
 
-    <dl>
-      <dt style="color: #05f;">✔</dt>
-        <dd>Shows Script/CSS is enabled. Disabled Script/CSS are greyed out and clicking that area toggles the enable/disable</dd>
+  <dl>
+    <dt style="color: #05f;">✔</dt>
+      <dd>Shows Script/CSS is enabled. Disabled Script/CSS are greyed out and clicking that area toggles the enable/disable</dd>
 
-      <dt style="color: #f00;">✘</dt>
-        <dd>Shows that there was an error when registering the script & the Information page displays the error</dd>
+    <dt style="color: #f00;">✘</dt>
+      <dd>Shows that there was an error when registering the script & the Information page displays the error</dd>
+
+    <dt><img src="../image/js.svg" alt=""> <img src="../image/css.svg" alt=""></dt>
+      <dd>Click to Hide/Show Script & CSS</dd>
+
+    <dt><i>{name}</i> <img src="../image/next.svg" alt=""></dt>
+      <dd>Shows the Information for the Script/CSS</dd>
+
+      <dd>
+        <dl>
+          <dt>&#x1f58c; Edit</dt>
+          <dd>Button on Information page opens the Options Page and selects the current Script/CSS</dd>
+
+          <dt>&#x25b7; Run</dt>
+            <dd>Inject the displayed userScript or userCSS (not userStyle) as long as it was not already injected in the tab</dd>
+            <dd style="color: #f30;">&#x26a0;&#xfe0f; UserScript is injected into content context which has more access than userScript context and untrusted code should not be used.</dd>
+            <dd class="note">The userScript is injected as plain JavaScript. Its metadata block would not be processed and it has no access to GM API.</dd>
+
+          <dt style="color: #f00;">&#x25c1; Undo</dt>
+            <dd>Undo/Remove the displayed userCSS if it was injected temporarily by Run</dd>
+        <dl>
+      </dd>
+
+    <dt style="margin-top: 2em;">Script Commands &nbsp;&nbsp;&nbsp;<img src="../image/next.svg" alt=""></dt>
+      <dd>Shows available Script Commands, click on each to run</dd>
+
+    <dt style="margin-top: 2em;">Scratchpad <img src="../image/next.svg" alt=""></dt>
+      <dd>Insert CSS & JavaScript temporarily into the active tab</dd>
+      <dd>Scratchpad recalls the last entries for repeated use</dd>
+
+      <dd style="color: #f30;">&#x26a0;&#xfe0f; JavaScript is injected into content context which has more access than userScript context and untrusted code should not be used.</dd>
+
+      <dd>
+        <dl>
+          <dt>&#x25b7; Run</dt>
+            <dd>Insert the Scratchpad code (JavaScript or CSS)</dd>
+
+          <dt style="color: #f00;">&#x25c1; Undo</dt>
+            <dd>Undo/Remove the CSS Inserted by Scratchpad</dd>
+
+          <dt><img src="../image/bin.svg" alt=""></dt>
+            <dd>Click to clear the box and the saved code</dd>
+        <dl>
+      </dd>
+
+    <dt style="margin-top: 1em;">Find scripts for this site &nbsp;&nbsp;&nbsp;<img src="../image/next.svg" alt=""></dt>
+      <dd>Search <i>greasyfork.org</i> for scripts for this site</dd>
+
+    <dt style="margin-top: 2em;"><img src="../image/gear.svg" alt=""> Options</dt>
+      <dd>Open the Options Page</dd>
+
+    <dt>&#x2795; <img src="../image/js.svg" alt=""></dt>
+      <dd>Display a new Script Template that you can edit and Save</dd>
+
+    <dt>&#x2795; <img src="../image/css.svg" alt=""></dt>
+      <dd>Display a new CSS Template that you can edit and Save</dd>
+
+    <dt>Help</dt>
+      <dd>Open the Help document</dd>
 
 
-      <dt><i>{name}</i> <img src="../image/next.svg" alt=""></dt>
-        <dd>Shows the Information for the Script/CSS</dd>
-
-        <dd>
-          <dl>
-            <dt>&#x1f58c; Edit</dt>
-            <dd>Button on Information page opens the Options Page and selects the current Script/CSS</dd>
-
-            <dt>&#x25b7; Run</dt>
-              <dd>Inject the displayed userScript or userCSS (not userStyle) as long as it was not already injected in the tab</dd>
-              <dd style="color: #f30;">&#x26a0;&#xfe0f; UserScript is injected into content context which has more access than userScript context and untrusted code should not be used.</dd>
-              <dd class="note">The userScript is injected as plain JavaScript. Its metadata block would not be processed and it has no access to GM API.</dd>
-
-            <dt style="color: #f00;">&#x25c1; Undo</dt>
-              <dd>Undo/Remove the displayed userCSS if it was injected temporarily by Run</dd>
-          <dl>
-        </dd>
-
-      <dt style="margin-top: 2em;">Script Commands &nbsp;&nbsp;&nbsp;<img src="../image/next.svg" alt=""></dt>
-        <dd>Shows available Script Commands, click on each to run</dd>
-
-      <dt style="margin-top: 2em;">Scratchpad <img src="../image/next.svg" alt=""></dt>
-        <dd>Insert CSS & JavaScript temporarily into the active tab</dd>
-        <dd>Scratchpad recalls the last entries for repeated use</dd>
-
-        <dd style="color: #f30;">&#x26a0;&#xfe0f; JavaScript is injected into content context which has more access than userScript context and untrusted code should not be used.</dd>
-
-        <dd>
-          <dl>
-            <dt>&#x25b7; Run</dt>
-              <dd>Insert the Scratchpad code (JavaScript or CSS)</dd>
-
-            <dt style="color: #f00;">&#x25c1; Undo</dt>
-              <dd>Undo/Remove the CSS Inserted by Scratchpad</dd>
-
-            <dt><img src="../image/bin.svg" alt=""></dt>
-              <dd>Click to clear the box and the saved code</dd>
-          <dl>
-        </dd>
-
-      <dt style="margin-top: 1em;">Find scripts for this site &nbsp;&nbsp;&nbsp;<img src="../image/next.svg" alt=""></dt>
-        <dd>Search <i>greasyfork.org</i> for scripts for this site</dd>
-
-      <dt style="margin-top: 2em;"><img src="../image/gear.svg" alt=""> Options</dt>
-        <dd>Open the Options Page</dd>
-
-      <dt>&#x2795; <img src="../image/js.svg" alt=""></dt>
-        <dd>Display a new Script Template that you can edit and Save</dd>
-
-      <dt>&#x2795; <img src="../image/css.svg" alt=""></dt>
-        <dd>Display a new CSS Template that you can edit and Save</dd>
-
-      <dt>Help</dt>
-        <dd>Open the Help document</dd>
-
-
-    </dl>
+  </dl>
 
   <h3 id="page-menu">Page Context Menu</h3><br>
 
@@ -594,9 +596,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
 
 
-  <p><i>FireMonkey</i> supports the following entries based on <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/contentScripts/register" target="_blank">
-contentScripts.register()</a> & <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/userScripts/register" target="_blank">
-userScripts.register()</a>. Each entry must be in the format of <code>@entry ...some space ... detail</code>. In case of matches & globes, repeat entry for each detail. Match details must conform to the <b>Match Patterns</b>.</p>
+  <p><i>FireMonkey</i> supports the following entries based on <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/contentScripts/register" target="_blank">contentScripts.register()</a> & <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/userScripts/register" target="_blank">userScripts.register()</a>. Each entry must be in the format of <code>@entry ...some space ... detail</code>. In case of matches & globes, repeat entry for each detail. Match details must conform to the <b>Match Patterns</b>.</p>
   <p>Script/CSS developers are free to add any other <i>@entry</i> (e.g. <i>@homepage, @copyright, @support</i> etc) for reference or information.</p>
 
 
@@ -649,18 +649,16 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
   </thead>
   <tbody class="slim">
     <tr><th>@name</th>              <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@name:xx-YY</th>        <td class="pass"></td><td class="pass">v4.11+ <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@name:xx-YY</th>        <td class="pass"></td><td class="pass"><span>v4.11+</span> <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@author</th>            <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"><a href="https://violentmonkey.github.io/api/metadata-block/" target="_blank">undocumented </a> <a href="https://github.com/violentmonkey/violentmonkey/blob/e49c64f7235ef4609fe0a33bc9e3670404cabb1c/src/common/options-defaults.js#L64" target="_blank">&#x24d8;</a></td></tr>
     <tr><th>@description</th>       <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@description:xx-YY</th> <td class="pass"></td><td class="pass">v4.11+ <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@description:xx-YY</th> <td class="pass"></td><td class="pass"><span>v4.11+</span> <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@version</th>           <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@updateURL</th>         <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"><a href="https://violentmonkey.github.io/api/metadata-block/" target="_blank">undocumented </a> <a href="https://github.com/violentmonkey/violentmonkey/blob/e49c64f7235ef4609fe0a33bc9e3670404cabb1c/src/background/utils/update.js#L71" target="_blank">&#x24d8;</a></td></tr>
-    <tr><th>@match</th>             <td class="pass"></td><td class="pass">v0.9.8+ (2011) <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@matches</th>           <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+    <tr><th>@match</th>             <td class="pass"></td><td class="pass"><span>v0.9.8+ (2011)</span> <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@include</th>           <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@exclude</th>           <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@exclude-match</th>     <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="pass"></td></tr>
-    <tr><th>@excludeMatches</th>    <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>@includeGlob</th>       <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>@excludeGlob</th>       <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>@matchAboutBlank</th>   <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
@@ -669,11 +667,16 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
     <tr><th>@require</th>           <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@resource</th>          <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@run-at</th>            <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@runAt</th>             <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>@downloadURL</th>       <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
 
     <tr><th>@antifeature</th>       <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@inject-into</th>       <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="pass"></td></tr>
+
+    <tr><th class="dim">@matches</th>           <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+    <tr><th class="dim">@excludeMatches</th>    <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+    <tr><th class="dim">@includeGlobs</th>       <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+    <tr><th class="dim">@excludeGlobs</th>       <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+    <tr><th class="dim">@runAt</th>             <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
 
     <tr><th>@namespace</th>         <td class="fail"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@grant</th>             <td class="fail"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
@@ -1001,7 +1004,7 @@ userScripts.register()</a>. Each entry must be in the format of <code>@entry ...
 @version            1.0
 ==/UserCSS==
 */
-  </pre>
+</pre>
   </figure>
 
 
@@ -1798,27 +1801,29 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
   </tr>
   </thead>
   <tbody class="slim">
-    <tr><th>GM.getValue</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>GM.setValue</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>GM.listValues</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>GM.deleteValue</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>GM.addValueChangeListener</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
-    <tr><th>GM.removeValueChangeListener</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
-    <tr><th>GM.openInTab</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>GM.setClipboard</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>GM.notification</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>GM.xmlHttpRequestt</th><td class="pass"></td><td class="pass"></td><td class="fail"></td><td class="pass"></td></tr>
-    <tr><th>GM.fetch</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
-    <tr><th>GM.download</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
-    <tr><th>GM.getResourceText</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
-    <tr><th>GM.getResourceURL</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>GM.registerMenuCommand</th><td class="pass"></td><td class="pass">v4.11+ <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="fail"></td></tr>
-    <tr><th>GM.unregisterMenuCommand</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
-    <tr><th>GM.addStyle</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>GM.addScript</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
-    <tr><th>GM.popup</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
-    <tr><th>GM.log</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
-    <tr><th>GM.info</th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>GM.getValue</th><td class="pass"></td><td class="pass"></td><td class="pass"><span>GM_* alias</span></td><td class="pass"><span>GM_* alias</span> <a href="https://violentmonkey.github.io/api/gm/" title="GM.* Greasemonkey v4-compatible aliases were added in VM2.12.0." target="_blank">&#x24d8;</a></td></tr>
+    <tr><th>GM.setValue</th><td class="pass"></td><td class="pass"></td><td class="pass"><span>GM_* alias</span></td><td class="pass"><span>GM_* alias</span></td></tr>
+    <tr><th>GM.listValues</th><td class="pass"></td><td class="pass"></td><td class="pass"><span>GM_* alias</span></td><td class="pass"><span>GM_* alias</span></td></tr>
+    <tr><th>GM.deleteValue</th><td class="pass"></td><td class="pass"></td><td class="pass"><span>GM_* alias</span></td><td class="pass"><span>GM_* alias</span></td></tr>
+    <tr><th>GM.addValueChangeListener</th><td class="pass"></td><td class="fail"></td><td class="pass"><span>GM_* alias</span></td><td class="fail"></td></tr>
+    <tr><th>GM.removeValueChangeListener</th><td class="pass"></td><td class="fail"></td><td class="pass"><span>GM_* alias</span></td><td class="fail"></td></tr>
+    <tr><th>GM.openInTab</th><td class="pass"></td><td class="pass"></td><td class="pass"><span>GM_* alias</span></td><td class="pass"><span>GM_* alias</span></td></tr>
+    <tr><th>GM.setClipboard</th><td class="pass"></td><td class="pass"></td><td class="pass"><span>GM_* alias</span> <a href="https://github.com/Tampermonkey/tampermonkey/issues/918" title="setClipboard API sets the clipboard to 'undefined'" target="_blank">&#x24d8;</a></td><td class="pass"><span>GM_* alias</span></td></tr>
+    <tr><th>GM.notification</th><td class="pass"></td><td class="pass"></td><td class="pass"><span>GM_* alias</span></td><td class="pass"><span>GM_* alias</span></td></tr>
+    <tr><th>GM.xmlHttpRequest</th><td class="pass"></td><td class="pass"></td><td class="pass"><span>GM_* alias</span></td><td class="pass"><span>GM_* alias</span></td></tr>
+    <tr><th>GM.fetch &#x1f1f3;</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+    <tr><th>GM.download</th><td class="pass"></td><td class="fail"></td><td class="pass"><span>GM_* alias</span></td><td class="fail"></td></tr>
+    <tr><th>GM.getResourceText</th><td class="pass"></td><td class="fail"></td><td class="pass"><span>GM_* alias</span></td><td class="fail"></td></tr>
+    <tr><th>GM.getResourceUrl</th><td class="pass"></td><td class="pass"><a href="https://wiki.greasespot.net/GM.getResourceUrl" target="_blank">&#x24d8;</a></td><td class="pass"><span>GM_* alias</span></td><td class="fail"></td></tr>
+    <tr><th>GM.getResource<b>URL</b></th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="pass"><span>GM_* alias</span> <a href="https://github.com/violentmonkey/violentmonkey/blob/f0a35490f61e7c0141244bcf32f48352ab13ddb4/src/injected/web/gm-api.js#L198" target="_blank">&#x24d8;</a></td></tr>
+
+    <tr><th>GM.registerMenuCommand</th><td class="pass"></td><td class="pass"><span>v4.11+</span> <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"><span>GM_* alias</span></td><td class="fail"></td></tr>
+    <tr><th>GM.unregisterMenuCommand</th><td class="pass"></td><td class="fail"></td><td class="pass"><span>GM_* alias</span></td><td class="fail"></td></tr>
+    <tr><th>GM.addStyle</th><td class="pass"></td><td class="fail"></td><td class="pass"><span>GM_* alias</span></td><td class="pass"><span>GM_* alias</span></td></tr>
+    <tr><th>GM.addScript &#x1f1f3;</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+    <tr><th>GM.popup &#x1f1f3;</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+    <tr><th>GM.log</th><td class="pass"></td><td class="fail"></td><td class="pass"><span>GM_* alias</span></td><td class="fail"></td></tr>
+    <tr><th>GM.info</th><td class="pass"></td><td class="pass"></td><td class="pass"><span>GM_* alias</span></td><td class="pass"><span>GM_* alias</span></td></tr>
 
     <tr>
       <th>unsafeWindow</th>
@@ -1832,7 +1837,7 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
         <span class="fail">page</span>
       </td>
       <td>
-        <span class="fail">content</span> <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" title="In this mode, unsafeWindow refers to the global object in content script. As a result, the script can access and modify the page's DOM, but cannot access JavaScript objects of the web page.">&#x24d8;</a><br>
+        <span class="fail">content</span> <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" title="In this mode, unsafeWindow refers to the global object in content script. As a result, the script can access and modify the page's DOM, but cannot access JavaScript objects of the web page." target="_blank">&#x24d8;</a><br>
         <span class="pass">page</span> <a href="https://violentmonkey.github.io/api/metadata-block/#inject-into" title="In this mode, unsafeWindow refers to the window object, allowing the script to access JavaScript objects of the web page, just like normal page scripts can." target="_blank">&#x24d8;</a>
 
       </td>
@@ -1842,25 +1847,25 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
 
     <tr><th>&nbsp;</th><td colspan="6"></td></tr>
 
-    <tr><th>GM_getValue</th><td class="pass" style="background: #fff0f5;">partial <a href="#GM_getValue">&#x24d8;</a></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>GM_setValue</th><td class="pass" style="background: #fff0f5;">async</td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>GM_listValues</th><td class="pass" style="background: #fff0f5;">partial <a href="#GM_getValue">&#x24d8;</a></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>GM_deleteValue</th><td class="pass" style="background: #fff0f5;">async</td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>GM_getValue</th><td style="background: #fff0f5;"><span class="pass">partial</span> <a href="#GM_getValue">&#x24d8;</a></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>GM_setValue</th><td style="background: #fff0f5;"><span class="pass">async</span></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>GM_listValues</th><td style="background: #fff0f5;"><span class="pass">partial</span> <a href="#GM_getValue">&#x24d8;</a></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>GM_deleteValue</th><td style="background: #fff0f5;"><span class="pass">async</span></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_addValueChangeListener</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_removeValueChangeListener</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_openInTab</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_setClipboard</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_notification</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_xmlhttpRequest</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>GM_fetch</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+    <tr><th>GM_fetch &#x1f1f3;</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>GM_download</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
     <tr><th>GM_getResourceText</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_getResourceURL</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_registerMenuCommand</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_unregisterMenuCommand</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_addStyle</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>GM_addScript</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
-    <tr><th>GM_popup</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+    <tr><th>GM_addScript &#x1f1f3;</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+    <tr><th>GM_popup &#x1f1f3;</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>GM_log</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
     <tr><th>GM_info</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
 
@@ -2029,7 +2034,7 @@ js/promisify.js</code></td>
   </ul>
 
 
-  <p>The async <code>GM.getValue</code> & <code>GM.listValues</code> will get the values at that moment.</p>
+  <p>The async <code>GM.getValue</code> & <code>GM.listValues</code> will get the most up-to-date values at that moment.</p>
 
 
 
@@ -2111,7 +2116,7 @@ GM_fetch(url[, init]);</pre>
     "date": "Wed, 24 Mar 2021 16:25:31 GMT",
     "last-modified": "Wed, 24 Mar 2021 02:02:53 GMT",
     ...
-    ... etc 
+    ... etc
   }
 }</span>
 </pre>
@@ -2673,10 +2678,11 @@ popup.addStyle(css);
 
 exportFunction(notify, <span class="object">window</span>, {defineAs: 'notify'});
 
-<span class="gm">unsafeWindow</span>.messenger = cloneInto(
-  messenger,
-  <span class="object">window</span>,
-  {cloneFunctions: true});
+<span class="comment">// object without methods</span>
+<span class="gm">unsafeWindow</span>.messenger = cloneInto(obj, <span class="gm">unsafeWindow</span>);
+
+<span class="comment">// object with methods</span>
+<span class="gm">unsafeWindow</span>.messenger = cloneInto(obj, <span class="gm">unsafeWindow</span>, {cloneFunctions: true});
 </pre>
 
 

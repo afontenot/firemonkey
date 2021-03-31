@@ -191,6 +191,18 @@ a[href^="https://bugzilla.mozilla.org/show_bug.cgi?id="]::before {
   margin-right: 0.3em;
 }
 
+a[href^="https://developer.mozilla.org/"]::before {
+  content: '';
+  background: url('../image/dino.svg') no-repeat center;
+  background-size: contain;
+  display: inline-block;
+  height: 1.1em;
+  width: 1.1em;
+  margin-right: 0.3em;
+  vertical-align: text-bottom;
+}
+
+
 /* ----- Navigation ----- */
 nav  {
   background-color: #fff;
@@ -462,13 +474,13 @@ address {
 
 .experimental::after {
   content: '';
+  background: url('../image/beaker.svg') no-repeat center;
+  background-size: contain;  
+  display: inline-block;
   width: 1.2em;
   height: 1.2em;
-  display: inline-block;
-  vertical-align: text-bottom;
   margin-left: 0.5em;
-  background: url('../image/beaker.svg') no-repeat center;
-  background-size: contain;
+  vertical-align: text-bottom;
 }
 
 /* ----- Table ----- */
@@ -536,7 +548,8 @@ td code {
   white-space: pre;
 }
 
-td .pass, td .fail {
+td .pass, td .fail,
+td.pass span, td.fail span {
  font-family: monospace;
 }
 
@@ -554,7 +567,6 @@ th sup {
 .slim th:first-of-type, .slim td {
   padding: 0 0.5em;
 }
-
 
 .pass {
   color: #080;
@@ -579,7 +591,6 @@ th sup {
   font-weight: 900;
 }
 
-
 h4 sup {
   background-color: #cd853f;
   color: #fff;
@@ -593,10 +604,13 @@ h4 sup {
   margin-right: 0.5em;
 }
 
-
 .sync::before {
   content: '\24c8';
   color: #f50;
   font-weight: 900;
   margin-right: 0.5em;
+}
+
+.dim {
+  color: #777;
 }

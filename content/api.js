@@ -66,7 +66,7 @@
     });
   }
 
-  // --- auxiliary regex include/exclude test function
+  // ----- auxiliary regex include/exclude test function
   function matchURL() {
     const url = location.href;
     const includes = script.metadata.info.script.includes;
@@ -76,6 +76,11 @@
 
   function arrayTest(arr, url) {
     return new RegExp(arr.map(item => `(${item.slice(1, -1)})`).join('|'), 'i').test(url);
+  }
+
+  // ----- cloneInto wrapper for object methods
+  function cloneIntoFM(obj, target, options = {}) {
+    return cloneInto(options.cloneFunctions ? obj.wrappedJSObject : obj, target, options);
   }
 
   // --------------- GM4 Object based functions ------------
@@ -220,7 +225,11 @@
       return response ? script.export(response) : null;
     },
 
-    getResourceURL(resourceName) {
+    getResourceUrl(resourceName) {                          // GreaseMonkey | TamperMonkey
+      return resource[resourceName];
+    },
+
+    getResourceURL(resourceName) {                          // ViolentMonkey
       return resource[resourceName];
     },
 
@@ -466,7 +475,7 @@
     GM_info:                      GM.info,
 
     exportFunction,
-    cloneInto,
+    cloneInto:                    cloneIntoFM,
     matchURL
   });
 });
