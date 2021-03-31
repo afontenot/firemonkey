@@ -559,7 +559,7 @@ class Installer {
 
     const data = Meta.get(text, userMatches, userExcludeMatches);
     if (!data) { throw `${name}: Meta Data error`; }
-    
+
     // --- revert https://cdn.jsdelivr.net/gh/ URL to https://raw.githubusercontent.com/
     if (updateURL.startsWith('https://cdn.jsdelivr.net/gh/')) {
       updateURL = 'https://raw.githubusercontent.com/' + updateURL.substring(28).replace('@', '/')
@@ -590,7 +590,7 @@ class Installer {
     if (updateURL.startsWith('https://greasyfork.org/scripts/') ||
         updateURL.startsWith('https://sleazyfork.org/scripts/') ||
         updateURL.startsWith('https://openuserjs.org/install/') ||
-        updateURL.startsWith('https://userstyles.org/styles/') || 
+        updateURL.startsWith('https://userstyles.org/styles/') ||
         updateURL.startsWith('https://raw.githubusercontent.com/') ) {
       data.updateURL = updateURL;
       data.autoUpdate = true;

@@ -101,7 +101,7 @@ class Popup {
     this.url = tabs[0].url;                                   // used in find scripts
 
     const [Tab, Other, frames] = await CheckMatches.process(tabId);
-    document.querySelector('h3 span').textContent = frames.length; // display frame count
+    document.querySelector('h3 span.frame').textContent = frames.length; // display frame count
 
     Tab.forEach(item => this.ulTab.appendChild(this.addScript(pref.content[item])));
     Other.forEach(item => this.ulOther.appendChild(this.addScript(pref.content[item])));

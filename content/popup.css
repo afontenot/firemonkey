@@ -6,6 +6,8 @@
   --hover: #eee;
   --btn-bg: #f9f9fa;
   --color2: #05f;
+  
+    --bg2: #ddda;
 }
 
 body.dark {
@@ -83,11 +85,12 @@ h3 {
 }
 
 h3 span.frame{
-  float: right;
   padding: 0.1em 0.3em;
   background: var(--bg);
   opacity: 0.6;
   font-size: 0.8em;
+  flex: 0 0 auto;
+  margin-left: 0.5em;
 }
 /* ----- /General ----- */
 
@@ -140,7 +143,8 @@ button:hover {
 }
 
 button img {
- vertical-align: text-bottom;
+  vertical-align: text-bottom;
+  width: 1.2em;
 }
 
 button + button {
@@ -252,6 +256,43 @@ li span.name:hover::after {
   opacity: 1;
 }
 /* ----- /Scripts ----- */
+
+/* ----- Selectors ----- */
+input[type="checkbox"].control {
+  display: none;
+}
+
+h3.list {
+  align-items: center;
+}
+
+.list label {
+  margin-left: 0.3em;
+}
+
+.list label {
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.list label img {
+  width: 1.1em;
+  vertical-align: middle;
+  filter: opacity(0.5) grayscale(1);
+}
+
+#listJS:checked ~ h3 label[for="listJS"] img,
+#listCSS:checked ~ h3 label[for="listCSS"] img {
+  filter: opacity(0.7) grayscale(0);
+}
+
+#listJS:not(:checked) ~ ul li.js,
+#listCSS:not(:checked) ~ ul li.css {
+  display: none;
+}
+/* ----- /Selectors ----- */
 
 /* ----- Info ----- */
 section.info {
