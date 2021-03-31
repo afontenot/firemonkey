@@ -14,8 +14,18 @@
         <!-- template -->
         <template><li><span class="enable">&#x2714;</span><span class="name"></span></li></template>
 
-        <h3 data-i18n="tabScript"><span class="frame">&nbsp;</span></h3>
+        <input type="checkbox" id="listJS" class="control" checked>
+        <input type="checkbox" id="listCSS" class="control" checked>
+
+        <h3 class="flex list">
+          <span data-i18n="tabScript"></span>
+          <label for="listJS"><img src="../image/js.svg" alt=""></label>
+          <label for="listCSS"><img src="../image/css.svg" alt=""></label>
+          <span class="frame">&nbsp;&nbsp;</span>
+        </h3>
+
         <ul class="tab"></ul>
+
 
         <h3 data-i18n="otherScript"></h3>
         <ul class="other"></ul>
@@ -26,8 +36,8 @@
 
         <div class="flex">
           <button type="button" data-i18n="options"><img src="../image/gear.svg" alt=""> </button>
-          <button type="button" data-i18n="newJS|title">&#x2795;<img src="../image/js.svg" width="16" alt=""></button>
-          <button type="button" data-i18n="newCSS|title">&#x2795;<img src="../image/css.svg" width="16" alt=""></button>
+          <button type="button" data-i18n="newJS|title">&#x2795;<img src="../image/js.svg" alt=""></button>
+          <button type="button" data-i18n="newCSS|title">&#x2795;<img src="../image/css.svg" alt=""></button>
           <button type="button" data-i18n="help"></button>
         </div>
       </section>

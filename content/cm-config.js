@@ -3,7 +3,7 @@
 class Config {
 
   constructor() {
-    
+
     this.lint = this.lint.bind(this);
 
 
@@ -14,7 +14,7 @@ class Config {
     // add to window global for lint & hint fm-javascript.js 132-134
     window.GM = {
       addScript: {}, addStyle: {}, addValueChangeListener: {}, deleteValue: {}, download: {}, fetch: {},
-      getResourceText: {}, getResourceURL: {}, getValue: {}, info: {}, listValues: {}, log: {},
+      getResourceText: {}, getResourceURL: {}, getResourceUrl: {}, getValue: {}, info: {}, listValues: {}, log: {},
       notification: {}, openInTab: {}, popup: {}, registerMenuCommand: {}, removeValueChangeListener: {},
       setClipboard: {}, setValue: {}, unregisterMenuCommand: {}, xmlhttpRequest: {}
     };
@@ -31,7 +31,7 @@ class Config {
 
     this.reportUL = document.querySelector('div.report ul');
     this.reportDefault = this.reportUL.firstElementChild.cloneNode(true);
-    
+
     // CCS Mode
     Object.assign(CodeMirror.mimeModes['text/css'].colorKeywords, {
       'darkgrey': true,
@@ -50,16 +50,17 @@ class Config {
     const js = cm.options.mode === 'javascript';
 
     // ------------- Lint Filter ---------------------------
+    const idx =[];
     annotationsNotSorted.forEach((item, index) => {
 
-      const m = item.message.match(/'(GM_getValue|GM_listValues|GM_getTabs?|GM_saveTab)' is not defined/)
-      
+      const m = item.message.match(/'(GM_getValue|GM_listValues|GM_getTabs?|GM_saveTab|exportFunction|cloneInto)' is not defined/)
+
       switch (true) {
-        
+
         case m && ['GM_getValue', 'GM_listValues'].includes(m[1]):
           item.message = m[1] + ' is partially supported. Read the Help for more information.';
           break;
-                  
+
         case m && ['GM_getTab', 'GM_getTabs', 'GM_saveTab'].includes(m[1]):
           item.message = m[1] + ' is not supported.';
           item.severity = 'error';
@@ -68,16 +69,20 @@ class Config {
         case item.message === '`var` declarations are forbidden. Use `let` or `const` instead.':
           item.message = 'Since ECMAScript 6 (2015), it is recommended to use `let` & `const` instead of `var`.';
           break;
+
+        case m && ['exportFunction', 'cloneInto'].includes(m[1]):
+          idx.push(index);
+          break;
       }
     });
-
+    idx.reverse().forEach(i => annotationsNotSorted.splice(i, 1));
     // ------------- /Lint Filter --------------------------
 
     // ------------- Metadata Block lint -------------------
     const supported = ['@name', '@author', '@description', '@version', '@updateURL', '@match',
           '@matches', '@include', '@exclude', '@exclude-match', '@excludeMatches', '@includeGlobs',
           '@excludeGlobs', '@matchAboutBlank', '@allFrames', '@noframes', '@require', '@resource',
-          '@run-at', '@runAt', '@downloadURL', '@inject-into'];
+          '@run-at', '@runAt', '@downloadURL', '@inject-into', '@compatible'];
 
     const unsupported = ['@namespace', '@grant', '@icon', '@supportURL', '@homepageURL', '@connect', '@unwrap', '@nocompat'];
 
@@ -164,7 +169,7 @@ class Config {
         case prop === '@exclude':
           ch = item.indexOf(value);
           cm.markText({line, ch},{line, ch: ch + value.length}, {
-            className: 'fm-convert', 
+            className: 'fm-convert',
             attributes: {'data-line': line, 'data-index': ch}
           });
           break;
@@ -173,7 +178,7 @@ class Config {
          // cm.replaceRange({line, ch},{line, ch: ch + value.length}, value.replace(/\*\//, '✱✺/'));
           //console.log(value.replace(/\*\//, '∗/'));
           break;
-      
+
 
         case !js || prop !== '@grant': break;
         // all js & grant
