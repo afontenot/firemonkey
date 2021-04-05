@@ -141,7 +141,7 @@
 
           <dt>&#x25b7; Run</dt>
             <dd>Inject the displayed userScript or userCSS (not userStyle) as long as it was not already injected in the tab</dd>
-            <dd style="color: #f30;">&#x26a0;&#xfe0f; UserScript is injected into content context which has more access than userScript context and untrusted code should not be used.</dd>
+            <dd class="warning">UserScript is injected into <code>content</code> context which has more access than <code>userScript</code> context and untrusted code should not be used.</dd>
             <dd class="note">The userScript is injected as plain JavaScript. Its metadata block would not be processed and it has no access to GM API.</dd>
 
           <dt style="color: #f00;">&#x25c1; Undo</dt>
@@ -156,7 +156,7 @@
       <dd>Insert CSS & JavaScript temporarily into the active tab</dd>
       <dd>Scratchpad recalls the last entries for repeated use</dd>
 
-      <dd style="color: #f30;">&#x26a0;&#xfe0f; JavaScript is injected into content context which has more access than userScript context and untrusted code should not be used.</dd>
+      <dd class="warning">JavaScript is injected into <code>content</code> context which has more access than <code>userScript</code> context and untrusted code should not be used.</dd>
 
       <dd>
         <dl>
@@ -3000,10 +3000,17 @@ script.<span class="method">remove</span>();
 
   <h3 id="debugging">Debugging Script & CSS</h3>
   <dl>
-    <dt>JavaScript Compile Errors</dt>
-      <dd>Usually appear in <b>Browser Console</b> (<kbd>Ctrl + Shift + J</kbd>) with a line number and a clickable link to the blob (with some string name)</dd>
-      <dd>Some JavaScript run errors in a page can be checked in <b>Developer Tool</b> (<kbd>F12</kbd>) for the page that the JS is injected into.
-You can check the Console tab.</dd>
+    <dt>JavaScript Compile Errors (Syntax Errors)</dt>
+      <dd>Usually appear in <b>Browser Console</b> (<kbd>Ctrl + Shift + J</kbd>) with a line number and a clickable link to the blob (with some string name) e.g.
+<pre class="error">
+SyntaxError: missing : after property id [Learn More]                 1f0135df-f993-4f26-9127-bc8ffa21951e:18:11</pre></dd>
+
+    <dt>JavaScript Run Errors</dt>
+      <dd>Some JavaScript run errors in a page can be checked in <b>Developer Tool</b> (<kbd>F12</kbd>) for the page that the JS is injected into e.g.
+<pre class="error">
+ReferenceError: assignment to undeclared variable abc [Learn More]    1f0135df-f993-4f26-9127-bc8ffa21951e:18:11
+ReferenceError: abc is not defined[Learn More]                        1f0135df-f993-4f26-9127-bc8ffa21951e:20:11
+</pre></dd>
 
     <dt>View Inserted UserScript</dt>
       <dd>You can see the actual blob JS in <b>Developer Tool</b> (<kbd>F12</kbd>) <b>Debugger</b> tab under <b>user-script://</b> (you may have to refresh the page)</dd>

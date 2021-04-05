@@ -109,6 +109,23 @@ class App {
 
     try { return JSON.parse(str); } catch (e) { return null; }
   }
+
+  // bg & options
+  static async prepareRename(oldName, newName, bg) {
+
+    const oldStore = '_' + oldName;
+    const newStore = '_' + newName;
+
+    if (pref.hasOwnProperty(oldStore)) {                    // move script storage
+
+      const storage = bg ? pref : await browser.storage.local.get(oldStore); // get the latest storage data, bg has the latest
+      pref[newStore] = storage[oldStore];                   // update pref
+      delete pref[oldStore];
+      await browser.storage.local.remove(oldStore);         // delete old script storage
+      await browser.storage.local.set({[newStore]: pref[newStore]}); // set storage under new name
+    }
+    delete pref.content[oldName];
+  }
 }
 
 // ----------------- Parse Metadata Block ------------------
@@ -389,7 +406,7 @@ class Meta {
 
     // --- process TLD
     const TLD = ['.com', '.au', '.br', '.ca', '.ch', '.cn', '.co.uk', '.de', '.es', '.fr',
-                '.in', '.it', '.jp', '.mx', '.nl', '.no', '.pl', '.ru', '.se', '.uk', '.us'];
+       '.in', '.it', '.jp', '.mx', '.nl', '.no', '.pl', '.ru', '.se', '.uk', '.us'];
     const amazon = ['.ca', '.cn', '.co.jp', '.co.uk', '.com', '.com.au', '.com.br', '.com.mx',
       '.com.sg', '.com.tr', '.de', '.es', '.fr', '.in', '.it', '.nl'];
     const ebay = ['.at', '.be', '.ca', '.ch', '.cn', '.co.th', '.co.uk', '.com.au', '.com.cn',
@@ -416,7 +433,7 @@ class Meta {
       '.tk', '.tl', '.tm', '.tn', '.to', '.tt', '.vg', '.vu', '.ws'];
 
 
-    if (/^(https?|file):\/\/[^/]+\.tld\/.*/i.test(p)) {
+    if (/^https?:\/\/[^/]+\.tld\/.*/i.test(p)) {
 
       const plc = p.toLowerCase();
       const index = plc.indexOf('.tld/');
@@ -542,28 +559,34 @@ class RemoteUpdate {
 // ----------------- Match Pattern Check -------------------
 class CheckMatches {
   // bg popup
-  static async process(tabId, bg) {
+  static async process(tabId, tabUrl, bg) {
 
     const frames = await browser.webNavigation.getAllFrames({tabId});
     const urls = [...new Set(frames.map(item => item.url.replace(/#.*/, '').replace(/(:\/\/[^:/]+):\d+/, '$1'))
                                .filter(item => /^(https?|wss?|file|about:blank)/.test(item)))];
     const gExclude = pref.globalScriptExcludeMatches ? pref.globalScriptExcludeMatches.split(/\s+/) : []; // cache the array
 
+    tabUrl = /^(https?|wss?|file|about:blank)/.test(tabUrl) ? tabUrl : null; // Unsupported scheme
+
     // --- background
     if (bg) {
       return Object.keys(pref.content).filter(item =>
-                pref.content[item].enabled && this.get(pref.content[item], urls, gExclude));
+                pref.content[item].enabled && this.get(pref.content[item], tabUrl, urls, gExclude));
     }
 
     // --- popup
     const Tab = [], Other = [];
     Object.keys(pref.content).sort(Intl.Collator().compare).forEach(item =>
-        (this.get(pref.content[item], urls, gExclude) ? Tab : Other).push(item));
+        (this.get(pref.content[item], tabUrl, urls, gExclude) ? Tab : Other).push(item));
     return [Tab, Other, frames];
   }
 
   // here
-  static get(item, urls, gExclude = []) {
+  static get(item, tabUrl, urls, gExclude = []) {
+
+    if (!tabUrl) { return false; }
+
+    if (!item.allFrames) { urls = [tabUrl]; }               // only check main frame
 
     const styleMatches = item.style && item.style[0] ? item.style.flatMap(i => i.matches) : [];
     const userMatches = item.userMatches ? item.userMatches.split(/\s+/) : [];
@@ -639,3 +662,4 @@ class CheckMatches {
   }
 }
 // ----------------- /Match Pattern Check ------------------
+
