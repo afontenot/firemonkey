@@ -128,7 +128,7 @@ class Script {
     this.autoUpdate = document.querySelector('#autoUpdate');
     this.autoUpdate.addEventListener('change', () => this.toggleAutoUpdate());
     Meta.autoUpdate = this.autoUpdate;
-    
+
     this.userRunAt = document.querySelector('#userRunAt');
     this.userRunAt.selectedIndex = 0;                       // browser retains selected on refresh
     Meta.userRunAt = this.userRunAt;
@@ -694,7 +694,6 @@ class Script {
     }
   }
 
-
   newScript(type) {
 
     const box = this.box;
@@ -813,7 +812,7 @@ class Script {
 
     enable.checked = pref.content[id].enabled;
     autoUpdate.checked = pref.content[id].autoUpdate;
-    
+
 
     const text = pref.content[id].js || pref.content[id].css;
     box.value = text;
@@ -999,14 +998,7 @@ class Script {
 
       // --- update new name
       case data.name !== box.id:
-        // remove old registers
-        const oldName = box.id;
-        delete pref.content[oldName];
-        if (pref.hasOwnProperty('_' + oldName)) {           // move script storage
-
-          pref['_' + data.name] = pref['_' + oldName];
-          await browser.storage.local.remove('_' + oldName);
-        }
+        await App.prepareRename(box.id, data.name);
 
         // update old one in menu list & legend
         li.textContent = data.name;
@@ -1059,15 +1051,7 @@ class Script {
     if (data.name !== name) {                               // name has changed
 
       if (pref.content[data.name]) { throw `${name}: Update new name already exists`; } // name already exists
-      else {
-        const oldName = name;
-        delete pref.content[oldName];
-        if (pref.hasOwnProperty('_' + oldName)) {           // move script storage
-
-          pref['_' + data.name] = pref['_' + oldName];
-          await browser.storage.local.remove('_' + oldName);
-        }
-      }
+      else { await App.prepareRename(name, data.name); }
     }
 
     App.notify(chrome.i18n.getMessage('scriptUpdated', data.version), name);
@@ -1134,12 +1118,12 @@ class Script {
       data.userExcludeMatches = pref.content[data.name].userExcludeMatches;
     }
 
-    pref.content[data.name] = data;                           // save to pref
-    this.fileLength--;                                        // one less file to process
-    if(this.fileLength) { return; }                           // not 0 yet
+    pref.content[data.name] = data;                         // save to pref
+    this.fileLength--;                                      // one less file to process
+    if(this.fileLength) { return; }                         // not 0 yet
 
-    this.process();                                     // update page display
-    browser.storage.local.set({content: pref.content});       // update saved pref
+    this.process();                                         // update page display
+    browser.storage.local.set({content: pref.content});     // update saved pref
   }
   // ----------------- /Import Script ----------------------
 

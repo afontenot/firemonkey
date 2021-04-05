@@ -100,7 +100,7 @@ class Popup {
     const tabId = tabs[0].id;                                 // active tab id
     this.url = tabs[0].url;                                   // used in find scripts
 
-    const [Tab, Other, frames] = await CheckMatches.process(tabId);
+    const [Tab, Other, frames] = await CheckMatches.process(tabId, this.url);
     document.querySelector('h3 span.frame').textContent = frames.length; // display frame count
 
     Tab.forEach(item => this.ulTab.appendChild(this.addScript(pref.content[item])));
@@ -262,8 +262,7 @@ class Popup {
     const code = (item.js || item.css).replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'));
     if (!code.trim()) { return; }                           // e.g. in case of userStyle
 
-    browser.tabs[item.js ? 'executeScript' : 'insertCSS']({code})
-    .then(() => {})
+    (item.js ? browser.tabs.executeScript({code}) : browser.tabs.insertCSS({code, cssOrigin: 'user'}))
     .catch(error => App.notify(e.id + ':\n' + chrome.i18n.getMessage('insertError')));
   }
 
@@ -278,10 +277,8 @@ class Popup {
     const code = item.css.replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'));
     if (!code.trim()) { return; }                           // e.g. in case of userStyle
 
-    browser.tabs.removeCSS({code})
-    .then(() => {})
+    browser.tabs.removeCSS({code, cssOrigin: 'user'})
     .catch(error => App.notify(e.id + ':\n' + error.message));
-
   }
 
   // ----------------- Scratchpad --------------------------
@@ -289,9 +286,8 @@ class Popup {
 
     const code = this.js.value.trim();
     if (!code) { return; }
-    localStorage.setItem('scraptchpadJS', code); // save last entry
+    localStorage.setItem('scraptchpadJS', code);            // save last entry
     browser.tabs.executeScript({code})
-    .then(() => {})
     .catch(error => App.notify('JavaScript: ' + chrome.i18n.getMessage('insertError')));
   }
 
@@ -299,9 +295,8 @@ class Popup {
 
     const code = this.css.value.trim();
     if (!code) { return; }
-    localStorage.setItem('scraptchpadCSS', code); // save last entry
-    browser.tabs.insertCSS({code})
-    .then(() => {})
+    localStorage.setItem('scraptchpadCSS', code);           // save last entry
+    browser.tabs.insertCSS({code, cssOrigin: 'user'})
     .catch(error => App.notify('CSS: ' + chrome.i18n.getMessage('insertError')));
   }
 
@@ -309,8 +304,7 @@ class Popup {
 
     const code = this.css.value.trim();
     if (!code) { return; }
-    browser.tabs.removeCSS({code})
-    .then(() => {})
+    browser.tabs.removeCSS({code, cssOrigin: 'user'})
     .catch(error => App.notify('CSS: ' + error.message));
   }
 }
