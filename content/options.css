@@ -796,7 +796,7 @@ section.script {
 .menu details li select {
   color: inherit;
   width: 50%;
-  background: transparent;
+  background: inherit;
   border: 1px solid #ccc;
 }
 

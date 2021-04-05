@@ -65,7 +65,7 @@ class Counter {
 
     if (changeInfo.status !== 'complete') { return; }
 
-    const count = await CheckMatches.process(tabId, true);
+    const count = await CheckMatches.process(tabId, tab.url, true);
     browser.browserAction.setBadgeText({tabId, text: (count[0] ? count.length.toString() : '')});
     browser.browserAction.setTitle({tabId, title: (count[0] ? count.join('\n') : '')});
   }
@@ -413,7 +413,7 @@ class Installer {
     );
 
     // prepare for Andriod, extraParameters not supported on FF for Android
-    !navigator.userAgent.includes('Android') && browser.tabs.onUpdated.addListener(this.directInstall,{
+    !navigator.userAgent.includes('Android') && browser.tabs.onUpdated.addListener(this.directInstall, {
       urls: [ '*://*/*.user.js', '*://*/*.user.css',
               'file:///*.user.js', 'file:///*.user.css' ]
     });
@@ -552,7 +552,7 @@ class Installer {
     !this.cache[0] && browser.storage.local.set({autoUpdateLast: now}); // update saved pref
   }
 
-  processResponse(text, name, updateURL) {                  // from class RU.callback in app.js
+  async processResponse(text, name, updateURL) {            // from class RU.callback in app.js
 
     const userMatches = pref.content[name] ? pref.content[name].userMatches : '';
     const userExcludeMatches = pref.content[name] ? pref.content[name].userExcludeMatches : '';
@@ -573,15 +573,7 @@ class Installer {
     if (pref.content[name] && data.name !== name) {         // name has changed
 
       if (pref.content[data.name]) { throw `${name}: Update new name already exists`; } // name already exists
-      else {
-
-        if (pref['_' + name]) {                             // move storage
-          pref['_' + data.name] = pref['_' + name];
-          delete pref['_' + name];
-          browser.storage.local.remove('_' + name);
-        }
-        delete pref.content[name];
-      }
+      else { await App.prepareRename(name, data.name, true); }
 
       scriptReg.unregister(name);                           // unregister old name
     }
@@ -675,9 +667,8 @@ class API {
 
     const e = message.data;
     const name = message.name;
-    const storage = '_' + name;
-    const hasProperty = (p) => pref[storage] && Object.prototype.hasOwnProperty.call(pref[storage], p);
-    let oldValue;
+    const store = '_' + name;
+    const hasProperty = (p) => pref[store] && Object.prototype.hasOwnProperty.call(pref[store], p);
 
     switch (message.api) {
 
@@ -686,24 +677,21 @@ class API {
         break;
 
       case 'getValue':
-        return Promise.resolve(hasProperty(e.key) ? pref[storage][e.key] : e.defaultValue);
+        return Promise.resolve(hasProperty(e.key) ? pref[store][e.key] : e.defaultValue);
 
       case 'listValues':
-        return Promise.resolve(pref[storage] ? Object.keys(pref[storage]) : []);
+        return Promise.resolve(pref[store] ? Object.keys(pref[store]) : []);
 
       case 'setValue':
-        pref[storage] || (pref[storage] = {});              // make one if didn't exist
-        if (pref[storage][e.key] === e.value) { return true; } // return if value hasn't changed
-        oldValue = pref[storage][e.key];                    // need to cache it due to async processes
-        pref[storage][e.key] = e.value;
-        return browser.storage.local.set({[storage]: pref[storage]}); // Promise with no arguments OR reject with error message
+        pref[store] || (pref[store] = {});                  // make one if didn't exist
+        if (pref[store][e.key] === e.value) { return true; } // return if value hasn't changed
+        pref[store][e.key] = e.value;
+        return browser.storage.local.set({[store]: pref[store]}); // Promise with no arguments OR reject with error message
 
       case 'deleteValue':
         if (!hasProperty(e.key)) { return true; }           // return if nothing to delete
-        oldValue = pref[storage][e.key];                    // need to cache it due to async processes
-        delete pref[storage][e.key];
-        return browser.storage.local.set({[storage]: pref[storage]});
-
+        delete pref[store][e.key];
+        return browser.storage.local.set({[store]: pref[store]});
 
       case 'openInTab':
         browser.tabs.create({url: e.url, active: e.active}); // Promise with tabs.Tab OR reject with error message
@@ -711,7 +699,6 @@ class API {
 
       case 'setClipboard':
         navigator.clipboard.writeText(e.text)               // Promise with ? OR reject with error message
-        .then(() => {})
         .catch(error => App.log(name, `${message.api} ➜ ${error.message}`, 'error'));
         break;
 
@@ -735,7 +722,6 @@ class API {
           saveAs: true,
           conflictAction: 'uniquify'
         })
-        .then(() => {})
         .catch(error => App.log(name, `${message.api} ➜ ${error.message}`, 'error'));  // failed notification
         break;
 

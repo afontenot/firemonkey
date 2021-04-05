@@ -68,11 +68,11 @@ dl.about  {
 dt img, dd img {
   width: 1.2em;
 }
-
+/*
 dt.indent {
   text-indent: 1.5em;
 }
-
+*/
 dt span {
   margin-left: 0.5em;
   color: #777;
@@ -83,6 +83,19 @@ dt span {
 
 dd sup {
   color: #05f;
+}
+
+dd.warning {
+  background-color: #fbf5d7;
+  border-left: 4px solid #e1c542;
+  padding: 0.5em;
+  margin-top: 0.5em;
+  color: #333;
+}
+
+dd.warning::before {
+  content: '\26a0\fe0f';
+  margin-right: 0.3em;
 }
 
 
@@ -358,6 +371,12 @@ pre code.deprecated::after {
   content: '\2639';
   color: #f70;
   font-size: 2.1em;
+}
+
+pre.error {
+  color: #800;
+  background-color: #fff5f5;
+  border-left-color: #800;
 }
 
 figure {
