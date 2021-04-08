@@ -828,13 +828,9 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
     </tr>
 
-    <tr>
-      <th>isolated context <sup>1</sup></th>
-      <td class="pass"></td>
-      <td class="fail"></td>
-      <td class="fail"></td>
-      <td class="fail"></td>
-    </tr>
+    <tr><th>isolated context <sup>1</sup></th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+
+    <tr><th>alter page CSP</th><td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
 
   </tbody>
 </table>
@@ -2463,7 +2459,7 @@ popup.append(div);
 
 <span class="comment">// add content as several nodes (a, b, c, ...)</span>
 <span class="keyword">const</span> input = <span class="property">document</span>.<span class="method">createElement</span>(<span class="string">'input'</span>);
-popup.append(div, p);
+popup.append(div, p, input);
 
 <span class="comment">// add JavaScript if needed</span>
 p.<span class="method">addEventListener</span>(<span class="string">'click'</span>, someFunc);

@@ -59,6 +59,12 @@ class App {
 
     Object.keys(pref).forEach(item =>
       importData.hasOwnProperty(item) && (pref[item] = importData[item])); // update pref with the saved version
+    
+    // import userscript storage
+    Object.keys(importData).forEach(item => {
+      const name = item.startsWith('_') && item.substring(1);
+      if (name && pref.content[name] && pref.content[name].js) { pref[item] = importData[item]; }
+    });
 
     this.callback();                                        // successful import
   }
