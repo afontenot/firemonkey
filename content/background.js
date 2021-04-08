@@ -1,6 +1,8 @@
 ﻿import {pref, App, Meta, RemoteUpdate, CheckMatches} from './app.js';
 const RU = new RemoteUpdate();
 
+const android = navigator.userAgent.includes('Android');
+
 // ----------------- Context Menu --------------------------
 class ContextMenu {
 
@@ -22,7 +24,7 @@ class ContextMenu {
         item.title = item.title || chrome.i18n.getMessage(item.id);  // always use the same ID for i18n
         item.onclick = this.process;
       }
-      !navigator.userAgent.includes('Android') && browser.menus.create(item); // prepare for Andriod
+      browser.menus.create(item); 
     });
   }
 
@@ -41,7 +43,7 @@ class ContextMenu {
     chrome.runtime.openOptionsPage();
   }
 }
-new ContextMenu();
+!android && new ContextMenu();                              // prepare for Andriod
 // ----------------- /Context Menu -------------------------
 
 // ----------------- Script Counter ------------------------
@@ -413,7 +415,7 @@ class Installer {
     );
 
     // prepare for Andriod, extraParameters not supported on FF for Android
-    !navigator.userAgent.includes('Android') && browser.tabs.onUpdated.addListener(this.directInstall, {
+    !android && browser.tabs.onUpdated.addListener(this.directInstall, {
       urls: [ '*://*/*.user.js', '*://*/*.user.css',
               'file:///*.user.js', 'file:///*.user.css' ]
     });
