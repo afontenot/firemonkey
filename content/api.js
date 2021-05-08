@@ -2,23 +2,24 @@
 
   const name = script.metadata.name;
   const resource = script.metadata.resource;
+  const page = script.metadata.injectInto === 'page';
 
   // --------------- Script Storage ------------------------
-  const store = '_' + name;
+  const id = '_' + name;                                    // set id as _name
   let storage = script.metadata.storage;
-  browser.storage.local.get(store).then((result = {}) => storage = result[store] || {});
+  browser.storage.local.get(id).then((result = {}) => storage = result[id].storage);
 
   const cache = {};
   const valueChange = {};
 
   function storageChange(changes, area) {
 
-    if (changes.hasOwnProperty(store)) {
+    if (changes.hasOwnProperty(id)) {
 
-      const oldValue = changes[store].oldValue || {};
-      const newValue = changes[store].newValue || {};
+      const oldValue = changes[id].storage.oldValue || {};
+      const newValue = changes[id].storage.newValue || {};
 
-       // process addValueChangeListener (only for remote) (key, oldValue, newValue, remote)
+      // process addValueChangeListener (only for remote) (key, oldValue, newValue, remote)
       Object.keys(valueChange).forEach(item =>
          oldValue[item] !== newValue[item] &&
           (valueChange[item])(item, oldValue[item], newValue[item], newValue[item] !== cache[item])
@@ -267,6 +268,10 @@
       try {
         const script = document.createElement('script');
         script.textContent = js;
+        if (!page) {
+          script.textContent +=
+            `\n\n//# sourceURL=user-script:FireMonkey/${encodeURI(name)}/GM%20addScript_${Math.random().toString(36).substring(2)}.js`;
+        }
         (document.body || document.head || document.documentElement || document).appendChild(script);
         script.remove();
       } catch(error) { log(`addScript ➜ ${error.message}`, 'error'); }

@@ -4,7 +4,6 @@
   --border: #ddd;
   --color: #000;
   --hover: #eee;
-  --scrollbar: #ddd #f5f5f5;
   --shadow: #0004;
   --nav-bg: #fff;
   --selected-bg: #eeea;
@@ -15,7 +14,7 @@
   --bg2: #ddda;
 
   --nav-height: 2.5em;
-  --nav-menu-width: 15em;
+  --nav-menu-width: 13.5rem;
 }
 
 @media (max-width: 600px) {
@@ -24,12 +23,12 @@
   }
 }
 
+/* ----- Dark Theme ----- */
 body.dark {
   --bg: #444;
   --border: #777;
   --color: #fff;
   --hover: #888;
-  --scrollbar: #888 #222;
   --shadow: #fff8;
   --nav-bg: #000;
   --selected-bg: #555;
@@ -40,6 +39,25 @@ body.dark {
   --bg2: #444;
 }
 
+.dark nav label img,
+.dark .menu span.plus,
+.dark .menu details summary img  {
+  filter: invert(1) grayscale(1);
+}
+
+.dark button[type="submit"]::before {
+  filter: brightness(0.4);
+}
+
+.dark .bin img {
+  filter: grayscale(1) invert(1) contrast(4);
+}
+
+.dark #nav1:checked ~ article,
+.dark #nav2:checked ~ article {
+  background: #aaa;
+}
+/* ----- /Dark Theme ----- */
 
 body {
   color: var(--color);
@@ -94,6 +112,7 @@ section {
   height: calc(100vh - var(--nav-height));
   display: none;
   overflow: auto;
+  transition: padding 0.5s;
 }
 
 iframe {
@@ -231,32 +250,9 @@ button[type="submit"]:active::before {
 }
 /* ----- Progress Bar ----- */
 
-/* ----- Checkbox ----- */
-input[type="checkbox"].control {
-  display: none;
-}
-
-input[type="checkbox"] {
-  background-color: #f9f9fa;
-  border: 2px solid #ddd;
-  border-radius: 2px;
-  -moz-appearance: none; /* FF 35-79 */
-  appearance: none;
-  width: 1.3em;
-  height: 1.3em;
-  cursor: pointer;
-  vertical-align: text-bottom;
-  margin: auto 0.5em auto 0;
-  transition: background-color 0.5s;
-}
-input[type="checkbox"]:checked {
-  background: #409fd6 url("data:image/gif;base64,R0lGODlhCwAKAIABAP////3cnSH5BAEKAAEALAAAAAALAAoAAAIUjH+AC73WHIsw0UCjglraO20PNhYAOw==") center no-repeat;
-  border-color: #409fd6;
-}
-/* ----- /Checkbox ----- */
-
 /* ----- Navigation ----- */
-input[name="nav"] {
+input[name="nav"],
+input[type="checkbox"].control {
   display: none;
 }
 
@@ -321,30 +317,14 @@ nav label a:hover {
 }
 /* ----- /Navigation ----- */
 
-/* ----- Nav Scripts ----- */
-nav details {
-  position: relative;
-  padding: 0;
+/* ----- Aside Scripts ----- */
+#sidebar:checked ~ article {
+  padding-left: calc(var(--nav-menu-width) + 1em);
 }
 
-nav summary {
-  list-style: none;
-  padding: 0.7em;
-  transition: 0.5s;
-  outline: 0;
-}
-
-nav summary img {
-  width: 1em;
-  filter: opacity(0.4);
-}
-
-nav summary:hover, nav details[open] {
-  background: var(--hover);
-}
-
-nav details[open] summary ~ * {
+#sidebar:checked ~ aside {
   animation: slide 0.5s ease-in-out;
+  display: flex;
 }
 
 @keyframes slide {
@@ -352,37 +332,23 @@ nav details[open] summary ~ * {
   100%  { transform: translateX(0); }
 }
 
-nav details > div {
+aside {
   margin: 0;
   padding: 0;
+  font-size: 0.9em;
   width: var(--nav-menu-width);
-  height: calc(100vh - 3em);
+  height: calc(100vh - var(--nav-height));
   position: absolute;
-  top: 3em;
+  top: var(--nav-height);
   left: 0;
   z-index: 10;
   background: var(--nav-bg);
-  box-shadow: 0 4px 10px 0 var(--shadow);
+  /*box-shadow: 0 4px 10px 0 var(--shadow);*/
+  border-right: 1px solid var(--border);
   transition: 0.5s;
-  display: flex;
   flex-direction: column;
+  display: none;
 }
-/**/
-nav details > div::after {
-  content: '';
-  position: absolute;
-  top: -1.5em;
-  left: 0.5em;
-  border-width: 0.8em;
-  border-style: solid;
-  border-color: transparent transparent var(--bg2) transparent;
-}
-
-nav details div div:last-of-type {
-  padding: 0 0.5em;
-  margin-bottom: 0.5em;
-}
-
 
 .list {
   padding: 0.3em 0.5em;
@@ -393,6 +359,7 @@ nav details div div:last-of-type {
 .list label {
   padding: 0;
   border: 0;
+  opacity: 0.5;
 }
 
 .list label img {
@@ -404,45 +371,11 @@ nav details div div:last-of-type {
   filter: grayscale(1);
 }
 
-.list label:nth-of-type(1),
-.list label:nth-of-type(2) {
-  flex: 1.3;
-}
-
-.list label::before {
-  content: '\2611\fe0f';
-  font-size: 0.8em;
-  display: inline-block;
-  margin-right: 0.3em;
-  vertical-align: bottom;
-  transition: 0.5s;
-  filter: opacity(0.5) grayscale(1);
-}
-
-.list.pinMenu {
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-}
-
-.list.pinMenu label::before {
-  margin-right: 0.5em;
-  vertical-align: middle;
-}
-
-#pinMenu:checked ~ nav details summary {
-  pointer-events: none;
-}
-
-#pinMenu:checked ~ article {
-  padding-left: var(--nav-menu-width);
-}
-
-#pinMenu:checked ~ nav div label[for="pinMenu"]::before,
-#listEnable:checked ~ div label[for="listEnable"]::before,
-#listDisable:checked ~ div label[for="listDisable"]::before,
-#listJS:checked ~ div label[for="listJS"]::before,
-#listCSS:checked ~ div label[for="listCSS"]::before {
-  filter: opacity(1) grayscale(0);
+#listEnable:checked ~ div label[for="listEnable"],
+#listDisable:checked ~ div label[for="listDisable"],
+#listJS:checked ~ div label[for="listJS"],
+#listCSS:checked ~ div label[for="listCSS"]{
+  opacity: 1;
 }
 
 #listEnable:not(:checked) ~ ul li:not(.disabled),
@@ -452,22 +385,21 @@ nav details div div:last-of-type {
   display: none;
 }
 
-nav ul {
+aside ul {
   list-style: none;
   padding: 0;
   margin: 0.5em 0;
   overflow: hidden;
   height: 30vh;
   flex-grow: 1;
-  scrollbar-color: var(--scrollbar);
   scrollbar-width: thin;
 }
 
-nav ul:hover {
+aside ul:hover {
   overflow-y: auto;
 }
 
-nav li {
+aside li {
   font-size: 0.8em;
   transition: 0.5s;
   cursor: pointer;
@@ -478,16 +410,16 @@ nav li {
   padding-left: 0.5em;
 }
 
-nav li:hover {
+aside li:hover {
   background: var(--hover);
 }
 
-nav li.on {
+aside li.on {
   background-color: var(--selected-bg);
   border-color: var(--selected-border);
 }
 
-nav li.error::after {
+aside li.error::after {
   content: '\2718';
   font-weight: 900;
   display: inline-block;
@@ -496,7 +428,7 @@ nav li.error::after {
   color: #f80;
 }
 
-nav li::before {
+aside li::before {
   content: '';
   width: 16px;
   height: 16px;
@@ -505,38 +437,41 @@ nav li::before {
   margin-right: 0.5em;
 }
 
-nav li.disabled {
+aside li.disabled {
   opacity: 0.5;
 }
 
-nav li.disabled::before {
+aside li.disabled::before {
   filter: grayscale(1);
 }
 
-nav li.js::before {
+aside li.js::before {
   background: url('../image/js.svg');
 }
 
-nav li.css::before {
+aside li.css::before {
   background: url('../image/css.svg');
 }
 
+aside div:last-of-type {
+  padding: 0.5em;
+}
 
-nav div button.flat, nav div label.flat {
+aside div label.flat,
+aside div button.flat {
   padding: 0.3em;
   font-size: 0.8em;
 }
-
 /* ----- Counter ----- */
-nav ul {
+aside ul {
   counter-reset: n;
 }
 
-nav li {
+aside li {
   counter-increment: n;
 }
 
-nav ul + div {
+aside ul + div {
   font-size: 0.8em;
   text-align: right;
   position: absolute;
@@ -545,18 +480,13 @@ nav ul + div {
   opacity: 0.5;
 }
 
-nav ul + div::after {
+aside ul + div::after {
   content: counter(n);
 }
 /* ----- /Counter ----- */
-/* ----- /Nav Scripts ----- */
+/* ----- /Aside Scripts ----- */
 
 /* ----- Options ----- */
-section.options {
-  max-width: 70em;
-  margin: 0 auto;
-}
-
 .options fieldset {
   background: var(--nav-bg);
   border-radius: 10px;
@@ -657,6 +587,19 @@ img.bin {
 img.bin:hover {
   filter: opacity(1) grayscale(0);
 }
+
+
+button.bin {
+  width: 2em;
+  padding: 0.5em;
+}
+
+
+
+
+
+
+
 /* ----- /Options ----- */
 
 /* ----- Scripts ----- */
@@ -680,7 +623,7 @@ section.script {
 .menu > button {
   color: inherit;
   background-color: transparent;
-  padding: 0.4em 0.2em;
+  padding: 0.4em 0.6em;
   font-size: 0.8em;
   text-align: center;
   border: 0;
@@ -695,6 +638,28 @@ section.script {
   background: var(--hover);
 }
 
+.menu > button[data-i18n^="new"] {
+  min-width: unset;
+}
+
+.menu > button img {
+  width: 1.3em;
+}
+
+button.bin {
+  min-width: 3em;
+  margin-left: 0.5em;
+}
+
+button.bin img {
+  width: 1.6em;
+  transition: 0.5s;
+  filter: opacity(0.4) grayscale(1);
+}
+
+button.bin:hover img {
+  filter: opacity(1) grayscale(0);
+}
 /* --- menu popup --- */
 .menu details {
   position: relative;
@@ -824,7 +789,6 @@ section.script {
 .menu div.report ul {
   max-height: 70vh;
   overflow: auto;
-  scrollbar-color: var(--scrollbar);
   scrollbar-width: thin;
 }
 
@@ -966,25 +930,3 @@ footer {
   font-size: 0.7em;
 }
 /* ----- /log ----- */
-
-/* ----- Dark Theme ----- */
-.dark nav label a img,
-.dark nav details summary img,
-.dark .menu li span.plus,
-.dark .menu details summary img  {
-  filter: invert(1);
-}
-
-.dark button[type="submit"]::before {
-  filter: brightness(0.4);
-}
-
-.dark .bin {
-  filter: grayscale(1) invert(1) contrast(4);
-}
-
-.dark #nav1:checked ~ article,
-.dark #nav2:checked ~ article {
-  background: #aaa;
-}
-/* ----- /Dark Theme ----- */

@@ -30,7 +30,6 @@ class Options {
     window.addEventListener('storage', (e) => {
       if (e.key === 'nav') { this.getNav(e.newValue); }
       else if (e.key === 'log') { showLog.update(e.newValue); }
-      else if (e.key.startsWith('enable-')) { script.getEnable(e); }
     });
   }
 
@@ -64,10 +63,9 @@ class Options {
         return;
       }
       // remove disallowed
-      Object.keys(cmOptions).forEach(item =>
-                ['lint', 'mode'].includes(item) && delete cmOptions[item]);
-      cmOptions.jshint && Object.keys(cmOptions.jshint).forEach(item =>
-                ['globals'].includes(item) && delete cmOptions.jshint[item]);
+      delete cmOptions.lint;
+      delete cmOptions.mode;
+      cmOptions.jshint && delete cmOptions.jshint.globals;
       cmOptionsNode.value = JSON.stringify(cmOptions, null, 2); // reset value with allowed options
     }
     // --- progress bar
@@ -116,7 +114,7 @@ class Script {
 
     this.docfrag = document.createDocumentFragment();
     this.liTemplate = document.createElement('li');
-    this.navUL = document.querySelector('nav ul');
+    this.navUL = document.querySelector('aside ul');
     this.legend = document.querySelector('.script legend');
     this.box = document.querySelector('.script .box');
     this.box.value = '';                                    // browser retains textarea content on refresh
@@ -138,10 +136,8 @@ class Script {
     this.userExcludeMatches = document.querySelector('#userExcludeMatches');
     this.userExcludeMatches.value = '';
 
-    document.querySelectorAll('.script button[type="button"][data-i18n], .script li.button, nav button[type="button"][data-i18n]').forEach(item =>
+    document.querySelectorAll('.script button, .script li.button, aside button').forEach(item =>
       item.addEventListener('click', e => this.processButtons(e)));
-
-    document.querySelector('.script .bin').addEventListener('click', () => this.deleteScript());
 
     window.addEventListener('beforeunload', () => {
       this.unsavedChanges() ? event.preventDefault() : this.box.value = '';
@@ -183,9 +179,6 @@ class Script {
       item.addEventListener('focus', () => divUser.classList.toggle('expand', true));
     });
 
-    // --- i18n
-    this.lang = navigator.language;
-
     // --- CodeMirror & Theme
     this.cm;
     this.footer = document.querySelector('footer');
@@ -214,7 +207,7 @@ class Script {
     // --- color picker
     this.inputColor = document.querySelector('.script input[type="color"]');
     this.inputColor.addEventListener('change', (e) => this.changeColor());
-
+/*
     // --- pinnned menu
     const pinMenu = document.querySelector('#pinMenu');
     pinMenu.checked = localStorage.getItem('pinMenu') !== 'false'; // defaults to pinned
@@ -223,6 +216,30 @@ class Script {
     pinMenu.addEventListener('change', (e) => localStorage.setItem('pinMenu', pinMenu.checked));
     document.body.addEventListener('click', (e) =>
       !navDetails.contains(e.explicitOriginalTarget) && !pinMenu.checked && (navDetails.open = false));
+*/
+    // --- script storage changes
+    chrome.storage.onChanged.addListener((changes, area) => { // Change Listener
+
+      Object.keys(changes).forEach(item => {
+
+        pref[item] = changes[item].newValue;                // update pref with the saved version
+
+        if (!item.startsWith('_')) { return; }              // skip
+
+        const id = item;
+        const oldValue = changes[item].oldValue;
+        const newValue = changes[item].newValue;
+
+        if (oldValue && newValue && newValue.enabled !== oldValue.enabled) { // if enabled/disabled
+          const li = document.getElementById(id);
+          li && li.classList.toggle('disabled', !newValue.enabled);
+          if (id === this.box.id) {
+            this.legend.classList.toggle('disabled', !newValue.enabled);
+            this.enable.checked = newValue.enabled;
+          }
+        }
+      });
+    });
   }
 
   addTheme(dark) {
@@ -262,7 +279,7 @@ class Script {
           GM_registerMenuCommand: false, GM_removeValueChangeListener: false, GM_setClipboard: false,
           GM_setValue: false, GM_unregisterMenuCommand: false, GM_xmlhttpRequest: false, unsafeWindow: false
         },
-        jquery: js && !!this.box.id && (pref.content[this.box.id].require || []).some(item => /lib\/jquery-\d/.test(item)),
+        jquery: js && !!this.box.id && (pref[this.box.id].require || []).some(item => /lib\/jquery-\d/.test(item)),
         latedef: 'nofunc',
         leanswitch: true,
         maxerr: 100,
@@ -308,7 +325,7 @@ class Script {
     const cmOptions = App.JSONparse(pref.cmOptions) || {};
     Object.keys(cmOptions).forEach(item => !['jshint', 'extraKeys'].includes(item) && (options[item] = cmOptions[item]));
     cmOptions.jshint && Object.keys(cmOptions.jshint).forEach(item => jshint[item] = cmOptions.jshint[item]);
-    cmOptions.extraKeys && Object.keys(cmOptions.extraKeys).forEach(item => extraKeys[item] = cmOptions.extraKeys[item]);
+    cmOptions.extraKeys && Object.keys(cmOptions.extraKeys).forEach(item => options.extraKeys[item] = cmOptions.extraKeys[item]);
     // use Tab instead of spaces
     if (cmOptions.indentWithTabs) {
       delete cmOptions.extraKeys.Tab;
@@ -398,6 +415,7 @@ class Script {
 
     return color.split('').map(hex => hex+hex).join('').substring(1);
   }
+
   hex6to3(color) {
 
     const m = color.match(/#(.)\1(.)\2(.)\3/);
@@ -649,8 +667,9 @@ class Script {
 
       case 'saveScript': return this.saveScript();
       case 'update': return this.updateScript();
-      case 'newJS': return this.newScript('js');
-      case 'newCSS': return this.newScript('css');
+      case 'delete|title': return this.deleteScript();
+      case 'newJS': case 'newJS|title': return this.newScript('js');
+      case 'newCSS': case 'newCSS|title': return this.newScript('css');
       case 'saveTemplate': return this.saveTemplate();
       case 'export': return this.exportScript();
       case 'exportAll': return this.exportScriptAll();
@@ -700,7 +719,7 @@ class Script {
     const legend = this.legend;
     this.enable.checked = true;
 
-    const last = document.querySelector('nav li.on');
+    const last = document.querySelector('aside li.on');
     last && last.classList.remove('on');
 
     this.cm && this.cm.save();                              // save CodeMirror to textarea
@@ -722,7 +741,6 @@ class Script {
   saveTemplate() {
 
     this.cm && this.cm.save();                              // save CodeMirror to textarea
-    const box = this.box;
     const text = this.box.value;
     const metaData = text.match(Meta.regEx);
 
@@ -736,7 +754,7 @@ class Script {
 
     this.navUL.textContent = '';                            // clear data
 
-    Object.keys(pref.content).sort(Intl.Collator().compare).forEach(item => this.addScript(pref.content[item]));
+    App.getIds().sort(Intl.Collator().compare).forEach(item => this.addScript(pref[item]));
     this.navUL.appendChild(this.docfrag);
 
     if (this.box.id) {                                      // refresh previously loaded content
@@ -753,7 +771,7 @@ class Script {
     item.enabled || li.classList.add('disabled');
     item.error && li.classList.add('error');
     li.textContent = item.name;
-    li.id = item.name;
+    li.id = '_' + item.name;
     this.docfrag.appendChild(li);
     li.addEventListener('click', e => this.showScript(e));
   }
@@ -761,17 +779,16 @@ class Script {
   showScript(e) {
 
     const box = this.box;
-
     const li = e.target;
     li.classList.add('on');
-    if (e.ctrlKey) { return; }
-    else if (e.shiftKey) {
 
+    // --- multi-select
+    if (e.ctrlKey) { return; }                              // Ctrl multi-select
+    else if (e.shiftKey) {                                  // Shift multi-select
       if (!box.id) { return; }
       window.getSelection().removeAllRanges();
       let st = false, end = false;
-      document.querySelectorAll('nav li').forEach(item => {
-
+      document.querySelectorAll('aside li').forEach(item => {
         const stEnd = item === li || item.id === box.id;
         if (!st && stEnd) { st = true; }
         else if (st && stEnd) { end = true; }
@@ -780,13 +797,8 @@ class Script {
       return;
     }
 
-    // reset others
-    document.querySelectorAll('nav li.on').forEach(item => item !== li && item.classList.remove('on'));
-
-
-    const legend = this.legend;
-    const enable = this.enable;
-    const autoUpdate = this.autoUpdate;
+    // --- reset others
+    document.querySelectorAll('aside li.on').forEach(item => item !== li && item.classList.remove('on'));
 
     // --- if showing another page
     document.getElementById('nav4').checked = true;
@@ -800,35 +812,26 @@ class Script {
 
     const id = li.id;
     box.id = id;
-    legend.textContent = '';
-    legend.className = li.classList.contains('js') ? 'js' : 'css';
-    pref.content[id].enabled || legend.classList.add('disabled');
-    legend.textContent = id;
-    if (pref.content[id].i18n.name[this.lang] && pref.content[id].i18n.name[this.lang] !== id) { // i18n if different
+    this.legend.textContent = pref[id].name;
+    this.legend.className = li.classList.contains('js') ? 'js' : 'css';
+    pref[id].enabled || this.legend.classList.add('disabled');
+
+    // --- i18n
+    const i18nName = pref[id].i18n.name[navigator.language];
+    if (i18nName && i18nName !== id) {                      // i18n if different
       const sp = document.createElement('span');
-      sp.textContent =  pref.content[id].i18n.name[this.lang];
-      legend.appendChild(sp);
+      sp.textContent =  i18nName;
+      this.legend.appendChild(sp);
     }
 
-    enable.checked = pref.content[id].enabled;
-    autoUpdate.checked = pref.content[id].autoUpdate;
-
-
-    const text = pref.content[id].js || pref.content[id].css;
-    box.value = text;
-
-
-    if (pref.content[id].error) {
-      App.notify(pref.content[id].error, id);
-    }
-
-    if (pref.content[id].antifeatures[0]) {
-      this.legend.classList.add('antifeature');
-    }
-
-    this.userRunAt.value = pref.content[id].userRunAt || '';
-    this.userMatches.value = pref.content[id].userMatches || '';
-    this.userExcludeMatches.value = pref.content[id].userExcludeMatches || '';
+    this.enable.checked = pref[id].enabled;
+    this.autoUpdate.checked = pref[id].autoUpdate;
+    box.value = pref[id].js || pref[id].css;
+    pref[id].error && App.notify(pref[id].error, id);
+    pref[id].antifeatures[0] && this.legend.classList.add('antifeature');
+    this.userRunAt.value = pref[id].userRunAt || '';
+    this.userMatches.value = pref[id].userMatches || '';
+    this.userExcludeMatches.value = pref[id].userExcludeMatches || '';
 
     // --- CodeMirror
     this.setCodeMirror();
@@ -848,9 +851,9 @@ class Script {
       case !text:
       case !box.id && text === this.noSpace(pref.template.js || this.template.js):
       case !box.id && text === this.noSpace(pref.template.css || this.template.css):
-      case  box.id && text === this.noSpace(pref.content[box.id].js + pref.content[box.id].css) &&
-              this.userMatches.value.trim() === (pref.content[box.id].userMatches || '') &&
-              this.userExcludeMatches.value.trim() === (pref.content[box.id].userExcludeMatches || ''):
+      case  box.id && text === this.noSpace(pref[box.id].js + pref[box.id].css) &&
+              this.userMatches.value.trim() === (pref[box.id].userMatches || '') &&
+              this.userExcludeMatches.value.trim() === (pref[box.id].userExcludeMatches || ''):
 
         return false;
 
@@ -861,73 +864,67 @@ class Script {
 
   toggleEnable() {
 
-    const box = this.box;
-    const enable = this.enable;
+    const enabled = this.enable.checked;
 
-    const multi = document.querySelectorAll('nav li.on');
+    const multi = document.querySelectorAll('aside li.on');
     if (!multi[0]) { return; }
 
+    this.box.id && this.legend.classList.toggle('disabled', !enabled);
+
+    const obj = {};
     multi.forEach(item => {
-      pref.content[item.id].enabled = enable.checked;
-      item.classList.toggle('disabled', !enable.checked);
+      pref[item.id].enabled = enabled;
+      item.classList.toggle('disabled', !enabled);
+      obj[item.id] = pref[item.id];
     });
 
-    box.id && this.legend.classList.toggle('disabled', !enable.checked);
-
-    browser.storage.local.set({content: pref.content});     // update saved pref
+    browser.storage.local.set(obj);                         // update saved pref
   }
 
   toggleAutoUpdate() {
 
-    const box = this.box;
-    const autoUpdate = this.autoUpdate;
+    const id = this.box.id;
+    if (!id) { return; }
 
-    if (!box.id) { return; }
-
-    const id = box.id;
-    const canUpdate = pref.content[id].updateURL && pref.content[id].version;
-    pref.content[id].autoUpdate = canUpdate ? autoUpdate.checked : false;
-    if (!canUpdate) {
+    if (pref[id].updateURL && pref[id].version) {
+      pref[id].autoUpdate = this.autoUpdate.checked;
+    }
+    else {
       App.notify(chrome.i18n.getMessage('updateUrlError'));
-      autoUpdate.checked = false;
+      this.autoUpdate.checked = false;
       return;
     }
 
-    browser.storage.local.set({content: pref.content});     // update saved pref
+    browser.storage.local.set({[id]: pref[id]});            // update saved pref
   }
-
 
   deleteScript() {
 
     const box = this.box;
-    const legend = this.legend;
 
-    const multi = document.querySelectorAll('nav li.on');
+    const multi = document.querySelectorAll('aside li.on');
     if (!multi[0]) { return; }
 
     if (multi.length > 1 ? !confirm(chrome.i18n.getMessage('deleteMultiConfirm', multi.length)) :
-        !confirm(chrome.i18n.getMessage('deleteConfirm', box.id))) { return; }
+        !confirm(chrome.i18n.getMessage('deleteConfirm', box.id.substring(1)))) { return; }
 
     const deleted = [];
     multi.forEach(item => {
-
       const id = item.id;
       item.remove();                                        // remove from menu list
-      delete pref.content[id];
-      delete pref.content['_' + id];                        // delete storage
-      deleted.push('_' + id);
+      delete pref[id];
+      deleted.push(id);
     });
 
-    browser.storage.local.remove(deleted);                  // delete storage
-    browser.storage.local.set({content: pref.content});     // update saved pref
+    browser.storage.local.remove(deleted);                  // delete script
 
     // --- reset box
     if (this.cm) {                                          // reset CodeMirror
       this.cm.setValue('');
       this.cm.toTextArea();
     }
-    legend.className = '';
-    legend.textContent = chrome.i18n.getMessage('script');
+    this.legend.className = '';
+    this.legend.textContent = chrome.i18n.getMessage('script');
     box.id = '';
     box.value = '';
   }
@@ -935,7 +932,6 @@ class Script {
   async saveScript() {
 
     const box = this.box;
-    const legend = this.legend;
     this.cm && this.cm.save();                              // save CodeMirror to textarea
 
     // --- check User Matches User Exclude Matches
@@ -943,10 +939,7 @@ class Script {
     if(!Pattern.validate(this.userExcludeMatches)) { return; }
 
     // --- chcek meta data
-    let text;
-    text = box.value;
-
-    const data = Meta.get(text.trim(), this.userMatches.value, this.userExcludeMatches.value);
+    const data = Meta.get(box.value.trim(), this.userMatches.value, this.userExcludeMatches.value);
     if (!data) { throw 'Meta Data Error'; }
     else if (data.error) {
       App.notify(chrome.i18n.getMessage('metaError'));
@@ -958,58 +951,58 @@ class Script {
       App.notify(chrome.i18n.getMessage('noNameError'));
       return;
     }
-    if (data.name !== box.id && pref.content[data.name] &&
-              !confirm(chrome.i18n.getMessage('nameError'))) { return; }
 
     // --- check matches
     if (!data.matches[0] && !data.includeGlobs[0] && !data.style[0]) {
       data.enabled = false;                                 // allow no matches but disable
     }
 
-    // --- check for Web Install, set install URL
-    if (!data.updateURL && pref.content[data.name] &&
-        (pref.content[data.name].updateURL.startsWith('https://greasyfork.org/scripts/') ||
-          pref.content[data.name].updateURL.startsWith('https://openuserjs.org/install/') ||
-          pref.content[data.name].updateURL.startsWith('https://userstyles.org/styles/'))
-        ) {
-      data.updateURL = pref.content[data.name].updateURL;
-      data.autoUpdate = true;
+    const id = '_' + data.name;                             // set id as _name
+
+    if (!box.id) {                                          // new script
+      this.addScript(data);
+      const index = [...this.navUL.children].findIndex(item => Intl.Collator().compare(item.id, id) > 0);
+      index !== -1 ? this.navUL.insertBefore(this.docfrag, this.navUL.children[index]) : this.navUL.appendChild(this.docfrag);
+      this.navUL.children[index !== -1 ? index : 0].classList.toggle('on', true);
+    }
+    else {                                                  // existing script
+      // --- check type conversion UserStyle to UserCSS & vice versa
+      if (pref[box.id].style[0]) {
+        pref[box.id].enabled = false;                       // disable old one to force unregister old one
+        await browser.storage.local.set({[box.id]: pref[box.id]}); // update saved pref
+      }
+
+      // --- name change
+      if (id !== box.id) {
+        if (pref[id] && !confirm(chrome.i18n.getMessage('nameError'))) { return; }
+
+        pref[id] = pref[box.id];                            // copy to new id
+        delete pref[box.id];                                // delete old id
+        browser.storage.local.remove(box.id);               // dremove old data
+      }
+
+      // --- copy storage to data
+      data.storage = pref[id].storage;
+
+      // --- check for Web Install, set install URL
+      if (!data.updateURL && App.allowedHost(pref[id].updateURL)) {
+        data.updateURL = pref[id].updateURL;
+        data.autoUpdate = true;
+      }
+
+      // --- update menu list
+      const li = document.querySelector('aside li.on');
+      li.classList.remove('error');                         // reset error
+      li.textContent = data.name;
+      li.id = id;
     }
 
-    // --- check type conversion UserStyle to UserCSS & vice versa
-    if (pref.content[data.name] && pref.content[data.name].style[0]) {
-      pref.content[data.name].enabled = false;              // diable old one to force unregister old one
-      await browser.storage.local.set({content: pref.content}); // update saved pref
-    }
+    // --- update box & legend
+    box.id = id;
+    this.legend.textContent = data.name;
 
-    pref.content[data.name] = data;                         // save to pref
-    const li = document.querySelector('nav li.on');
-    li && li.classList.remove('error');                     // reset error
-
-    switch (true) {
-
-      // --- new script
-      case !box.id:
-        this.addScript(data);
-        const index = [...this.navUL.children].findIndex(item => Intl.Collator().compare(item.id, data.name) > 0);
-        index !== -1 ? this.navUL.insertBefore(this.docfrag, this.navUL.children[index]) : this.navUL.appendChild(this.docfrag);
-        this.navUL.children[index !== -1 ? index : 0].classList.toggle('on', true);
-        break;
-
-      // --- update new name
-      case data.name !== box.id:
-        await App.prepareRename(box.id, data.name);
-
-        // update old one in menu list & legend
-        li.textContent = data.name;
-        li.id = data.name;
-        break;
-    }
-
-    box.id = data.name;
-    legend.textContent = data.name;
-
-    browser.storage.local.set({content: pref.content});     // update saved pref
+    pref[id] = data;                                        // save to pref
+    browser.storage.local.set({[id]: pref[id]});            // update saved pref
 
     // --- progress bar
     options.progressBar();
@@ -1023,12 +1016,12 @@ class Script {
 
     const id = box.id;
 
-    if (!pref.content[id].updateURL || !pref.content[id].version) {
+    if (!pref[id].updateURL || !pref[id].version) {
       App.notify(chrome.i18n.getMessage('updateUrlError'));
       return;
     }
 
-    RU.getUpdate(pref.content[id], true);                   // to class RemoteUpdate in common.js
+    RU.getUpdate(pref[id], true);                           // to class RemoteUpdate in common.js
   }
 
   async processResponse(text, name, updateURL) {            // from class RemoteUpdate in common.js
@@ -1036,30 +1029,35 @@ class Script {
     const data = Meta.get(text);
     if (!data) { throw `${name}: Update Meta Data error`; }
 
+    const id = '_' + data.name;                             // set id as _name
+
+    // --- check name
+    if (data.name !== name) {                               // name has changed
+      if (pref[id]) { throw `${name}: Update new name already exists`; } // name already exists
+      else { await App.rename(name, data.name); }
+    }
+
     // --- check version
-    if (!RU.higherVersion(data.version, pref.content[name].version)) {
+    if (!RU.higherVersion(data.version, pref[id].version)) {
       App.notify(chrome.i18n.getMessage('noNewUpdate'), name);
       return;
     }
 
+    // ---  log message to display in Options -> Log
+    App.log(data.name, `Updated version ${pref[id].version} to ${data.version}`);
+
     // --- update from previous version
-    data.updateURL = pref.content[name].updateURL
-    data.enabled = pref.content[name].enabled;
-    data.autoUpdate = pref.content[name].autoUpdate;
-
-    // --- check name
-    if (data.name !== name) {                               // name has changed
-
-      if (pref.content[data.name]) { throw `${name}: Update new name already exists`; } // name already exists
-      else { await App.prepareRename(name, data.name); }
-    }
+    data.updateURL = pref[id].updateURL;
+    data.enabled = pref[id].enabled;
+    data.autoUpdate = pref[id].autoUpdate;
 
     App.notify(chrome.i18n.getMessage('scriptUpdated', data.version), name);
-    pref.content[data.name] = data;                         // save to pref
-    browser.storage.local.set({content: pref.content});     // update saved pref
+    pref[id] = data;                                        // save to pref
+    browser.storage.local.set({[id]: pref[id]});            // update saved pref
 
     this.process();                                         // update page display
-    const on = document.getElementById(data.name);
+    this.box.value = '';                                    // clear box avoid unsavedChanges warning
+    const on = document.getElementById(id);
     on && on.click();                                       // reload the new script
   }
 
@@ -1073,6 +1071,7 @@ class Script {
     }
 
     this.fileLength = e.target.files.length;
+    this.obj = {};
 
     [...e.target.files].forEach(file => {
 
@@ -1101,29 +1100,33 @@ class Script {
       return;
     }
 
+    let id = '_' + data.name;                             // set id as _name
+
     // --- check name
-    if (pref.content[data.name]) {
+    if (pref[id]) {
 
       const dataType = data.js ? 'js' : 'css';
-      const targetType = pref.content[data.name].js ? 'js' : 'css';
+      const targetType = pref[id].js ? 'js' : 'css';
       if (dataType !== targetType) { // same name exist in another type
         data.name += ` (${dataType})`;
-        if (pref.content[data.name]) { throw `${data.name}: Update new name already exists`; } // name already exists
+        id = '_' + data.name;
+        if (pref[id]) { throw `${data.name}: Update new name already exists`; } // name already exists
       }
 
       // --- update/import from previous version
-      data.enabled = pref.content[data.name].enabled;
-      data.autoUpdate = pref.content[data.name].autoUpdate;
-      data.userMatches = pref.content[data.name].userMatches;
-      data.userExcludeMatches = pref.content[data.name].userExcludeMatches;
+      data.enabled = pref[id].enabled;
+      data.autoUpdate = pref[id].autoUpdate;
+      data.userMatches = pref[id].userMatches;
+      data.userExcludeMatches = pref[id].userExcludeMatches;
     }
 
-    pref.content[data.name] = data;                         // save to pref
+    pref[id] = data;                                        // save to pref
+    obj[id] = pref[id];
     this.fileLength--;                                      // one less file to process
     if(this.fileLength) { return; }                         // not 0 yet
 
     this.process();                                         // update page display
-    browser.storage.local.set({content: pref.content});     // update saved pref
+    browser.storage.local.set(this.obj);                    // update saved pref
   }
   // ----------------- /Import Script ----------------------
 
@@ -1145,6 +1148,8 @@ class Script {
       App.notify(chrome.i18n.getMessage('fileParseError'));           // display the error
       return;
     }
+
+    const obj = {};
 
     importData.forEach(item => {
 
@@ -1179,12 +1184,14 @@ class Script {
 
       const data = Meta.get(text);
       data.enabled = item.enabled;
-      if (pref.content[data.name]) { data.name += ' (Stylus)'; }
-      pref.content[data.name] = data;                       // save to pref
+      if (pref['_' + data.name]) { data.name += ' (Stylus)'; }
+      const id = '_' + data.name;                           // set id as _name
+      pref[id] = data;                                      // save to pref
+      obj[id] = pref[id];
     });
 
     this.process();                                         // update page display
-    browser.storage.local.set({content: pref.content});     // update saved pref
+    browser.storage.local.set(obj);                         // update saved pref
   }
   // ----------------- /Import Stylus ----------------------
 
@@ -1194,28 +1201,28 @@ class Script {
     if (!this.box.id) { return; }
 
     const id = this.box.id;
-    const ext = pref.content[id].js ? '.js' : '.css';
-    const data = pref.content[id].js || pref.content[id].css;
-    this.export(data, ext, id);
+    const ext = pref[id].js ? '.js' : '.css';
+    const data = pref[id].js || pref[id].css;
+    this.export(data, ext, pref[id].name);
   }
 
   exportScriptAll() {
 
-    const multi = document.querySelectorAll('nav li.on');
-    const target = multi.length > 1 ? [...multi].map(item => item.id) : Object.keys(pref.content);
+    const multi = document.querySelectorAll('aside li.on');
+    const target = multi.length > 1 ? [...multi].map(item => item.id) : App.getIds();
     target.forEach(id => {
 
-      const ext = pref.content[id].js ? '.js' : '.css';
-      const data = pref.content[id].js || pref.content[id].css;
-      this.export(data, ext, id, 'FireMonkey_' + new Date().toISOString().substring(0, 10) + '/', false);
+      const ext = pref[id].js ? '.js' : '.css';
+      const data = pref[id].js || pref[id].css;
+      this.export(data, ext, pref[id].name, 'FireMonkey_' + new Date().toISOString().substring(0, 10) + '/', false);
     });
   }
 
-  export(data, ext, id, folder = '', saveAs = true) {
+  export(data, ext, name, folder = '', saveAs = true) {
 
     navigator.userAgent.includes('Windows') && (data = data.replace(/\r?\n/g, '\r\n'));
     const blob = new Blob([data], {type : 'text/plain;charset=utf-8'});
-    const filename = folder + id.replace(/[<>:"/\\|?*]/g, '') + '.user' + ext; // removing disallowed characters
+    const filename = folder + name.replace(/[<>:"/\\|?*]/g, '') + '.user' + ext; // removing disallowed characters
 
     chrome.downloads.download({
       url: URL.createObjectURL(blob),
@@ -1223,16 +1230,6 @@ class Script {
       saveAs,
       conflictAction: 'uniquify'
     });
-  }
-
-  getEnable(e) {
-    const id = e.key.substring(7);
-    const value = e.newValue === 'true';
-    pref.content[id].enabled = value;
-    this.box.id === id && (this.enable.checked = value);
-    const li = document.getElementById(id);
-    li && li.classList.toggle('disabled', !value);
-    localStorage.removeItem(e.key);
   }
 }
 const script = new Script();
@@ -1242,7 +1239,6 @@ App.importExport(() => {
 
   options.process();                                        // set options after the pref update
   script.process();                                         // update page display
-  chrome.storage.local.set(pref);                           // update saved pref
 });
 // ----------------- /Import/Export Preferences ------------
 
@@ -1295,7 +1291,7 @@ class Pattern {
       case scheme !== 'file' && host.includes(':'): return 'Host must not include a port number';
       case scheme !== 'file' && !path && host === '*': return 'Empty path: this should be "*://*/*"';
       case scheme !== 'file' && !path && !pattern.endsWith('/'): return 'Pattern must include trailing slash';
-      case scheme !== 'file' && host[0] === '*' && host[1] !== '.': return '"*" in host must be the only character or be followed by "."'
+      case scheme !== 'file' && host[0] === '*' && host[1] !== '.': return '"*" in host must be the only character or be followed by "."';
       case host.substring(1).includes('*'): return '"*" in host must be at the start';
     }
     return false;
@@ -1332,7 +1328,6 @@ class ShowLog {
       td[2].textContent = message;
       this.tbody.insertBefore(tr, this.tbody.firstElementChild); // in reverse order, new on top
     });
-
   }
 
   update(newLog) {

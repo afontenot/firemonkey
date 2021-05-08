@@ -50,7 +50,7 @@
   "userMatchesExcludeMatches": {
     "message": "User Matches & Exclude Matches"
   },
-  "pinMenu": { "message": "Pin Menu" },
+  "sidebar": { "message": "Sidebar" },
   "script": {
     "message": "指令稿與 CSS"
   },
@@ -198,14 +198,8 @@
   "cmOptionsError": {
     "message": "Invalid CodeMirror JSON"
   },
-  "localeMaker": {
-    "message": "Locale Maker"
-  },
   "about": {
     "message": "關於"
-  },
-  "amo": {
-    "message": "Firefox 在某些 URL 上限制了某些功能"
   },
   "error": {
     "message": "操作發生錯誤"

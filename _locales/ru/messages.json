@@ -50,7 +50,7 @@
   "userMatchesExcludeMatches": {
     "message": "Польз. совпадения и исключение совпадений (User Matches & Exclude Matches)"
   },
-  "pinMenu": { "message": "Pin Menu" },
+  "sidebar": { "message": "Sidebar" },
   "script": {
     "message": "Скрипт и стиль CSS"
   },
@@ -198,14 +198,8 @@
   "cmOptionsError": {
     "message": "Invalid CodeMirror JSON"
   },
-  "localeMaker": {
-    "message": "Locale Maker"
-  },
   "about": {
     "message": "О FireMonkey"
-  },
-  "amo": {
-    "message": "Firefox ограничивает некоторые функции на некоторых URL"
   },
   "error": {
     "message": "Произошла ошибка с операцией"
