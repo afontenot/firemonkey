@@ -3,13 +3,13 @@
     "message": "FireMonkey"
   },
   "extensionDescription": {
-    "message": "Леко управление на потребителски скриптове и стилове"
+    "message": "Потребителски скриптове и стилове в лек вариант"
   },
   "tabScript": {
-    "message": "Скриптове за раздели и CSS"
+    "message": "Скриптове и стилови листове в раздела"
   },
   "otherScript": {
-    "message": "Други скриптове и CSS"
+    "message": "Други скриптове и стилови листове"
   },
   "scriptCommands": {
     "message": "Команди от скриптове"
@@ -24,37 +24,37 @@
     "message": "Период на автоматично обновяване"
   },
   "autoUpdateIntervalDescription": {
-    "message": "Дни между проверка за обновяване (0 = без проверка)"
+    "message": "Брой дни между проверки за обновяване (0 = без проверка)"
   },
   "enableSync": {
-    "message": "Enable Storage Sync"
+    "message": "Синхронизиране със Sync"
   },
   "syncError": {
-    "message": "Unable to sync\nStorage ($1KB) is larger than 100KB. Sync will be turned off."
+    "message": "Грешка при синхронизиране\n\nХранилището ($1КБ) е по-голямо от 100KB. Sync ще бъде изключен."
   },
   "counter": {
     "message": "Брояч"
   },
   "globalScriptExcludeMatches": {
-    "message": "Global Script Exclude Matches"
+    "message": "Общи шаблони за изключване на скриптове"
   },
   "globalScriptExcludeMatchesDescription": {
-    "message": "Exclude Match pattens (one per line) to prevent all scripts from running on them."
+    "message": "Шаблоните (по един на ред) за изключване чрез съвпадение предотвратяват изпълнение на скриптовете."
   },
   "userMatches": {
-    "message": "User Matches"
+    "message": "Потребителски шаблони"
   },
   "userExcludeMatches": {
-    "message": "User Exclude Matches"
+    "message": "Потребителски шаблони за изключване"
   },
   "userMatchesExcludeMatches": {
-    "message": "User Matches & Exclude Matches"
+    "message": "Потребителски шаблони за включване и изключване"
   },
-  "pinMenu": {
-    "message": "Pin Menu"
+  "sidebar": {
+    "message": "Sidebar"
   },
   "script": {
-    "message": "Скрипт & CSS"
+    "message": "Скрипт и стил"
   },
   "saveScript": {
     "message": "Запазване"
@@ -84,7 +84,7 @@
     "message": "Нов UserCSS"
   },
   "saveTemplate": {
-    "message": "Save as Шаблон"
+    "message": "Шаблон"
   },
   "tabToSpaces": {
     "message": "Табулатори в интервали"
@@ -105,37 +105,37 @@
     "message": "Доклад"
   },
   "discardConfirm": {
-    "message": "Do you want to discard the changes without saving?"
+    "message": "Потвърждавате ли отказ без запазване?"
   },
   "delete": {
-    "message": "Изтриване"
+    "message": "Премахване"
   },
   "deleteConfirm": {
-    "message": "Do you want to delete \n'$1'\n and its stored data?"
+    "message": "Потвърдете премахване на \n„$1“\n и всички прилежащи данни."
   },
   "deleteMultiConfirm": {
-    "message": "Do you want to delete the selected $1 Scripts/CSS and their stored data?"
+    "message": "Потвърдете премахване на избраните $1 скрипта или стилови листа и всички прилежащи данни."
   },
   "installConfirm": {
-    "message": "Do you want to install '$1'?\nScript/CSS with the same name will be replaced if it has a lower version number."
+    "message": "Желаете ли скрипт или стилов лист „$1“ да бъде инсталиран?\n\nСкриптове или стилови листове с еднакви имена, но по-стари издания ще бъде презаписани."
   },
   "metaError": {
     "message": "Грешка в описателните данни"
   },
   "noNameError": {
-    "message": "Скрипт или CSS трябва да има наименование."
+    "message": "Скриптът или стиловият лист трябва да има наименование."
   },
   "nameError": {
-    "message": "Скрипт или CSS с това наименование вече съществува.\nДа бъде ли презаписан съществуващият?"
+    "message": "Вече съществува скрипт или стилов лист с това наименование.\n\nДа бъде ли презаписан?"
   },
   "updateUrlError": {
-    "message": "Скрипт или CSS е без updateURL или version."
+    "message": "Скриптът или стиловият лист е без поле „updateURL“ или „version“."
   },
   "noNewUpdate": {
-    "message": "Няма ново издание."
+    "message": "Няма по-ново издание."
   },
   "scriptUpdated": {
-    "message": "Скрипт или CSS е обновен до издание $1"
+    "message": "Скрипт или стилов лист е обновен до издание $1"
   },
   "import": {
     "message": "Внасяне"
@@ -147,7 +147,7 @@
     "message": "Изнасяне"
   },
   "fileSizeError": {
-    "message": "Дължината на файла е по голяма от разрешените $ 1КБ"
+    "message": "Дължината на файла е по голяма от разрешените $1 КБ"
   },
   "fileTypeError": {
     "message": "Неподдържан формат на файла"
@@ -180,7 +180,7 @@
     "message": "Отменяне"
   },
   "insertError": {
-    "message": "Failed to insert"
+    "message": "Грешка при вмъкване"
   },
   "findScript": {
     "message": "Търсене на скриптове за страницата"
@@ -189,25 +189,19 @@
     "message": "Разширени"
   },
   "customCSS": {
-    "message": "Потребителски CSS"
+    "message": "Потребителски стилов лист"
   },
   "customCSSDescription": {
-    "message": "Customize Options page & CodeMirror style configuration."
+    "message": "Настройка на изгледа на страницата с настройки и CodeMirror."
   },
   "cmOptionsDescription": {
-    "message": "Customize CodeMirror, addons & JavaScript lint configuration."
+    "message": "Настройка на CodeMirror, добавките и проверките на кода на JavaScript."
   },
   "cmOptionsError": {
-    "message": "Invalid CodeMirror JSON"
-  },
-  "localeMaker": {
-    "message": "Инструмент за превод"
+    "message": "Грешен JSON на CodeMirror"
   },
   "about": {
     "message": "Относно"
-  },
-  "amo": {
-    "message": "Firefox налага ограничения в определени действия на някои адреси"
   },
   "error": {
     "message": "Грешка при действието"

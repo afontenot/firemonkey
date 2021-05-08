@@ -23,7 +23,7 @@
   "userExcludeMatches": { "message": "Uitsluitingen" },
   "userMatchesExcludeMatches": { "message": "Eigen en uitsluitovereenkomsten" },
 
-  "pinMenu": { "message": "Favorieten" },
+  "sidebar": { "message": "Zijbalk" },
   "script": { "message": "Scripts en css" },
 
   "saveScript": { "message": "Opslaan" },
@@ -88,9 +88,8 @@
   "cmOptionsDescription": { "message": "Pas de CodeMirror-, add-ons- en JavaScript-lintconfiguratie aan." },
   "cmOptionsError": { "message": "Ongeldige CodeMirror-json" },
 
-  "localeMaker": { "message": "Taalsamenstelling" },
+
   "about": { "message": "Over" },
-  "amo":  { "message": "Op sommige url's voert Firefox beperkingen uit" },
   "error": { "message": "Er is een fout opgetreden tijdens de handeling" },
   "help": { "message": "Hulp" },
   "options": { "message": "Opties" },

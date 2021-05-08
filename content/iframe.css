@@ -18,7 +18,6 @@ img {
   vertical-align: text-bottom;
 }
 
-
 dl {
   margin-left: 2em;
 }
@@ -68,11 +67,7 @@ dl.about  {
 dt img, dd img {
   width: 1.2em;
 }
-/*
-dt.indent {
-  text-indent: 1.5em;
-}
-*/
+
 dt span {
   margin-left: 0.5em;
   color: #777;
@@ -85,7 +80,7 @@ dd sup {
   color: #05f;
 }
 
-dd.warning {
+.warning {
   background-color: #fbf5d7;
   border-left: 4px solid #e1c542;
   padding: 0.5em;
@@ -93,11 +88,10 @@ dd.warning {
   color: #333;
 }
 
-dd.warning::before {
+.warning::before {
   content: '\26a0\fe0f';
   margin-right: 0.3em;
 }
-
 
 h2 {
   color: #066;
@@ -276,7 +270,6 @@ nav ul::after {
   border-color: transparent transparent #f5f5f5 transparent;
 }
 
-
 nav li {
   padding: 0.2em 0.5em;
   white-space: nowrap;
@@ -412,7 +405,6 @@ figure pre {
 .scroll {
   max-height: 15em;
   overflow: auto;
-  scrollbar-color: #ddd #f5f5f5;
   scrollbar-width: thin;
 }
 
@@ -421,7 +413,7 @@ blockquote {
   font-style: italic;
   position: relative;
   border-radius: 1.5em;
-  background: #e9967a66 url("../image/blob.svg") center no-repeat; 
+  background: #e9967a66 url("../image/blob.svg") center no-repeat;
   background-size: 100% 100%;
 }
 
@@ -479,7 +471,7 @@ address {
 
 .note, .footnote {
   font-style: italic;
-  margin-top: 0.5em; 
+  margin-top: 0.5em;
 }
 
 .footnote {
@@ -494,7 +486,7 @@ address {
 .experimental::after {
   content: '';
   background: url('../image/beaker.svg') no-repeat center;
-  background-size: contain;  
+  background-size: contain;
   display: inline-block;
   width: 1.2em;
   height: 1.2em;
@@ -563,6 +555,12 @@ td p {
 td code {
   background-color: transparent;
   padding: 0;
+  font-size: 1.2em;
+  white-space: pre;
+}
+
+.code td {
+  font-family: monospace;
   font-size: 1.2em;
   white-space: pre;
 }

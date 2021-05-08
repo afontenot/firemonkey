@@ -50,7 +50,7 @@
   "userMatchesExcludeMatches": {
     "message": "用户匹配和排除匹配"
   },
-  "pinMenu": { "message": "Pin Menu" },
+  "sidebar": { "message": "Sidebar" },
   "script": {
     "message": "脚本和样式"
   },
@@ -198,14 +198,8 @@
   "cmOptionsError": {
     "message": "无效 CodeMirror JSON"
   },
-  "localeMaker": {
-    "message": "本地化制作器"
-  },
   "about": {
     "message": "关于"
-  },
-  "amo": {
-    "message": "Firefox 对某些 URL 的页面操作设有限制"
   },
   "error": {
     "message": "运行出错"

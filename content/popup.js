@@ -82,13 +82,13 @@ class Popup {
       case 'newJS|title': localStorage.setItem('nav', 'js'); break;
       case 'newCSS|title': localStorage.setItem('nav', 'css'); break;
       case 'help': localStorage.setItem('nav', 'help'); break;
-      case 'edit': localStorage.setItem('nav', this.id); break;
-      case 'run':
-        if (this.id === 'infoRun') { popup.infoRun(this); return; }
-        this.id === 'js' ? popup.runJS() : popup.runCSS(); return;
+      case 'edit': localStorage.setItem('nav', this.parentNode.id); break;
+      case 'run':                                           // infoRun if not already injected in the tab
+        this.id === 'infoRun' ? popup.infoRun(this.parentNode.id) : popup.scratchpadRun(this.id);
+        return;
       case 'undo':
-        if (this.id === 'infoUndo') { popup.infoUndo(this); return; }
-        popup.undoCSS(); return;
+        this.id === 'infoUndo' ? popup.infoUndo(this.parentNode.id) : popup.scratchpadUndo();
+        return;
     }
     chrome.runtime.openOptionsPage();
     window.close();
@@ -103,8 +103,8 @@ class Popup {
     const [Tab, Other, frames] = await CheckMatches.process(tabId, this.url);
     document.querySelector('h3 span.frame').textContent = frames.length; // display frame count
 
-    Tab.forEach(item => this.ulTab.appendChild(this.addScript(pref.content[item])));
-    Other.forEach(item => this.ulOther.appendChild(this.addScript(pref.content[item])));
+    Tab.forEach(item => this.ulTab.appendChild(this.addScript(pref[item])));
+    Other.forEach(item => this.ulOther.appendChild(this.addScript(pref[item])));
 
     // --- check commands if there are active scripts in tab
     if(this.ulTab.querySelector('li.js:not(.disabled)')) {
@@ -119,13 +119,13 @@ class Popup {
     li.classList.add(item.js ? 'js' : 'css');
     item.enabled || li.classList.add('disabled');
     li.children[1].textContent = item.name;
-    li.id = item.name;
+    li.id = '_' + item.name;
 
     if (item.error) {
       li.children[0].textContent = '\u2718';
       li.children[0].style.color = '#f00';
     }
-//    else { li.children[0].addEventListener('click', this.toggleState); }
+
     li.children[0].addEventListener('click', this.toggleState);
     li.children[1].addEventListener('click', e => this.showInfo(e));
     return li;
@@ -138,9 +138,9 @@ class Popup {
     if (!id) { return; }
 
     li.classList.toggle('disabled');
-    pref.content[id].enabled = !li.classList.contains('disabled');
-    browser.storage.local.set({content: pref.content});     // update saved pref
-    localStorage.setItem('enable-' + id, pref.content[id].enabled);
+    pref[id].enabled = !li.classList.contains('disabled');
+    browser.storage.local.set({[id]: pref[id]});            // update saved pref
+    localStorage.setItem('enable-' + id, pref[id].enabled);
   }
 
   toggleOn(node) {
@@ -161,7 +161,7 @@ class Popup {
     const dtTemp = this.dtTemp;
     const ddTemp = this.ddTemp;
     const docfrag = document.createDocumentFragment();
-    const script =  pref.content[id];
+    const script =  pref[id];
 
     const infoArray = ['name', 'description', 'author', 'version', 'size', 'updateURL', 'matches',
                         'excludeMatches', 'includes', 'excludes', 'includeGlobs', 'excludeGlobs',
@@ -223,9 +223,11 @@ class Popup {
     });
 
     this.infoListDL.appendChild(docfrag);
-    const edit= document.querySelector('button.edit');
+    const edit = document.querySelector('div.edit');
     edit.id = id;
-    edit.dataset.active = e.target.parentNode.parentNode.classList.contains('tab') && script.enabled;
+    const active = e.target.parentNode.parentNode.classList.contains('tab') && script.enabled;
+    edit.children[1].disabled = active;
+    edit.children[2].disabled = active;
     this.info.parentNode.style.transform = 'translateX(-50%)';
   }
 
@@ -253,59 +255,46 @@ class Popup {
   }
 
   // ----------------- Info Run/Undo -----------------------
-  infoRun(e) {
+  infoRun(id) {
 
-    const btn = e.parentNode.firstElementChild;
-    if (btn.dataset.active === 'true') { return; }          // already injected in the tab
-
-    const item = pref.content[btn.id];
+    const item = pref[id];
     const code = (item.js || item.css).replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'));
     if (!code.trim()) { return; }                           // e.g. in case of userStyle
 
     (item.js ? browser.tabs.executeScript({code}) : browser.tabs.insertCSS({code, cssOrigin: 'user'}))
-    .catch(error => App.notify(e.id + ':\n' + chrome.i18n.getMessage('insertError')));
+    .catch(error => App.notify(id.substring(1) + '\n' + chrome.i18n.getMessage('insertError') + '\n\n' + error.message));
   }
 
-  infoUndo(e) {
+  infoUndo(id) {
 
-    const btn = e.parentNode.firstElementChild;
-    if (btn.dataset.active === 'true') { return; }          // already injected in the tab
-
-    const item = pref.content[btn.id];
+    const item = pref[id];
     if (!item.css) { return; }                              // only for userCSS
 
     const code = item.css.replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'));
     if (!code.trim()) { return; }                           // e.g. in case of userStyle
 
     browser.tabs.removeCSS({code, cssOrigin: 'user'})
-    .catch(error => App.notify(e.id + ':\n' + error.message));
+    .catch(error => App.notify(id.substring(1) + '\n\n' + error.message));
   }
 
   // ----------------- Scratchpad --------------------------
-  runJS() {
+  scratchpadRun(id) {
 
-    const code = this.js.value.trim();
+    const js = id === 'jsBtn';
+    const code = (js ? this.js : this.css).value.trim();
     if (!code) { return; }
-    localStorage.setItem('scraptchpadJS', code);            // save last entry
-    browser.tabs.executeScript({code})
-    .catch(error => App.notify('JavaScript: ' + chrome.i18n.getMessage('insertError')));
+    localStorage.setItem(js ? 'scraptchpadJS' : 'scraptchpadCSS', code); // save last entry
+
+    (js ? browser.tabs.executeScript({code}) : browser.tabs.insertCSS({code, cssOrigin: 'user'}))
+    .catch(error => App.notify((js ? 'JavaScript' : 'CSS') + '\n' + chrome.i18n.getMessage('insertError') + '\n\n' + error.message));
   }
 
-  runCSS() {
-
-    const code = this.css.value.trim();
-    if (!code) { return; }
-    localStorage.setItem('scraptchpadCSS', code);           // save last entry
-    browser.tabs.insertCSS({code, cssOrigin: 'user'})
-    .catch(error => App.notify('CSS: ' + chrome.i18n.getMessage('insertError')));
-  }
-
-  undoCSS() {
+  scratchpadUndo() {
 
     const code = this.css.value.trim();
     if (!code) { return; }
     browser.tabs.removeCSS({code, cssOrigin: 'user'})
-    .catch(error => App.notify('CSS: ' + error.message));
+    .catch(error => App.notify('CSS\n' + error.message));
   }
 }
 const popup = new Popup();

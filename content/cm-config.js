@@ -53,7 +53,7 @@ class Config {
     const idx =[];
     annotationsNotSorted.forEach((item, index) => {
 
-      const m = item.message.match(/'(GM_getValue|GM_listValues|GM_getTabs?|GM_saveTab|exportFunction|cloneInto)' is not defined/)
+      const m = item.message.match(/'(GM_getValue|GM_listValues|GM_getTabs?|GM_saveTab|exportFunction|cloneInto)' is not defined/);
 
       switch (true) {
 

@@ -3,7 +3,7 @@
 
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
-  "version": "2.24",
+  "version": "2.25",
   "default_locale": "en",
   "homepage_url": "https://github.com/erosman/support",
   "author": "erosman",
@@ -30,6 +30,13 @@
     "browser_style": true
   },
 
+  "browser_action": {
+    "browser_style": true,
+    "default_icon": "image/icon.svg",
+    "default_title": "__MSG_extensionName__",
+    "default_popup": "content/popup.html"
+  },
+
   "permissions": [
     "activeTab",
     "clipboardWrite",
@@ -45,13 +52,6 @@
     "webRequestBlocking",
     "<all_urls>"
   ],
-
-  "browser_action": {
-    "browser_style": true,
-    "default_icon": "image/icon.svg",
-    "default_title": "__MSG_extensionName__",
-    "default_popup": "content/popup.html"
-  },
 
   "browser_specific_settings": {
     "gecko": {

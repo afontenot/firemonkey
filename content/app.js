@@ -4,7 +4,7 @@
 let pref = {
   autoUpdateInterval: 0,
   autoUpdateLast: 0,
-  content: {},
+//  content: {},
   counter: true,
   globalScriptExcludeMatches: '',
   sync: false,
@@ -48,24 +48,26 @@ class App {
     reader.readAsText(file);
   }
 
-  static readData(data) {
+  static async readData(data) {
 
     let importData;
     try { importData = JSON.parse(data); }                  // Parse JSON
     catch(e) {
-      App.notify(chrome.i18n.getMessage('fileParseError'));     // display the error
+      App.notify(chrome.i18n.getMessage('fileParseError')); // display the error
       return;
     }
 
-    Object.keys(pref).forEach(item =>
-      importData.hasOwnProperty(item) && (pref[item] = importData[item])); // update pref with the saved version
-    
-    // import userscript storage
-    Object.keys(importData).forEach(item => {
-      const name = item.startsWith('_') && item.substring(1);
-      if (name && pref.content[name] && pref.content[name].js) { pref[item] = importData[item]; }
-    });
-
+    // --- importing pre-2.25 data
+    if (importData.hasOwnProperty('content')) {
+      localStorage.removeItem('migrate');                   // prepare to migrate
+      pref = importData;
+      await Migrate.run();                                  // migrate
+    }
+    // update pref with the saved version
+    else {
+      Object.keys(importData).forEach(item =>
+            (pref.hasOwnProperty(item) || item.startsWith('_')) && (pref[item] = importData[item]));
+    }
     this.callback();                                        // successful import
   }
 
@@ -112,25 +114,22 @@ class App {
   }
 
   static JSONparse(str) {
-
     try { return JSON.parse(str); } catch (e) { return null; }
   }
 
+
+  static getIds() {
+    return Object.keys(pref).filter(item => item.startsWith('_'));
+  }
+
   // bg & options
-  static async prepareRename(oldName, newName, bg) {
+  static allowedHost(url) {
 
-    const oldStore = '_' + oldName;
-    const newStore = '_' + newName;
-
-    if (pref.hasOwnProperty(oldStore)) {                    // move script storage
-
-      const storage = bg ? pref : await browser.storage.local.get(oldStore); // get the latest storage data, bg has the latest
-      pref[newStore] = storage[oldStore];                   // update pref
-      delete pref[oldStore];
-      await browser.storage.local.remove(oldStore);         // delete old script storage
-      await browser.storage.local.set({[newStore]: pref[newStore]}); // set storage under new name
-    }
-    delete pref.content[oldName];
+    return  url.startsWith('https://greasyfork.org/scripts/') ||
+            url.startsWith('https://sleazyfork.org/scripts/') ||
+            url.startsWith('https://openuserjs.org/install/') ||
+            url.startsWith('https://userstyles.org/styles/') ||
+            url.startsWith('https://raw.githubusercontent.com/');
   }
 }
 
@@ -138,7 +137,7 @@ class App {
 // bg options
 class Meta {
 
-  static get (str, userMatches = '', userExcludeMatches = '') {
+  static get(str, userMatches = '', userExcludeMatches = '') {
 
     // --- get all
     const metaData = str.match(this.regEx);
@@ -171,6 +170,7 @@ class Meta {
         description: {}
       },
       error: '',                                            // reset error on save
+      storage: {},
 
       // --- API related data
       allFrames: false,
@@ -574,16 +574,18 @@ class CheckMatches {
 
     tabUrl = /^(https?|wss?|file|about:blank)/.test(tabUrl) ? tabUrl : null; // Unsupported scheme
 
+    const ids = App.getIds();
+
     // --- background
     if (bg) {
-      return Object.keys(pref.content).filter(item =>
-                pref.content[item].enabled && this.get(pref.content[item], tabUrl, urls, gExclude));
+      return ids.filter(item => pref[item].enabled && this.get(pref[item], tabUrl, urls, gExclude))
+          .map(item => (pref[item].js ? '\u{1f539} ' :  '\u{1f538} ') + item.substring(1));
     }
 
     // --- popup
     const Tab = [], Other = [];
-    Object.keys(pref.content).sort(Intl.Collator().compare).forEach(item =>
-        (this.get(pref.content[item], tabUrl, urls, gExclude) ? Tab : Other).push(item));
+    ids.sort(Intl.Collator().compare).forEach(item =>
+        (this.get(pref[item], tabUrl, urls, gExclude) ? Tab : Other).push(item));
     return [Tab, Other, frames];
   }
 
