@@ -6,10 +6,10 @@
   --hover: #eee;
   --btn-bg: #f9f9fa;
   --color2: #05f;
-  
-    --bg2: #ddda;
+  --bg2: #ddda;
 }
 
+/* ----- Dark Theme ----- */
 body.dark {
   --color: #fff;
   --bg: #000;
@@ -18,6 +18,21 @@ body.dark {
   --btn-bg: #666;
   --color2: #0ff;
 }
+
+.dark h3.menu::after,
+.dark li span.next,
+.dark .info h3 img {
+  filter: invert(1);
+}
+
+.dark dd {
+  opacity: 0.8;
+}
+
+.dark .bin {
+  filter: grayscale(1) invert(1) contrast(4);
+}
+/* ----- /Dark Theme ----- */
 
 body {
   color: var(--color);
@@ -58,7 +73,7 @@ article {
   overflow: hidden;
   display: flex;
   width: 200%;
-  transition: 0.5s;  
+  transition: 0.5s;
 }
 
 section {
@@ -75,7 +90,6 @@ section.main {
 body.android section {
   height: 100vh;
 }
-
 
 h3 {
   font-weight: normal;
@@ -154,6 +168,10 @@ button + button {
 section:first-of-type button:first-of-type {
   flex: 2;
 }
+
+button:disabled {
+  cursor: not-allowed;
+}
 /* ----- /Buttons ----- */
 
 /* ----- Scripts ----- */
@@ -172,7 +190,7 @@ ul.other {
 }
 
 li {
-  padding: 0 0.4em;;
+  padding: 0 0.4em;
   margin: 0;
   display: flex;
   position: relative;
@@ -434,19 +452,3 @@ img.bin:hover {
   filter: opacity(1) grayscale(0);
 }
 /* ----- /Scratchpad ----- */
-
-/* ----- Dark Theme ----- */
-.dark h3.menu::after,
-.dark li span.next,
-.dark .info h3 img {
-  filter: invert(1);
-}
-
-.dark dd {
-  opacity: 0.8;
-}
-
-.dark .bin {
-  filter: grayscale(1) invert(1) contrast(4);
-}
-/* ----- /Dark Theme ----- */

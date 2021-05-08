@@ -80,50 +80,44 @@
     <input type="radio" name="nav" id="nav5">
     <input type="radio" name="nav" id="nav6">
 
-    <input type="checkbox" id="pinMenu" class="control">
+    <input type="checkbox" id="sidebar" class="control" checked>
+
     <nav>
-      <details>
-        <summary data-i18n="script|title"><img src="../image/menu-dot.svg" alt=""></summary>
-        <div>
-          <input type="checkbox" id="listEnable" class="control" checked>
-          <input type="checkbox" id="listDisable" class="control" checked>
-          <input type="checkbox" id="listJS" class="control" checked>
-          <input type="checkbox" id="listCSS" class="control" checked>
-
-          <div class="list pinMenu">
-            <label for="pinMenu" data-i18n="pinMenu"></label>
-          </div>
-
-          <div class="flex list">
-            <label for="listEnable"><img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></label>
-            <label for="listDisable"><img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></label>
-            <label for="listJS"><img src="../image/js.svg" alt=""></label>
-            <label for="listCSS"><img src="../image/css.svg" alt=""></label>
-          </div>
-
-          <ul></ul>
-          <!-- counter -->
-          <div></div>
-
-          <div class="flex">
-            <input type="file" id="fileScript" accept=".js, .css" multiple>
-            <label for="fileScript" class="flat" data-i18n="import"></label>&nbsp;
-            <button type="button" class="flat" data-i18n="exportAll"></button>
-          </div>
-        </div>
-      </details>
-
-      <label for="nav3">&#x2699;&#xfe0f; <span data-i18n="options"></span></label>
+      <label for="sidebar" data-i18n="sidebar|title"><img src="../image/sidebars.svg" alt="" style="width: 1.2em;"></label>
+      <label for="nav3"><img src="../image/gear.svg" alt=""> <span data-i18n="options"></span></label>
       <label for="nav4"><img src="../image/js.svg" alt=""> <span data-i18n="script"></span></label>
       <label for="nav5">&#x1f4c4; <span data-i18n="log"></span></label>
       <label for="nav1" style="cursor: help;">&#x1f1ed; <span data-i18n="help"></span></label>
       <label for="nav2">&#x2139;&#xfe0f; <span data-i18n="about"></span></label>
 
-
-      <label for="nav10"><a href="/locale-maker/locale-maker.html" target="_blank"><img src="/locale-maker/locale-maker.svg" alt="">
-        <span data-i18n="localeMaker"></span></a></label>
-
+      <label><a href="../locale-maker/locale-maker.html" target="_blank"><img src="../locale-maker/locale-maker.svg" alt="">
+        <span>Locale Maker</span></a></label>
     </nav>
+
+
+    <aside>
+      <input type="checkbox" id="listEnable" class="control" checked>
+      <input type="checkbox" id="listDisable" class="control" checked>
+      <input type="checkbox" id="listJS" class="control" checked>
+      <input type="checkbox" id="listCSS" class="control" checked>
+
+      <div class="flex list">
+        <label for="listEnable"><img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></label>
+        <label for="listDisable"><img src="../image/js.svg" alt=""><img src="../image/css.svg" alt=""></label>
+        <label for="listJS"><img src="../image/js.svg" alt=""></label>
+        <label for="listCSS"><img src="../image/css.svg" alt=""></label>
+      </div>
+
+      <ul></ul>
+      <!-- counter -->
+      <div></div>
+
+      <div class="flex">
+        <input type="file" id="fileScript" accept=".js, .css" multiple>
+        <label for="fileScript" class="flat" data-i18n="import"></label>&nbsp;
+        <button type="button" class="flat" data-i18n="exportAll"></button>
+      </div>
+    </aside>
 
     <article>
       <div class="progressBar"></div>
@@ -141,8 +135,8 @@
           <label data-i18n="autoUpdateInterval">&#x1f4c5; </label> <input type="number" id="autoUpdateInterval" min="0" max="30">
           <p class="description" data-i18n="autoUpdateIntervalDescription"></p>
 
-          <label class="pointer" data-i18n="enableSync"><input type="checkbox" id="sync"></label>
-          <label class="pointer" data-i18n="counter"><input type="checkbox" id="counter"></label>
+          <label class="pointer" data-i18n="enableSync"><input type="checkbox" id="sync"> </label>
+          <label class="pointer" data-i18n="counter"><input type="checkbox" id="counter"> </label>
           <br>
           <label data-i18n="globalScriptExcludeMatches">&#x1f310; </label>
           <p class="description" data-i18n="globalScriptExcludeMatchesDescription"></p>
@@ -187,10 +181,15 @@
             <button type="button" data-i18n="update">&#x1f504; </button>
             <button type="button" data-i18n="export"></button>
             &nbsp;
-            <label data-i18n="enable"><input type="checkbox" id="enable"></label>
-            <label data-i18n="autoUpdate"><input type="checkbox" id="autoUpdate"></label>
-            <img class="bin" src="../image/bin.svg" data-i18n="delete|title" alt="">
+            <label data-i18n="enable"><input type="checkbox" id="enable"> </label>
+            <label data-i18n="autoUpdate"><input type="checkbox" id="autoUpdate"> </label>
+            <button type="button" class="bin" data-i18n="delete|title"><img src="../image/bin.svg" alt=""></button>
             <span class="spacer"></span>
+
+            <button type="button" data-i18n="newJS|title"><span class="plus">&#x2795;</span> <img src="../image/js.svg" alt=""></button>
+            <button type="button" data-i18n="newCSS|title"><span class="plus">&#x2795;</span> <img src="../image/css.svg" alt=""></button>
+
+
 
             <details>
               <summary data-i18n="report|title">&#x1f5d2;</summary>
@@ -277,9 +276,10 @@
                       </optgroup>
                     </select>
                   </li>
-
+<!--
                   <li class="button" data-i18n="newJS"><span class="plus">&#x2795;</span> <img src="../image/js.svg" alt=""> </li>
                   <li class="button" data-i18n="newCSS"><span class="plus">&#x2795;</span> <img src="../image/css.svg" alt=""> </li>
+ -->
                   <li class="button" data-i18n="saveTemplate">&#x1f4be; </li>
                   <li class="separator"></li>
 
@@ -288,9 +288,9 @@
                   <li class="button" data-i18n="toUpperCase">&#x1f520; </li>
                   <li class="button" data-i18n="toLowerCase">&#x1f521; </li>
                   <li class="separator"></li>
-                  
+
                   <li class="flex userRunAt">
-                    <label>run-at</label>
+                    <label>&#x1f464; run-at</label>
                     <select id="userRunAt">
                       <option value="" selected>default</option>
                       <option value="document_start">document-start</option>
@@ -298,7 +298,7 @@
                       <option value="document_idle">document-idle</option>
                     </select>
                   </li>
-                  
+
                   <li class="textarea"><label data-i18n="userMatches">&#x1f464; </label><br>
                   <textarea id="userMatches" rows="4" spellcheck="false" placeholder="*://*.example.com/*"></textarea></li>
                   <li class="textarea"><label data-i18n="userExcludeMatches">&#x1f464; </label><br>

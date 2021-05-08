@@ -13,7 +13,7 @@ class ContextMenu {
       { id: 'newCSS', contexts: ['browser_action'], icons: {16: '/image/css.svg'} },
       { id: 'help', contexts: ['browser_action'], icons: {16: '/image/help.svg'} },
       { id: 'log', contexts: ['browser_action'], icons: {16: '/image/document.svg'} },
-      { id: 'localeMaker', contexts: ['browser_action'], icons: {16: '/locale-maker/locale-maker.svg'} },
+      { id: 'localeMaker', title: 'Locale Maker', contexts: ['browser_action'], icons: {16: '/locale-maker/locale-maker.svg'} },
 
       { id: 'stylish', contexts: ['all'], documentUrlPatterns: ['https://userstyles.org/styles/*/*'] }
     ];
@@ -24,7 +24,7 @@ class ContextMenu {
         item.title = item.title || chrome.i18n.getMessage(item.id);  // always use the same ID for i18n
         item.onclick = this.process;
       }
-      browser.menus.create(item); 
+      browser.menus.create(item);
     });
   }
 
@@ -91,8 +91,7 @@ class ScriptRegister {
 
   async process(id) {
 
-    const script = JSON.parse(JSON.stringify(pref.content[id])); // deep clone pref object
-    script.style = script.style || [];                      // preset
+    const script = JSON.parse(JSON.stringify(pref[id]));    // deep clone pref object
 
     // --- reset previous registers  (UserStyle Multi-segment Process)
     script.style[0] ? script.style.forEach((item, i) => this.unregister(id + 'style' + i)) : this.unregister(id);
@@ -119,22 +118,21 @@ class ScriptRegister {
     script.userExcludeMatches && options.excludeMatches.push(...script.userExcludeMatches.split(/\s+/));
 
     // --- remove empty arrays (causes error)
-    ['excludeMatches', 'includeGlobs', 'excludeGlobs'].forEach(item => {
-      if (!options[item][0]) { delete options[item]; };
-    });
+    ['excludeMatches', 'includeGlobs', 'excludeGlobs'].forEach(item => !options[item][0] && delete options[item]);
 
     // --- add CSS & JS
-    // Removing metaBlock since there would be an error with /* ... *://*/* ... */
+    // fixing metaBlock since there would be an error with /* ... *://*/* ... */
+    const name = script.name;
     const target = script.js ? 'js' : 'css';
     const js = target === 'js';
     const page = js && script.injectInto === 'page';
     const pageURL = page ? '%20(page-context)'  : '';
-    const encodeId = encodeURI(id);
+    const encodeId = encodeURI(name);
     const sourceURL = `\n\n//# sourceURL=user-script:FireMonkey/${encodeId}${pageURL}/`;
     options[target] = [];
 
-    const require = script.require || [];
-    const requireRemote = script.requireRemote || [];
+    const require = script.require;
+    const requireRemote = script.requireRemote;
 
     // --- add @require
     require.forEach(item => {
@@ -142,8 +140,8 @@ class ScriptRegister {
       if (item.startsWith('lib/')) {
         page ? requireRemote.push('/' + item) : options[target].push({file: '/' + item});
       }
-      else if (pref.content[item] && pref.content[item][target]) {
-        options[target].push({code: pref.content[item][target].replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'))});
+      else if (pref['_' + item] && pref['_' + item][target]) {
+        options[target].push({code: pref['_' + item][target].replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'))});
       }
     });
 
@@ -166,12 +164,13 @@ class ScriptRegister {
     // --- script only
     if (js) {
 
-      const includes = script.includes || [];
-      const excludes = script.excludes || [];
+      const includes = script.includes;
+      const excludes = script.excludes;
       options.scriptMetadata = {
-        name: id,
-        resource: script.resource || {},
-        storage: pref['_' + id] || {},
+        name,
+        resource: script.resource,
+        storage: script.storage,
+        injectInto: script.injectInto,
         info: {                                             // GM.info data
           scriptHandler: 'FireMonkey',
           version: this.FMV,
@@ -179,7 +178,7 @@ class ScriptRegister {
           platform: this.platformInfo,
           browser: this.browserInfo,
           script: {
-            name: id,
+            name,
             version: script.version,
             description: script.description,
             includes,
@@ -190,7 +189,7 @@ class ScriptRegister {
             excludeGlobs: script.excludeGlobs,
             'run-at': script.runAt.replace('_', '-'),
             namespace: null,
-            resources: script.resource || {}
+            resources: script.resource
           }
         }
       };
@@ -233,7 +232,7 @@ class ScriptRegister {
     try {                                                   // catches error throws before the Promise
       API.register(options)
       .then(reg => this.registered[id] = reg)               // contentScripts.RegisteredContentScript object
-      .catch(error => App.log(originId || id, `Register ➜ ${error.message}`, 'error'));
+      .catch(error => App.log((originId || id).substring(1), `Register ➜ ${error.message}`, 'error'));
     } catch(error) { this.processError(originId || id, error.message); }
   }
 
@@ -247,9 +246,9 @@ class ScriptRegister {
 
   processError(id, error) {
 
-    pref.content[id].error = error;                         // store error message
-    browser.storage.local.set({content: pref.content});     // update saved pref
-    App.log(id, `Register ➜ ${error}`, 'error');           // log message to display in Options -> Log
+    pref[id].error = error;                                 // store error message
+    browser.storage.local.set({[id]: pref[id]});            // update saved pref
+    App.log(id.substring(1), `Register ➜ ${error}`, 'error'); // log message to display in Options -> Log
   }
 }
 const scriptReg = new ScriptRegister();
@@ -275,23 +274,21 @@ class ProcessPref {
       await browser.storage.local.set(pref);                // update local saved pref
     }
 
-    await this.migrate();                                   // migrate after storage sync check
+    await Migrate.run();                                    // migrate after storage sync check
 
-    chrome.storage.onChanged.addListener((changes, area) => { // Change Listener
+    chrome.storage.onChanged.addListener((changes, area) => { // Change Listener, after migrate
       Object.keys(changes).forEach(item => pref[item] = changes[item].newValue); // update pref with the saved version
       this.processPrefUpdate(changes);                      // apply changes
     });
 
     await scriptReg.init();                                 // await data initialization
-    Object.keys(pref.content).forEach(item => scriptReg.process(item));
+    App.getIds().forEach(item => scriptReg.process(item));
 
     // --- Script Counter
     pref.counter && counter.init();
   }
 
   processPrefUpdate(changes) {
-
-    if (!Object.keys(changes).some(item => this.notEqual(changes[item].oldValue, changes[item].newValue))) { return; }
 
     // --- check counter preference has changed
     if (changes.counter && changes.counter.newValue !== changes.counter.oldValue) {
@@ -301,26 +298,33 @@ class ProcessPref {
     // --- find changed scripts
     if (changes.globalScriptExcludeMatches &&
       changes.globalScriptExcludeMatches.oldValue !== changes.globalScriptExcludeMatches.newValue) {
-      Object.keys(pref.content).forEach(scriptReg.process);  // re-register all
+      App.getIds().forEach(scriptReg.process);              // re-register all
     }
-    else if (changes.hasOwnProperty('content') && this.notEqual(changes.content.oldValue, changes.content.newValue)) {
+    else {
+      const relevant = ['name', 'enabled', 'injectInto', 'require', 'requireRemote', 'resource',
+      'userMatches', 'userExcludeMatches', 'userRunAt', 'allFrames', 'js', 'css', 'style', 'matches',
+      'excludeMatches', 'includeGlobs', 'excludeGlobs', 'includes', 'excludes', 'matchAboutBlank', 'runAt'];
 
-      Object.keys(changes.content.oldValue).forEach(item => {
+      Object.keys(changes).forEach(item => {
 
-        if (!changes.content.newValue[item]) {              // script was deleted
-          const script = changes.content.oldValue[item];
-          const id = script.name;
-          // --- reset previous registers  (UserStyle Multi-segment Process)
-          script.style[0] ? script.style.forEach((item, i) => scriptReg.unregister(id + 'style' + i)) : scriptReg.unregister(id);
+        const oldValue = changes[item].oldValue;
+        const newValue = changes[item].newValue;
+
+        if (!item.startsWith('_')) { return; }              // skip
+
+        const id = item;
+
+        // if deleted, unregister
+        if(!newValue) {
+          delete pref[id];
+          oldValue.style[0] ? oldValue.style.forEach((item, i) => scriptReg.unregister(id + 'style' + i)) : scriptReg.unregister(id);
         }
-        else if (!changes.content.newValue[item].error && this.notEqual(changes.content.oldValue[item], changes.content.newValue[item])) {
-          scriptReg.process(item);
+        // if added or relevant data changed
+        else if (!oldValue || relevant.some(i => !this.equal(oldValue[i], newValue[i]))) {
+          scriptReg.process(id);
         }
       });
-      // --- look for newly added
-      Object.keys(changes.content.newValue).forEach(item => !changes.content.oldValue[item] && scriptReg.process(item));
     }
-
     // --- storage sync update
     if (pref.sync) {
       const size = JSON.stringify(pref).length;
@@ -335,59 +339,8 @@ class ProcessPref {
     }
   }
 
-  notEqual(a, b) {
-    return JSON.stringify(a) !== JSON.stringify(b);
-  }
-
-  async migrate() {
-
-    const m = 2.05;
-    const version = localStorage.getItem('migrate') || 0;
-    if (version*1 >= m) { return; }
-
-    // --- v2.5 migrate 2020-12-14
-    Object.keys(pref.content).forEach(item => {
-
-      pref.content[item].includes = pref.content[item].includes || [];
-      pref.content[item].excludes = pref.content[item].excludes || [];
-      pref.content[item].antifeatures = pref.content[item].antifeatures || [];
-      pref.content[item].updateURL = pref.content[item].updateURL || '';
-    });
-
-    // --- v2.0 migrate 2020-12-08
-    localStorage.getItem('dark') === 'true' && localStorage.setItem('theme', 'darcula');
-    localStorage.removeItem('syntax');
-    Object.keys(pref.content).forEach(item => {
-      pref.content[item].i18n || (pref.content[item].i18n = {name: {}, description: {}});
-    });
-
-    // --- v1.36 migrate 2020-05-25
-    Object.keys(pref.content).forEach(item => {
-
-      pref.content[item].require && pref.content[item].require.forEach((lib, i) => {
-
-        switch (lib) {
-
-          case 'lib/jquery-1.12.4.min.jsm':     pref.content[item].require[i] = 'lib/jquery-1.jsm'; break;
-          case 'lib/jquery-2.2.4.min.jsm':      pref.content[item].require[i] = 'lib/jquery-2.jsm'; break;
-          case 'lib/jquery-3.4.1.min.jsm':      pref.content[item].require[i] = 'lib/jquery-3.jsm'; break;
-          case 'lib/jquery-ui-1.12.1.min.jsm':  pref.content[item].require[i] = 'lib/jquery-ui-1.jsm'; break;
-          case 'lib/bootstrap-4.4.1.min.jsm':   pref.content[item].require[i] = 'lib/bootstrap-4.jsm'; break;
-          case 'lib/moment-2.24.0.min.jsm':     pref.content[item].require[i] = 'lib/moment-2.jsm'; break;
-          case 'lib/underscore-1.9.2.min.jsm':  pref.content[item].require[i] = 'lib/underscore-1.jsm'; break;
-        }
-      });
-    });
-
-    // --- v1.31 migrate 2020-03-13
-    if (pref.hasOwnProperty('disableHighlight')) {
-      browser.storage.local.remove('disableHighlight');
-      delete pref.disableHighlight;
-    }
-
-    await browser.storage.local.set({content: pref.content});
-
-    localStorage.setItem('migrate', m);                     // store migrate version locally
+  equal(a, b) {
+    return JSON.stringify(a) === JSON.stringify(b);
   }
 }
 // ----------------- /User Preference ----------------------
@@ -447,7 +400,6 @@ class Installer {
     }
 
     if (q) {
-
       const code = `(() => {
         let title = document.querySelector('${q}');
         title = title ? title.textContent : document.title;
@@ -541,67 +493,57 @@ class Installer {
     if (!doUpdate) { return; }
 
     if (!this.cache[0]) {                                   // rebuild the cache if empty
-      this.cache = Object.keys(pref.content).filter(item => {
-        const i = pref.content[item];
-        return i.autoUpdate && i.updateURL && i.version;
-      });
+      this.cache = App.getIds().filter(item => pref[item].autoUpdate && pref[item].updateURL && pref[item].version);
     }
 
     // --- do 10 updates at a time & check if script wasn't deleted
-    this.cache.splice(0, 10).forEach(item => pref.content.hasOwnProperty(item) && RU.getUpdate(pref.content[item]));
+    this.cache.splice(0, 10).forEach(item => pref.hasOwnProperty(item) && RU.getUpdate(pref[item]));
 
     // --- set autoUpdateLast after updates are finished
     !this.cache[0] && browser.storage.local.set({autoUpdateLast: now}); // update saved pref
   }
 
-  async processResponse(text, name, updateURL) {            // from class RU.callback in app.js
+  processResponse(text, name, updateURL) {                  // from class RU.callback in app.js
 
-    const userMatches = pref.content[name] ? pref.content[name].userMatches : '';
-    const userExcludeMatches = pref.content[name] ? pref.content[name].userExcludeMatches : '';
-
-    const data = Meta.get(text, userMatches, userExcludeMatches);
+    const data = Meta.get(text);
     if (!data) { throw `${name}: Meta Data error`; }
+
+    const id = '_' + data.name;                             // set id as _name
+    const oldId = '_' + name;
+
+    // --- check name, if update existing
+    if (pref[oldId] && data.name !== name) {                // name has changed
+      if (pref[id]) { throw `${name}: Update new name already exists`; } // name already exists
+
+      scriptReg.unregister(oldId);                          // unregister old id
+      pref[id] = pref[oldId];                               // copy to new id
+      delete pref[oldId];                                   // delete old id
+      browser.storage.local.remove(oldId);                  // remove old data
+    }
 
     // --- revert https://cdn.jsdelivr.net/gh/ URL to https://raw.githubusercontent.com/
     if (updateURL.startsWith('https://cdn.jsdelivr.net/gh/')) {
-      updateURL = 'https://raw.githubusercontent.com/' + updateURL.substring(28).replace('@', '/')
+      updateURL = 'https://raw.githubusercontent.com/' + updateURL.substring(28).replace('@', '/');
     }
 
     // --- check version, if update existing, not for local files
-    if (!updateURL.startsWith('file:///') && pref.content[name] &&
-          !RU.higherVersion(data.version, pref.content[name].version)) { return; }
-
-    // --- check name, if update existing
-    if (pref.content[name] && data.name !== name) {         // name has changed
-
-      if (pref.content[data.name]) { throw `${name}: Update new name already exists`; } // name already exists
-      else { await App.prepareRename(name, data.name, true); }
-
-      scriptReg.unregister(name);                           // unregister old name
-    }
+    if (!updateURL.startsWith('file:///') && pref[id] &&
+          !RU.higherVersion(data.version, pref[id].version)) { return; }
 
     // --- check for Web Install, set install URL
-    if (updateURL.startsWith('https://greasyfork.org/scripts/') ||
-        updateURL.startsWith('https://sleazyfork.org/scripts/') ||
-        updateURL.startsWith('https://openuserjs.org/install/') ||
-        updateURL.startsWith('https://userstyles.org/styles/') ||
-        updateURL.startsWith('https://raw.githubusercontent.com/') ) {
+    if (App.allowedHost(updateURL)) {
       data.updateURL = updateURL;
       data.autoUpdate = true;
     }
 
     // --- update from previous version
-    if (pref.content[data.name]) {
-      data.enabled = pref.content[data.name].enabled;
-      data.autoUpdate = pref.content[data.name].autoUpdate;
-      App.log(data.name, `Updated version ${pref.content[data.name].version} to ${data.version}`); // log message to display in Options -> Log
-    }
-    else {
-      App.log(data.name, `Installed version ${data.version}`); // log message to display in Options -> Log
-    }
+    pref[id] && ['enabled', 'autoUpdate', 'storage', 'userMatches', 'userExcludeMatches'].forEach(item => data[item] = pref[id][item]);
 
-    pref.content[data.name] = data;                         // save to pref
-    browser.storage.local.set({content: pref.content});     // update saved pref
+    // ---  log message to display in Options -> Log
+    App.log(data.name, pref[id] ? `Updated version ${pref[id].version} to ${data.version}` : `Installed version ${data.version}`);
+
+    pref[id] = data;                                        // save to pref
+    browser.storage.local.set({[id]: pref[id]});            // update saved pref
   }
   // --------------- /Remote Update ------------------------
 }
@@ -669,8 +611,8 @@ class API {
 
     const e = message.data;
     const name = message.name;
-    const store = '_' + name;
-    const hasProperty = (p) => pref[store] && Object.prototype.hasOwnProperty.call(pref[store], p);
+    const id = '_' + name;
+
 
     switch (message.api) {
 
@@ -679,21 +621,20 @@ class API {
         break;
 
       case 'getValue':
-        return Promise.resolve(hasProperty(e.key) ? pref[store][e.key] : e.defaultValue);
+        return Promise.resolve(pref[id].storage.hasOwnProperty(e.key) ? pref[id].storage[e.key] : e.defaultValue);
 
       case 'listValues':
-        return Promise.resolve(pref[store] ? Object.keys(pref[store]) : []);
+        return Promise.resolve(Object.keys(pref[id].storage));
 
       case 'setValue':
-        pref[store] || (pref[store] = {});                  // make one if didn't exist
-        if (pref[store][e.key] === e.value) { return true; } // return if value hasn't changed
-        pref[store][e.key] = e.value;
-        return browser.storage.local.set({[store]: pref[store]}); // Promise with no arguments OR reject with error message
+        if (pref[id].storage[e.key] === e.value) { return true; } // return if value hasn't changed
+        pref[id].storage[e.key] = e.value;
+        return browser.storage.local.set({[id]: pref[id]}); // Promise with no arguments OR reject with error message
 
       case 'deleteValue':
-        if (!hasProperty(e.key)) { return true; }           // return if nothing to delete
-        delete pref[store][e.key];
-        return browser.storage.local.set({[store]: pref[store]});
+        if (!pref[id].storage.hasOwnProperty(e.key)) { return true; } // return if nothing to delete
+        delete pref[id].storage[e.key];
+        return browser.storage.local.set({[id]: pref[id]});
 
       case 'openInTab':
         browser.tabs.create({url: e.url, active: e.active}); // Promise with tabs.Tab OR reject with error message
@@ -711,7 +652,6 @@ class API {
           title: name,
           message: e.text
         });
-        break;
 
       case 'download':
         // --- check url
@@ -759,7 +699,6 @@ class API {
             }
           })
           .catch(error => App.log(name, `${message.api} ${url} ➜ ${error.message}`, 'error'));
-        break;
 
       case 'xmlHttpRequest':
         const xhrUrl = this.checkURL(name, e.url, e.base);
@@ -786,7 +725,7 @@ class API {
           xhr.onabort =     () => resolve(this.makeResponse(xhr, 'onabort'));
           xhr.onprogress =  () => {};
         });
-        break;
+
     }
   }
 
@@ -827,3 +766,102 @@ class API {
 }
 new API();
 // ----------------- /Content Message Handler --------------
+
+// ----------------- Migrate -------------------------------
+class Migrate {
+
+  static async run() {
+
+    const m = 2.25;
+    const version = localStorage.getItem('migrate') || 0;
+    if (version*1 >= m && !pref.hasOwnProperty('content')) { return; } // double check for v2.25 migrate backward compatibility
+
+    // --- v1.31 migrate 2020-03-13
+    if (pref.hasOwnProperty('disableHighlight')) {
+      delete pref.disableHighlight;
+      await browser.storage.local.remove('disableHighlight');
+    }
+
+    // --- v2.0 migrate 2020-12-08
+    !localStorage.getItem('theme') && localStorage.getItem('dark') === 'true' && localStorage.setItem('theme', 'darcula');
+    localStorage.removeItem('syntax');
+
+    if (!pref.hasOwnProperty('content')) { return; }
+
+    // --- v2.25 migrate 2021-05-
+    localStorage.removeItem('pinMenu');
+
+    // --- combined migration
+    // --- v2.25  migrate 2021-05-
+    // --- v2.5   migrate 2020-12-14
+    // --- v2.0   migrate 2020-12-08
+    // --- v1.36  migrate 2020-05-25
+    const data = {
+      // --- extension related data
+      name: '',
+      author: '',
+      description: '',
+      updateURL: '',
+      enabled: true,
+      autoUpdate: false,
+      version: '',
+      antifeatures: [],
+      injectInto: '',
+
+      require: [],
+      requireRemote: [],
+      resource: {},
+      userMatches: '',
+      userExcludeMatches: '',
+      userRunAt: '',
+      i18n: {name: {}, description: {}},
+      error: '',
+      storage: {},
+
+      // --- API related data
+      allFrames: false,
+      js: '',
+      css: '',
+      style: [],
+      matches: [],
+      excludeMatches: [],
+      includeGlobs: [],
+      excludeGlobs: [],
+      includes: [],
+      excludes: [],
+      matchAboutBlank: false,
+      runAt: 'document_idle'
+    };
+
+    Object.keys(pref.content).forEach(item => {
+
+      // add & set to default if missing
+      Object.keys(data).forEach(key => pref.content[item].hasOwnProperty(key) || (pref.content[item][key] = data[key]));
+
+      // --- v1.36 migrate 2020-05-25
+      pref.content[item].require.forEach((lib, i) => {
+
+        switch (lib) {
+
+          case 'lib/jquery-1.12.4.min.jsm':     pref.content[item].require[i] = 'lib/jquery-1.jsm'; break;
+          case 'lib/jquery-2.2.4.min.jsm':      pref.content[item].require[i] = 'lib/jquery-2.jsm'; break;
+          case 'lib/jquery-3.4.1.min.jsm':      pref.content[item].require[i] = 'lib/jquery-3.jsm'; break;
+          case 'lib/jquery-ui-1.12.1.min.jsm':  pref.content[item].require[i] = 'lib/jquery-ui-1.jsm'; break;
+          case 'lib/bootstrap-4.4.1.min.jsm':   pref.content[item].require[i] = 'lib/bootstrap-4.jsm'; break;
+          case 'lib/moment-2.24.0.min.jsm':     pref.content[item].require[i] = 'lib/moment-2.jsm'; break;
+          case 'lib/underscore-1.9.2.min.jsm':  pref.content[item].require[i] = 'lib/underscore-1.jsm'; break;
+        }
+      });
+
+      // --- v2.25 move script & storage
+      pref.content[item].storage = pref['_' + item] || {};  // combine with  script storage
+      pref['_' + item] = pref.content[item];                // move to pref from  pref.content
+    });
+    delete pref.content;
+    await browser.storage.local.remove('content');
+
+    await browser.storage.local.set(pref);
+    localStorage.setItem('migrate', m);                     // store migrate version locally
+  }
+}
+// ----------------- /Migrate ------------------------------
