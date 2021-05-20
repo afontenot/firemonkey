@@ -81,7 +81,7 @@
 
 
   <h2 id="Preamble">Preamble</h2>
-  <p><i>FireMonkey</i> is a totally new combined user-script and user-style manager. While it has similar functions to other user-Script managers like <i>GreaseMonkey/TamperMonkey/ViolentMonkey</i>, and user-style managers like <i>Stylish/Stylus/xStyle</i>, there are also differences. Similar to other userscript managers, scripts (or CSS) are injected in tabs and for a new script/CSS to have an effect, tab must be reloaded. The behaviour differs from <i>Stylus</i> which can inject CSS into a tab and remove it without having to reload the tab.</p>
+  <p><i>FireMonkey</i> is a totally new combined user-script and user-style manager. While it has similar functions to other user-Script managers like <i>Greasemonkey/Tampermonkey/Violentmonkey</i>, and user-style managers like <i>Stylish/Stylus/xStyle</i>, there are also differences. Similar to other userscript managers, scripts (or CSS) are injected in tabs and for a new script/CSS to have an effect, tab must be reloaded. The behaviour differs from <i>Stylus</i> which can inject CSS into a tab and remove it without having to reload the tab.</p>
   <p class="footnote">Some functions like script injection are prevented by Firefox on sites with restrictive Content Security Policy (CSP), as well as certain domains e.g. accounts-static.cdn.mozilla.net, accounts.firefox.com, addons.cdn.mozilla.net, api.accounts.firefox.com, content.cdn.mozilla.net, content.cdn.mozilla.net, discovery.addons.mozilla.org, input.mozilla.org, install.mozilla.org, oauth.accounts.firefox.com, profile.accounts.firefox.com, support.mozilla.org, sync.services.mozilla.com, testpilot.firefox.com.</p>
 
 
@@ -517,9 +517,9 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
     <tr>
       <th></th>
       <th>FireMonkey</th>
-      <th>GreaseMonkey</th>
-      <th>TamperMonkey</th>
-      <th>ViolentMonkey</th>
+      <th>Greasemonkey</th>
+      <th>Tampermonkey</th>
+      <th>Violentmonkey</th>
     </tr>
   </thead>
   </thead>
@@ -552,7 +552,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
 
   <h2 id="metadata-block">Metadata Block</h2>
-  <p>For easier compatibility, format is similar to <i>GreaseMonkey</i> Metadata Block for UserScripts. The commenting is different for CSS and as a result a uniform commenting for Metadata Block can be used. The Metadata Block identifier (case-insensitive e.g. ==userscript== etc) for UserScript is <code>==UserScript== ... ==/UserScript==</code> and for UserCSS is <code>==UserCSS== ... ==/UserCSS==</code>. For clarity, it is best to have the Metadata Block on top (or after <code>'use strict';</code> if wanted, but <i>FireMonkey</i> can pick it up from anywhere within the code.</p>
+  <p>For easier compatibility, format is similar to <i>Greasemonkey</i> Metadata Block for UserScripts. The commenting is different for CSS and as a result a uniform commenting for Metadata Block can be used. The Metadata Block identifier (case-insensitive e.g. ==userscript== etc) for UserScript is <code>==UserScript== ... ==/UserScript==</code> and for UserCSS is <code>==UserCSS== ... ==/UserCSS==</code>. For clarity, it is best to have the Metadata Block on top (or after <code>'use strict';</code> if wanted, but <i>FireMonkey</i> can pick it up from anywhere within the code.</p>
   <p class="footnote">Read <a href="#UserStyle">UserStyle</a> for <code>==UserStyle== ... ==/UserStyle==</code></p>
 
    <figure>
@@ -647,9 +647,9 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
     <tr>
       <th>Metadata</th>
       <th>FireMonkey</th>
-      <th>GreaseMonkey</th>
-      <th>TamperMonkey</th>
-      <th>ViolentMonkey</th>
+      <th>Greasemonkey</th>
+      <th>Tampermonkey</th>
+      <th>Violentmonkey</th>
     </tr>
   </thead>
   <tbody class="slim">
@@ -701,18 +701,13 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
 
 
-
-
-
-
-
-
   <h4>name</h4>
   <p><i>FireMonkey</i> uses the <code>name</code> (case-sensitive) as ID for Scripts & CSS, therefore names must be unique. A shorter & concise name is recommended.</p>
 
 
   <h4>Localization</h4>
     <p>Some entries can be localized for display propose e.g. <code>@name:zh-CN</code>, <code>@description:kr</code>. The language code is case-sensitive and must match <a href="https://www.w3.org/TR/ltli/" target="_blank">Language Tags and Locale Identifiers </a> e.g. "en", "en-US", "de", "fr", etc.</p>
+    <p>Entries without local identifier can also match <code>navigator.language</code> with local identifier. For example, if <code>navigator.language</code> is "en-US" it will match <code>name:en-US</code> or <code>name:en</code>.</p>
 
   <h4>grant <span class="fail"></span></h4>
   <p>Scripts will have access to all available APIs and therefore <code>@grant</code> is not needed or used.</p>
@@ -726,8 +721,8 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
     <li>In <code>page</code> mode, userscript injection might get blocked by page <a href="https://developer.mozilla.org/docs/Web/HTTP/CSP" target="_blank">Content Security Policy (CSP)</a></li>
     <li>In <code>page</code> mode, userscripts have no access to GM functions however ...
       <ul>
-        <li><code>unsafeWindow</code> is available for <i>ViolentMonkey</i> compatibility</li>
-        <li><code>GM.info|GM_info</code> is available for <i>TamperMonkey</i> & <i>ViolentMonkey</i> compatibility</li>
+        <li><code>unsafeWindow</code> is available for <i>Violentmonkey</i> compatibility</li>
+        <li><code>GM.info|GM_info</code> is available for <i>Tampermonkey</i> & <i>Violentmonkey</i> compatibility</li>
       </ul>
     </li>
   </ul>
@@ -740,9 +735,9 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
     <tr>
       <th></th>
       <th>FireMonkey</th>
-      <th>GreaseMonkey</th>
-      <th>TamperMonkey</th>
-      <th>ViolentMonkey</th>
+      <th>Greasemonkey</th>
+      <th>Tampermonkey</th>
+      <th>Violentmonkey</th>
     </tr>
   </thead>
   <tbody>
@@ -894,7 +889,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
   <h4>run-at</h4>
   <p><i>FireMonkey</i> default <code>run-at</code> is <code>document_idle</code> for Scripts, therefore there is no need for event listeners such as <code>'load'</code> or <code>'DOMContentLoaded'</code> as they may not apply. If script has to run earlier, then the <code>run-at</code> has to be set accordingly.</p>
-  <p><i>GreaseMonkey</i> uses hyphen separated words (<code>document-start|document-end|document-idle</code>), while the API uses underscore separated words (<code>document_start|document_end|document_idle</code>). <i>FireMonkey</i> converts the hyphen so both can be used.</p>
+  <p><i>Greasemonkey</i> uses hyphen separated words (<code>document-start|document-end|document-idle</code>), while the API uses underscore separated words (<code>document_start|document_end|document_idle</code>). <i>FireMonkey</i> converts the hyphen so both can be used.</p>
 
   <p><i>FireMonkey</i> & Firefox API <code>run-at</code> states directly correspond to <a href="https://developer.mozilla.org/docs/Web/API/Document/readyState">Document.readyState</a>.</p>
 
@@ -912,7 +907,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   </dl>
 
   <h4>run-at (non-standard)</h4>
-  <p><i>TamperMonkey</i> supports some non-standard <code>run-at</code>.</p>
+  <p><i>Tampermonkey</i> supports some non-standard <code>run-at</code>.</p>
 
   <blockquote><dl style="margin: 0;">
     <dt>document-body</dt>
@@ -922,7 +917,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
       <dd>The script will be injected if it is clicked at the browser context menu (desktop Chrome-based browsers only).</dd>
       <dd>Note: all <code>@include</code> and <code>@exclude</code> statements will be ignored if this value is used, but this may change in the future.</dd>
   </dl>
-  <cite><a href="https://www.tampermonkey.net/documentation.php#_run_at" target="_blank">TamperMonkey Documentation</a></cite></blockquote>
+  <cite><a href="https://www.tampermonkey.net/documentation.php#_run_at" target="_blank">Tampermonkey Documentation</a></cite></blockquote>
 
 
   <h4>defaults</h4>
@@ -935,9 +930,9 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
     <tr>
       <th></th>
       <th>FireMonkey</th>
-      <th>GreaseMonkey</th>
-      <th>TamperMonkey</th>
-      <th>ViolentMonkey</th>
+      <th>Greasemonkey</th>
+      <th>Tampermonkey</th>
+      <th>Violentmonkey</th>
     </tr>
   </thead>
   <tbody>
@@ -1704,7 +1699,7 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
 
   <h2 id="script-api"><img src="../image/js.svg" alt=""> Script API</h2>
   <p><i>FireMonkey</i> supports both GM4 & GM3 style APIs (e.g. GM.*** & GM_***) via mostly asynchronous <code>Promise</code>. Therefore if scripts requires a <code>return</code>, it must wait for the <code>Promise</code> to resolve.</p>
-  <p>Following APIs (similar to <i>GreaseMonkey</i>) are provided to the user scripts (<i>more may be added later</i>)</p>
+  <p>Following APIs (similar to <i>Greasemonkey</i>) are provided to the user scripts (<i>more may be added later</i>)</p>
 
   <figure>
     <figcaption>API Examples</figcaption>
@@ -1816,9 +1811,9 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
   <tr>
     <th>API</th>
     <th>FireMonkey</th>
-    <th>GreaseMonkey</th>
-    <th>TamperMonkey</th>
-    <th>ViolentMonkey</th>
+    <th>Greasemonkey</th>
+    <th>Tampermonkey</th>
+    <th>Violentmonkey</th>
   </tr>
   </thead>
   <tbody class="slim">
@@ -1877,7 +1872,7 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
     <tr><th>GM_getTab</th><td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="fail"><a href="https://github.com/violentmonkey/violentmonkey/issues/1120" target="_blank">&#x24d8;</a></td></tr>
     <tr><th>GM_getTabs</th><td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="fail"><a href="https://github.com/violentmonkey/violentmonkey/issues/1120" target="_blank">&#x24d8;</a></td></tr>
     <tr><th>GM_saveTab</th><td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="fail"><a href="https://github.com/violentmonkey/violentmonkey/issues/1120" target="_blank">&#x24d8;</a></td></tr>
-
+    <tr><th>GM_addElement</th><td class="fail"></td><td class="fail"></td><td class="pass"><span>v4.11</span> <a href="https://www.tampermonkey.net/changelog.php?ext=dhdg&show=fire" target="_blank">&#x24d8;</a></td><td class="fail"></td></tr>
 
     <tr><th>&nbsp;</th><td colspan="6"></td></tr>
 
@@ -1899,9 +1894,9 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
       </td>
     </tr>
 
-    <tr><th>window.close</th><td class="fail"></td><td class="fail"><a href="https://github.com/greasemonkey/greasemonkey/issues/2538" title ="Add support for @grant window.close (Tampermonkey parity)" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"><span>v2.6.2+</span> <a href="https://violentmonkey.github.io/api/metadata-block/#grant" target="_blank">&#x24d8;</a></td></tr>
-    <tr><th>window.focus</th><td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="pass"><span>v2.12.10+</span> <a href="https://violentmonkey.github.io/api/metadata-block/#grant" target="_blank">&#x24d8;</a></td></tr>
-    <tr><th>window.onurlchange</th><td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
+    <tr><th>window.close <sup>2</sup></th><td class="fail"></td><td class="fail"><a href="https://github.com/greasemonkey/greasemonkey/issues/2538" title ="Add support for @grant window.close (Tampermonkey parity)" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"><span>v2.6.2+</span> <a href="https://violentmonkey.github.io/api/metadata-block/#grant" target="_blank">&#x24d8;</a></td></tr>
+    <tr><th>window.focus <sup>2</sup></th><td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="pass"><span>v2.12.10+</span> <a href="https://violentmonkey.github.io/api/metadata-block/#grant" target="_blank">&#x24d8;</a></td></tr>
+    <tr><th>window.onurlchange <sup>3</sup></th><td class="fail"></td><td class="fail"></td><td class="pass"><span>v4.11</span> <a href="https://www.tampermonkey.net/changelog.php?ext=dhdg&show=fire" target="_blank">&#x24d8;</a></td><td class="fail"></td></tr>
 
 
     <tr><th>&nbsp;</th><td colspan="6"></td></tr>
@@ -1953,7 +1948,7 @@ sandbox/injected-web.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>400</td>
+      <td>420</td>
       <td>294k</td>
       <td>390k</td>
       <td>39k</td>
@@ -1961,6 +1956,13 @@ sandbox/injected-web.js</code></td>
 
   </tbody>
 </table>
+
+
+  <p><sup>1</sup> <code>window.close</code> grant results is overwriting the global <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/close" target="_blank">window.close()</a> and bypassing the specific JavaScript <code>window.opener</code> safeguard to close a window that it has not opened. Such grant would allow malware userscripts to run code and hide the result by closing the window before user has a change to notice. Furthermore, the choice to close a window/tab opened by the user, should remain with the user.</p>
+  <p><sup>2</sup> <code>window.focus</code> grant results is overwriting the global <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/focus" target="_blank">window.focus()</a>. Such grant could be disruptive in cases where user is playing a game or in the middle of something in another window/tab and the userscript in the background causes its window/tab to become active and come to the foreground. Furthermore, the choice to focus a window/tab, should remain with the user.</p>
+  <p><sup>3</sup> <code>window.onurlchange </code> is an experimental implementation on Tampermonkey 4.11.6120 (2020-09-17).</p>
+  <p class="footnote">Alternative: <a href="#Detecting_JavaScript_Navigation">Detecting JavaScript Navigation</a></p>
+
 
 
 <table>
@@ -2006,7 +2008,7 @@ js/promisify.js</code></td>
       <th><img src="../image/osi.png" alt=""> Open Source</th>
       <td class="pass"></td>
       <td class="pass"></td>
-      <td class="fail"><a href="https://userstyles.org/terms-of-use" title="" target="_blank">Proprietary License</a></td>
+      <td class="fail"><a href="https://userstyles.org/terms-of-use" target="_blank">Proprietary License</a></td>
       <td class="pass">minified</td>
     </tr>
 
@@ -2020,7 +2022,7 @@ js/promisify.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>400</td>
+      <td>420</td>
       <td>66k</td>
       <td>76k</td>
       <td>430</td>
@@ -2072,7 +2074,7 @@ js/promisify.js</code></td>
 
   <h3 id="fetch">fetch</h3>
   <p><i>FireMonkey</i> <code>fetch</code> API is based on the JavaScript <a href="https://developer.mozilla.org/docs/Web/API/WindowOrWorkerGlobalScope/fetch" target="_blank">Fetch API</a> which provides the new Promise based interface for fetching resources (including across the network). It will seem familiar to anyone who has used <code>XMLHttpRequest</code>, but it provides a more powerful and flexible feature set.</p>
-  <p>For simplicity and compatibility, the same GM style naming is kept for <code>fetch</code> API although it is not available in <i>GreaseMonkey</i>.</p>
+  <p>For simplicity and compatibility, the same GM style naming is kept for <code>fetch</code> API although it is not available in <i>Greasemonkey</i>.</p>
   <p><i>FireMonkey</i> <code>fetch</code> returns response object/string or <code>null</code> (check console & the log for errors e.g.: <i>TypeError: "NetworkError when attempting to fetch resource.</i>").</p>
 
   <p class="note"><i>FireMonkey</i> GM<code> fetch</code> fixes <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1405971" title="Webextension UUID leak via Fetch requests" target="_blank">Bug 1405971</a>.</p>
@@ -2155,8 +2157,8 @@ GM_fetch(url[, init]);</pre>
 
 
   <h3 id="xmlHttpRequest">xmlHttpRequest</h3>
-  <p><code>GM.xmlHttpRequest/GM_xmlhttpRequest</code> is the xmlHttpRequest interface and mostly compatible with <i>GreaseMonkey</i> API.</p>
-  <p>All requests are <code>asynchronous</code>, therefore <i>GreaseMonkey</i> <code>synchronous</code> is not supported.</p>
+  <p><code>GM.xmlHttpRequest/GM_xmlhttpRequest</code> is the xmlHttpRequest interface and mostly compatible with <i>Greasemonkey</i> API.</p>
+  <p>All requests are <code>asynchronous</code>, therefore <i>Greasemonkey</i> <code>synchronous</code> is not supported.</p>
 
   <figure>
     <figcaption>Request</figcaption>
@@ -2645,7 +2647,7 @@ popup.addStyle(css);
 }</pre>
 
   <h3 id="log">log</h3>
-  <p>The API is added for convenience and compatibility and is no longer supproted by GreaseMonkey or ViolentMonkey but TamperMonkey still has it. Multiple parameters can be passed e.g. <code>GM_log('one', 'two', 'three')</code>. You can also use <code>console.log()</code> instead.</p>
+  <p>The API is added for convenience and compatibility and is no longer supproted by Greasemonkey or Violentmonkey but Tampermonkey still has it. Multiple parameters can be passed e.g. <code>GM_log('one', 'two', 'three')</code>. You can also use <code>console.log()</code> instead.</p>
 
 <pre>
 <span class="gm">GM_log</span>(<span class="string">'one'</span>);
@@ -2722,13 +2724,14 @@ exportFunction(notify, <span class="object">window</span>, {defineAs: 'notify'})
   <figure>
     <figcaption>Example</figcaption>
 <pre>
-<span class="comment">// select a simple node that changes in navigation to attach a MutationObserver e.g. &lt;title&gt;</span>
+<span class="comment">// select a simple node that changes in navigation to attach a MutationObserver e.g. &lt;title&gt;
+// For better performance avoid using a node with a lot of children like &lt;body&gt; when childList: true  </span>
 <span class="keyword">new</span> MutationObserver((mutationsList) => {
   <span class="property">console</span>.<span class="method">log</span>(mutationsList[0].target.<span class="property">textContent</span>);
   <span class="comment">// re-run the necessary function</span>
 }).<span class="method">observe</span>(
   <span class="property">document</span>.<span class="method">querySelector</span>('title'),
-  {subtree: <span class="keyword">true</span>, characterData: <span class="keyword">true</span>, childList: <span class="keyword">true</span>}
+  {subtree: <span class="keyword">true</span>, childList: <span class="keyword">true</span>}
 );
 </pre>
 </figure>

@@ -207,20 +207,11 @@ class Script {
     // --- color picker
     this.inputColor = document.querySelector('.script input[type="color"]');
     this.inputColor.addEventListener('change', (e) => this.changeColor());
-/*
-    // --- pinnned menu
-    const pinMenu = document.querySelector('#pinMenu');
-    pinMenu.checked = localStorage.getItem('pinMenu') !== 'false'; // defaults to pinned
-    const navDetails = document.querySelector('nav details');
-    navDetails.open = pinMenu.checked;
-    pinMenu.addEventListener('change', (e) => localStorage.setItem('pinMenu', pinMenu.checked));
-    document.body.addEventListener('click', (e) =>
-      !navDetails.contains(e.explicitOriginalTarget) && !pinMenu.checked && (navDetails.open = false));
-*/
+
     // --- script storage changes
     chrome.storage.onChanged.addListener((changes, area) => { // Change Listener
 
-      Object.keys(changes).forEach(item => {
+      area === 'local' && Object.keys(changes).forEach(item => { // local only, not for sync
 
         pref[item] = changes[item].newValue;                // update pref with the saved version
 
@@ -817,8 +808,9 @@ class Script {
     pref[id].enabled || this.legend.classList.add('disabled');
 
     // --- i18n
-    const i18nName = pref[id].i18n.name[navigator.language];
-    if (i18nName && i18nName !== id) {                      // i18n if different
+    const lang = navigator.language;
+    const i18nName = pref[id].i18n.name[lang] || pref[id].i18n.name[lang.substring(0, 2)]; // fallback to primary language
+    if (i18nName !== pref[id].name) {                       // i18n if different
       const sp = document.createElement('span');
       sp.textContent =  i18nName;
       this.legend.appendChild(sp);
