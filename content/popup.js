@@ -179,7 +179,8 @@ class Popup {
 
         case 'name':                                        // i18n if different
         case 'description':
-          script.i18n[item][this.lang] && script.i18n[item][this.lang] !== script[item] && arr.push(script.i18n[item][this.lang]);
+          const i18n = script.i18n[item][this.lang] || script.i18n[item][this.lang.substring(0, 2)]; // fallback to primary language
+          i18n !== script[item] && arr.push(i18n);
           break;
 
         case 'require':                                     // --- add requireRemote to require
