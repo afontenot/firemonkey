@@ -96,6 +96,10 @@ summary,
   cursor: pointer;
 }
 
+input[type="number"] {
+  width: 4em;
+}
+
 ::placeholder {
   opacity: 0.5;
   font-style: italic;
@@ -122,6 +126,31 @@ iframe {
   height: 99%;
 }
 
+textarea {
+  width: 100%;
+}
+
+fieldset {
+  background: var(--nav-bg);
+  margin-bottom: 1em;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+fieldset label img {
+  width: 1em;
+}
+
+legend {
+  color: var(--fieldset-color);
+  background: var(--nav-bg);
+  font-size: 1.1em;
+  margin-bottom: 0.5em;
+  padding: 0.2em 1em;
+  border-radius: 10px;  
+  border: 1px solid var(--border);
+}
+
 .flex {
   display: flex;
 }
@@ -132,20 +161,6 @@ iframe {
 
 .spacer {
   flex-grow: 1;
-}
-
-fieldset {
-  transition: 0.5s;
-}
-
-fieldset:not(:first-of-type) {
-  margin-top: 1em;
-}
-
-legend {
-  color: var(--fieldset-color);
-  font-size: 1.1em;
-  margin-bottom: 0.5em;
 }
 
 .flat {
@@ -166,7 +181,20 @@ legend {
   box-shadow: 0 1px 5px var(--shadow);
 }
 
+.description {
+  border-left: 2px solid #abc;
+  color: var(--fieldset-color);
+  font-size: 0.9em;
+  font-style: italic;
+  margin-left: 0.5em;
+  margin-top: 0;
+  padding-left: 0.3em;
+}
 /* ----- Import/Export ----- */
+input[type="file"] {
+  display: none;
+}
+
 label[data-i18n^="import"] {
   border-top-color: #6a4;
 }
@@ -487,22 +515,6 @@ aside ul + div::after {
 /* ----- /Aside Scripts ----- */
 
 /* ----- Options ----- */
-.options fieldset {
-  background: var(--nav-bg);
-  border-radius: 10px;
-  margin-bottom: 1em;
-  border: 1px solid var(--border);
-
-}
-
-.options legend {
-  background: var(--nav-bg);
-  border: 1px solid var(--border);
-  padding: 0.2em 1em;
-  border-radius: 10px;
-  transition: 0.5s;
-}
-
 .options br {
   border: 0;
   margin-bottom: 1em;
@@ -512,20 +524,6 @@ aside ul + div::after {
   display: inline-block;
   min-width: 30%;
   margin-right: 1em;
-}
-
-.options fieldset label img {
-  width: 1em;
-}
-
-.description {
-  border-left: 2px solid #abc;
-  color: var(--fieldset-color);
-  font-size: 0.9em;
-  font-style: italic;
-  margin-left: 0.5em;
-  margin-top: 0;
-  padding-left: 0.3em;
 }
 
 .options textarea {
@@ -551,10 +549,6 @@ aside ul + div::after {
   opacity: 1;
 }
 
-textarea {
-  width: 100%;
-}
-
 .invalid {
   box-shadow: none;
   background-color: #fff0f5;
@@ -567,39 +561,6 @@ option {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-input[type="number"] {
-  width: 4em;
-}
-
-input[type="file"] {
-  display: none;
-}
-
-img.bin {
-  width: 20px;
-  transition: 0.5s;
-  cursor: pointer;
-  margin-left: 0.5em;
-  filter: opacity(0.4) grayscale(1);
-}
-
-img.bin:hover {
-  filter: opacity(1) grayscale(0);
-}
-
-
-button.bin {
-  width: 2em;
-  padding: 0.5em;
-}
-
-
-
-
-
-
-
 /* ----- /Options ----- */
 
 /* ----- Scripts ----- */
@@ -816,6 +777,13 @@ button.bin:hover img {
   border: 0;
   padding: 0;
   height: calc(100% - 4em);
+  background: unset;
+}
+
+.script legend {
+  border: 0;
+  padding: 0;
+  background: unset;
 }
 
 legend.js::before, legend.css::before {

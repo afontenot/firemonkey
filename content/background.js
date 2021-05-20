@@ -28,7 +28,7 @@ class ContextMenu {
     });
   }
 
-  process(info, tab, command){
+  process(info, tab, command) {
 
     switch (info.menuItemId) {
 
@@ -368,15 +368,19 @@ class Installer {
     );
 
     // prepare for Andriod, extraParameters not supported on FF for Android
-    !android && browser.tabs.onUpdated.addListener(this.directInstall, {
-      urls: [ '*://*/*.user.js', '*://*/*.user.css',
-              'file:///*.user.js', 'file:///*.user.css' ]
-    });
+    // extraParameters not supported on Android
+    android ? 
+      browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => 
+        /\.user\.(js|css)$/i.test(tab.url) && this.directInstall(tabId, changeInfo, tab)
+      ) : 
+      browser.tabs.onUpdated.addListener(this.directInstall, {
+        urls: [ '*://*/*.user.js', '*://*/*.user.css',
+                'file:///*.user.js', 'file:///*.user.css' ]
+      });
 
     // --- Remote Update
     this.cache = [];
-    this.onIdle = this.onIdle.bind(this);
-    browser.idle.onStateChanged.addListener(this.onIdle);
+    browser.idle.onStateChanged.addListener(state => this.onIdle(state));
   }
 
   // --------------- Web/Direct Installer ------------------
@@ -788,11 +792,11 @@ class Migrate {
 
     if (!pref.hasOwnProperty('content')) { return; }
 
-    // --- v2.25 migrate 2021-05-
+    // --- v2.25 migrate 2021-05-08
     localStorage.removeItem('pinMenu');
 
     // --- combined migration
-    // --- v2.25  migrate 2021-05-
+    // --- v2.25  migrate 2021-05-08
     // --- v2.5   migrate 2020-12-14
     // --- v2.0   migrate 2020-12-08
     // --- v1.36  migrate 2020-05-25

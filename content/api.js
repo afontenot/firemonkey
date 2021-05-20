@@ -2,7 +2,6 @@
 
   const name = script.metadata.name;
   const resource = script.metadata.resource;
-  const page = script.metadata.injectInto === 'page';
 
   // --------------- Script Storage ------------------------
   const id = '_' + name;                                    // set id as _name
@@ -25,6 +24,15 @@
           (valueChange[item])(item, oldValue[item], newValue[item], newValue[item] !== cache[item])
       );
     }
+  }
+
+  // ----- synch APIs
+  function GM_getValue(key, defaultValue) {
+    return storage.hasOwnProperty(key) ? storage[key] : defaultValue;
+  }
+
+  function GM_listValues() {
+    return script.export(Object.keys(storage));
   }
 
   // --------------- Script Command ------------------------
@@ -86,14 +94,6 @@
 
   // --------------- GM4 Object based functions ------------
   const GM = {
-
-    _getValue(key, defaultValue) {
-      return storage.hasOwnProperty(key) ? storage[key] : defaultValue;
-    },
-
-    _listValues() {
-      return script.export(Object.keys(storage));
-    },
 
     async getValue(key, defaultValue) {
 
@@ -255,10 +255,10 @@
 
       if (!css) { return; }
       try {
-        const style = document.createElement('style');
-        style.textContent = css;
-        style.dataset.src = name + '.user.js';
-        (document.head || document.body || document.documentElement || document).appendChild(style);
+        const node = document.createElement('style');
+        node.textContent = css;
+        node.dataset.src = name + '.user.js';
+        (document.head || document.body || document.documentElement || document).appendChild(node);
       } catch(error) { log(`addStyle ➜ ${error.message}`, 'error'); }
     },
 
@@ -266,14 +266,14 @@
 
       if (!js) { return; }
       try {
-        const script = document.createElement('script');
-        script.textContent = js;
-        if (!page) {
-          script.textContent +=
-            `\n\n//# sourceURL=user-script:FireMonkey/${encodeURI(name)}/GM%20addScript_${Math.random().toString(36).substring(2)}.js`;
+        const node = document.createElement('script');
+        node.textContent = js;
+        if (script.metadata.injectInto !== 'page') {
+          node.textContent +=
+            `\n\n//# sourceURL=user-script:FireMonkey/${encodeURI(name)}/GM.addScript_${Math.random().toString(36).substring(2)}.js`;
         }
-        (document.body || document.head || document.documentElement || document).appendChild(script);
-        script.remove();
+        (document.body || document.head || document.documentElement || document).appendChild(node);
+        node.remove();
       } catch(error) { log(`addScript ➜ ${error.message}`, 'error'); }
     },
 
@@ -298,7 +298,6 @@
       host.classList.toggle('modal', type.startsWith('panel-') ? modal : true); // process modal
 
       style.textContent = `
-
         :host, *, ::before, ::after {
           box-sizing: border-box;
         }
@@ -405,7 +404,6 @@
       document.body.appendChild(host);
 
       const obj = {
-
         host,
         style,
         content,
@@ -416,20 +414,17 @@
         },
 
         append(...arg) {
-
           typeof arg[0] === 'string' && /^<.+>$/.test(arg[0].trim()) ?
             content.append(document.createRange().createContextualFragment(arg[0].trim())) :
               content.append(...arg);
         },
 
         show() {
-
           host.style.opacity = 1;
           host.classList.toggle('on', true);
         },
 
         hide(e) {
-
           if (!e || [host, close].includes(e.originalTarget)) {
             host.style.opacity = 0;
             setTimeout(() => { host.classList.toggle('on', false); }, 500);
@@ -454,8 +449,8 @@
   script.defineGlobals({
 
     GM,
-    GM_getValue:                  GM._getValue,
-    GM_listValues:                GM._listValues,
+    GM_getValue,
+    GM_listValues,
     GM_deleteValue:               GM.deleteValue,
     GM_setValue:                  GM.setValue,
     GM_addValueChangeListener:    GM.addValueChangeListener,
