@@ -964,13 +964,13 @@ class Script {
         await browser.storage.local.set({[box.id]: pref[box.id]}); // update saved pref
       }
 
-      // --- name change
+      // --- check name change
       if (id !== box.id) {
         if (pref[id] && !confirm(chrome.i18n.getMessage('nameError'))) { return; }
 
         pref[id] = pref[box.id];                            // copy to new id
         delete pref[box.id];                                // delete old id
-        browser.storage.local.remove(box.id);               // dremove old data
+        browser.storage.local.remove(box.id);               // remove old data
       }
 
       // --- copy storage to data
@@ -1016,18 +1016,13 @@ class Script {
     RU.getUpdate(pref[id], true);                           // to class RemoteUpdate in common.js
   }
 
-  async processResponse(text, name, updateURL) {            // from class RemoteUpdate in common.js
+  processResponse(text, name, updateURL) {                  // from class RemoteUpdate in common.js
 
     const data = Meta.get(text);
     if (!data) { throw `${name}: Update Meta Data error`; }
 
     const id = '_' + data.name;                             // set id as _name
-
-    // --- check name
-    if (data.name !== name) {                               // name has changed
-      if (pref[id]) { throw `${name}: Update new name already exists`; } // name already exists
-      else { await App.rename(name, data.name); }
-    }
+    const oldId = '_' + name;
 
     // --- check version
     if (!RU.higherVersion(data.version, pref[id].version)) {
@@ -1037,6 +1032,16 @@ class Script {
 
     // ---  log message to display in Options -> Log
     App.log(data.name, `Updated version ${pref[id].version} to ${data.version}`);
+
+    // --- check name change
+    if (data.name !== name) {                               // name has changed
+      if (pref[id]) { throw `${name}: Update new name already exists`; } // name already exists
+      else { 
+        pref[id] = pref[oldId];                               // copy to new id
+        delete pref[oldId];                                   // delete old id
+        browser.storage.local.remove(oldId);                  // remove old data
+      }
+    }
 
     // --- update from previous version
     data.updateURL = pref[id].updateURL;

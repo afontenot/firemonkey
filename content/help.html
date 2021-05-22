@@ -1948,7 +1948,7 @@ sandbox/injected-web.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>420</td>
+      <td>440</td>
       <td>294k</td>
       <td>390k</td>
       <td>39k</td>
@@ -2022,7 +2022,7 @@ js/promisify.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>420</td>
+      <td>440</td>
       <td>66k</td>
       <td>76k</td>
       <td>430</td>
@@ -2658,7 +2658,7 @@ popup.addStyle(css);
   <h3 id="unsafeWindow">unsafeWindow &#x26a0;&#xfe0f;</h3>
   <p><code>unsafeWindow</code> in <i>FireMonkey</i> is an alias for <code>window.wrappedJSObject</code>. You can also use <code>window.wrappedJSObject</code> or <code>window.eval()</code> to access page JavaScript <b>globals</b>.</p>
   <p><code>unsafeWindow</code>, <code>window.wrappedJSObject</code> or <code>window.eval()</code> can be used to create function & objects.</p>
-  <p class="note">Please note that <code>window.eval()</code> makes the object available to the page script as well while <code>unsafeWindow</code>, <code>window.wrappedJSObject</code> does not.</p>
+  <p class="warning">Please note that <code>window.eval()</code> makes the object available to the page script as well while <code>unsafeWindow</code>, <code>window.wrappedJSObject</code> does not.</p>
 
   <figure>
     <figcaption>Example</figcaption>
@@ -3067,11 +3067,11 @@ ReferenceError: abc is not defined[Learn More]                        1f0135df-f
 </pre></dd>
 
     <dt>View Inserted UserScript</dt>
-      <dd>You can see the actual blob JS in <b>Developer Tool</b> (<kbd>F12</kbd>) <b>Debugger</b> tab under <b>user-script://</b> (you may have to refresh the page)</dd>
+      <dd>You can see the actual blob JavaScript in <a href="https://developer.mozilla.org/en-US/docs/Tools" target="_blank">Developer Tools</a> (<kbd>F12</kbd>) <b>Debugger</b> tab under <b>user-script://</b> (you may have to refresh the page)</dd>
 
     <dt>CSS Errors</dt>
-      <dd>The CSS error can be checked in <b>Developer Tool</b> (<kbd>F12</kbd>) for the page that the CSS is injected into.</dd>
-      <dd>You can check <b>Style Editor</b> tab and the injected CSS shows as a <b>blob</b> with a string of characters e.g. <i>da084755-6d22-45a5-870d-82c369299d55</i>.</dd>
+      <dd>The CSS error can be checked in <b>Developer Tools</b> (<kbd>F12</kbd>) for the page that the CSS is injected into.</dd>
+      <dd>You can check <a href="https://developer.mozilla.org/en-US/docs/Tools/Style_Editor" target="_blank">Style Editor</a> tab and the injected CSS shows as a <b>blob</b> with a string of characters e.g. <i>da084755-6d22-45a5-870d-82c369299d55</i>.</dd>
 
     <dt>Injection Errors</dt>
       <dd>Check the Log page for recent errors</dd>
