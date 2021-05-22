@@ -288,7 +288,7 @@ class ProcessPref {
     pref.counter && counter.init();
   }
 
-  processPrefUpdate(changes) {
+  async processPrefUpdate(changes) {
 
     // --- check counter preference has changed
     if (changes.counter && changes.counter.newValue !== changes.counter.oldValue) {
@@ -304,6 +304,7 @@ class ProcessPref {
       const relevant = ['name', 'enabled', 'injectInto', 'require', 'requireRemote', 'resource',
       'userMatches', 'userExcludeMatches', 'userRunAt', 'allFrames', 'js', 'css', 'style', 'matches',
       'excludeMatches', 'includeGlobs', 'excludeGlobs', 'includes', 'excludes', 'matchAboutBlank', 'runAt'];
+      const deleted = [];                                   // storage sync delete cache
 
       Object.keys(changes).forEach(item => {
 
@@ -318,6 +319,7 @@ class ProcessPref {
         if(!newValue) {
           delete pref[id];
           oldValue.style[0] ? oldValue.style.forEach((item, i) => scriptReg.unregister(id + 'style' + i)) : scriptReg.unregister(id);
+          deleted.push(id);
         }
         // if added or relevant data changed
         else if (!oldValue || relevant.some(i => !this.equal(oldValue[i], newValue[i]))) {
@@ -335,7 +337,11 @@ class ProcessPref {
         pref.sync = false;
         browser.storage.local.set({sync: false});
       }
-      else { browser.storage.sync.set(pref); }
+      else {
+        deleted[0] && await browser.storage.sync.remove(deleted); // delete scripts from storage sync
+        browser.storage.sync.set(pref)
+        .catch(error => App.log('Sync', error.message, 'error'));
+      }
     }
   }
 
@@ -369,10 +375,10 @@ class Installer {
 
     // prepare for Andriod, extraParameters not supported on FF for Android
     // extraParameters not supported on Android
-    android ? 
-      browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => 
+    android ?
+      browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) =>
         /\.user\.(js|css)$/i.test(tab.url) && this.directInstall(tabId, changeInfo, tab)
-      ) : 
+      ) :
       browser.tabs.onUpdated.addListener(this.directInstall, {
         urls: [ '*://*/*.user.js', '*://*/*.user.css',
                 'file:///*.user.js', 'file:///*.user.css' ]
@@ -482,7 +488,7 @@ class Installer {
       }
       else { App.notify(chrome.i18n.getMessage('error')); } // <head><title>504 Gateway Time-out</title></head>
     })
-    .catch(error => Util.log(item.name, `stylish ${updateURL} ➜ ${error.message}`, 'error'));
+    .catch(error => App.log(item.name, `stylish ${updateURL} ➜ ${error.message}`, 'error'));
   }
   // --------------- /Web|Direct Installer -----------------
 
