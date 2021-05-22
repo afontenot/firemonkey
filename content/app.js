@@ -529,7 +529,7 @@ class RemoteUpdate {
 
     fetch(item.updateURL)
     .then(response => response.text())
-    .then(text =>  this.callback(metaData + '\n\n' + text, item.name, item.updateURL))
+    .then(text => !text.trim().startsWith('<') && this.callback(metaData + '\n\n' + text, item.name, item.updateURL)) // check HTML timeout response
     .catch(error => App.log(item.name, `getStylish ${item.updateURL} ➜ ${error.message}`, 'error'));
   }
 

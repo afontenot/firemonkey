@@ -50,12 +50,18 @@ class Config {
     const js = cm.options.mode === 'javascript';
 
     // ------------- Lint Filter ---------------------------
-    const idx =[];
+    const idx =[];                                          // delete index cache
     annotationsNotSorted.forEach((item, index) => {
 
       const m = item.message.match(/'(GM_getValue|GM_listValues|GM_getTabs?|GM_saveTab|exportFunction|cloneInto)' is not defined/);
 
       switch (true) {
+
+        // suppress custom properties (--*) error from CSSLint
+        case !js && item.message.startsWith('Expected RBRACE at line ') &&
+                cm.getLine(item.from.line).substring(item.from.ch).startsWith('--'):
+          idx.push(index);
+          break;
 
         case m && ['GM_getValue', 'GM_listValues'].includes(m[1]):
           item.message = m[1] + ' is partially supported. Read the Help for more information.';
