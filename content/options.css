@@ -776,6 +776,7 @@ button.bin:hover img {
 .script fieldset {
   border: 0;
   padding: 0;
+  margin: 0;
   height: calc(100% - 4em);
   background: unset;
 }
