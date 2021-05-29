@@ -21,7 +21,7 @@ class ContextMenu {
     contextMenus.forEach(item => {
 
       if (item.id) {
-        item.title = item.title || chrome.i18n.getMessage(item.id);  // always use the same ID for i18n
+        item.title = item.title || browser.i18n.getMessage(item.id);  // always use the same ID for i18n
         item.onclick = this.process;
       }
       browser.menus.create(item);
@@ -40,7 +40,7 @@ class ContextMenu {
       case 'localeMaker': browser.tabs.create({url: '/locale-maker/locale-maker.html'}); return;
       case 'stylish': installer.stylish(tab.url); return;
     }
-    chrome.runtime.openOptionsPage();
+    browser.runtime.openOptionsPage();
   }
 }
 !android && new ContextMenu();                              // prepare for Andriod
@@ -265,20 +265,28 @@ class ProcessPref {
 
   async process() {
 
-    // --- storage sync check
-    if (pref.sync) {
-
-      await browser.storage.sync.get(null, result => {
-        Object.keys(result).forEach(item => pref[item] = result[item]); // update pref with the saved version
-      });
-      await browser.storage.local.set(pref);                // update local saved pref
-    }
+    pref.sync && await Sync.get();                          // storage sync ➜ local update
 
     await Migrate.run();                                    // migrate after storage sync check
 
-    chrome.storage.onChanged.addListener((changes, area) => { // Change Listener, after migrate
-      Object.keys(changes).forEach(item => pref[item] = changes[item].newValue); // update pref with the saved version
-      this.processPrefUpdate(changes);                      // apply changes
+    browser.storage.onChanged.addListener((changes, area) => { // Change Listener, after migrate
+
+      switch (true) {
+
+        case Sync.noUpdate:                                 // prevent loop from sync update
+          Sync.noUpdate = false;
+          break;
+
+        case area === 'local':
+          Object.keys(changes).forEach(item => pref[item] = changes[item].newValue); // update pref with the saved version
+          this.processPrefUpdate(changes, area);            // apply changes
+          pref.sync && Sync.set(changes);                   // set changes to sync
+          break;
+
+        case area === 'sync':                               // from sync
+          pref.sync && Sync.apply(changes);                 // apply changes to local
+          break;
+      }
     });
 
     await scriptReg.init();                                 // await data initialization
@@ -288,38 +296,36 @@ class ProcessPref {
     pref.counter && counter.init();
   }
 
-  async processPrefUpdate(changes) {
+  async processPrefUpdate(changes, area) {
 
-    // --- check counter preference has changed
+    // check counter preference has changed
     if (changes.counter && changes.counter.newValue !== changes.counter.oldValue) {
       changes.counter.newValue ? counter.init() : counter.terminate();
     }
 
-    // --- find changed scripts
+    // global change
     if (changes.globalScriptExcludeMatches &&
       changes.globalScriptExcludeMatches.oldValue !== changes.globalScriptExcludeMatches.newValue) {
       App.getIds().forEach(scriptReg.process);              // re-register all
     }
+    // find changed scripts
     else {
       const relevant = ['name', 'enabled', 'injectInto', 'require', 'requireRemote', 'resource',
       'userMatches', 'userExcludeMatches', 'userRunAt', 'allFrames', 'js', 'css', 'style', 'matches',
       'excludeMatches', 'includeGlobs', 'excludeGlobs', 'includes', 'excludes', 'matchAboutBlank', 'runAt'];
-      const deleted = [];                                   // storage sync delete cache
 
       Object.keys(changes).forEach(item => {
 
+        if (!item.startsWith('_')) { return; }              // skip
+        
         const oldValue = changes[item].oldValue;
         const newValue = changes[item].newValue;
-
-        if (!item.startsWith('_')) { return; }              // skip
-
         const id = item;
 
         // if deleted, unregister
         if(!newValue) {
           delete pref[id];
           oldValue.style[0] ? oldValue.style.forEach((item, i) => scriptReg.unregister(id + 'style' + i)) : scriptReg.unregister(id);
-          deleted.push(id);
         }
         // if added or relevant data changed
         else if (!oldValue || relevant.some(i => !this.equal(oldValue[i], newValue[i]))) {
@@ -327,28 +333,79 @@ class ProcessPref {
         }
       });
     }
-    // --- storage sync update
-    if (pref.sync) {
-      const size = JSON.stringify(pref).length;
-      if (size > 102400) {
-        const text = chrome.i18n.getMessage('syncError', (size/1024).toFixed(1));
-        App.notify(text);
-        App.log('Sync', text, 'error');
-        pref.sync = false;
-        browser.storage.local.set({sync: false});
-      }
-      else {
-        deleted[0] && await browser.storage.sync.remove(deleted); // delete scripts from storage sync
-        browser.storage.sync.set(pref)
-        .catch(error => App.log('Sync', error.message, 'error'));
-      }
-    }
   }
 
   equal(a, b) {
     return JSON.stringify(a) === JSON.stringify(b);
   }
 }
+
+// ----- Storage Sync
+class Sync {
+
+  // --- storage sync ➜ local update
+  static async get() {
+    
+    const deleted = [];
+    await browser.storage.sync.get(null, result => {
+      Object.keys(result).forEach(item => pref[item] = result[item]); // update pref with the saved version
+      App.getIds().forEach(item => {
+        if (!result[item]) {                                // remove deleted in sync from pref
+          delete pref[item];
+          deleted.push(item);
+        }
+      }); 
+    });
+    deleted[0] && await browser.storage.local.remove(deleted); // delete scripts from storage local
+    await browser.storage.local.set(pref);                  // update local saved pref, no storage.onChanged.addListener() yet
+  }
+
+  // --- storage sync ➜ local update
+  static async apply(changes) {
+    
+    const [keep, deleted] = this.sortChanges(changes);
+    this.noUpdate = false;
+    deleted[0] && await browser.storage.local.remove(deleted); // delete scripts from storage local
+    browser.storage.local.set(keep)
+    .catch(error => App.log('local', error.message, 'error'));    
+  }
+
+  // --- storage local ➜ sync update
+  static async set(changes) {
+
+    const size = JSON.stringify(pref).length;
+    if (size > 102400) {
+      const text = browser.i18n.getMessage('syncError', (size/1024).toFixed(1));
+      App.notify(text);
+      App.log('Sync', text, 'error');
+      pref.sync = false;
+      this.noUpdate = true;
+      browser.storage.local.set({sync: false});
+      return;
+    }
+
+    const [keep, deleted] = this.sortChanges(changes);
+    this.noUpdate = true;
+    deleted[0] && await browser.storage.sync.remove(deleted); // delete scripts from storage sync
+    this.noUpdate = true;
+    browser.storage.sync.set(keep)
+    .catch(error => {
+      this.noUpdate = false;
+      App.log('Sync', error.message, 'error');
+    });
+  }
+
+  
+  static sortChanges(changes) {
+    const keep = {};
+    const deleted = [];
+    Object.keys(changes).forEach(item => {
+      item.startsWith('_') && !changes[item].newValue ? deleted.push(item) : keep[item] = changes[item].newValue; // or pref[item]
+    });  
+    return [keep, deleted];
+  }  
+}
+Sync.noUpdate = false;
 // ----------------- /User Preference ----------------------
 
 // ----------------- Web/Direct Installer & Remote Update --
@@ -413,12 +470,13 @@ class Installer {
       const code = `(() => {
         let title = document.querySelector('${q}');
         title = title ? title.textContent : document.title;
-        return confirm(chrome.i18n.getMessage('installConfirm', title)) ? title : null;
+        return confirm(browser.i18n.getMessage('installConfirm', title)) ? title : null;
       })();`;
 
-      chrome.tabs.executeScript({code}, (result = []) =>
-        result[0] && RU.getScript({updateURL: e.url, name: result[0]})
-      );
+      browser.tabs.executeScript({code})
+      .then((result = []) => result[0] && RU.getScript({updateURL: e.url, name: result[0]}))
+      .catch(error => App.log('webInstall', `${e.url} ➜ ${error.message}`, 'error')); 
+      
       return {cancel: true};
     }
   }
@@ -439,15 +497,15 @@ class Installer {
 
     const code = String.raw`(() => {
       const pre = document.body;
-      if (!pre || !pre.textContent.trim()) { alert(chrome.i18n.getMessage('metaError')); return; }
+      if (!pre || !pre.textContent.trim()) { alert(browser.i18n.getMessage('metaError')); return; }
       const name = pre.textContent.match(/(?:\/\/)?\s*@name\s+([^\r\n]+)/);
-      if (!name) { alert(chrome.i18n.getMessage('metaError')); return; }
-      return confirm(chrome.i18n.getMessage('installConfirm', name[1])) ? [pre.textContent, name[1]] : null;
+      if (!name) { alert(browser.i18n.getMessage('metaError')); return; }
+      return confirm(browser.i18n.getMessage('installConfirm', name[1])) ? [pre.textContent, name[1]] : null;
     })();`;
 
-    chrome.tabs.executeScript({code}, (result = []) => {
-      result[0] && this.processResponse(result[0][0], result[0][1], tab.url);
-    });
+    browser.tabs.executeScript({code})
+    .then((result = []) => result[0] && this.processResponse(result[0][0], result[0][1], tab.url))
+    .catch(error => App.log('directInstall', `${tab.url} ➜ ${error.message}`, 'error'));    
   }
 
   async stylish(url) {                                      // userstyles.org
@@ -464,7 +522,7 @@ class Installer {
     })();`;
 
     const [{name, description, author, lastUpdate, updateURL}] = await browser.tabs.executeScript({code});
-    if (!name || !updateURL) { App.notify(chrome.i18n.getMessage('error')); return; }
+    if (!name || !updateURL) { App.notify(browser.i18n.getMessage('error')); return; }
 
     const version = lastUpdate ? new Date(lastUpdate).toLocaleDateString("en-GB").split('/').reverse().join('') : '';
 
@@ -486,7 +544,7 @@ class Installer {
         this.processResponse(metaData + '\n\n' + text, name, updateURL);
         App.notify(`${name}\nInstalled version ${version}`);
       }
-      else { App.notify(chrome.i18n.getMessage('error')); } // <head><title>504 Gateway Time-out</title></head>
+      else { App.notify(browser.i18n.getMessage('error')); } // <head><title>504 Gateway Time-out</title></head>
     })
     .catch(error => App.log(item.name, `stylish ${updateURL} ➜ ${error.message}`, 'error'));
   }

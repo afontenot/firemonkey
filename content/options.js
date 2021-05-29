@@ -41,7 +41,7 @@ class Options {
       save ? pref[node.id] = node[attr] : node[attr] = pref[node.id];
     });
 
-    save && chrome.storage.local.set(pref);                 // update saved pref
+    save && browser.storage.local.set(pref);                 // update saved pref
   }
 
   progressBar() {
@@ -59,7 +59,7 @@ class Options {
     if (cmOptionsNode.value) {
       let cmOptions = App.JSONparse(cmOptionsNode.value);
       if (!cmOptions) {
-        App.notify(chrome.i18n.getMessage('cmOptionsError')) ;
+        App.notify(browser.i18n.getMessage('cmOptionsError')) ;
         return;
       }
       // remove disallowed
@@ -209,7 +209,7 @@ class Script {
     this.inputColor.addEventListener('change', (e) => this.changeColor());
 
     // --- script storage changes
-    chrome.storage.onChanged.addListener((changes, area) => { // Change Listener
+    browser.storage.onChanged.addListener((changes, area) => { // Change Listener
 
       area === 'local' && Object.keys(changes).forEach(item => { // local only, not for sync
 
@@ -720,7 +720,7 @@ class Script {
     box.id = '';
     legend.textContent = '';
     legend.className = type;
-    legend.textContent = chrome.i18n.getMessage(type === 'js' ? 'newJS' : 'newCSS');
+    legend.textContent = browser.i18n.getMessage(type === 'js' ? 'newJS' : 'newCSS');
 
     const text = pref.template[type] || this.template[type];
     box.value = text;
@@ -735,7 +735,7 @@ class Script {
     const text = this.box.value;
     const metaData = text.match(Meta.regEx);
 
-    if (!metaData) { App.notify(chrome.i18n.getMessage('metaError')); return; }
+    if (!metaData) { App.notify(browser.i18n.getMessage('metaError')); return; }
     const type = metaData[1].toLowerCase() === 'userscript' ? 'js' : 'css';
     pref.template[type] = text.trimStart();
     browser.storage.local.set({template: pref.template});   // update saved pref
@@ -850,7 +850,7 @@ class Script {
         return false;
 
       default:
-        return !confirm(chrome.i18n.getMessage('discardConfirm'));
+        return !confirm(browser.i18n.getMessage('discardConfirm'));
     }
   }
 
@@ -882,7 +882,7 @@ class Script {
       pref[id].autoUpdate = this.autoUpdate.checked;
     }
     else {
-      App.notify(chrome.i18n.getMessage('updateUrlError'));
+      App.notify(browser.i18n.getMessage('updateUrlError'));
       this.autoUpdate.checked = false;
       return;
     }
@@ -897,8 +897,8 @@ class Script {
     const multi = document.querySelectorAll('aside li.on');
     if (!multi[0]) { return; }
 
-    if (multi.length > 1 ? !confirm(chrome.i18n.getMessage('deleteMultiConfirm', multi.length)) :
-        !confirm(chrome.i18n.getMessage('deleteConfirm', box.id.substring(1)))) { return; }
+    if (multi.length > 1 ? !confirm(browser.i18n.getMessage('deleteMultiConfirm', multi.length)) :
+        !confirm(browser.i18n.getMessage('deleteConfirm', box.id.substring(1)))) { return; }
 
     const deleted = [];
     multi.forEach(item => {
@@ -916,7 +916,7 @@ class Script {
       this.cm.toTextArea();
     }
     this.legend.className = '';
-    this.legend.textContent = chrome.i18n.getMessage('script');
+    this.legend.textContent = browser.i18n.getMessage('script');
     box.id = '';
     box.value = '';
   }
@@ -934,13 +934,13 @@ class Script {
     const data = Meta.get(box.value.trim(), this.userMatches.value, this.userExcludeMatches.value);
     if (!data) { throw 'Meta Data Error'; }
     else if (data.error) {
-      App.notify(chrome.i18n.getMessage('metaError'));
+      App.notify(browser.i18n.getMessage('metaError'));
       return;
     }
 
     // --- check name
     if (!data.name) {
-      App.notify(chrome.i18n.getMessage('noNameError'));
+      App.notify(browser.i18n.getMessage('noNameError'));
       return;
     }
 
@@ -966,7 +966,7 @@ class Script {
 
       // --- check name change
       if (id !== box.id) {
-        if (pref[id] && !confirm(chrome.i18n.getMessage('nameError'))) { return; }
+        if (pref[id] && !confirm(browser.i18n.getMessage('nameError'))) { return; }
 
         pref[id] = pref[box.id];                            // copy to new id
         delete pref[box.id];                                // delete old id
@@ -1009,7 +1009,7 @@ class Script {
     const id = box.id;
 
     if (!pref[id].updateURL || !pref[id].version) {
-      App.notify(chrome.i18n.getMessage('updateUrlError'));
+      App.notify(browser.i18n.getMessage('updateUrlError'));
       return;
     }
 
@@ -1026,7 +1026,7 @@ class Script {
 
     // --- check version
     if (!RU.higherVersion(data.version, pref[id].version)) {
-      App.notify(chrome.i18n.getMessage('noNewUpdate'), name);
+      App.notify(browser.i18n.getMessage('noNewUpdate'), name);
       return;
     }
 
@@ -1048,7 +1048,7 @@ class Script {
     data.enabled = pref[id].enabled;
     data.autoUpdate = pref[id].autoUpdate;
 
-    App.notify(chrome.i18n.getMessage('scriptUpdated', data.version), name);
+    App.notify(browser.i18n.getMessage('scriptUpdated', data.version), name);
     pref[id] = data;                                        // save to pref
     browser.storage.local.set({[id]: pref[id]});            // update saved pref
 
@@ -1074,15 +1074,15 @@ class Script {
 
       switch (true) {
 
-        case !file: App.notify(chrome.i18n.getMessage('error')); return;
+        case !file: App.notify(browser.i18n.getMessage('error')); return;
         case !['text/css', 'application/x-javascript'].includes(file.type): // check file MIME type CSS/JS
-          App.notify(chrome.i18n.getMessage('fileTypeError'));
+          App.notify(browser.i18n.getMessage('fileTypeError'));
           return;
       }
 
       const reader  = new FileReader();
       reader.onloadend = () => script.readDataScript(reader.result);
-      reader.onerror = () => App.notify(chrome.i18n.getMessage('fileReadError'));
+      reader.onerror = () => App.notify(browser.i18n.getMessage('fileReadError'));
       reader.readAsText(file);
     });
   }
@@ -1093,7 +1093,7 @@ class Script {
     const data = Meta.get(text);
     if (!data) { throw 'Meta Data Error'; }
     else if (data.error) {
-      App.notify(chrome.i18n.getMessage('metaError'));
+      App.notify(browser.i18n.getMessage('metaError'));
       return;
     }
 
@@ -1118,7 +1118,9 @@ class Script {
     }
 
     pref[id] = data;                                        // save to pref
-    obj[id] = pref[id];
+    this.obj[id] = pref[id];
+    
+    // --- update storage after all files are processed
     this.fileLength--;                                      // one less file to process
     if(this.fileLength) { return; }                         // not 0 yet
 
@@ -1134,7 +1136,7 @@ class Script {
 
     const reader  = new FileReader();
     reader.onloadend = () => script.prepareStylus(reader.result);
-    reader.onerror = () => App.notify(chrome.i18n.getMessage('fileReadError'));
+    reader.onerror = () => App.notify(browser.i18n.getMessage('fileReadError'));
     reader.readAsText(file);
   }
 
@@ -1142,7 +1144,7 @@ class Script {
 
     const importData = App.JSONparse(data);
     if (!importData) {
-      App.notify(chrome.i18n.getMessage('fileParseError'));           // display the error
+      App.notify(browser.i18n.getMessage('fileParseError'));           // display the error
       return;
     }
 
@@ -1152,7 +1154,7 @@ class Script {
 
       // --- test validity
       if (!item.name || !item.id || !item.sections) {
-        App.notify(chrome.i18n.getMessage('error'));
+        App.notify(browser.i18n.getMessage('error'));
         return;
       }
 
@@ -1221,7 +1223,7 @@ class Script {
     const blob = new Blob([data], {type : 'text/plain;charset=utf-8'});
     const filename = folder + name.replace(/[<>:"/\\|?*]/g, '') + '.user' + ext; // removing disallowed characters
 
-    chrome.downloads.download({
+    browser.downloads.download({
       url: URL.createObjectURL(blob),
       filename,
       saveAs,
@@ -1255,7 +1257,7 @@ class Pattern {
       if (error) {
         node.classList.add('invalid');
 
-        App.notify(`${chrome.i18n.getMessage(node.id)}\n${item}\n${error}`);
+        App.notify(`${browser.i18n.getMessage(node.id)}\n${item}\n${error}`);
         return false;                                       // end execution
       }
     }

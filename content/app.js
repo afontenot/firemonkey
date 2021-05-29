@@ -4,7 +4,6 @@
 let pref = {
   autoUpdateInterval: 0,
   autoUpdateLast: 0,
-//  content: {},
   counter: true,
   globalScriptExcludeMatches: '',
   sync: false,
@@ -36,15 +35,15 @@ class App {
     const file = e.target.files[0];
     switch (true) {
 
-      case !file: App.notify(chrome.i18n.getMessage('error')); return;
+      case !file: App.notify(browser.i18n.getMessage('error')); return;
       case !['text/plain', 'application/json'].includes(file.type): // check file MIME type
-        App.notify(chrome.i18n.getMessage('fileTypeError'));
+        App.notify(browser.i18n.getMessage('fileTypeError'));
         return;
     }
 
     const reader  = new FileReader();
     reader.onloadend = () => App.readData(reader.result);
-    reader.onerror = () => App.notify(chrome.i18n.getMessage('fileReadError'));
+    reader.onerror = () => App.notify(browser.i18n.getMessage('fileReadError'));
     reader.readAsText(file);
   }
 
@@ -53,7 +52,7 @@ class App {
     let importData;
     try { importData = JSON.parse(data); }                  // Parse JSON
     catch(e) {
-      App.notify(chrome.i18n.getMessage('fileParseError')); // display the error
+      App.notify(browser.i18n.getMessage('fileParseError')); // display the error
       return;
     }
 
@@ -75,9 +74,9 @@ class App {
 
     const data = JSON.stringify(pref, null, 2);
     const blob = new Blob([data], {type : 'text/plain;charset=utf-8'});
-    const filename = chrome.i18n.getMessage('extensionName') + '_' + new Date().toISOString().substring(0, 10) + '.json';
+    const filename = browser.i18n.getMessage('extensionName') + '_' + new Date().toISOString().substring(0, 10) + '.json';
 
-    chrome.downloads.download({
+    browser.downloads.download({
       url: URL.createObjectURL(blob),
       filename,
       saveAs: true,
@@ -90,14 +89,14 @@ class App {
   static i18n() {
     document.querySelectorAll('[data-i18n]').forEach(node => {
       let [text, attr] = node.dataset.i18n.split('|');
-      text = chrome.i18n.getMessage(text);
+      text = browser.i18n.getMessage(text);
       attr ? node[attr] = text : node.appendChild(document.createTextNode(text));
     });
   }
 
-  static notify(message, title = chrome.i18n.getMessage('extensionName'), id = '') {
+  static notify(message, title = browser.i18n.getMessage('extensionName'), id = '') {
 
-    chrome.notifications.create(id, {
+    browser.notifications.create(id, {
       type: 'basic',
       iconUrl: '/image/icon.svg',
       title,
@@ -117,13 +116,11 @@ class App {
     try { return JSON.parse(str); } catch (e) { return null; }
   }
 
-
   static getIds() {
     return Object.keys(pref).filter(item => item.startsWith('_'));
   }
 
-  // bg & options
-  static allowedHost(url) {
+  static allowedHost(url) {                                 // bg & options
 
     return  url.startsWith('https://greasyfork.org/scripts/') ||
             url.startsWith('https://sleazyfork.org/scripts/') ||
@@ -134,8 +131,7 @@ class App {
 }
 
 // ----------------- Parse Metadata Block ------------------
-// bg options
-class Meta {
+class Meta {                                                // bg options
 
   static get(str, userMatches = '', userExcludeMatches = '') {
 
@@ -467,10 +463,9 @@ Meta.regEx = /==(UserScript|UserCSS|UserStyle)==([\s\S]+)==\/\1==/i;
 
 
 // ----------------- Remote Update -------------------------
-// bg options
-class RemoteUpdate {
+class RemoteUpdate {                                        // bg options
 
-  getUpdate(item, manual) { // bg 1 opt 1
+  getUpdate(item, manual) {                                 // bg 1 opt 1
 
     switch (true) {
       // --- get meta.js
@@ -490,13 +485,13 @@ class RemoteUpdate {
     }
   }
 
-  getMeta(item, manual) { // here
+  getMeta(item, manual) {                                   // here
 
     const url = item.updateURL.replace(/\.user\.(js|css)/i, '.meta.$1');
     fetch(url)
     .then(response => response.text())
     .then(text => this.needUpdate(text, item) ? this.getScript(item) :
-                      manual && App.notify(chrome.i18n.getMessage('noNewUpdate'), item.name))
+                      manual && App.notify(browser.i18n.getMessage('noNewUpdate'), item.name))
     .catch(error => App.log(item.name, `getMeta ${url} ➜ ${error.message}`, 'error'));
   }
 
@@ -508,7 +503,7 @@ class RemoteUpdate {
     .then(text => {
       const m = text.match(/@version\s+(\S+)/);
       const version = m ? m[1].substring(2,10) : '';
-      version > item.version ? this.getStylish(item, version) : manual && App.notify(chrome.i18n.getMessage('noNewUpdate'), item.name);
+      version > item.version ? this.getStylish(item, version) : manual && App.notify(browser.i18n.getMessage('noNewUpdate'), item.name);
     })
     .catch(error => App.log(item.name, `getMeta ${url} ➜ ${error.message}`, 'error'));
   }
@@ -533,13 +528,13 @@ class RemoteUpdate {
     .catch(error => App.log(item.name, `getStylish ${item.updateURL} ➜ ${error.message}`, 'error'));
   }
 
-  needUpdate(text, item) { // here
+  needUpdate(text, item) {                                  // here
     // --- check version
     const version = text.match(/@version\s+(\S+)/);
     return version && this.higherVersion(version[1], item.version);
   }
 
-  getScript(item) { // here bg 1
+  getScript(item) {                                         // here bg 1
 
     fetch(item.updateURL)
     .then(response => response.text())
@@ -547,7 +542,7 @@ class RemoteUpdate {
     .catch(error => App.log(item.name, `getScript ${item.updateURL} ➜ ${error.message}`, 'error'));
   }
 
-  higherVersion(a, b) { // here bg 1 opt 1
+  higherVersion(a, b) {                                     // here bg 1 opt 1
 
     a = a.split('.');
     b = b.split('.');
@@ -589,8 +584,7 @@ class CheckMatches {
     return [Tab, Other, frames];
   }
 
-  // here
-  static get(item, tabUrl, urls, gExclude = []) {
+  static get(item, tabUrl, urls, gExclude = []) {           // here
 
     if (!tabUrl) { return false; }
 
@@ -626,8 +620,7 @@ class CheckMatches {
     }
   }
 
-  // here
-  static isMatch(urls, arr, glob, regex) {
+  static isMatch(urls, arr, glob, regex) {                  // here
 
     if (regex) {
       return urls.some(u => new RegExp(this.prepareRegEx(arr), 'i').test(u));
@@ -649,8 +642,7 @@ class CheckMatches {
     return urls.some(u => new RegExp(this.prepareMatch(arr), 'i').test(u));
   }
 
-  // here
-  static prepareMatch(arr) {
+  static prepareMatch(arr) {                                // here
 
     const regexSpChar = /[-\/\\^$+?.()|[\]{}]/g;            // Regular Expression Special Characters
     const str = arr.map(item => '(^' +
@@ -670,4 +662,3 @@ class CheckMatches {
   }
 }
 // ----------------- /Match Pattern Check ------------------
-

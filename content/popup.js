@@ -90,7 +90,7 @@ class Popup {
         this.id === 'infoUndo' ? popup.infoUndo(this.parentNode.id) : popup.scratchpadUndo();
         return;
     }
-    chrome.runtime.openOptionsPage();
+    browser.runtime.openOptionsPage();
     window.close();
   }
 
@@ -263,7 +263,7 @@ class Popup {
     if (!code.trim()) { return; }                           // e.g. in case of userStyle
 
     (item.js ? browser.tabs.executeScript({code}) : browser.tabs.insertCSS({code, cssOrigin: 'user'}))
-    .catch(error => App.notify(id.substring(1) + '\n' + chrome.i18n.getMessage('insertError') + '\n\n' + error.message));
+    .catch(error => App.notify(id.substring(1) + '\n' + browser.i18n.getMessage('insertError') + '\n\n' + error.message));
   }
 
   infoUndo(id) {
@@ -287,7 +287,7 @@ class Popup {
     localStorage.setItem(js ? 'scraptchpadJS' : 'scraptchpadCSS', code); // save last entry
 
     (js ? browser.tabs.executeScript({code}) : browser.tabs.insertCSS({code, cssOrigin: 'user'}))
-    .catch(error => App.notify((js ? 'JavaScript' : 'CSS') + '\n' + chrome.i18n.getMessage('insertError') + '\n\n' + error.message));
+    .catch(error => App.notify((js ? 'JavaScript' : 'CSS') + '\n' + browser.i18n.getMessage('insertError') + '\n\n' + error.message));
   }
 
   scratchpadUndo() {
