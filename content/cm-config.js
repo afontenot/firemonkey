@@ -54,15 +54,35 @@ class Config {
     annotationsNotSorted.forEach((item, index) => {
 
       const m = item.message.match(/'(GM_getValue|GM_listValues|GM_getTabs?|GM_saveTab|exportFunction|cloneInto)' is not defined/);
-
+      
       switch (true) {
 
-        // suppress custom properties (--*) error from CSSLint
+        // suppress CSSLint Custom Properties --* error
         case !js && item.message.startsWith('Expected RBRACE at line ') &&
                 cm.getLine(item.from.line).substring(item.from.ch).startsWith('--'):
           idx.push(index);
           break;
 
+        // suppress JSHint ES6 Unicode code point escapes \u{*****} error
+        case js && item.message.startsWith("Unexpected 'u{") &&
+                /^\\u\{[0-9a-f]+\}/.test(cm.getLine(item.from.line).substring(item.from.ch-1)):
+          idx.push(index);
+          break;
+
+        // suppress JSHint Optional chaining ?. error (FF74+)
+        case js && item.message.startsWith("Expected an identifier and instead saw '?'.") && 
+                cm.getLine(item.from.line).substring(item.from.ch).startsWith('?.'):
+        case js && item.message.startsWith("Expected an identifier and instead saw '.'.") &&
+                cm.getLine(item.from.line).substring(item.from.ch-1).startsWith('?.'):
+        case js && item.message.startsWith("Expected an operator and instead saw '.'.") &&
+                cm.getLine(item.from.line).substring(item.from.ch-1).startsWith('?.'):
+        case js && item.message.startsWith("Expected ':' and instead saw ") && 
+                cm.getLine(item.from.line).substring(item.from.ch-2).startsWith('?.'):
+        case js && item.message.startsWith("Missing semicolon.") && 
+                cm.getLine(item.from.line).substring(item.from.ch-2).startsWith('?.'):
+          idx.push(index);
+          break;
+        
         case m && ['GM_getValue', 'GM_listValues'].includes(m[1]):
           item.message = m[1] + ' is partially supported. Read the Help for more information.';
           break;

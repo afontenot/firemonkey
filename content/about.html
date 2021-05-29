@@ -17,15 +17,22 @@
     <h2 id="changelog">Changelog</h2>
     <dl class="about">
 
+      <dt>2.28</dt>
+        <dd>Fixed a typo in multi-file import (from 2.25)</dd>
+        <dd>Updated storage sync process (from 2.25)</dd>
+        <dd>Suppressed JSHint Optional chaining <code>?.</code> error (FF74+)</dd>
+        <dd>Suppressed JSHint ES6 Unicode code point escapes <code>\u{*****}</code> error</dd>
+        <dd>Converted <code>chrome.*</code> to <code>browser.*</code> API in preparation for Manifest v3</dd>
+        
       <dt>2.27</dt>
-        <dd>Suppressed custom properties (--*) error from CSSLint</dd>
-        <dd>Fixed storage sync not removing deleted scripts</dd>
+        <dd>Suppressed CSSLint Custom Properties <code>--*</code> error</dd>
+        <dd>Fixed storage sync not removing deleted scripts (from 2.25)</dd>
         <dd>Added check for userstyles.org HTML timeout response</dd>
 
       <dt>2.26</dt>
         <dd>Updated Direct Install for Android</dd>
         <dd>Added fallback to primary language (xx-YY to xx) in metadata block localization</dd>
-        <dd>Fixed an error with storage sync</dd>
+        <dd>Fixed an error with storage sync (from 2.25)</dd>
 
       <dt>2.25</dt>
         <dd>Restructured database (migrate pre-2.25 storage)</dd>

@@ -311,7 +311,6 @@
           position: fixed;
           z-index: 10000;
           transition: all 0.5s ease-in-out;
-          box-sizing: border-box;
         }
 
         :host(.on) { display: flex; }
