@@ -226,6 +226,21 @@
   <cite><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/storage/sync" target="_blank">storage.sync</a></cite>
   </blockquote>
 
+  <h4>Storage quotas for sync data</h4>
+  
+    <ul>
+      <li>Maximum total size 102400 (100kb)</li>
+      <li>Maximum item size 8192 (8kb)</li>
+      <li>Maximum number of items 512</li>
+    </ul>
+    
+  <p>Each script will have a single entry in FireMonkey which is the script itself plus all its associated data (around 1-2kb more).</p>
+
+  <p>The maximum allowed by Firefox Sync is 8kb for each item. Therefore, each script should be smaller than 6-7kb in order to Sync.</p>
+
+  <p>This is the impracticality of using Firefox Sync in script/style managers which only works when user has a few small scripts/styles.</p>
+
+
   <h3 id="counter">Counter</h3>
   <p>Enable/Disable Script/CSS counter (Toolbar Iocn Badge & Toolbar Icon Title)</p>
 
