@@ -36,7 +36,6 @@ class Popup {
       this.toggleOn(this.commandList);
       this.info.parentNode.style.transform = 'translateX(-50%)';
     });
-//    this.buttonDiv =  this.info.querySelector('div.button');
 
     // ----- Scratchpad
     this.js = document.querySelector('#js');
