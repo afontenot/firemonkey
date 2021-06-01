@@ -62,8 +62,8 @@ body.dark {
 body {
   color: var(--color);
   background: var(--bg);
-  padding: 0;
   margin: 0;
+  padding: 0;
   font-family: sans-serif;
   opacity: 0;
   transition: opacity 0.5s;
@@ -106,8 +106,8 @@ input[type="number"] {
 }
 
 article {
-  padding: 0;
   margin: 0;
+  padding: 0;
   transition: padding 0.5s;
 }
 
@@ -147,7 +147,7 @@ legend {
   font-size: 1.1em;
   margin-bottom: 0.5em;
   padding: 0.2em 1em;
-  border-radius: 10px;  
+  border-radius: 10px;
   border: 1px solid var(--border);
 }
 
@@ -415,8 +415,8 @@ aside {
 
 aside ul {
   list-style: none;
-  padding: 0;
   margin: 0.5em 0;
+  padding: 0;
   overflow: hidden;
   height: 30vh;
   flex-grow: 1;
@@ -570,7 +570,7 @@ section.script {
 
 .menu {
   display: flex;
-  margin-bottom: 0.5em;
+  height: 2em;
   border-bottom: 1px solid var(--border);
 }
 
@@ -624,20 +624,28 @@ button.bin:hover img {
 /* --- menu popup --- */
 .menu details {
   position: relative;
-  margin-left: 0.5em;
+  margin: 0;
   padding: 0;
 }
 
 .menu summary {
   list-style: none;
-  padding: 0.5em;
+  margin: 0;
+  padding: 0;
   transition: 0.5s;
-  outline: 0;
+  height: 2em;
+  width: 2em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  text-align: center;
 }
 
 .menu summary img {
   width: 1em;
   filter: opacity(0.4);
+  margin: 0 auto;
 }
 
 .menu summary:hover, .menu details[open] {
@@ -707,8 +715,8 @@ button.bin:hover img {
 }
 
 .menu details li.separator {
-  padding: 0;
   margin: 0.5em 0;
+  padding: 0;
   cursor: none;
   border-bottom: 1px solid var(--border);
 }
@@ -775,14 +783,15 @@ button.bin:hover img {
 
 .script fieldset {
   border: 0;
-  padding: 0;
   margin: 0;
-  height: calc(100% - 4em);
+  padding: 0 0 0.5em;
+  height: calc(100% - 3em);
   background: unset;
 }
 
 .script legend {
   border: 0;
+  margin: 0.5em 0;
   padding: 0;
   background: unset;
 }
@@ -828,8 +837,7 @@ footer {
   color: #999;
   font-size: 0.7em;
   text-align: right;
-  height: 1em;
-  margin-top: 0.5em;
+  height: 1rem;
 }
 /* ----- /Scripts ----- */
 

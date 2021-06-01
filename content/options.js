@@ -1036,7 +1036,7 @@ class Script {
     // --- check name change
     if (data.name !== name) {                               // name has changed
       if (pref[id]) { throw `${name}: Update new name already exists`; } // name already exists
-      else { 
+      else {
         pref[id] = pref[oldId];                               // copy to new id
         delete pref[oldId];                                   // delete old id
         browser.storage.local.remove(oldId);                  // remove old data
@@ -1119,7 +1119,7 @@ class Script {
 
     pref[id] = data;                                        // save to pref
     this.obj[id] = pref[id];
-    
+
     // --- update storage after all files are processed
     this.fileLength--;                                      // one less file to process
     if(this.fileLength) { return; }                         // not 0 yet

@@ -137,11 +137,15 @@ class ScriptRegister {
     // --- add @require
     require.forEach(item => {
 
+      const id = '_' + item;
       if (item.startsWith('lib/')) {
-        page ? requireRemote.push('/' + item) : options[target].push({file: '/' + item});
+        requireRemote.push('/' + item);
       }
-      else if (pref['_' + item] && pref['_' + item][target]) {
-        options[target].push({code: pref['_' + item][target].replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'))});
+      else if (pref[id] && pref[id][target]) {              // same type only
+        let code = this.prepareMeta(pref[id][target]);
+        js && (code += sourceURL + encodeURI(item) + '.user.js');
+        page && (code = `GM_addScript(${JSON.stringify(code)})`);
+        options[target].push({code});
       }
     });
 
@@ -211,7 +215,7 @@ class ScriptRegister {
     }
 
     // --- add code
-    options[target].push({code: script[target].replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'))});
+    options[target].push({code: this.prepareMeta(script[target])});
 
     if (script.style[0]) {
       // --- UserStyle Multi-segment Process
@@ -223,6 +227,10 @@ class ScriptRegister {
       });
     }
     else { this.register(id, options); }
+  }
+
+  prepareMeta(str) {
+    return str.replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'));
   }
 
   register(id, options, originId) {
@@ -317,7 +325,7 @@ class ProcessPref {
       Object.keys(changes).forEach(item => {
 
         if (!item.startsWith('_')) { return; }              // skip
-        
+
         const oldValue = changes[item].oldValue;
         const newValue = changes[item].newValue;
         const id = item;
@@ -345,7 +353,7 @@ class Sync {
 
   // --- storage sync ➜ local update
   static async get() {
-    
+
     const deleted = [];
     await browser.storage.sync.get(null, result => {
       Object.keys(result).forEach(item => pref[item] = result[item]); // update pref with the saved version
@@ -354,7 +362,7 @@ class Sync {
           delete pref[item];
           deleted.push(item);
         }
-      }); 
+      });
     });
     deleted[0] && await browser.storage.local.remove(deleted); // delete scripts from storage local
     await browser.storage.local.set(pref);                  // update local saved pref, no storage.onChanged.addListener() yet
@@ -362,12 +370,12 @@ class Sync {
 
   // --- storage sync ➜ local update
   static async apply(changes) {
-    
+
     const [keep, deleted] = this.sortChanges(changes);
     this.noUpdate = false;
     deleted[0] && await browser.storage.local.remove(deleted); // delete scripts from storage local
     browser.storage.local.set(keep)
-    .catch(error => App.log('local', error.message, 'error'));    
+    .catch(error => App.log('local', error.message, 'error'));
   }
 
   // --- storage local ➜ sync update
@@ -395,15 +403,15 @@ class Sync {
     });
   }
 
-  
+
   static sortChanges(changes) {
     const keep = {};
     const deleted = [];
     Object.keys(changes).forEach(item => {
       item.startsWith('_') && !changes[item].newValue ? deleted.push(item) : keep[item] = changes[item].newValue; // or pref[item]
-    });  
+    });
     return [keep, deleted];
-  }  
+  }
 }
 Sync.noUpdate = false;
 // ----------------- /User Preference ----------------------
@@ -475,8 +483,8 @@ class Installer {
 
       browser.tabs.executeScript({code})
       .then((result = []) => result[0] && RU.getScript({updateURL: e.url, name: result[0]}))
-      .catch(error => App.log('webInstall', `${e.url} ➜ ${error.message}`, 'error')); 
-      
+      .catch(error => App.log('webInstall', `${e.url} ➜ ${error.message}`, 'error'));
+
       return {cancel: true};
     }
   }
@@ -505,7 +513,7 @@ class Installer {
 
     browser.tabs.executeScript({code})
     .then((result = []) => result[0] && this.processResponse(result[0][0], result[0][1], tab.url))
-    .catch(error => App.log('directInstall', `${tab.url} ➜ ${error.message}`, 'error'));    
+    .catch(error => App.log('directInstall', `${tab.url} ➜ ${error.message}`, 'error'));
   }
 
   async stylish(url) {                                      // userstyles.org
