@@ -80,19 +80,6 @@ dd sup {
   color: #05f;
 }
 
-.warning {
-  background-color: #fbf5d7;
-  border-left: 4px solid #e1c542;
-  padding: 0.5em;
-  margin-top: 0.5em;
-  color: #333;
-}
-
-.warning::before {
-  content: '\26a0\fe0f';
-  margin-right: 0.3em;
-}
-
 h2 {
   color: #066;
   display: inline-block;
@@ -198,7 +185,8 @@ a[href^="https://bugzilla.mozilla.org/show_bug.cgi?id="]::before {
   margin-right: 0.3em;
 }
 
-a[href^="https://developer.mozilla.org/"]::before {
+a[href^="https://developer.mozilla.org/"]::before,
+a[href^="https://blog.mozilla.org/"]::before {
   content: '';
   background: url('../image/dino.svg') no-repeat center;
   background-size: contain;
@@ -209,6 +197,9 @@ a[href^="https://developer.mozilla.org/"]::before {
   vertical-align: text-bottom;
 }
 
+a[href^="https://blog.mozilla.org/"]::before {
+  background: #000 url('../image/moz.svg') no-repeat center;
+}
 
 /* ----- Navigation ----- */
 nav  {
@@ -469,9 +460,28 @@ address {
   margin: 2em auto 2em 2em;
 }
 
-.note, .footnote {
-  font-style: italic;
+.warning {
+  background-color: #fff5f5;
+  border-left: 4px solid #fab;  
+  padding: 0.5em;
   margin-top: 0.5em;
+  color: #333;
+  border-radius: 4px;
+}
+
+.warning::before {
+  content: '\26a0\fe0f';
+  margin-right: 0.3em;
+}
+
+.note, .footnote {
+  background-color: #fbf5d7;
+  border-left: 4px solid #e1c542;
+  padding: 0.5em;
+  margin-top: 0.5em;
+  color: #333;
+  font-style: italic;
+  border-radius: 4px;
 }
 
 .footnote {
