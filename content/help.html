@@ -70,7 +70,7 @@
         <li><a href="#UserCSS">UserCSS</a></li>
         <li><a href="#UserStyle">UserStyle</a></li>
         <li><a href="#debugging">Debugging Script & CSS</a></li>
-        <li><a href="#Injection-Compassion">Injection Compassion</a></li>
+        <li><a href="#Injection-Comparison">Injection Comparison</a></li>
         <li><a href="#Performance-Test">Performance Test</a></li>
       </ul>
     </div>
@@ -82,7 +82,7 @@
 
   <h2 id="Preamble">Preamble</h2>
   <p><i>FireMonkey</i> is a totally new combined user-script and user-style manager. While it has similar functions to other user-Script managers like <i>Greasemonkey/Tampermonkey/Violentmonkey</i>, and user-style managers like <i>Stylish/Stylus/xStyle</i>, there are also differences. Similar to other userscript managers, scripts (or CSS) are injected in tabs and for a new script/CSS to have an effect, tab must be reloaded. The behaviour differs from <i>Stylus</i> which can inject CSS into a tab and remove it without having to reload the tab.</p>
-  <p class="footnote">Some functions like script injection are prevented by Firefox on sites with restrictive Content Security Policy (CSP), as well as certain domains e.g. accounts-static.cdn.mozilla.net, accounts.firefox.com, addons.cdn.mozilla.net, api.accounts.firefox.com, content.cdn.mozilla.net, content.cdn.mozilla.net, discovery.addons.mozilla.org, input.mozilla.org, install.mozilla.org, oauth.accounts.firefox.com, profile.accounts.firefox.com, support.mozilla.org, sync.services.mozilla.com, testpilot.firefox.com.</p>
+  <p class="footnote">Some functions like script injection are prevented by Firefox on sites with restrictive Content Security Policy (CSP), as well as certain domains e.g. accounts-static.cdn.mozilla.net, accounts.firefox.com, addons.cdn.mozilla.net, api.accounts.firefox.com, content.cdn.mozilla.net, content.cdn.mozilla.net, discovery.addons.mozilla.org, input.mozilla.org, install.mozilla.org, oauth.accounts.firefox.com, profile.accounts.firefox.com, support.mozilla.org, sync.services.mozilla.com, testpilot.firefox.com (ref <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts" target="_blank">Content scripts</a>).</p>
 
 
   <h2 id="how_to">How to Use</h2><br>
@@ -143,7 +143,7 @@
 
           <dt>&#x25b7; Run</dt>
             <dd>Inject the displayed userScript or userCSS (not userStyle) as long as it was not already injected in the tab</dd>
-            <dd class="warning">UserScript is injected into <code>content</code> context which has more access than <code>userScript</code> context and untrusted code should not be used.</dd>
+            <dd class="warning">UserScript is injected into <code>content</code> context which has more privilege than <code>userScript</code> context and untrusted code should not be used.</dd>
             <dd class="note">The userScript is injected as plain JavaScript. Its metadata block would not be processed and it has no access to GM API.</dd>
 
           <dt style="color: #f00;">&#x25c1; Undo</dt>
@@ -158,7 +158,7 @@
       <dd>Insert CSS & JavaScript temporarily into the active tab</dd>
       <dd>Scratchpad recalls the last entries for repeated use</dd>
 
-      <dd class="warning">JavaScript is injected into <code>content</code> context which has more access than <code>userScript</code> context and untrusted code should not be used.</dd>
+      <dd class="warning">JavaScript is injected into <code>content</code> context which has more privilege than <code>userScript</code> context and untrusted code should not be used.</dd>
 
       <dd>
         <dl>
@@ -227,13 +227,13 @@
   </blockquote>
 
   <h4>Storage quotas for sync data</h4>
-  
+
     <ul>
       <li>Maximum total size 102400 (100kb)</li>
       <li>Maximum item size 8192 (8kb)</li>
       <li>Maximum number of items 512</li>
     </ul>
-    
+
   <p>Each script will have a single entry in FireMonkey which is the script itself plus all its associated data (around 1-2kb more).</p>
 
   <p>The maximum allowed by Firefox Sync is 8kb for each item. Therefore, each script should be smaller than 6-7kb in order to Sync.</p>
@@ -242,7 +242,7 @@
 
 
   <h3 id="counter">Counter</h3>
-  <p>Enable/Disable Script/CSS counter (Toolbar Iocn Badge & Toolbar Icon Title)</p>
+  <p>Enable/Disable Script/CSS counter (Toolbar Icon Badge & Toolbar Icon Title)</p>
 
 
   <h3 id="global-script-exclude">Global Script Exclude Matches</h3>
@@ -321,7 +321,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
       <dd>Any option except <code>globals</code></dd>
 
     <dt>match-highlighter</dt>
-      <dd><a href="https://codemirror.net/addon/search/match-highlighter.js" target="_blank">match-highlighter</a> addon was added in v2.19 but it is off by default and can be enabled with custom configuartion</dd>
+      <dd><a href="https://codemirror.net/addon/search/match-highlighter.js" target="_blank">match-highlighter</a> addon was added in v2.19 but it is off by default and can be enabled with custom configuration</dd>
 
     <dt>Tab to indent with spaces</dt>
       <dd>Also relates to <code>tabSize</code>, <code>indentWithTabs</code> & <code>indentUnit</code></dd>
@@ -717,8 +717,41 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
     <p>Some entries can be localized for display propose e.g. <code>@name:zh-CN</code>, <code>@description:kr</code>. The language code is case-sensitive and must match <a href="https://www.w3.org/TR/ltli/" target="_blank">Language Tags and Locale Identifiers </a> e.g. "en", "en-US", "de", "fr", etc.</p>
     <p>Entries without local identifier can also match <code>navigator.language</code> with local identifier. For example, if <code>navigator.language</code> is "en-US" it will match <code>name:en-US</code> or <code>name:en</code>.</p>
 
-  <h4>grant <span class="fail"></span></h4>
-  <p>Scripts will have access to all available APIs and therefore <code>@grant</code> is not needed or used.</p>
+  <h4>grant <span class="fail">not processed</span></h4>
+  <p>Userscripts will have access to all available APIs and therefore <code>@grant</code> is not needed or processed.</p>
+  <p>The following scripts work the same way in <i>FireMonkey</i> and there is no difference in their security i.e. script A is not more secure than script B, and vice versa.</p>
+
+  <figure>
+    <figcaption>Script A</figcaption>
+<pre><span class="comment">// ==UserScript==
+// @name            Script A
+// @match           http://www.example.com/*
+// @grant           GM.xmlHttpRequest
+// ==/UserScript==</span>
+
+<span class="gm">GM.xmlHttpRequest</span>({
+  url: <span class="string">'https://abcd.com/'</span>,
+  <span class="property">onload</span>: response =&gt; {
+    <span class="property">console</span>.<span class="method">log</span>(response.<span class="property">responseText</span>);
+  }
+});</pre>
+  </figure>
+
+  <figure>
+    <figcaption>Script B</figcaption>
+<pre><span class="comment">// ==UserScript==
+// @name            Script B
+// @match           http://www.example.com/*
+// ==/UserScript==</span>
+
+<span class="gm">GM.xmlHttpRequest</span>({
+  url: <span class="string">'https://abcd.com/'</span>,
+  <span class="property">onload</span>: response =&gt; {
+    <span class="property">console</span>.<span class="method">log</span>(response.<span class="property">responseText</span>);
+  }
+});</pre>
+  </figure>
+
 
   <h4 class="experimental">inject-into</h4>
   <p>Setting the value <code>page</code> will inject the entire userscript in the <code>page</code> context (more: <a href="#xray-vision">Extension JavaScript Context</a>).</p>
@@ -843,13 +876,13 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   </tbody>
 </table>
 
-  <p><sup>1</sup> Userscripts in <i>FireMonkey</i> are by default injected into separate islolated <code>userScript</code> contexts, and therefore there is no interaction between the userscripts. In <code>content</code> or <code>page</code> context, the userscripts will share the same context which can result in unexpected behaviour e.g.</p>
+  <p><sup>1</sup> Userscripts in <i>FireMonkey</i> are by default injected into separate isolated <code>userScript</code> contexts, and therefore there is no interaction between the userscripts. In <code>content</code> or <code>page</code> context, the userscripts will share the same context which can result in unexpected behaviour e.g.</p>
   <ul>
     <li><a href="https://github.com/greasemonkey/greasemonkey/issues/3093" target="_blank">Scripts running on the same page share the same window wrapper</a></li>
     <li><a href="https://github.com/violentmonkey/violentmonkey/issues/1102" target="_blank">[Firefox] Scripts share the same window wrapper if `@inject-into content` is used</a></li>
   </ul>
 
-  <p><sup>2</sup> <q>It is also worth noting that the hack with removing the CSP can cause a conflict with other addons that use CSP to block content (like Ublock Origin)</q>. <a href="https://github.com/violentmonkey/violentmonkey/issues/1001#issuecomment-643576816" title="[Firefox] Can't modify page properties on sites which use CSP" target="_blank">&#x24d8;</a></p>
+  <p><sup>2</sup> <q>It is also worth noting that the hack with removing the CSP can cause a conflict with other addons that use CSP to block content (like uBlock Origin)</q>. <a href="https://github.com/violentmonkey/violentmonkey/issues/1001#issuecomment-643576816" title="[Firefox] Can't modify page properties on sites which use CSP" target="_blank">&#x24d8;</a></p>
 
 
 
@@ -914,8 +947,8 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
       <dd>The state indicates that the <a href="https://developer.mozilla.org/docs/Web/API/Window/load_event" target="_blank">load</a> event is about to fire.</dd>
   </dl>
 
-  <h4>run-at (non-standard)</h4>
-  <p><i>Tampermonkey</i> supports some non-standard <code>run-at</code>.</p>
+  <h4>run-at (non-standard)</h4> 
+  <p><i>Tampermonkey</i> supports additional non-standard <code>run-at</code>.</p>
 
   <blockquote><dl style="margin: 0;">
     <dt>document-body</dt>
@@ -958,10 +991,10 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
     <li>match & exclude-match</li>
     <li>includeGlob & excludeGlob</li>
     <li>include & exclude</li>
-    <li>include & exclude with regular expresion</li>
+    <li>include & exclude with regular expression</li>
   </ol>
 
-  <p class="warning">Mixed types: Due to matching order in Firefox/Chrome APIs, having mixed <code>@match/@exclude-match</code> with <code>@include/@exclude/includeGlob/excludeGlob</code> might have unexpected unmatched results.</p>
+  <p class="warning">Due to matching order in Firefox/Chrome APIs, having mixed <code>@match/@exclude-match</code> with <code>@include/@exclude/includeGlob/excludeGlob</code> might have unexpected matched/unmatched results.</p>
 
 
   <h4>include & exclude</h4>
@@ -991,7 +1024,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
   <ul>
     <li>Regular Expressions start & end with forward-slash <code>/</code></li>
-    <li>Regular Expressions are proccessed with <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/RegExp" target="_blank">new RegExp()</a></li>
+    <li>Regular Expressions are processed with <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/RegExp" target="_blank">new RegExp()</a></li>
     <li>Regular Expressions are set as case-insensitive</li>
     <li>No need to escape forward-slashes</li>
     <li>Regular Expression <a href="https://developer.mozilla.org/docs/Web/JavaScript/Guide/Regular_Expressions/Character_Classes" target="_blank">Character classes</a> should be escaped e.g. <code>\.</code> <code>\\d</code> <code>\\s</code> <code>\\w</code></li>
@@ -1583,7 +1616,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   <p>Few libraries have been packed with <i>FireMonkey</i> which will be injected for user-scripts using <code>@require</code>. A shorthand (case-insensitive) can also be used.</p>
   <p>Based on data provided by <i>GreasyFork</i>, 8,011/31,170 (26%) use <code>@require</code> and from those 7,082/11,236 (63%) entries relate to these libraries (& <i>gm4-polyfill</i>).</p>
 
-  <p>Folowing CDN sources are processed:</p>
+  <p>Following CDN sources are processed:</p>
 
   <ul style="columns: 2;">
     <li>ajax.aspnetcdn.com</li>
@@ -1611,7 +1644,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   </tr>
   </thead>
   <tbody class="slim">
-  <tr><td>bootstrap</td>      <td>bootstrap-4</td>    <td>4.5.3</td></tr>
+  <tr><td>bootstrap</td>      <td>bootstrap-4</td>    <td>4.6.0</td></tr>
   <tr><td>jquery 1.*</td>     <td>jquery-1</td>       <td>1.12.4</td></tr>
   <tr><td>jquery 2.*</td>     <td>jquery-2</td>       <td>2.2.4</td></tr>
   <tr><td>jquery 3.*</td>     <td>jquery-3</td>       <td>3.6.0</td></tr>
@@ -1653,7 +1686,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   <h4>&#x2139;&#xfe0f; Storing require & resource Targets</h4>
   <p>In legacy Firefox, extensions were able to save files to their folder in Firefox profile. Script managers would download <code>@require</code> & <code>@resource</code> targets, save it to users' HD and inject it when called.</p>
 
-  <p>Firefox Quantum no longer allows extension to save fies to Fireofx profile folder. Script managers will have to use the storage assigned to the extension to save <code>@require</code> & <code>@resource</code> files in form of data.</p>
+  <p>Firefox Quantum no longer allows extension to save files to Firefox profile folder. Script managers will have to use the storage assigned to the extension to save <code>@require</code> & <code>@resource</code> files in form of data.</p>
 
   <p>Saving large volume of data to storage impact RAM and CPU resource usage of the extension, slows down read/write to the extension storage and generally impact the browser performance. Known Libraries often are 100+KB to 1+MB e.g. <i>jquery-3.4.1.js 273MB,jquery-3.4.1.min.js 86KB, jquery-ui-1.12.1.js 508KB, jquery-ui-1.12.1.min.js 247KB, angular-1.7.6.js 1.3MB</i> ... etc. In case of <code>@resource</code>, images for example could be many megabytes of data.</p>
 
@@ -1935,7 +1968,7 @@ sandbox/injected-web.js</code></td>
       <td class="pass"></td>
       <td class="pass"></td>
       <td class="fail"><a href="https://github.com/Tampermonkey/tampermonkey" title="This repository contains the source of the Tampermonkey extension up to version 2.9. All newer versions are distributed under a proprietary license." target="_blank">Proprietary License</a></td>
-      <td class="pass">minifeid</td>
+      <td class="pass">minified</td>
     </tr>
 
     <tr>
@@ -1956,7 +1989,7 @@ sandbox/injected-web.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>440</td>
+      <td>470</td>
       <td>283k</td>
       <td>420k</td>
       <td>43k</td>
@@ -2030,7 +2063,7 @@ js/promisify.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>440</td>
+      <td>470</td>
       <td>66k</td>
       <td>74k</td>
       <td>430</td>
@@ -2046,7 +2079,7 @@ js/promisify.js</code></td>
   <p>There are 2 types storage systems available to extensions:</p>
   <dl>
     <dt>Extension Storage</dt>
-      <dd>Asynchronous private permenent stroage accessible to the extension only</dd>
+      <dd>Asynchronous private permanent storage accessible to the extension only</dd>
       <dd>Synchronous private Web API storage accessible only to the extension domain's privileged pages (background, options, popup etc, but not contentScript or userscript)  e.g. <i>sessionStorage</i> | <i>localStorage</i> | <i>IndexedDB</i></dd>
     <dt>Web Storage</dt>
       <dd>Synchronous public storage which is also accessible to web pages to read/write/delete e.g. <i>sessionStorage</i> | <i>localStorage</i> | <i>IndexedDB</i></dd>
@@ -2269,11 +2302,20 @@ xhr.<span class="property">onerror</span> = response =&gt; {
 }
 xhr.send(<span class="keyword">null</span>);
 </pre>
-
-
   </figure>
 
-
+  <h4>&#x2139;&#xfe0f; JavaScript xmlHttpRequest & fetch</h4>
+  <p>Due to a bug in Firefox <code>userScript</code> context, CORS fails in JavaScript <code>new XMLHttpRequest()</code> & <code>fetch()</code> (ref <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1715249" title="scripts running using userScripts API seem to block all cross-origin requests" target="_blank">Bug 1715249</a>).</p>
+  <p>After liaising with Mozilla engineers, once the bug is fixed, userscripts will get the same origin as the web-page they are on.</p>
+  
+  <p class="warning">Userscripts injected in <code>content</code> context (as in GM|TM|VM), or in <i>FireMonkey</i> Scratchpad & temporary script injection, carry certain security concerns. Changes are planned as part of <a href="https://blog.mozilla.org/addons/2021/05/27/manifest-v3-update/" target="_blank">Manifest v3 update</a>.</p>
+  
+  <blockquote>• the content script sandbox has an expanded principal that includes the extension principal, and so in manifest_version 2 extension that allows the imported fetch and XMLHttpRequest to do cross site requests based on the extension host permission (but in manifest_version 3 this is not going to be allowed anymore)<br><br>
+  
+  • the user script sandbox has an expanded principal but it doesn't include the extension principal and so the imported fetch and XMLHttpRequest can't do cross site requests based on the extension host permission (and this part is actually intended, the single userScript is not supposed to silently inherit expanded permission that the userScript manager extension does have)
+  <cite>Luca Greco <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1715249#c6" target="_blank">Bug 1715249 </a></cite>
+  </blockquote>
+  
 
 
   <h3 id="forbidden-header-name">Forbidden header name</h3>
@@ -2310,6 +2352,7 @@ xhr.send(<span class="keyword">null</span>);
   </ul>
 
   <p>After confirmation from AMO (ref 2019-09-28 Rob W), modification to the following Forbidden headers will be allowed:</p>
+  <p>Header names are case-insensitive (v2.30+).</p>
 
   <ul style="columns: 2;">
     <li>Cookie</li>
@@ -2476,7 +2519,7 @@ script.<span class="method">remove</span>();
 
   <h4>Popup Methods</h4>
   <p>Utility functions to interact with the created popup e.g. <br>
-    <code>new GM_popup()</code>, <code><i>NAME</i>.addStyle()</code>, <code><i>NAME</i>.append()</code>, <code><i>NAME</i>.show()</code>, <code><i>NAME</i>.hide()</code>, and <code><i>NAME</i>.remove()</code></p>
+    <code>GM_popup()</code>, <code><i>NAME</i>.addStyle()</code>, <code><i>NAME</i>.append()</code>, <code><i>NAME</i>.show()</code>, <code><i>NAME</i>.hide()</code>, and <code><i>NAME</i>.remove()</code></p>
 
   <figure>
     <figcaption>Example</figcaption>
@@ -2633,8 +2676,8 @@ popup.addStyle(css);
     arch            'e.g. arm x86-32 x86-64'
   },
   browser: {
-    name:           'e.g. Firefox',
-    vendor:         'e.g. Mozilla',
+    name:           'Firefox',
+    vendor:         'Mozilla',
     version:        'e.g. 75.0a1'.
     buildID:        'e.g. 20200220224950'
   },
@@ -2655,7 +2698,7 @@ popup.addStyle(css);
 }</pre>
 
   <h3 id="log">log</h3>
-  <p>The API is added for convenience and compatibility and is no longer supproted by Greasemonkey or Violentmonkey but Tampermonkey still has it. Multiple parameters can be passed e.g. <code>GM_log('one', 'two', 'three')</code>. You can also use <code>console.log()</code> instead.</p>
+  <p>The API is added for convenience and compatibility and is no longer supported by Greasemonkey or Violentmonkey but Tampermonkey still has it. Multiple parameters can be passed e.g. <code>GM_log('one', 'two', 'three')</code>. You can also use <code>console.log()</code> instead.</p>
 
 <pre>
 <span class="gm">GM_log</span>(<span class="string">'one'</span>);
@@ -3031,7 +3074,7 @@ script.<span class="method">remove</span>();
 </table>
 
 
-  <h4>Character Escapeing in CSS</h4>
+  <h4>Character Escaping in CSS</h4>
   <p>CSS Escaping in userScript requires double scaping.</p>
 
   <figure>
@@ -3086,7 +3129,7 @@ ReferenceError: abc is not defined[Learn More]                        1f0135df-f
 
   </dl>
 
-  <h3 id="Injection-Compassion">Injection Compassion</h3>
+  <h3 id="Injection-Comparison">Injection Comparison</h3>
 
   <h4>Other userscript & userStyle Managers</h4>
   <ul>
