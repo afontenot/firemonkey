@@ -650,11 +650,11 @@ class API {
     // --- remove forbidden headers (Attempt to set a forbidden header was denied: Referer)
     // --- allow specialHeader
     Object.keys(headers).forEach(item =>  {
-      item = item.toLowerCase();
-      if (item.startsWith('proxy-') || item.startsWith('sec-') || forbiddenHeader.includes(item)) {
+      const LC = item.toLowerCase();
+      if (LC.startsWith('proxy-') || LC.startsWith('sec-') || forbiddenHeader.includes(LC)) {
         delete headers[item];
       }
-      else if (specialHeader.includes(item)) {
+      else if (specialHeader.includes(LC)) {
         headers['FM-' + item] = headers[item];              // set a new FM header
         delete headers[item];                               // delete original header
       }
@@ -666,15 +666,13 @@ class API {
     let found = false;
     e.originUrl && e.originUrl.startsWith(this.FMUrl) && e.requestHeaders.forEach((item, index) => {
       if (item.name.startsWith('FM-')) {
-        e.requestHeaders.push({name: item.name.substring(3), value: item.value});
-        e.requestHeaders.splice(index, 1);
+        e.requestHeaders[index].name = item.name.substring(3);
         found = true;
       }
-      // Webextension UUID leak via Fetch requests - Fixed mozilla73
+      // Webextension UUID leak via Fetch requests
       // https://bugzilla.mozilla.org/show_bug.cgi?id=1405971
       else if (item.name === 'Origin' && item.value.includes('moz-extension://')) {
-        e.requestHeaders.push({name: item.name, value: 'null'});
-        e.requestHeaders.splice(index, 1);
+        e.requestHeaders[index].value = 'null';
         found = true;
       }
     });
@@ -688,7 +686,6 @@ class API {
     const e = message.data;
     const name = message.name;
     const id = '_' + name;
-
 
     switch (message.api) {
 
