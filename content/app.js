@@ -73,16 +73,30 @@ class App {
   static export() {
 
     const data = JSON.stringify(pref, null, 2);
-    const blob = new Blob([data], {type : 'text/plain;charset=utf-8'});
     const filename = browser.i18n.getMessage('extensionName') + '_' + new Date().toISOString().substring(0, 10) + '.json';
+    App.saveFile(data, filename);
+  }
 
+  static saveFile(data, filename, saveAs = true) {
+
+    if (!this.android) {
+      const a = document.createElement('a');
+      a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(data);
+      a.setAttribute('download', filename);
+      a.dispatchEvent(new MouseEvent('click'));
+      return;
+    }
+
+    const blob = new Blob([data], {type : 'text/plain;charset=utf-8'});
     browser.downloads.download({
       url: URL.createObjectURL(blob),
       filename,
-      saveAs: true,
+      saveAs,
       conflictAction: 'uniquify'
     });
   }
+
+
 
   // ----------------- Helper functions ----------------------
   // --- Internationalization
@@ -129,6 +143,7 @@ class App {
             url.startsWith('https://raw.githubusercontent.com/');
   }
 }
+App.android = navigator.userAgent.includes('Android');
 
 // ----------------- Parse Metadata Block ------------------
 class Meta {                                                // bg options

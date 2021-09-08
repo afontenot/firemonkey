@@ -62,8 +62,7 @@
   "noNewUpdate": { "message": "There is no new update." },
   "scriptUpdated": { "message": "Script/CSS updated to version $1" },
 
-  "import": { "message": "Import" },
-  "export": { "message": "Export" },
+
   "exportAll": { "message": "Export" },
 
   "fileSizeError": { "message": "File size is larger than the $1kb allowed" },
@@ -91,7 +90,9 @@
 
   "about": { "message": "About" },
   "error": { "message": "There was an error with the operation" },
+  "export": { "message": "Export" },
   "help": { "message": "Help" },
+  "import": { "message": "Import" },
   "options": { "message": "Options" },
   "saveOptions": { "message": "Save" }
 }

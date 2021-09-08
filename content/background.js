@@ -1,8 +1,6 @@
 ﻿import {pref, App, Meta, RemoteUpdate, CheckMatches} from './app.js';
 const RU = new RemoteUpdate();
 
-const android = navigator.userAgent.includes('Android');
-
 // ----------------- Context Menu --------------------------
 class ContextMenu {
 
@@ -43,7 +41,7 @@ class ContextMenu {
     browser.runtime.openOptionsPage();
   }
 }
-!android && new ContextMenu();                              // prepare for Andriod
+!App.android && new ContextMenu();                              // prepare for Andriod
 // ----------------- /Context Menu -------------------------
 
 // ----------------- Script Counter ------------------------
@@ -440,7 +438,7 @@ class Installer {
 
     // prepare for Andriod, extraParameters not supported on FF for Android
     // extraParameters not supported on Android
-    android ?
+    App.android ?
       browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) =>
         /\.user\.(js|css)$/i.test(tab.url) && this.directInstall(tabId, changeInfo, tab)
       ) :
