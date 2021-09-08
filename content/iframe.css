@@ -88,8 +88,8 @@ h2 {
   padding: 0.2em 0.5em;
   text-align:right;
   border: 3px solid #fff;
-  box-shadow: 0px 5px 8px rgba(0,0,0,0.2);
-  text-shadow: 1px 1px 1px rgba(255,255,255,0.6);
+  box-shadow: 0px 5px 8px #0003;
+  text-shadow: 1px 1px 1px #fff9;
   border-radius: 0 1em 1em 0;
   position: relative;
   margin-top: 2em;
@@ -207,7 +207,7 @@ nav  {
   position: sticky;
   top: 0;
   z-index: 1;
-  box-shadow: 0px 3px 6px rgba(0,0,0,0.2);
+  box-shadow: 0px 3px 6px #0003;
 }
 
 nav div {
@@ -240,7 +240,7 @@ nav div ul {
   top: 1em;
   display: none;
   background-color: #f5f5f5;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px #0003;
   list-style: none;
   padding: 0;
   border-radius: 5px;
@@ -462,7 +462,7 @@ address {
 
 .warning {
   background-color: #fff5f5;
-  border-left: 4px solid #fab;  
+  border-left: 4px solid #fab;
   padding: 0.5em;
   margin-top: 0.5em;
   color: #333;

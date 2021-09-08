@@ -260,7 +260,7 @@ class Script {
         curly: true,
         devel: true,
         eqeqeq: true,
-        esversion: 10,
+        esversion: 11,
        /* forin: true,*/
         freeze: true,
         globals: {
@@ -279,7 +279,9 @@ class Script {
         undef: true,
         unused: true,
         validthis: true,
-        varstmt: true
+        varstmt: true,
+
+        highlightLines: true                                // CodeMirror 5.62.0
       };
 
     const options = {
@@ -294,11 +296,11 @@ class Script {
       styleActiveLine: true,
       autoCloseBrackets: true,
       search: {bottom: true},
-      lint: js ? jshint : true,
+      lint: js ? jshint : {highlightLines: true},           // CodeMirror 5.62.0
 //      hint: {hintOptions: {}},
       foldGutter: true,
       gutters: ['CodeMirror-lint-markers', 'CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
-
+      highlightSelectionMatches: {annotateScrollbar: true},
       extraKeys: {
         // conflict with 'toggleComment'
 //      "Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }
@@ -311,6 +313,7 @@ class Script {
         Esc: (cm) => cm.getOption('fullScreen') && cm.setOption('fullScreen', false)
       }
     };
+
 
     // Custom CodeMirror Options
     const cmOptions = App.JSONparse(pref.cmOptions) || {};
@@ -1207,6 +1210,8 @@ class Script {
 
   exportScriptAll() {
 
+    if (this.android) { return; }                           // disable on Andriod
+
     const multi = document.querySelectorAll('aside li.on');
     const target = multi.length > 1 ? [...multi].map(item => item.id) : App.getIds();
     target.forEach(id => {
@@ -1223,12 +1228,7 @@ class Script {
     const blob = new Blob([data], {type : 'text/plain;charset=utf-8'});
     const filename = folder + name.replace(/[<>:"/\\|?*]/g, '') + '.user' + ext; // removing disallowed characters
 
-    browser.downloads.download({
-      url: URL.createObjectURL(blob),
-      filename,
-      saveAs,
-      conflictAction: 'uniquify'
-    });
+    App.saveFile(data, filename, saveAs);
   }
 }
 const script = new Script();

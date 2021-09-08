@@ -38,25 +38,6 @@ body.dark {
   --fieldset-color: #0cf;
   --bg2: #444;
 }
-
-.dark nav label img,
-.dark .menu span.plus,
-.dark .menu details summary img  {
-  filter: invert(1) grayscale(1);
-}
-
-.dark button[type="submit"]::before {
-  filter: brightness(0.4);
-}
-
-.dark .bin img {
-  filter: grayscale(1) invert(1) contrast(4);
-}
-
-.dark #nav1:checked ~ article,
-.dark #nav2:checked ~ article {
-  background: #aaa;
-}
 /* ----- /Dark Theme ----- */
 
 body {
@@ -108,7 +89,7 @@ input[type="number"] {
 article {
   margin: 0;
   padding: 0;
-  transition: padding 0.5s;
+  transition: padding 0.5s ease-in-out;
 }
 
 section {
@@ -707,7 +688,7 @@ button.bin:hover img {
 }
 
 .menu details li:not(.theme):not(.textarea):hover {
-  background: var(--hover);
+  background-color: var(--hover);
 }
 
 .menu details li img {
@@ -907,3 +888,24 @@ footer {
   font-size: 0.7em;
 }
 /* ----- /log ----- */
+
+/* ----- Dark Theme ----- */
+.dark nav label img,
+.dark .menu span.plus,
+.dark .menu details summary img  {
+  filter: invert(1) grayscale(1);
+}
+
+.dark button[type="submit"]::before {
+  filter: brightness(0.4);
+}
+
+.dark .bin img {
+  filter: grayscale(1) invert(1) contrast(4);
+}
+
+.dark #nav1:checked ~ article,
+.dark #nav2:checked ~ article {
+  background: #aaa;
+}
+/* ----- /Dark Theme ----- */

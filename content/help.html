@@ -45,7 +45,8 @@
 
         <li class="arrow"><a href="#script-api">Script API</a>
           <ul>
-            <li><a href="#GM_getValue">GM_getValue & GM_listValues</a></li>
+            <li><a href="#getValue">getValue & listValues</a></li>
+            <li><a href="#openInTab">openInTab</a></li>
             <li><a href="#fetch">fetch</a></li>
             <li><a href="#xmlHttpRequest">xmlHttpRequest</a></li>
             <li><a href="#forbidden-header-name">Forbidden header name</a></li>
@@ -147,7 +148,7 @@
             <dd class="note">The userScript is injected as plain JavaScript. Its metadata block would not be processed and it has no access to GM API.</dd>
 
           <dt style="color: #f00;">&#x25c1; Undo</dt>
-            <dd>Undo/Remove the displayed userCSS if it was injected temporarily by Run</dd>
+            <dd>Undo/Remove the displayed userCSS if it was injected temporarily by &#x25b7; Run</dd>
         <dl>
       </dd>
 
@@ -320,9 +321,6 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
     <dt>JSHint Options</dt>
       <dd>Any option except <code>globals</code></dd>
 
-    <dt>match-highlighter</dt>
-      <dd><a href="https://codemirror.net/addon/search/match-highlighter.js" target="_blank">match-highlighter</a> addon was added in v2.19 but it is off by default and can be enabled with custom configuration</dd>
-
     <dt>Tab to indent with spaces</dt>
       <dd>Also relates to <code>tabSize</code>, <code>indentWithTabs</code> & <code>indentUnit</code></dd>
       <dd class="note">The setting causes the whole line to move, no matter where the cursor is</dd>
@@ -401,6 +399,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
     <dt>&#x1f4e4; Export</dt>
       <dd>Export all Script/CSS to <i>FireMonkey</i> folder in the download location set in <i>Firefox Options -> Downloads</i></dd>
+      <dd><i>Note: Disabled on Android</i></dd>
 
     <dt>&#x1f4e5; Import from Stylus</dt>
       <dd>Export styles from <i>Stylus</i> and Import the JSON (on pop-up change the file type selection to <i>All Files</i>), same name Script/CSS will be overwritten without warning <i>(note: <a href="#UserStyle">UserStyle</a>)</i></dd>
@@ -721,9 +720,19 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   <p>Userscripts will have access to all available APIs and therefore <code>@grant</code> is not needed or processed.</p>
   <p>The following scripts work the same way in <i>FireMonkey</i> and there is no difference in their security i.e. script A is not more secure than script B, and vice versa.</p>
 
-  <figure>
-    <figcaption>Script A</figcaption>
-<pre><span class="comment">// ==UserScript==
+
+<table>
+  <caption>grant Comparison</caption>
+  <thead>
+    <tr>
+      <th>Script A</th>
+      <th>Script B</th>
+    </tr>
+  </thead>
+  <tbody class="slim">
+    <tr>
+      <td>
+<pre style="border: none;"><span class="comment">// ==UserScript==
 // @name            Script A
 // @match           http://www.example.com/*
 // @grant           GM.xmlHttpRequest
@@ -734,15 +743,13 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   <span class="property">onload</span>: response =&gt; {
     <span class="property">console</span>.<span class="method">log</span>(response.<span class="property">responseText</span>);
   }
-});</pre>
-  </figure>
-
-  <figure>
-    <figcaption>Script B</figcaption>
-<pre><span class="comment">// ==UserScript==
+});</pre></td>
+      <td>
+<pre style="border: none;"><span class="comment">// ==UserScript==
 // @name            Script B
 // @match           http://www.example.com/*
 // ==/UserScript==</span>
+
 
 <span class="gm">GM.xmlHttpRequest</span>({
   url: <span class="string">'https://abcd.com/'</span>,
@@ -750,11 +757,14 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
     <span class="property">console</span>.<span class="method">log</span>(response.<span class="property">responseText</span>);
   }
 });</pre>
-  </figure>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 
   <h4 class="experimental">inject-into</h4>
-  <p>Setting the value <code>page</code> will inject the entire userscript in the <code>page</code> context (more: <a href="#xray-vision">Extension JavaScript Context</a>).</p>
+  <p>Setting the value <code>page</code> will inject the entire userscript into the <code>page</code> context (more: <a href="#xray-vision">Extension JavaScript Context</a>).</p>
 
   <ul>
     <li>Only applies to userscripts</li>
@@ -871,7 +881,13 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
     <tr><th>isolated context <sup>1</sup></th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
 
-    <tr><th>alter page CSP <sup>2</sup></th><td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="fail"><a href="https://github.com/violentmonkey/violentmonkey/issues/997" title="[Firefox] Can't modify page properties on sites which use CSP" target="_blank">&#x24d8;</a> <a href="https://github.com/violentmonkey/violentmonkey/issues/1001" title="[Firefox] Can't modify page properties on sites which use CSP" target="_blank">&#x24d8;</a></td></tr>
+    <tr>
+      <th>alter page CSP <sup>2</sup></th>
+      <td class="fail"></td>
+      <td class="fail"></td>
+      <td class="pass"><a href="https://github.com/Tampermonkey/tampermonkey/blob/07f668cd1cabb2939220045839dec4d95d2db0c8/src/background.js#L5907" title="v2.9+ Latest commit on 8 Jan 2013" target="_blank">&#x24d8;</a></td>
+      <td class="fail"><a href="https://github.com/violentmonkey/violentmonkey/issues/997" title="[Firefox] Can't modify page properties on sites which use CSP" target="_blank">&#x24d8;</a> <a href="https://github.com/violentmonkey/violentmonkey/issues/1001" title="[Firefox] Can't modify page properties on sites which use CSP" target="_blank">&#x24d8;</a></td>
+    </tr>
 
   </tbody>
 </table>
@@ -947,7 +963,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
       <dd>The state indicates that the <a href="https://developer.mozilla.org/docs/Web/API/Window/load_event" target="_blank">load</a> event is about to fire.</dd>
   </dl>
 
-  <h4>run-at (non-standard)</h4> 
+  <h4>run-at (non-standard)</h4>
   <p><i>Tampermonkey</i> supports additional non-standard <code>run-at</code>.</p>
 
   <blockquote><dl style="margin: 0;">
@@ -1871,8 +1887,8 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
     <tr><th>GM.fetch &#x1f1f3;</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>GM.download</th><td class="pass"></td><td class="fail"></td><td class="pass"><span>GM_* alias</span></td><td class="fail"></td></tr>
     <tr><th>GM.getResourceText</th><td class="pass"></td><td class="fail"></td><td class="pass"><span>GM_* alias</span></td><td class="fail"></td></tr>
-    <tr><th>GM.getResourceUrl</th><td class="pass"></td><td class="pass"><a href="https://wiki.greasespot.net/GM.getResourceUrl" target="_blank">&#x24d8;</a></td><td class="pass"><span>GM_* alias</span></td><td class="fail"></td></tr>
-    <tr><th>GM.getResource<b>URL</b></th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="pass"><span>GM_* alias</span> <a href="https://github.com/violentmonkey/violentmonkey/blob/f0a35490f61e7c0141244bcf32f48352ab13ddb4/src/injected/web/gm-api.js#L198" target="_blank">&#x24d8;</a></td></tr>
+    <tr><th>GM.getResource<b style="color: #f30;">Url</b></th><td class="pass"></td><td class="pass"><a href="https://wiki.greasespot.net/GM.getResourceUrl" target="_blank">&#x24d8;</a></td><td class="pass"><span>GM_* alias</span></td><td class="fail"></td></tr>
+    <tr><th>GM.getResource<b style="color: #f30;">URL</b></th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="pass"><span>GM_* alias</span> <a href="https://github.com/violentmonkey/violentmonkey/blob/f0a35490f61e7c0141244bcf32f48352ab13ddb4/src/injected/web/gm-api.js#L198" target="_blank">&#x24d8;</a></td></tr>
 
     <tr><th>GM.registerMenuCommand</th><td class="pass"></td><td class="pass"><span>v4.11+</span> <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"><span>GM_* alias</span></td><td class="fail"></td></tr>
     <tr><th>GM.unregisterMenuCommand</th><td class="pass"></td><td class="fail"></td><td class="pass"><span>GM_* alias</span></td><td class="fail"></td></tr>
@@ -1989,7 +2005,7 @@ sandbox/injected-web.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>470</td>
+      <td>500</td>
       <td>283k</td>
       <td>420k</td>
       <td>43k</td>
@@ -2063,7 +2079,7 @@ js/promisify.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>470</td>
+      <td>500</td>
       <td>66k</td>
       <td>74k</td>
       <td>430</td>
@@ -2099,7 +2115,7 @@ js/promisify.js</code></td>
     <li class="async">The only way to update storage is via an async operation</li>
   </ul>
 
-  <h3 id="GM_getValue">GM_getValue & GM_listValues</h3>
+  <h3 id="getValue">getValue & listValues</h3>
   <p>Partial compatibility has been implemented. Please note:</p>
 
   <ul>
@@ -2109,6 +2125,48 @@ js/promisify.js</code></td>
 
 
   <p>The async <code>GM.getValue</code> & <code>GM.listValues</code> will get the most up-to-date values at that moment.</p>
+
+
+  <h3 id="openInTab">openInTab</h3>
+  <p>The option support for <code>openInTab</code> is not unified between userscript managers.</p>
+  <p>The default value for <code>open_in_background</code> honors Firefox configuration.</p>
+
+<table>
+  <caption>openInTab Option Comparison</caption>
+  <thead>
+    <tr>
+      <th></th>
+      <th>FireMonkey</th>
+      <th>Greasemonkey</th>
+      <th>Tampermonkey</th>
+      <th>Violentmonkey</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><th>open_in_background<br><span>true/false</span></th><td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr>
+      <th>object</th>
+      <td class="fail"></td>
+      <td class="fail"><a href="https://wiki.greasespot.net/GM.openInTab" target="_blank">&#x24d8;</a></td>
+      <td class="pass"><a href="https://www.tampermonkey.net/documentation.php#GM_openInTab" target="_blank">&#x24d8;</a>
+        <code  style="font-size: 1em; color: #777;">
+{
+  active,
+  insert,
+  setParent,
+  incognito
+}</code></td>
+      <td class="pass"><a href="https://violentmonkey.github.io/api/gm/#gm_openintab" target="_blank">&#x24d8;</a>
+        <code  style="font-size: 1em; color: #777;">
+{
+  active,
+  container,
+  insert,
+  pinned
+}</code></td></tr>
+  </tbody>
+</table>
+
 
 
 
@@ -2307,15 +2365,16 @@ xhr.send(<span class="keyword">null</span>);
   <h4>&#x2139;&#xfe0f; JavaScript xmlHttpRequest & fetch</h4>
   <p>Due to a bug in Firefox <code>userScript</code> context, CORS fails in JavaScript <code>new XMLHttpRequest()</code> & <code>fetch()</code> (ref <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1715249" title="scripts running using userScripts API seem to block all cross-origin requests" target="_blank">Bug 1715249</a>).</p>
   <p>After liaising with Mozilla engineers, once the bug is fixed, userscripts will get the same origin as the web-page they are on.</p>
-  
+
   <p class="warning">Userscripts injected in <code>content</code> context (as in GM|TM|VM), or in <i>FireMonkey</i> Scratchpad & temporary script injection, carry certain security concerns. Changes are planned as part of <a href="https://blog.mozilla.org/addons/2021/05/27/manifest-v3-update/" target="_blank">Manifest v3 update</a>.</p>
-  
+
   <blockquote>• the content script sandbox has an expanded principal that includes the extension principal, and so in manifest_version 2 extension that allows the imported fetch and XMLHttpRequest to do cross site requests based on the extension host permission (but in manifest_version 3 this is not going to be allowed anymore)<br><br>
-  
+
   • the user script sandbox has an expanded principal but it doesn't include the extension principal and so the imported fetch and XMLHttpRequest can't do cross site requests based on the extension host permission (and this part is actually intended, the single userScript is not supposed to silently inherit expanded permission that the userScript manager extension does have)
-  <cite>Luca Greco <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1715249#c6" target="_blank">Bug 1715249 </a></cite>
+  <cite>Luca Greco <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1715249#c6" target="_blank">Bug 1715249</a></cite>
   </blockquote>
-  
+
+  <p class="note">Please note that <code>userScript</code> context used in FireMonkey is more restrictive than the <code>content</code> context used in GM|TM|VM. Therefore the behaviour of <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#xhr_and_fetch" title="XHR and Fetch" target="_blank">JavaScript xmlHttpRequest & fetch</a> in GM|TM|VM will be somwhow different.</p>
 
 
   <h3 id="forbidden-header-name">Forbidden header name</h3>
@@ -2791,17 +2850,40 @@ exportFunction(notify, <span class="object">window</span>, {defineAs: 'notify'})
   <h3 id="xray-vision">&#x2139;&#xfe0f; <a href="https://developer.mozilla.org/docs/Mozilla/Tech/Xray_vision" target="_blank">Xray Vision</a> & Sharing objects with page scripts</h3><br>
 
   <h4>Extension JavaScript Context (Scope)</h4>
-  <dl>
-    <dt>Browser Context</dt>
-      <dd>Trusted privileged code to interact with the browser</dd>
-    <dt>Content Context</dt>
-      <dd>Trusted extension's own JavaScript injected into web page with <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#webextension_apis" target="_blank">browser API privileges</a> (there is only one <code>content</code> context per extension per frame)</dd>
-    <dt>UserScript Context</dt>
-      <dd>Untrusted unverified 3rd party JavaScript injected into web page without direct browser API privileges (there can be many isolated <code>userScript</code> contexts)</dd>
-    <dt>Page Context</dt>
-      <dd>JavaScript injected in a web page by the website (there is only one <code>page</code> context per frame)</dd>
-  </dl>
+  <p>Contexts are sandboxed layers of JavaScript in an extension to ensure security.</p>
 
+<table>
+    <caption>Context Layers</caption>
+  <thead>
+  <tr>
+    <th>Type</th>
+    <th>Browser API Access</th>
+    <th>Details</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>broswer</th>
+      <td class="pass">all</td>
+      <td>Trusted privileged code to interact with the browser</td>
+    </tr>
+    <tr>
+      <th>content/contentScript</th>
+      <td class="pass">some</td>
+      <td>Trusted extension's own JavaScript injected into web page with some <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#webextension_apis" target="_blank">browser API privileges</a><br>(there is only one <code>content</code> context per extension per frame)</td>
+    </tr>
+    <tr>
+      <th>userScript</th>
+      <td class="fail">none (only GM API)</td>
+      <td>Untrusted unverified 3rd party JavaScript injected into web page without direct browser API privileges<br>(there can be many isolated <code>userScript</code> contexts)</td>
+    </tr>
+    <tr>
+      <th>page</th>
+      <td class="fail">none</td>
+      <td>JavaScript injected in a web page by the website<br>(there is only one <code>page</code> context per frame)</td>
+    </tr>
+  </tbody>
+</table>
 
 
   <blockquote>As an extension developer you should consider that scripts running in arbitrary web pages are hostile code whose aim is to steal the user's personal information, damage their computer, or attack them in some other way.<br><br>

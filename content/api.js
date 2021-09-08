@@ -1,7 +1,6 @@
 ﻿browser.userScripts.onBeforeScript.addListener(script => {
 
-  const name = script.metadata.name;
-  const resource = script.metadata.resource;
+  const {name, resource} = script.metadata;
 
   // --------------- Script Storage ------------------------
   const id = '_' + name;                                    // set id as _name
@@ -78,8 +77,7 @@
   // ----- auxiliary regex include/exclude test function
   function matchURL() {
     const url = location.href;
-    const includes = script.metadata.info.script.includes;
-    const excludes = script.metadata.info.script.excludes;
+    const {includes, excludes} = script.metadata.info.script;
     return (!includes[0] || arrayTest(includes, url)) && (!excludes[0] || !arrayTest(excludes, url));
   }
 
