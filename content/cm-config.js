@@ -174,9 +174,9 @@ class Config {
       message = '';
       switch (true) {
 
-        case prop === '@include' && /^\/[^/]{1}.+\/$/.test(value):
-        case prop === '@exclude' && /^\/[^/]{1}.+\/$/.test(value):
-          message = '@match performance is more efficient than Regular Expression.';
+        // Regular Expression
+        case ['@include', '@exclude'].includes(prop) && value.startsWith('/') && value.endsWith('/'):
+          message = 'Regular Expression is not supported.';
           severity = 'info';
           break;
 
