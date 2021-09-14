@@ -79,7 +79,7 @@ class App {
 
   static saveFile(data, filename, saveAs = true) {
 
-    if (!this.android) {
+    if (this.android) {
       const a = document.createElement('a');
       a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(data);
       a.setAttribute('download', filename);
