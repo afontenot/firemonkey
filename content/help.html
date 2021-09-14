@@ -15,6 +15,7 @@
         <li><a href="#toolbar">Toolbar Icon</a></li>
         <li><a href="#page-menu">Page Context Menu</a></li>
         <li><a href="#install">Script/CSS Install</a></li>
+        <li><a href="#android">Firefox on Android</a></li>
       </ul>
     </div>
     <div><a href="#options">Options</a>
@@ -84,6 +85,8 @@
   <h2 id="Preamble">Preamble</h2>
   <p><i>FireMonkey</i> is a totally new combined user-script and user-style manager. While it has similar functions to other user-Script managers like <i>Greasemonkey/Tampermonkey/Violentmonkey</i>, and user-style managers like <i>Stylish/Stylus/xStyle</i>, there are also differences. Similar to other userscript managers, scripts (or CSS) are injected in tabs and for a new script/CSS to have an effect, tab must be reloaded. The behaviour differs from <i>Stylus</i> which can inject CSS into a tab and remove it without having to reload the tab.</p>
   <p class="footnote">Some functions like script injection are prevented by Firefox on sites with restrictive Content Security Policy (CSP), as well as certain domains e.g. accounts-static.cdn.mozilla.net, accounts.firefox.com, addons.cdn.mozilla.net, api.accounts.firefox.com, content.cdn.mozilla.net, content.cdn.mozilla.net, discovery.addons.mozilla.org, input.mozilla.org, install.mozilla.org, oauth.accounts.firefox.com, profile.accounts.firefox.com, support.mozilla.org, sync.services.mozilla.com, testpilot.firefox.com (ref <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts" target="_blank">Content scripts</a>).</p>
+
+
 
 
   <h2 id="how_to">How to Use</h2><br>
@@ -207,6 +210,10 @@
   <p>Scripts can be directly installed from any script ending in <code>.user.js </code> (remote or local file system) if loaded into a tab (open or drag & drop)</p>
   <p>In case of <i>greasyfork.org</i> & <i>openuserjs.org</i> links, the same link will be set for script update.</p>
   <p>Due to sandbox CSP header on <code>https://raw.githubusercontent.com/........uers.js</code> tab is forwarded to <code>cdn.jsdelivr.net</code> mirror. (ref <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1411641" title="CSP 'sandbox' directive prevents content scripts from matching, due to unique origin, breaking also browser features" target="_blank">Bug 1411641</a>).</p>
+
+  <h3 id="android" class="experimental">Firefox on Android</h3>
+  <p>Support is experimental and based on user feedback.</p>
+
 
 
   <h2 id="options">Options</h2><br>
@@ -718,7 +725,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
   <h4>grant <span class="fail">not processed</span></h4>
   <p>Userscripts will have access to all available APIs and therefore <code>@grant</code> is not needed or processed.</p>
-  <p>The following scripts work the same way in <i>FireMonkey</i> and there is no difference in their security i.e. script A is not more secure than script B, and vice versa.</p>
+  <p><code>@grant</code> for GM APIs in <i>FireMonkey</i> in <code>contentScripts</code> context, are inconsequential security-wise. Even in the disputed case of <code>GM.xmlHttpRequest</code>, the following scripts work the same way in <i>FireMonkey</i> and there is no difference in their security i.e. script A is not more secure than script B, and vice versa.</p>
 
 
 <table>
@@ -2005,9 +2012,9 @@ sandbox/injected-web.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>500</td>
-      <td>283k</td>
-      <td>420k</td>
+      <td>540</td>
+      <td>266k</td>
+      <td>427k</td>
       <td>43k</td>
     </tr>
 
@@ -2017,7 +2024,7 @@ sandbox/injected-web.js</code></td>
 
   <p><sup>1</sup> <code>window.close</code> grant results is overwriting the global <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/close" target="_blank">window.close()</a> and bypassing the specific JavaScript <code>window.opener</code> safeguard to close a window that it has not opened. Such grant would allow malware userscripts to run code and hide the result by closing the window before user has a change to notice. Furthermore, the choice to close a window/tab opened by the user, should remain with the user.</p>
   <p><sup>2</sup> <code>window.focus</code> grant results is overwriting the global <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/focus" target="_blank">window.focus()</a>. Such grant could be disruptive in cases where user is playing a game or in the middle of something in another window/tab and the userscript in the background causes its window/tab to become active and come to the foreground. Furthermore, the choice to focus a window/tab, should remain with the user.</p>
-  <p><sup>3</sup> <code>window.onurlchange </code> is an experimental implementation on Tampermonkey 4.11.6120 (2020-09-17).</p>
+  <p><sup>3</sup> <code>window.onurlchange </code> is an experimental implementation in Tampermonkey 4.11.6120 (2020-09-17).</p>
   <p class="footnote">Alternative: <a href="#Detecting_JavaScript_Navigation">Detecting JavaScript Navigation</a></p>
 
 
@@ -2079,10 +2086,10 @@ js/promisify.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>500</td>
-      <td>66k</td>
-      <td>74k</td>
-      <td>430</td>
+      <td>540</td>
+      <td>67k</td>
+      <td>68k</td>
+      <td>400</td>
     </tr>
 
   </tbody>
