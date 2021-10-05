@@ -112,7 +112,7 @@
       <dd>Display the latest (100) error and script-update messages when not in Private Window <sup>1</sup></dd>
 
     <dt><img src="../locale-maker/locale-maker.svg" alt=""> Locale Maker</dt>
-      <dd>Open the Locale Maker stand alone module to create & share locale translations</dd>
+      <dd>Open the Locale Maker stand-alone module to create & share locale translations</dd>
 
   </dl>
   <p><sup>1</sup><i> In Private Window opens the Options page (ref <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1659998" title="localStorage accessibility within extension privileged pages in Private Window" target="_blank">Bug 1659998</a>).</i></p>
@@ -2012,10 +2012,10 @@ sandbox/injected-web.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>540</td>
-      <td>266k</td>
-      <td>427k</td>
-      <td>43k</td>
+      <td>550</td>
+      <td>264k</td>
+      <td>435k</td>
+      <td>44k</td>
     </tr>
 
   </tbody>
@@ -2086,9 +2086,9 @@ js/promisify.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>540</td>
+      <td>550</td>
       <td>67k</td>
-      <td>68k</td>
+      <td>67k</td>
       <td>400</td>
     </tr>
 
@@ -2178,7 +2178,7 @@ js/promisify.js</code></td>
 
 
 
-  <h3 id="fetch">fetch</h3>
+  <h3 id="fetch">fetch <span>(&#x26a0;&#xfe0f; breaking changes in v2.33)</span></h3>
   <p><i>FireMonkey</i> <code>fetch</code> API is based on the JavaScript <a href="https://developer.mozilla.org/docs/Web/API/WindowOrWorkerGlobalScope/fetch" target="_blank">Fetch API</a> which provides the new Promise based interface for fetching resources (including across the network). It will seem familiar to anyone who has used <code>XMLHttpRequest</code>, but it provides a more powerful and flexible feature set.</p>
   <p>For simplicity and compatibility, the same GM style naming is kept for <code>fetch</code> API although it is not available in <i>Greasemonkey</i>.</p>
   <p><i>FireMonkey</i> <code>fetch</code> returns response object/string or <code>null</code> (check console & the log for errors e.g.: <i>TypeError: "NetworkError when attempting to fetch resource.</i>").</p>
@@ -2189,36 +2189,73 @@ js/promisify.js</code></td>
 GM_fetch(url[, init]);</pre>
 
 
-    <h4>url</h4>
-    <p>http, https, <s>ftp, ftps</s> <a href="#ftp" title="What to expect for the upcoming deprecation of FTP in Firefox">&#x24d8;</a>, (file not allowed), can be relative to the web page</p>
+  <h4>url</h4>
+  <p>http, https, <s>ftp, ftps</s> <a href="#ftp" title="What to expect for the upcoming deprecation of FTP in Firefox">&#x24d8;</a>, (file not allowed), can be relative to the web page</p>
 
-    <h4>init <span>(Optional)</span></h4>
-    <p>An options object containing any custom settings that you want to apply to the request. The possible options are:</p>
+  <h4>init <span>(Optional)</span></h4>
+  <p>An options object containing any custom settings that you want to apply to the request. The possible options are:</p>
 
-    <ul>
-      <li><code>method:</code> The request method, e.g. GET, HEAD, POST, PUT, DELETE, etc. (can be omitted, defaults to 'GET')</li>
-      <li><code>headers:</code> Any headers you want to add to your request, contained within a Headers object or an object literal with ByteString values.</li>
-      <li><code>body:</code> Any body that you want to add to your request: this can be a Blob, BufferSource, FormData, URLSearchParams, or USVString object. Note that a request using the GET or HEAD method cannot have a body.</li>
-      <li><code>mode:</code> The mode you want to use for the request, e.g., cors, no-cors, or same-origin.</li>
-      <li><code>credentials:</code> The request credentials you want to use for the request: omit, same-origin, or include. To automatically send cookies for the current domain, this option must be provided. Starting with Chrome 50, this property also takes a FederatedCredential instance or a PasswordCredential instance.</li>
-      <li><code>cache:</code> The cache mode you want to use for the request.</li>
-      <li><code>redirect:</code> The redirect mode to use: follow (automatically follow redirects), error (abort with an error if a redirect occurs), or manual (handle redirects manually). In Chrome the default is follow (before Chrome 47 it defaulted to manual).</li>
-      <li><code>referrer:</code> A USVString specifying no-referrer, client, or a URL. The default is client.</li>
-      <li><code>referrerPolicy:</code> Specifies the value of the referer HTTP header. May be one of no-referrer, no-referrer-when-downgrade, origin, origin-when-cross-origin, unsafe-url.</li>
-      <li><code>integrity:</code> Contains the subresource integrity value of the request (e.g., sha256-BpfBw7ivV8q2jLiT13fxDYAe2tJllusRSZ273h2nFSE=).</li>
-      <li><code>keepalive:</code> The keepalive option can be used to allow the request to outlive the page. Fetch with the keepalive flag is a replacement for the Navigator.sendBeacon() API.</li>
-      <li><code>signal:</code> An AbortSignal object instance; allows you to communicate with a fetch request and abort it if desired via an AbortController.<br><br></li>
+  <ul>
+    <li><code>method:</code> The request method, e.g. GET, HEAD, POST, PUT, DELETE, etc. (can be omitted, defaults to 'GET')</li>
+    <li><code>headers:</code> Any headers you want to add to your request, contained within a Headers object or an object literal with ByteString values.</li>
+    <li><code>body:</code> Any body that you want to add to your request: this can be a Blob, BufferSource, FormData, URLSearchParams, or USVString object. Note that a request using the GET or HEAD method cannot have a body.</li>
+    <li><code>mode:</code> The mode you want to use for the request, e.g., cors, no-cors, or same-origin.</li>
+    <li><code>credentials:</code> The request credentials you want to use for the request: omit, same-origin, or include. To automatically send cookies for the current domain, this option must be provided. Starting with Chrome 50, this property also takes a FederatedCredential instance or a PasswordCredential instance.</li>
+    <li><code>cache:</code> The cache mode you want to use for the request.</li>
+    <li><code>redirect:</code> The redirect mode to use: follow (automatically follow redirects), error (abort with an error if a redirect occurs), or manual (handle redirects manually). In Chrome the default is follow (before Chrome 47 it defaulted to manual).</li>
+    <li><code>referrer:</code> A USVString specifying no-referrer, client, or a URL. The default is client.</li>
+    <li><code>referrerPolicy:</code> Specifies the value of the referer HTTP header. May be one of no-referrer, no-referrer-when-downgrade, origin, origin-when-cross-origin, unsafe-url.</li>
+    <li><code>integrity:</code> Contains the subresource integrity value of the request (e.g., sha256-BpfBw7ivV8q2jLiT13fxDYAe2tJllusRSZ273h2nFSE=).</li>
+    <li><code>keepalive:</code> The keepalive option can be used to allow the request to outlive the page. Fetch with the keepalive flag is a replacement for the Navigator.sendBeacon() API.</li>
+    <li><code>signal:</code> An AbortSignal object instance; allows you to communicate with a fetch request and abort it if desired via an AbortController.<br><br></li>
 
-      <li><code>responseType:</code> <i>(Optional, FireMonkey only)</i><br>
-      You can set a responseType for the response e.g: <code>'text'</code> <i>(default)</i>, <code>'json'</code>, <code>'blob'</code>, <code>'arrayBuffer'</code>, <code>'formData'</code></li>
-    </ul>
+    <li><code>responseType:</code> <i>(Optional, FireMonkey only)</i><br>
+    You can set a responseType for the response e.g: <code>'text'</code> <i>(default)</i>, <code>'json'</code>, <code>'blob'</code>, <code>'arrayBuffer'</code>, <code>'formData'</code></li>
+  </ul>
 
-
+  <p class="warning">Since v2.33. GM.fetch returns an object in all cases.</p>
+  
 
   <figure>
     <figcaption>Example</figcaption>
-  <pre><span class="comment">// simplest, returns response text</span>
+  <pre>
+<span class="comment">// example of response object
+{
+  headers: {
+    age: "52512",
+    "cache-control": "max-age=86400, public",
+    "content-encoding": "br",
+    "content-type": "text/html; charset=utf-8",
+    date: "Wed, 24 Mar 2021 16:25:31 GMT",
+    "last-modified": "Wed, 24 Mar 2021 02:02:53 GMT",
+    ...
+    ... etc
+  },
+  bodyUsed: false,
+  ok: true,
+  redirected: true,
+  status: 200,
+  statusText: "OK",
+  type: "basic",
+  url: "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch",
+  
+  // plus one of the following properties based on responseType, if method is not HEAD
+  text: ...,
+  json: ...,
+  blob: ...,
+  arrayBuffer: ...,
+  formData: ...,
+}</span>
+
+
+<span class="comment">// HEAD request</span>
+<span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="method">fetch</span>(<span class="string">'https://example.com/etc'</span>, {method: <span class="string">'HEAD'</span>});
+
+
+<span class="comment">// simplest, returns response text</span>
 <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="method">fetch</span>(<span class="string">'https://example.com/etc'</span>);
+<span class="keyword">const</span> text = response.text;
+
 
 <span class="comment">// with init, returns response text</span>
 <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="method">fetch</span>(<span class="string">'https://example.com/etc'</span>, {
@@ -2227,37 +2264,18 @@ GM_fetch(url[, init]);</pre>
   headers:{
     <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span>
 });
+<span class="keyword">const</span> text = response.text;
+
 
 <span class="comment">// returns response JSON</span>
 <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="method">fetch</span>(<span class="string">'https://example.com/etc'</span>, {responseType: <span class="string">'json'</span>});
+<span class="keyword">const</span> obj = response.json;
+
 
 <span class="comment">// if you don't need to wait for the response</span>
 <span class="gm">GM</span>.<span class="method">fetch</span>(<span class="string">'https://example.com/etc'</span>)
 .<span class="method">then</span>(response =&gt; callback(response))
 .<span class="keyword">catch</span>(<span class="method">error</span> =&gt; <span class="property">console</span>.<span class="method">error</span>(<span class="method">error</span>.message));
-
-<span class="comment">// returns response object on HEAD request</span>
-<span class="keyword">const</span> response = <span class="keyword">await</span> <span class="gm">GM</span>.<span class="method">fetch</span>(<span class="string">'https://example.com/etc'</span>, {method: <span class="string">'HEAD'</span>});
-
-<span class="comment">// example of response object on HEAD request
-{
-  "ok": true,
-  "redirected": true,
-  "status": 200,
-  "statusText": "OK",
-  "type": "basic",
-  "url": "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch",
-  headers: {
-    "age": "52512",
-    "cache-control": "max-age=86400, public",
-    "content-encoding": "br",
-    "content-type": "text/html; charset=utf-8",
-    "date": "Wed, 24 Mar 2021 16:25:31 GMT",
-    "last-modified": "Wed, 24 Mar 2021 02:02:53 GMT",
-    ...
-    ... etc
-  }
-}</span>
 </pre>
   </figure>
 

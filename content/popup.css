@@ -1,31 +1,29 @@
-﻿/* ----- General ----- */
-:root {
-  --color: #000;
-  --bg: #fff;
-  --scrollbar: #ddd #f5f5f5;
-  --hover: #eee;
-  --btn-bg: #f9f9fa;
-  --color2: #05f;
-  --bg2: #ddda;
-}
+﻿@import 'default.css';
 
 /* ----- Dark Theme ----- */
-body.dark {
-  --color: #fff;
-  --bg: #000;
+:root, body.dark {
   --scrollbar: #888 #222;
-  --hover: #555;
-  --btn-bg: #666;
   --color2: #0ff;
+  --invert: invert(1);
+  --dim: 0.8;
+  --img-filter: invert(1) grayscale(1);
+  --bin-filter: grayscale(1) invert(1) contrast(4);
 }
-/* ----- /Dark Theme ----- */
 
+/* ----- Light Theme ----- */
+@media screen and (prefers-color-scheme: light) {
+  :root {    
+    --scrollbar: #ddd #f5f5f5;
+    --color2: #05f;
+    --dim: 0.5;
+    --img-filter: none;
+    --bin-filter: grayscale(1) invert(1) contrast(4);
+  }
+}
+
+/* ----- General ----- */
 body {
-  color: var(--color);
-  background: var(--bg);
-  padding: 0;
-  margin: 0;
-  font: 12px sans-serif;
+  font-size: 12px;
   width: 25em;
   overflow: hidden;
 }
@@ -41,21 +39,7 @@ body.android {
   width: auto;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-.flex {
-  display: flex;
-}
-
-.flex > * {
-  flex: 1;
-}
-
 article {
-  padding: 0;
-  margin: 0;
   overflow: hidden;
   display: flex;
   width: 200%;
@@ -63,7 +47,6 @@ article {
 }
 
 section {
-  padding: 0;
   width: 50%;
   height: 560px;
 }
@@ -87,7 +70,7 @@ h3 {
 h3 span.frame{
   padding: 0.1em 0.3em;
   background: var(--bg);
-  opacity: 0.6;
+  opacity: var(--dim);
   font-size: 0.8em;
   flex: 0 0 auto;
   margin-left: 0.5em;
@@ -120,6 +103,7 @@ h3.menu::after {
   right: 0.5em;
   opacity: 0.5;
   transition: 0.5s;
+  filter: var(--img-filter);
 }
 
 h3.menu:hover::after {
@@ -157,6 +141,11 @@ section:first-of-type button:first-of-type {
 
 button:disabled {
   cursor: not-allowed;
+}
+
+span.plus,
+img[src*="gear.svg"] {
+  filter: var(--img-filter);
 }
 /* ----- /Buttons ----- */
 
@@ -218,7 +207,7 @@ li span.name {
 }
 
 li.disabled span.name {
-  opacity: 0.5;
+  opacity: var(--dim);
 }
 
 li span.name::before {
@@ -254,6 +243,7 @@ li span.name::after {
   opacity: 0;
   transition: 0.5s;
   box-sizing: border-box;
+  filter: var(--img-filter);
 }
 
 li span.name:hover::after {
@@ -318,6 +308,7 @@ section.info h3 span:hover {
 section.info h3 img {
   width: 1em;
   vertical-align: middle;
+  filter: var(--img-filter);
 }
 
 dl {
@@ -342,7 +333,7 @@ dl.css::after {
   position: absolute;
   top: 0;
   right: 0.5em;
-  opacity: 0.6;
+  opacity: var(--dim);
 }
 
 dl.css::after {
@@ -358,7 +349,7 @@ dt {
 }
 
 dd {
-  opacity: 0.5;
+  opacity: var(--dim);
 }
 
 dd + dt {
@@ -430,27 +421,11 @@ img.bin {
   width: 1.4em;
   transition: 0.5s;
   cursor: pointer;
-  filter: opacity(0.4) grayscale(1);
   float: right;
+  filter: var(--bin-filter);
 }
 
 img.bin:hover {
   filter: opacity(1) grayscale(0);
 }
 /* ----- /Scratchpad ----- */
-
-/* ----- Dark Theme ----- */
-.dark h3.menu::after,
-.dark li span.next,
-.dark .info h3 img {
-  filter: invert(1);
-}
-
-.dark dd {
-  opacity: 0.8;
-}
-
-.dark .bin {
-  filter: grayscale(1) invert(1) contrast(4);
-}
-/* ----- /Dark Theme ----- */

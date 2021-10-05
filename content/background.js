@@ -751,23 +751,24 @@ class API {
         init.headers && this.processForbiddenHeaders(init.headers);
 
         return fetch(url, init)
-          .then(response => {
+          .then(async response => {
 
-            if (e.init.method === 'HEAD') {
-              const res = {headers: {}};
-              response.headers.forEach((value, name) => res.headers[name] = value);
-              ['ok', 'redirected', 'status', 'statusText', 'type', 'url'].forEach(item => res[item] = response[item]);
-              return res;
-            }
+            // --- build response object
+            const res = {headers: {}};
+            response.headers.forEach((value, name) => res.headers[name] = value);
+            ['bodyUsed', 'ok', 'redirected', 'status', 'statusText', 'type', 'url'].forEach(item => res[item] = response[item]);
+
+            if (e.init.method === 'HEAD') { return res; }   // end here
 
             switch (e.init.responseType) {
 
-              case 'json': return response.json();
-              case 'blob': return response.blob();
-              case 'arrayBuffer': return response.arrayBuffer();
-              case 'formData': return response.formData();
-              default: return response.text();
+              case 'json': res['json'] = await response.json(); break;
+              case 'blob': res['blob'] = await response.blob(); break;
+              case 'arrayBuffer': res['arrayBuffer'] = await response.arrayBuffer(); break;
+              case 'formData': res['formData'] = await response.formData(); break;
+              default: res['text'] = await response.text();
             }
+            return res;
           })
           .catch(error => App.log(name, `${message.api} ${url} ➜ ${error.message}`, 'error'));
 
@@ -833,6 +834,12 @@ class API {
       withCredentials:  xhr.withCredentials,
       finalUrl:         xhr.responseURL
     };
+  }
+
+  makeFetch() {
+
+
+
   }
 }
 new API();

@@ -3,8 +3,6 @@ const RU = new RemoteUpdate();
 
 // ----------------- Internationalization ------------------
 App.i18n();
-document.body.classList.toggle('dark', localStorage.getItem('dark') === 'true'); // Light/Dark Theme
-document.body.style.opacity = 1;                            // show after i18n
 
 // ----------------- User Preference -----------------------
 App.getPref().then(() => {
@@ -184,7 +182,8 @@ class Script {
     this.footer = document.querySelector('footer');
 
     const themeSelect = document.querySelector('#theme');
-    this.theme = localStorage.getItem('theme') || 'defualt';
+    this.theme = localStorage.getItem('theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'darcula' : 'defualt');
     themeSelect.value = this.theme;
     if (themeSelect.selectedIndex === -1) {                 // bad value correction
       this.theme = 'default';
@@ -261,6 +260,7 @@ class Script {
         devel: true,
         eqeqeq: true,
         esversion: 11,
+        expr: true,
        /* forin: true,*/
         freeze: true,
         globals: {
