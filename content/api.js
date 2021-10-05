@@ -180,7 +180,7 @@
       });
 
       // cloneInto() work around for https://bugzilla.mozilla.org/show_bug.cgi?id=1583159
-      return response ? (typeof response === 'string' ? script.export(response) : cloneInto(response, window)) : null;
+      return response ? cloneInto(response, window) : null;
     },
 
     async xmlHttpRequest(init) {

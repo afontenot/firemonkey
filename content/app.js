@@ -4,12 +4,12 @@
 let pref = {
   autoUpdateInterval: 0,
   autoUpdateLast: 0,
+  cmOptions: '',
   counter: true,
+  customCSS: '',
   globalScriptExcludeMatches: '',
   sync: false,
-  template: { css: '', js: '' },
-  customCSS: '',
-  cmOptions: ''
+  template: {css: '', js: ''}
 };
 // ----------------- /Default Preference -------------------
 
@@ -96,8 +96,6 @@ class App {
     });
   }
 
-
-
   // ----------------- Helper functions ----------------------
   // --- Internationalization
   static i18n() {
@@ -106,6 +104,9 @@ class App {
       text = browser.i18n.getMessage(text);
       attr ? node[attr] = text : node.appendChild(document.createTextNode(text));
     });
+
+    document.body.classList.toggle('dark', localStorage.getItem('dark') === 'true'); // light/dark theme
+    document.body.style.opacity = 1;                            // show after i18n
   }
 
   static notify(message, title = browser.i18n.getMessage('extensionName'), id = '') {

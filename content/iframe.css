@@ -1,4 +1,8 @@
 ﻿/* ----- General ----- */
+:root {
+  --icon: url('../image/icon.svg');
+}
+
 html {
   scroll-padding-top: 2.5em; /* Firefox 68+ */
 }
@@ -97,7 +101,7 @@ h2 {
 
 h2::before {
   content: '';
-  background: url('../image/icon.svg') no-repeat center;
+  background: var(--icon) no-repeat center;
   background-size: contain;
   display: inline-block;
   width: 1.5em;
