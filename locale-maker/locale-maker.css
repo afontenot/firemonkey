@@ -1,35 +1,5 @@
 ﻿/* ----- General ----- */
-:root {
-  --bg: #fff;
-  --border: #ddd;
-  --color: #000;  
-  --hover: #eee;
-  --shadow: #0004;
-  --btn-bg: #f9f9fa;
-  --btn-hover: #fff;
-  --bg2: #ddda;
-  --bg3: #fff;
-  --bg-even: #eee;
-  --bg-odd: #ddd4;
-}
-
-@media screen and (prefers-color-scheme: dark) {
-  :root {
-    --bg: #000;
-    --border: #777; 
-    --color: #fff;  
-    --hover: #888;
-    --shadow: #fff8;
-    --btn-bg: #666;
-    --btn-hover: #444;
-    --bg2: #777;
-    --bg3: #999;
-    --bg-even: #444;
-    --bg-odd: #555; 
-  }  
-}
-
-body.dark {
+:root, body.dark {
   --bg: #000;
   --border: #777; 
   --color: #fff;  
@@ -41,6 +11,22 @@ body.dark {
   --bg3: #999;
   --bg-even: #444;
   --bg-odd: #555; 
+}
+
+@media screen and (prefers-color-scheme: light) {
+  :root {
+    --bg: #fff;
+    --border: #ddd;
+    --color: #000;  
+    --hover: #eee;
+    --shadow: #0004;
+    --btn-bg: #f9f9fa;
+    --btn-hover: #fff;
+    --bg2: #ddda;
+    --bg3: #fff;
+    --bg-even: #eee;
+    --bg-odd: #ddd4;
+  }  
 }
 
 body {

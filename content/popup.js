@@ -66,9 +66,6 @@ class Popup {
       }
     });
 
-    // ----- Theme
-    document.body.classList.toggle('dark', localStorage.getItem('dark') === 'true'); // defaults to false
-
     // --- i18n
     this.lang = navigator.language;
   }
