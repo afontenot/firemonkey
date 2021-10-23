@@ -7,6 +7,7 @@
   --bg2: #444;
   --border: #777;
   --option-bg: #444;
+  --link: #0ef;
 }
 
 /* ----- Light Theme ----- */
@@ -19,6 +20,7 @@
     --bg2: #eeea;
     --border: #ddd;
     --option-bg: #f9f9fa;
+    --link: #08f;
   }
 }
 
@@ -52,17 +54,34 @@ select, textarea {
   border-radius: 0.3em;
 }
 
+a {
+  text-decoration: none;
+  color: var(--link);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button > * {
+  pointer-events: none;
+}
+
 ::placeholder {
   opacity: 0.5;
   font-style: italic;
 }
 
-.flex {
+.flex, .flex-display {
   display: flex;
 }
 
 .flex > * {
   flex: 1;
+}
+
+.spacer {
+  flex-grow: 1;
 }
 
 .invalid {

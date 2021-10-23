@@ -1,9 +1,8 @@
 ﻿browser.userScripts.onBeforeScript.addListener(script => {
-
   const {name, resource} = script.metadata;
 
   // --------------- Script Storage ------------------------
-  const id = '_' + name;                                    // set id as _name
+  const id = `_${name}`;                                    // set id as _name
   let storage = script.metadata.storage;
   browser.storage.local.get(id).then((result = {}) => storage = result[id].storage);
 
@@ -11,12 +10,8 @@
   const valueChange = {};
 
   function storageChange(changes, area) {
-
     if (changes.hasOwnProperty(id)) {
-
-      const oldValue = changes[id].storage.oldValue || {};
-      const newValue = changes[id].storage.newValue || {};
-
+      const {oldValue = {}, newValue = {}} = changes[id].storage;
       // process addValueChangeListener (only for remote) (key, oldValue, newValue, remote)
       Object.keys(valueChange).forEach(item =>
          oldValue[item] !== newValue[item] &&
@@ -27,7 +22,8 @@
 
   // ----- synch APIs
   function GM_getValue(key, defaultValue) {
-    return storage.hasOwnProperty(key) ? storage[key] : defaultValue;
+    const response = storage.hasOwnProperty(key) ? storage[key] : defaultValue;
+    return prepare(response);
   }
 
   function GM_listValues() {
@@ -37,7 +33,6 @@
   // --------------- Script Command ------------------------
   const scriptCommand = {};
   browser.runtime.onMessage.addListener((message, sender) => {
-
     switch (true) {
       // --- to popup.js for registerMenuCommand
       case message.hasOwnProperty('listCommand'):
@@ -90,20 +85,24 @@
     return cloneInto(options.cloneFunctions ? obj.wrappedJSObject : obj, target, options);
   }
 
+  // ----- prepare return value
+  function prepare(value) {
+    return ['object', 'function'].includes(typeof value) && value !== null ? script.export(value) : value; 
+  }
+
   // --------------- GM4 Object based functions ------------
   const GM = {
 
     async getValue(key, defaultValue) {
-
-      return await browser.runtime.sendMessage({
+      const response =  await browser.runtime.sendMessage({
         name,
         api: 'getValue',
         data: {key, defaultValue}
       });
+      return prepare(response);
     },
 
     async listValues() {
-
       const response = await browser.runtime.sendMessage({
         name,
         api: 'listValues',
@@ -113,8 +112,6 @@
     },
 
     async setValue(key, value) {
-
-      if (!['string', 'number', 'boolean'].includes(typeof value)) { throw `${name}: Unsupported value in setValue()`; }
       cache[key] = value;
       return await browser.runtime.sendMessage({
         name,
@@ -124,7 +121,6 @@
     },
 
     async deleteValue(key) {
-
       delete cache[key];
       return await browser.runtime.sendMessage({
         name,
@@ -134,16 +130,16 @@
     },
 
     addValueChangeListener(key, callback) {
-
       browser.storage.onChanged.hasListener(storageChange) || browser.storage.onChanged.addListener(storageChange)
       valueChange[key] = callback;
       return key;
     },
 
-    removeValueChangeListener(key) { delete valueChange[key]; },
+    removeValueChangeListener(key) {
+      delete valueChange[key];
+    },
 
     async openInTab(url, open_in_background) {
-
       return await browser.runtime.sendMessage({
         name,
         api: 'openInTab',
@@ -152,7 +148,6 @@
     },
 
     async setClipboard(text) {
-
       return await browser.runtime.sendMessage({
         name,
         api: 'setClipboard',
@@ -172,19 +167,16 @@
     },
 
     async fetch(url, init = {}) {
-
       const response = await browser.runtime.sendMessage({
         name,
         api: 'fetch',
         data: {url, init, base: location.href}
       });
-
       // cloneInto() work around for https://bugzilla.mozilla.org/show_bug.cgi?id=1583159
       return response ? cloneInto(response, window) : null;
     },
 
     async xmlHttpRequest(init) {
-
       const data = {
         method: 'GET',
         data: null,
@@ -214,7 +206,6 @@
     },
 
     async getResourceText(resourceName) {
-
       const response = await browser.runtime.sendMessage({
         name,
         api: 'fetch',
@@ -241,7 +232,6 @@
     },
 
     async download(url, filename) {
-
       return await browser.runtime.sendMessage({
         name,
         api: 'download',
@@ -250,7 +240,6 @@
     },
 
     addStyle(css) {
-
       if (!css) { return; }
       try {
         const node = document.createElement('style');
@@ -261,7 +250,6 @@
     },
 
     addScript(js) {
-
       if (!js) { return; }
       try {
         const node = document.createElement('script');
@@ -276,7 +264,6 @@
     },
 
     popup({type = 'center', modal = true} = {}) {
-
       const host = document.createElement('gm-popup');    // shadow DOM host
       const shadow = host.attachShadow({mode: 'closed'});
 

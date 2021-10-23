@@ -2,7 +2,7 @@
 @import 'default-options.css';
 
 /* ----- Mobile ----- */
-@media (max-width: 600px) {
+@media screen and (max-width: 600px) {
   nav label span {
     display: none;
   }

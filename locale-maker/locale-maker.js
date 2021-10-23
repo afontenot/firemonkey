@@ -51,7 +51,6 @@ class LocaleMaker {
     const docfrag = document.createDocumentFragment();
 
     Object.keys(data).forEach(item => {
-
       if (item === 'extensionName') { return; }             // keep extension name
       const tr = this.trTemplate.cloneNode(true);
       tr.children[0].textContent = this.showSpecial(data[item].message);
@@ -86,7 +85,6 @@ class LocaleMaker {
     this.footer.textContent = '';                           // reset
     const file = e.target.files[0];
     switch (true) {
-
       case !file:
         this.notify('There was an error with the operation.');
         return;

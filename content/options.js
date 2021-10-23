@@ -32,14 +32,15 @@ class Options {
   }
 
   process(save) {
-    // 'save' is ony set when clicking the button to save options
+    // 'save' is only set when clicking the button to save options
     this.prefNode.forEach(node => {
       // value: 'select-one', 'textarea', 'text', 'number'
       const attr = node.type === 'checkbox' ? 'checked' : 'value';
       save ? pref[node.id] = node[attr] : node[attr] = pref[node.id];
     });
 
-    save && browser.storage.local.set(pref);                 // update saved pref
+    save && this.progressBar();                             // progress bar
+    save && browser.storage.local.set(pref);                // update saved pref
   }
 
   progressBar() {
@@ -66,21 +67,17 @@ class Options {
       cmOptions.jshint && delete cmOptions.jshint.globals;
       cmOptionsNode.value = JSON.stringify(cmOptions, null, 2); // reset value with allowed options
     }
-    // --- progress bar
-    this.progressBar();
 
     // --- save options
     this.process(true);
   }
 
   getNav(nav) {
-
     nav = nav || localStorage.getItem('nav');
     localStorage.removeItem('nav');
     if (!nav) { return; }                                   // end execution if not found
 
     switch (nav) {
-
       case 'help':
         document.getElementById('nav1').checked = true;
         break;
@@ -182,7 +179,7 @@ class Script {
     this.footer = document.querySelector('footer');
 
     const themeSelect = document.querySelector('#theme');
-    this.theme = localStorage.getItem('theme') || 
+    this.theme = localStorage.getItem('theme') ||
       (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'darcula' : 'defualt');
     themeSelect.value = this.theme;
     if (themeSelect.selectedIndex === -1) {                 // bad value correction
@@ -209,7 +206,6 @@ class Script {
 
     // --- script storage changes
     browser.storage.onChanged.addListener((changes, area) => { // Change Listener
-
       area === 'local' && Object.keys(changes).forEach(item => { // local only, not for sync
 
         pref[item] = changes[item].newValue;                // update pref with the saved version
@@ -233,7 +229,6 @@ class Script {
   }
 
   addTheme(dark) {
-
     const url =  `../lib/codemirror/theme/${this.theme}.css`;
     if (this.theme === 'default' || document.querySelector(`link[href="${url}"]`)) { // already added
       document.body.classList.toggle('dark', dark);
@@ -252,7 +247,6 @@ class Script {
   }
 
   setCodeMirror() {
-
     const js =  this.legend.classList.contains('js');
     const jshint = {
         browser: true,
@@ -343,12 +337,10 @@ class Script {
   }
 
   colorPicker(cm, node) {
-
     this.oldColor = node.style.getPropertyValue('--fm-color');
     let color = this.oldColor;
 
     switch (true) {
-
       case this.oldColor.startsWith('rgb'):                 // convert rgba?() -> #rrggbb
         color = this.rgbToHex(color);
         break;
@@ -367,12 +359,10 @@ class Script {
   }
 
   changeColor() {
-
     if (this.oldColor === this.inputColor.value) { return; }     // no change
 
     let color = this.inputColor.value;
     switch (true) {
-
       case this.oldColor.startsWith('rgb'):                 // convert #rrggbb -> rgba?()
         color = this.hexToRgb(color);
         break;
@@ -392,13 +382,11 @@ class Script {
   }
 
   rgbToHex(color) {
-
     const m = color.replace(/\s+/g, '').match(/rgba?\((\d+),(\d+),(\d+)/);
     return m ? '#' + m.slice(1).map(d => (d*1).toString(16).padStart(2, 0)).join('') : color;
   }
 
   hexToRgb(color) {
-
     const m = color.substring(1).match(/.{2}/g).map(hex => parseInt(hex, 16));
     const op = this.oldColor.match(/[\d.]+/g)[3];
     op && m.push(op);
@@ -406,18 +394,15 @@ class Script {
   }
 
   hex3to6(color) {
-
     return color.split('').map(hex => hex+hex).join('').substring(1);
   }
 
   hex6to3(color) {
-
     const m = color.match(/#(.)\1(.)\2(.)\3/);
     return m ? '#' + m.slice(1).join('') : color;
   }
 
   namedColors(color, back) {
-
     const names = {
       'aliceblue': '#f0f8ff',
       'antiquewhite': '#faebd7',
@@ -574,7 +559,6 @@ class Script {
   }
 
   convertInclude(cm, node) {
-
     const line = node.dataset.line*1;
     const text = cm.getLine(line);
     const index = node.dataset.index;
@@ -590,7 +574,6 @@ class Script {
 
     // --- convert specific patterns
     switch (true) {
-
       // fix complete pattern
       case ['*', 'http*://*'].includes(p):  p = '*://*/*'; break;
       case p === 'http://*': p = 'http://*/*'; break;
@@ -610,7 +593,6 @@ class Script {
 
     // --- convert some common incompatibilities with matches API
     switch (true) {
-
       // fix scheme
       case p.startsWith('http*'): p = p.substring(4); break; // *://.....
       case p.startsWith('*//'): p = '*:' + p.substring(1); break; // bad protocol wildcard
@@ -637,7 +619,6 @@ class Script {
   }
 
   makeStats(js, text = this.box.value) {
-
     const nf = new Intl.NumberFormat();
     const stats = [];
 
@@ -655,10 +636,8 @@ class Script {
   }
 
   processButtons(e) {
-
     const action = e.target.dataset.i18n;
     switch (action) {
-
       case 'saveScript': return this.saveScript();
       case 'update': return this.updateScript();
       case 'delete|title': return this.deleteScript();
@@ -678,13 +657,10 @@ class Script {
   }
 
   edit(action) {
-
     if (!this.cm) { return; }
 
     let text;
-
     switch (action) {
-
       case 'tabToSpaces':
         text = this.cm.getValue().replace(/\t/g, '  ');
         this.cm.setValue(text);
@@ -708,7 +684,6 @@ class Script {
   }
 
   newScript(type) {
-
     const box = this.box;
     const legend = this.legend;
     this.enable.checked = true;
@@ -733,7 +708,6 @@ class Script {
   }
 
   saveTemplate() {
-
     this.cm && this.cm.save();                              // save CodeMirror to textarea
     const text = this.box.value;
     const metaData = text.match(Meta.regEx);
@@ -745,7 +719,6 @@ class Script {
   }
 
   process() {
-
     this.navUL.textContent = '';                            // clear data
 
     App.getIds().sort(Intl.Collator().compare).forEach(item => this.addScript(pref[item]));
@@ -759,7 +732,6 @@ class Script {
   }
 
   addScript(item) {
-
     const li = this.liTemplate.cloneNode(true);
     li.classList.add(item.js ? 'js' : 'css');
     item.enabled || li.classList.add('disabled');
@@ -771,7 +743,6 @@ class Script {
   }
 
   showScript(e) {
-
     const box = this.box;
     const li = e.target;
     li.classList.add('on');
@@ -798,7 +769,11 @@ class Script {
     document.getElementById('nav4').checked = true;
 
     this.cm && this.cm.save();                              // save CodeMirror to textarea
-    if(this.unsavedChanges()) { return; }
+    if(this.unsavedChanges()) {
+      li.classList.remove('on');
+      document.getElementById(box.id).classList.add('on');
+      return;
+    }
     this.cm && this.cm.toTextArea();                        // reset CodeMirror
 
     // --- reset
@@ -837,12 +812,10 @@ class Script {
   }
 
   unsavedChanges() {
-
     const box = this.box;
     const text = this.noSpace(this.box.value);
 
     switch (true) {
-
       case !text:
       case !box.id && text === this.noSpace(pref.template.js || this.template.js):
       case !box.id && text === this.noSpace(pref.template.css || this.template.css):
@@ -858,7 +831,6 @@ class Script {
   }
 
   toggleEnable() {
-
     const enabled = this.enable.checked;
 
     const multi = document.querySelectorAll('aside li.on');
@@ -877,7 +849,6 @@ class Script {
   }
 
   toggleAutoUpdate() {
-
     const id = this.box.id;
     if (!id) { return; }
 
@@ -894,7 +865,6 @@ class Script {
   }
 
   deleteScript() {
-
     const box = this.box;
 
     const multi = document.querySelectorAll('aside li.on');
@@ -925,7 +895,6 @@ class Script {
   }
 
   async saveScript() {
-
     const box = this.box;
     this.cm && this.cm.save();                              // save CodeMirror to textarea
 
@@ -1005,7 +974,6 @@ class Script {
 
   // --- Remote Update
   updateScript() {                                          // manual update, also for disabled and disabled autoUpdate
-
     const box = this.box;
     if (!box.id) { return; }
 
@@ -1020,7 +988,6 @@ class Script {
   }
 
   processResponse(text, name, updateURL) {                  // from class RemoteUpdate in common.js
-
     const data = Meta.get(text);
     if (!data) { throw `${name}: Update Meta Data error`; }
 
@@ -1063,7 +1030,6 @@ class Script {
 
   // ----------------- Import Script -----------------------
   processFileSelect(e) {
-
     // --- check for Stylus import
     if (e.target.files[0].type === 'application/json') {
       this.processFileSelectStylus(e);
@@ -1076,7 +1042,6 @@ class Script {
     [...e.target.files].forEach(file => {
 
       switch (true) {
-
         case !file: App.notify(browser.i18n.getMessage('error')); return;
         case !['text/css', 'application/x-javascript'].includes(file.type): // check file MIME type CSS/JS
           App.notify(browser.i18n.getMessage('fileTypeError'));
@@ -1091,7 +1056,6 @@ class Script {
   }
 
   readDataScript(text) {
-
     // --- chcek meta data
     const data = Meta.get(text);
     if (!data) { throw 'Meta Data Error'; }
@@ -1104,7 +1068,6 @@ class Script {
 
     // --- check name
     if (pref[id]) {
-
       const dataType = data.js ? 'js' : 'css';
       const targetType = pref[id].js ? 'js' : 'css';
       if (dataType !== targetType) { // same name exist in another type
@@ -1134,9 +1097,7 @@ class Script {
 
   // ----------------- Import Stylus -----------------------
   processFileSelectStylus(e) {
-
     const file = e.target.files[0];
-
     const reader  = new FileReader();
     reader.onloadend = () => script.prepareStylus(reader.result);
     reader.onerror = () => App.notify(browser.i18n.getMessage('fileReadError'));
@@ -1144,7 +1105,6 @@ class Script {
   }
 
   prepareStylus(data) {
-
     const importData = App.JSONparse(data);
     if (!importData) {
       App.notify(browser.i18n.getMessage('fileParseError'));           // display the error
@@ -1152,9 +1112,7 @@ class Script {
     }
 
     const obj = {};
-
     importData.forEach(item => {
-
       // --- test validity
       if (!item.name || !item.id || !item.sections) {
         App.notify(browser.i18n.getMessage('error'));
@@ -1174,7 +1132,6 @@ class Script {
 */`;
 
       item.sections.forEach(sec => {
-
         const r = [];
         sec.urls && sec.urls.forEach(i => r.push(`url('${i}')`));
         sec.urlPrefixes && sec.urlPrefixes.forEach(i => r.push(`url-prefix('${i}')`));
@@ -1199,7 +1156,6 @@ class Script {
 
   // ----------------- Export ------------------------------
   exportScript() {
-
     if (!this.box.id) { return; }
 
     const id = this.box.id;
@@ -1209,7 +1165,6 @@ class Script {
   }
 
   exportScriptAll() {
-
     if (this.android) { return; }                           // disable on Andriod
 
     const multi = document.querySelectorAll('aside li.on');
@@ -1223,7 +1178,6 @@ class Script {
   }
 
   export(data, ext, name, folder = '', saveAs = true) {
-
     navigator.userAgent.includes('Windows') && (data = data.replace(/\r?\n/g, '\r\n'));
     const blob = new Blob([data], {type : 'text/plain;charset=utf-8'});
     const filename = folder + name.replace(/[<>:"/\\|?*]/g, '') + '.user' + ext; // removing disallowed characters
@@ -1235,7 +1189,6 @@ const script = new Script();
 
 // ----------------- Import/Export Preferences -------------
 App.importExport(() => {
-
   options.process();                                        // set options after the pref update
   script.process();                                         // update page display
 });
@@ -1245,7 +1198,6 @@ App.importExport(() => {
 class Pattern {
 
   static validate(node) {
-
     node.classList.remove('invalid');
     node.value = node.value.trim();
 
@@ -1265,14 +1217,12 @@ class Pattern {
   }
 
   static check(pattern) {
-
     pattern = pattern.toLowerCase();
 
     const [scheme, host, path] = pattern.split(/:\/{2,3}|\/+/);
 
     // --- specific patterns
     switch (pattern) {
-
       case '*': return 'Invalid Pattern';
 
       case '<all_urls>':
@@ -1284,7 +1234,6 @@ class Pattern {
 
     // --- other patterns
     switch (true) {
-
       case !['http', 'https', 'file', '*'].includes(scheme.toLowerCase()): return 'Unsupported scheme';
       case scheme === 'file' && !pattern.startsWith('file:///'): return 'file:/// must have 3 slashes';
       case scheme !== 'file' && host.includes(':'): return 'Host must not include a port number';
@@ -1302,7 +1251,6 @@ class Pattern {
 class ShowLog {
 
   constructor() {
-
     const logTemplate = document.querySelector('.log template');
     this.template = logTemplate.content.firstElementChild;
     this.tbody = logTemplate.parentNode;
@@ -1315,7 +1263,6 @@ class ShowLog {
   }
 
   process(list) {
-
     list.forEach(([time, ref, message, type]) => {
 
       const tr = this.template.cloneNode(true);
@@ -1330,7 +1277,6 @@ class ShowLog {
   }
 
   update(newLog) {
-
     newLog = App.JSONparse(newLog) || [];
     if (!newLog[0]) { return; }
 
