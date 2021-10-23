@@ -17,7 +17,6 @@ class ContextMenu {
     ];
 
     contextMenus.forEach(item => {
-
       if (item.id) {
         item.title = item.title || browser.i18n.getMessage(item.id);  // always use the same ID for i18n
         item.onclick = this.process;
@@ -27,9 +26,7 @@ class ContextMenu {
   }
 
   process(info, tab, command) {
-
     switch (info.menuItemId) {
-
       case 'options': break;
       case 'newJS': localStorage.setItem('nav', 'js'); break;
       case 'newCSS': localStorage.setItem('nav', 'css'); break;
@@ -41,7 +38,7 @@ class ContextMenu {
     browser.runtime.openOptionsPage();
   }
 }
-!App.android && new ContextMenu();                              // prepare for Andriod
+!App.android && new ContextMenu();                              // prepare for Android
 // ----------------- /Context Menu -------------------------
 
 // ----------------- Script Counter ------------------------
@@ -62,7 +59,6 @@ class Counter {
   }
 
   async process(tabId, changeInfo, tab) {
-
     if (changeInfo.status !== 'complete') { return; }
 
     const count = await CheckMatches.process(tabId, tab.url, true);
@@ -88,7 +84,6 @@ class ScriptRegister {
   }
 
   async process(id) {
-
     const script = JSON.parse(JSON.stringify(pref[id]));    // deep clone pref object
 
     // --- reset previous registers  (UserStyle Multi-segment Process)
@@ -149,7 +144,6 @@ class ScriptRegister {
 
     // --- add @requireRemote
     if (requireRemote[0]) {
-
       await Promise.all(requireRemote.map(url =>
         fetch(url).then(response => response.text())
         .then(code => {
@@ -165,7 +159,6 @@ class ScriptRegister {
 
     // --- script only
     if (js) {
-
       const includes = script.includes;
       const excludes = script.excludes;
       options.scriptMetadata = {
@@ -232,7 +225,6 @@ class ScriptRegister {
   }
 
   register(id, options, originId) {
-
     const API = options.js ? browser.userScripts : browser.contentScripts;
     // --- register page script
     try {                                                   // catches error throws before the Promise
@@ -243,7 +235,6 @@ class ScriptRegister {
   }
 
   async unregister(id) {
-
     if (this.registered[id]) {
       await this.registered[id].unregister();
       delete this.registered[id];
@@ -251,7 +242,6 @@ class ScriptRegister {
   }
 
   processError(id, error) {
-
     pref[id].error = error;                                 // store error message
     browser.storage.local.set({[id]: pref[id]});            // update saved pref
     App.log(id.substring(1), `Register ➜ ${error}`, 'error'); // log message to display in Options -> Log
@@ -270,7 +260,6 @@ class ProcessPref {
   }
 
   async process() {
-
     pref.sync && await Sync.get();                          // storage sync ➜ local update
 
     await Migrate.run();                                    // migrate after storage sync check
@@ -278,7 +267,6 @@ class ProcessPref {
     browser.storage.onChanged.addListener((changes, area) => { // Change Listener, after migrate
 
       switch (true) {
-
         case Sync.noUpdate:                                 // prevent loop from sync update
           Sync.noUpdate = false;
           break;
@@ -303,7 +291,6 @@ class ProcessPref {
   }
 
   async processPrefUpdate(changes, area) {
-
     // check counter preference has changed
     if (changes.counter && changes.counter.newValue !== changes.counter.oldValue) {
       changes.counter.newValue ? counter.init() : counter.terminate();
@@ -351,7 +338,6 @@ class Sync {
 
   // --- storage sync ➜ local update
   static async get() {
-
     const deleted = [];
     await browser.storage.sync.get(null, result => {
       Object.keys(result).forEach(item => pref[item] = result[item]); // update pref with the saved version
@@ -368,7 +354,6 @@ class Sync {
 
   // --- storage sync ➜ local update
   static async apply(changes) {
-
     const [keep, deleted] = this.sortChanges(changes);
     this.noUpdate = false;
     deleted[0] && await browser.storage.local.remove(deleted); // delete scripts from storage local
@@ -378,7 +363,6 @@ class Sync {
 
   // --- storage local ➜ sync update
   static async set(changes) {
-
     const size = JSON.stringify(pref).length;
     if (size > 102400) {
       const text = browser.i18n.getMessage('syncError', (size/1024).toFixed(1));
@@ -454,10 +438,8 @@ class Installer {
 
   // --------------- Web/Direct Installer ------------------
   webInstall(e) {
-
     let q;
     switch (true) {
-
       case !e.originUrl: return;                            // end execution if not Web Install
 
       // --- GreasyFork & sleazyfork
@@ -488,7 +470,6 @@ class Installer {
   }
 
   directInstall(tabId, changeInfo, tab) {
-
     if (changeInfo.status !== 'complete') { return; }       // end execution if not found
     if (tab.url.startsWith('https://github.com/')) { return; } // not on https://github.com/*/*.user.js
 
@@ -558,7 +539,6 @@ class Installer {
 
   // --------------- Remote Update -------------------------
   onIdle(state) {
-
     if (state !== 'idle') { return; }
 
     const now = Date.now();
@@ -660,7 +640,6 @@ class API {
   }
 
   allowSpecialHeaders(e) {
-
     let found = false;
     e.originUrl && e.originUrl.startsWith(this.FMUrl) && e.requestHeaders.forEach((item, index) => {
       if (item.name.startsWith('FM-')) {
@@ -678,16 +657,14 @@ class API {
   }
 
   process(message, sender) {
-
     if (!message.api) { return; }
 
     const e = message.data;
     const name = message.name;
-    const id = '_' + name;
+    const id = `_${name}`;
 
     switch (message.api) {
-
-      case 'log':
+      case 'log':                                           // internal use only
         App.log(name, e.message, e.type);
         break;
 
@@ -698,17 +675,22 @@ class API {
         return Promise.resolve(Object.keys(pref[id].storage));
 
       case 'setValue':
-        if (pref[id].storage[e.key] === e.value) { return true; } // return if value hasn't changed
+        if (JSON.stringify(pref[id].storage[e.key]) === JSON.stringify(e.value)) {
+          return Promise.resolve();                         // return if value hasn't changed
+        }
         pref[id].storage[e.key] = e.value;
         return browser.storage.local.set({[id]: pref[id]}); // Promise with no arguments OR reject with error message
 
       case 'deleteValue':
-        if (!pref[id].storage.hasOwnProperty(e.key)) { return true; } // return if nothing to delete
+        if (!pref[id].storage.hasOwnProperty(e.key)) {
+          return Promise.resolve();                         // return if nothing to delete
+        }
         delete pref[id].storage[e.key];
-        return browser.storage.local.set({[id]: pref[id]});
+        return browser.storage.local.set({[id]: pref[id]}); // Promise with no arguments OR reject with error message
 
       case 'openInTab':
-        browser.tabs.create({url: e.url, active: e.active}); // Promise with tabs.Tab OR reject with error message
+        browser.tabs.create({url: e.url, active: e.active}) // Promise with tabs.Tab OR reject with error message
+        .catch(error => App.log(name, `${message.api} ➜ ${error.message}`, 'error'));
         break;
 
       case 'setClipboard':
@@ -716,7 +698,7 @@ class API {
         .catch(error => App.log(name, `${message.api} ➜ ${error.message}`, 'error'));
         break;
 
-      case 'notification':
+      case 'notification':                                  // Promise with notification's ID
         return browser.notifications.create('', {
           type: 'basic',
           iconUrl: e.image || 'image/icon.svg',
@@ -761,7 +743,6 @@ class API {
             if (e.init.method === 'HEAD') { return res; }   // end here
 
             switch (e.init.responseType) {
-
               case 'json': res['json'] = await response.json(); break;
               case 'blob': res['blob'] = await response.blob(); break;
               case 'arrayBuffer': res['arrayBuffer'] = await response.arrayBuffer(); break;
@@ -799,10 +780,11 @@ class API {
         });
 
     }
+
+    return Promise.resolve();
   }
 
   checkURL(name, url, base) {
-
     try { url = new URL(url, base); }
     catch (error) {
       App.log(name, `checkURL ${url} ➜ ${error.message}`, 'error');
@@ -818,7 +800,6 @@ class API {
   }
 
   makeResponse(xhr, type) {
-
     return {
       type,
       readyState:       xhr.readyState,
@@ -835,12 +816,6 @@ class API {
       finalUrl:         xhr.responseURL
     };
   }
-
-  makeFetch() {
-
-
-
-  }
 }
 new API();
 // ----------------- /Content Message Handler --------------
@@ -849,7 +824,6 @@ new API();
 class Migrate {
 
   static async run() {
-
     const m = 2.25;
     const version = localStorage.getItem('migrate') || 0;
     if (version*1 >= m && !pref.hasOwnProperty('content')) { return; } // double check for v2.25 migrate backward compatibility
@@ -920,7 +894,6 @@ class Migrate {
       pref.content[item].require.forEach((lib, i) => {
 
         switch (lib) {
-
           case 'lib/jquery-1.12.4.min.jsm':     pref.content[item].require[i] = 'lib/jquery-1.jsm'; break;
           case 'lib/jquery-2.2.4.min.jsm':      pref.content[item].require[i] = 'lib/jquery-2.jsm'; break;
           case 'lib/jquery-3.4.1.min.jsm':      pref.content[item].require[i] = 'lib/jquery-3.jsm'; break;
