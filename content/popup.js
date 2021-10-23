@@ -7,13 +7,13 @@ App.i18n();
 App.getPref().then(() => popup.process());
 
 // ----------------- Android -------------------------------
-document.body.classList.toggle('android', navigator.userAgent.includes('Android'));
+document.body.classList.toggle('android', App.android);
 
 // ----------------- Popup ---------------------------------
 class Popup {
-
   constructor() {
     document.querySelectorAll('button').forEach(item => item.addEventListener('click', this.processButtons));
+    this.docfrag = document.createDocumentFragment();
 
     // ----- Scripts
     this.liTemplate = document.querySelector('template').content.firstElementChild;
@@ -30,6 +30,8 @@ class Popup {
     this.scratchpad = this.info.querySelector('div.scratchpad');
     this.dtTemp = document.createElement('dt');
     this.ddTemp = document.createElement('dd');
+    this.aTemp = document.createElement('a');
+    this.aTemp.target = '_blank';
 
     // ----- Script Commands
     document.querySelector('h3.command').addEventListener('click', () => {
@@ -71,9 +73,7 @@ class Popup {
   }
 
   processButtons() {
-
     switch (this.dataset.i18n) {
-
       case 'options': break;
       case 'newJS|title': localStorage.setItem('nav', 'js'); break;
       case 'newCSS|title': localStorage.setItem('nav', 'css'); break;
@@ -91,7 +91,6 @@ class Popup {
   }
 
   async process() {
-
     const tabs = await browser.tabs.query({currentWindow: true, active: true});
     const tabId = tabs[0].id;                                 // active tab id
     this.url = tabs[0].url;                                   // used in find scripts
@@ -99,8 +98,10 @@ class Popup {
     const [Tab, Other, frames] = await CheckMatches.process(tabId, this.url);
     document.querySelector('h3 span.frame').textContent = frames.length; // display frame count
 
-    Tab.forEach(item => this.ulTab.appendChild(this.addScript(pref[item])));
-    Other.forEach(item => this.ulOther.appendChild(this.addScript(pref[item])));
+    Tab.forEach(item => this.docfrag.appendChild(this.addScript(pref[item])));
+    this.ulTab.appendChild(this.docfrag);
+    Other.forEach(item => this.docfrag.appendChild(this.addScript(pref[item])));
+    this.ulOther.appendChild(this.docfrag);
 
     // --- check commands if there are active scripts in tab
     if(this.ulTab.querySelector('li.js:not(.disabled)')) {
@@ -110,7 +111,6 @@ class Popup {
   }
 
   addScript(item) {
-
     const li = this.liTemplate.cloneNode(true);
     li.classList.add(item.js ? 'js' : 'css');
     item.enabled || li.classList.add('disabled');
@@ -128,7 +128,6 @@ class Popup {
   }
 
   toggleState() {
-
     const li = this.parentNode;
     const id = li.id;
     if (!id) { return; }
@@ -140,12 +139,10 @@ class Popup {
   }
 
   toggleOn(node) {
-
     [this.infoListDL.parentNode, this.commandList, this.scratchpad].forEach(item => item.classList.toggle('on', item === node));
   }
 
   showInfo(e) {
-
     const li = e.target.parentNode;
     const id = li.id;
     this.infoListDL.textContent = '';                       // clearing previous content
@@ -154,36 +151,42 @@ class Popup {
     this.infoListDL.className = '';                         // reset
     this.infoListDL.classList.add(...li.classList);
 
-    const dtTemp = this.dtTemp;
-    const ddTemp = this.ddTemp;
-    const docfrag = document.createDocumentFragment();
-    const script =  pref[id];
+    const script =  JSON.parse(JSON.stringify(pref[id]));   // deep clone pref object
+    const {homepage, support} = this.getMetadata(script);   // show homepage/support
+    script.homepage = homepage;
+    script.support = support;
 
-    const infoArray = ['name', 'description', 'author', 'version', 'size', 'updateURL', 'matches',
+    const infoArray = ['name', 'description', 'author', 'version', 'homepage', 'support', 'size', 'updateURL', 'matches',
                         'excludeMatches', 'includes', 'excludes', 'includeGlobs', 'excludeGlobs',
-                        'require', 'userMatches', 'userExcludeMatches', 'injectInto', 'runAt', 'userRunAt'];
-    script.error && infoArray.push('error');
+                        'require', 'userMatches', 'userExcludeMatches', 'injectInto', 'runAt', 'userRunAt', 'error'];
 
     infoArray.forEach(item => {
-
       if (!script[item]) { return; }                        // skip to next
 
-      const arr = Array.isArray(script[item]) ? script[item] : script[item].split(/\r?\n/);
+      let arr = Array.isArray(script[item]) ? script[item] : script[item].split(/\r?\n/);
       if (!arr[0]) { return; }                              // skip to next
 
       switch (item) {
-
         case 'name':                                        // i18n if different
         case 'description':
           const i18n = script.i18n[item][this.lang] || script.i18n[item][this.lang.substring(0, 2)]; // fallback to primary language
           i18n !== script[item] && arr.push(i18n);
           break;
 
-        case 'require':                                     // --- add requireRemote to require
+        case 'homepage':
+        case 'support':
+          const a = this.aTemp.cloneNode();
+          a.href = script[item];
+          a.textContent = script[item];
+          arr[0] = a;
+          break;
+
+        case 'require':                                     // add requireRemote to require
+          arr = arr.map(item => item.startsWith('lib/') ? item.slice(4, -1) : item);
           script.requireRemote && arr.push(...script.requireRemote);
           break;
 
-        case 'matches':                                     // --- add UserStyle matches to matches
+        case 'matches':                                     // add UserStyle matches to matches
           script.style && script.style[0] && arr.push(...script.style.flatMap(i => i.matches));
           break;
 
@@ -207,19 +210,20 @@ class Popup {
           break;
       }
 
-      const dt = dtTemp.cloneNode();
+      const dt = this.dtTemp.cloneNode();
       item === 'error' && dt.classList.add('error');
       dt.textContent = item;
-      docfrag.appendChild(dt);
+      this.docfrag.appendChild(dt);
 
       arr.forEach(item => {
-        const dd = ddTemp.cloneNode();
-        dd.textContent = item;
-        docfrag.appendChild(dd);
+        const dd = this.ddTemp.cloneNode();
+        dd.append(item);
+        dd.children[0] && (dd.style.opacity = 0.8);
+        this.docfrag.appendChild(dd);
       });
     });
 
-    this.infoListDL.appendChild(docfrag);
+    this.infoListDL.appendChild(this.docfrag);
     const edit = document.querySelector('div.edit');
     edit.id = id;
     const active = e.target.parentNode.parentNode.classList.contains('tab') && script.enabled;
@@ -228,23 +232,60 @@ class Popup {
     this.info.parentNode.style.transform = 'translateX(-50%)';
   }
 
+  getMetadata(script) {
+    let homepage, support;
+    const url = script.updateURL;
+    const meta = (script.js || script.css).match(Meta.regEx)[2];
+
+    // look for @homepage @homepageURL
+    const hm = meta.match(/@homepage(URL)?\s+(http\S+)/);
+    hm && (homepage = hm[2]);
+
+    // look for @support @supportURL
+    const sup = meta.match(/@support(URL)?\s+(http\S+)/);
+    sup && (support = sup[2]);
+
+    // make homepage from updateURL
+    switch (true) {
+      case !!homepage || !url:
+        break;
+
+      case url.startsWith('https://greasyfork.org/scripts/'):
+      case url.startsWith('https://sleazyfork.org/scripts/'):
+        homepage = url.replace(/\/code.+/, '');
+        break;
+
+      case url.startsWith('https://openuserjs.org/install/'):
+        homepage = url.replace('/install/', '/scripts/').replace(/\.user\.js/, '');
+        break;
+
+      case url.startsWith('https://userstyles.org/styles/'):
+        homepage = url.replace(/userjs\/|\.(user\.js|css)$/, '');
+        break;
+
+      case url.startsWith('https://cdn.jsdelivr.net/gh/'):
+        homepage = 'https://github.com/' + url.substring(28).replace('@', '/tree/').replace(/\/[^/]+\.user\.js/, '');
+        break;
+
+      case url.startsWith('https://github.com/'):
+        homepage = url.replace('/raw/', '/tree/').replace(/\/[^/]+\.user\.js/, '');
+        break;
+    }
+
+    return {homepage, support};
+  }
   // ----------------- Script Commands -----------------------
   addCommand(tabId, message) {
-
     //{name, command: Object.keys(command)}
     if (!message.command || !message.command[0]) { return; }
 
     const dl = this.commandList;
-    const dtTemp = this.dtTemp;
-    const ddTemp = this.ddTemp;
-
-    const dt = dtTemp.cloneNode();
+    const dt = this.dtTemp.cloneNode();
     dt.textContent = message.name;
     dl.appendChild(dt);
 
     message.command.forEach(item => {
-
-      const dd = ddTemp.cloneNode();
+      const dd = this.ddTemp.cloneNode();
       dd.textContent = item;
       dd.addEventListener('click', () => browser.tabs.sendMessage(tabId, {name: message.name, command: item}));
       dl.appendChild(dd);
@@ -253,7 +294,6 @@ class Popup {
 
   // ----------------- Info Run/Undo -----------------------
   infoRun(id) {
-
     const item = pref[id];
     const code = (item.js || item.css).replace(Meta.regEx, (m) => m.replace(/\*\//g, '* /'));
     if (!code.trim()) { return; }                           // e.g. in case of userStyle
@@ -263,7 +303,6 @@ class Popup {
   }
 
   infoUndo(id) {
-
     const item = pref[id];
     if (!item.css) { return; }                              // only for userCSS
 
@@ -276,7 +315,6 @@ class Popup {
 
   // ----------------- Scratchpad --------------------------
   scratchpadRun(id) {
-
     const js = id === 'jsBtn';
     const code = (js ? this.js : this.css).value.trim();
     if (!code) { return; }
@@ -287,7 +325,6 @@ class Popup {
   }
 
   scratchpadUndo() {
-
     const code = this.css.value.trim();
     if (!code) { return; }
     browser.tabs.removeCSS({code, cssOrigin: 'user'})
@@ -295,3 +332,4 @@ class Popup {
   }
 }
 const popup = new Popup();
+

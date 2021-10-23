@@ -83,10 +83,12 @@
 
 
   <h2 id="Preamble">Preamble</h2>
-  <p><i>FireMonkey</i> is a totally new combined user-script and user-style manager. While it has similar functions to other user-Script managers like <i>Greasemonkey/Tampermonkey/Violentmonkey</i>, and user-style managers like <i>Stylish/Stylus/xStyle</i>, there are also differences. Similar to other userscript managers, scripts (or CSS) are injected in tabs and for a new script/CSS to have an effect, tab must be reloaded. The behaviour differs from <i>Stylus</i> which can inject CSS into a tab and remove it without having to reload the tab.</p>
+  <p><i>FireMonkey</i> is a totally new combined user-script and user-style manager. While it has similar functions to other user-Script managers like <i>Greasemonkey/Tampermonkey/Violentmonkey</i>, and user-style managers like <i>Stylish/Stylus/xStyle</i>, there are also differences. Similar to other userscript managers, scripts (or CSS) are injected in tabs and for a new script/CSS to have an effect, tab must be reloaded. The behaviour differs from <i>Stylus</i> which can inject CSS into a tab and remove it without having to reload the tab.<sup>1</sup></p>
+    
+  
   <p class="footnote">Some functions like script injection are prevented by Firefox on sites with restrictive Content Security Policy (CSP), as well as certain domains e.g. accounts-static.cdn.mozilla.net, accounts.firefox.com, addons.cdn.mozilla.net, api.accounts.firefox.com, content.cdn.mozilla.net, content.cdn.mozilla.net, discovery.addons.mozilla.org, input.mozilla.org, install.mozilla.org, oauth.accounts.firefox.com, profile.accounts.firefox.com, support.mozilla.org, sync.services.mozilla.com, testpilot.firefox.com (ref <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts" target="_blank">Content scripts</a>).</p>
 
-
+  <p><sup>1</sup> <i>It is not possible with the current API (Changes are planned as part of <a href="https://blog.mozilla.org/addons/2021/05/27/manifest-v3-update/" target="_blank">Manifest v3 update</a>).</i></p>
 
 
   <h2 id="how_to">How to Use</h2><br>
@@ -139,6 +141,8 @@
 
     <dt><i>{name}</i> <img src="../image/next.svg" alt=""></dt>
       <dd>Shows the Information for the Script/CSS</dd>
+      <dd>Displays <i>homepage</i> link if script has <code>@homepage</code>, <code>@homepageURL</code>, or <code>updateURL</code></dd>
+      <dd>Displays <i>support</i> link if script has <code>@support</code>, or <code>@supportURL</code></dd>
 
       <dd>
         <dl>
@@ -472,6 +476,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
         <dl>
           <dt>Theme</dt>
             <dd>Select Light/Dark Theme for the editor</dd>
+            <dd class="footnote">Default scheme is based on <a href="https://developer.mozilla.org/docs/Web/CSS/@media/prefers-color-scheme" target="_blank">prefers-color-scheme</a> but also possible to set to dark on light schemes.</dd>
 
           <dt>&#x1f4be; Save Template</dt>
             <dd>Save the currently displaying Script/CSS as a Template</dd>
@@ -1668,13 +1673,13 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   </thead>
   <tbody class="slim">
   <tr><td>bootstrap</td>      <td>bootstrap-4</td>    <td>4.6.0</td></tr>
+  <tr><td>bootstrap</td>      <td>bootstrap-5</td>    <td>5.1.3</td></tr>
   <tr><td>jquery 1.*</td>     <td>jquery-1</td>       <td>1.12.4</td></tr>
   <tr><td>jquery 2.*</td>     <td>jquery-2</td>       <td>2.2.4</td></tr>
   <tr><td>jquery 3.*</td>     <td>jquery-3</td>       <td>3.6.0</td></tr>
   <tr><td>jquery-ui 1.*</td>  <td>jquery-ui-1</td>    <td>1.12.1</td></tr>
   <tr><td>moment</td>         <td>moment-2</td>       <td>2.29.1</td></tr>
   <tr><td>underscore</td>     <td>underscore-1</td>   <td>1.12.0</td></tr>
-
   </tbody>
 </table>
 
@@ -2167,8 +2172,8 @@ js/promisify.js</code></td>
         <code  style="font-size: 1em; color: #777;">
 {
   active,
-  container,
   insert,
+  container,
   pinned
 }</code></td></tr>
   </tbody>
@@ -2190,7 +2195,7 @@ GM_fetch(url[, init]);</pre>
 
 
   <h4>url</h4>
-  <p>http, https, <s>ftp, ftps</s> <a href="#ftp" title="What to expect for the upcoming deprecation of FTP in Firefox">&#x24d8;</a>, (file not allowed), can be relative to the web page</p>
+  <p><i>http, https, <s>ftp, ftps</s></i> <a href="#ftp" title="What to expect for the upcoming deprecation of FTP in Firefox">&#x24d8;</a>, (<i>file</i> not allowed), can be relative to the web page</p>
 
   <h4>init <span>(Optional)</span></h4>
   <p>An options object containing any custom settings that you want to apply to the request. The possible options are:</p>

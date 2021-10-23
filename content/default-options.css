@@ -66,18 +66,6 @@ img {
   vertical-align: text-bottom;
 }
 
-a {
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-button > * {
-  pointer-events: none;
-}
-
 label[for],
 summary,
 .pointer {
@@ -133,10 +121,6 @@ tbody tr {
 td {
   padding: 0.2em;
   vertical-align: top;
-}
-
-.spacer {
-  flex-grow: 1;
 }
 
 .flat {

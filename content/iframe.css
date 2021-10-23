@@ -1,8 +1,4 @@
 ﻿/* ----- General ----- */
-:root {
-  --icon: url('../image/icon.svg');
-}
-
 html {
   scroll-padding-top: 2.5em; /* Firefox 68+ */
 }
@@ -80,7 +76,7 @@ dt span {
   font-size: 0.8em;
 }
 
-dd sup {
+dd sup, p sup {
   color: #05f;
 }
 
@@ -101,8 +97,10 @@ h2 {
 
 h2::before {
   content: '';
-  background: var(--icon) no-repeat center;
-  background-size: contain;
+  background-image: url('../image/icon32.png'), url('../image/icon.svg');
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  background-size: contain, contain;
   display: inline-block;
   width: 1.5em;
   height: 1.5em;
@@ -189,6 +187,7 @@ a[href^="https://bugzilla.mozilla.org/show_bug.cgi?id="]::before {
   margin-right: 0.3em;
 }
 
+a[href^="https://support.mozilla.org/"]::before,
 a[href^="https://developer.mozilla.org/"]::before,
 a[href^="https://blog.mozilla.org/"]::before {
   content: '';

@@ -17,7 +17,6 @@ class App {
 
   // ----------------- User Preference -----------------------
   static getPref() {
-
     // update pref with the saved version
     return browser.storage.local.get().then(result => {
       Object.keys(result).forEach(item => pref[item] = result[item]);
@@ -31,7 +30,6 @@ class App {
   }
 
   static import(e) {
-
     const file = e.target.files[0];
     switch (true) {
 
@@ -48,7 +46,6 @@ class App {
   }
 
   static async readData(data) {
-
     let importData;
     try { importData = JSON.parse(data); }                  // Parse JSON
     catch(e) {
@@ -71,14 +68,12 @@ class App {
   }
 
   static export() {
-
     const data = JSON.stringify(pref, null, 2);
     const filename = browser.i18n.getMessage('extensionName') + '_' + new Date().toISOString().substring(0, 10) + '.json';
     App.saveFile(data, filename);
   }
 
   static saveFile(data, filename, saveAs = true) {
-
     if (this.android) {
       const a = document.createElement('a');
       a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(data);
@@ -96,21 +91,25 @@ class App {
     });
   }
 
-  // ----------------- Helper functions ----------------------
-  // --- Internationalization
+  // ----------------- Internationalization ----------------
   static i18n() {
-    document.querySelectorAll('[data-i18n]').forEach(node => {
-      let [text, attr] = node.dataset.i18n.split('|');
-      text = browser.i18n.getMessage(text);
-      attr ? node[attr] = text : node.appendChild(document.createTextNode(text));
-    });
+    document.querySelectorAll('template').forEach(item => this.i18nSet(item.content));
+    this.i18nSet();
 
     document.body.classList.toggle('dark', localStorage.getItem('dark') === 'true'); // light/dark theme
     document.body.style.opacity = 1;                            // show after i18n
   }
 
-  static notify(message, title = browser.i18n.getMessage('extensionName'), id = '') {
+  static i18nSet(target = document) {
+    target.querySelectorAll('[data-i18n]').forEach(node => {
+      let [text, attr] = node.dataset.i18n.split('|');
+      text = browser.i18n.getMessage(text);
+      attr ? node[attr] = text : node.append(text);
+    });
+  }
 
+  // ----------------- Helper functions ----------------------
+  static notify(message, title = browser.i18n.getMessage('extensionName'), id = '') {
     browser.notifications.create(id, {
       type: 'basic',
       iconUrl: '/image/icon.svg',
@@ -120,7 +119,6 @@ class App {
   }
 
   static log(ref, message, type = '') {
-
     let log = App.JSONparse(localStorage.getItem('log')) || [];
     log.push([new Date().toString().substring(0, 24), ref, message, type]);
     log = log.slice(-(localStorage.getItem('logSize')*1 || 100)); // slice to the last n entries. default 100
@@ -136,7 +134,6 @@ class App {
   }
 
   static allowedHost(url) {                                 // bg & options
-
     return  url.startsWith('https://greasyfork.org/scripts/') ||
             url.startsWith('https://sleazyfork.org/scripts/') ||
             url.startsWith('https://openuserjs.org/install/') ||
@@ -150,7 +147,6 @@ App.android = navigator.userAgent.includes('Android');
 class Meta {                                                // bg options
 
   static get(str, userMatches = '', userExcludeMatches = '') {
-
     // --- get all
     const metaData = str.match(this.regEx);
     if (!metaData) { return null; }
@@ -316,9 +312,16 @@ class Meta {                                                // bg options
               break;
 
             case js && url === 'bootstrap-4':
+              value = 'lib/bootstrap-4.jsm';
+              break;
+
+            case js && url === 'bootstrap-5':
+              value = 'lib/bootstrap-5.jsm';
+              break;
+            
             case js && cdn && url.includes('/bootstrap.min.js'):
             case js && cdn && url.endsWith('/bootstrap.js'):
-              value = 'lib/bootstrap-4.jsm';
+              value = url.includes('@5.') ? 'lib/bootstrap-5.jsm' : 'lib/bootstrap-4.jsm';
               break;
 
             case js && url === 'moment-2':
@@ -421,7 +424,6 @@ class Meta {                                                // bg options
   }
 
   static checkPattern(p) {
-
     // --- process TLD
     const TLD = ['.com', '.au', '.br', '.ca', '.ch', '.cn', '.co.uk', '.de', '.es', '.fr',
        '.in', '.it', '.jp', '.mx', '.nl', '.no', '.pl', '.ru', '.se', '.uk', '.us'];
@@ -452,14 +454,12 @@ class Meta {                                                // bg options
 
 
     if (/^https?:\/\/[^/]+\.tld\/.*/i.test(p)) {
-
       const plc = p.toLowerCase();
       const index = plc.indexOf('.tld/');
       const st = p.substring(0, index);
       const end = p.substring(index + 4);
 
       switch (true) {
-
         case plc.includes('.amazon.tld'): p = amazon.map(tld => st + tld + end); break;
         case plc.includes('.ebay.tld'):   p =   ebay.map(tld => st + tld + end); break;
         case plc.includes('.google.tld'): p = google.map(tld => st + tld + end); break;
@@ -476,13 +476,10 @@ class Meta {                                                // bg options
 Meta.regEx = /==(UserScript|UserCSS|UserStyle)==([\s\S]+)==\/\1==/i;
 // ----------------- /Parse Metadata Block -----------------
 
-
-
 // ----------------- Remote Update -------------------------
 class RemoteUpdate {                                        // bg options
 
   getUpdate(item, manual) {                                 // bg 1 opt 1
-
     switch (true) {
       // --- get meta.js
       case item.updateURL.startsWith('https://greasyfork.org/scripts/'):
@@ -502,7 +499,6 @@ class RemoteUpdate {                                        // bg options
   }
 
   getMeta(item, manual) {                                   // here
-
     const url = item.updateURL.replace(/\.user\.(js|css)/i, '.meta.$1');
     fetch(url)
     .then(response => response.text())
@@ -512,7 +508,6 @@ class RemoteUpdate {                                        // bg options
   }
 
   getStlylishVersion(item, manual) {
-
     const url = item.updateURL.replace(/(\d+\/.+)css/i, 'userjs/$1user.js');
     fetch(url)
     .then(response => response.text())
@@ -526,8 +521,7 @@ class RemoteUpdate {                                        // bg options
 
 
   getStylish(item, version) {
-
- const metaData =
+    const metaData =
 `/*
 ==UserStyle==
 @name           ${item.name}
@@ -551,7 +545,6 @@ class RemoteUpdate {                                        // bg options
   }
 
   getScript(item) {                                         // here bg 1
-
     fetch(item.updateURL)
     .then(response => response.text())
     .then(text => this.callback(text, item.name, item.updateURL))
@@ -559,7 +552,6 @@ class RemoteUpdate {                                        // bg options
   }
 
   higherVersion(a, b) {                                     // here bg 1 opt 1
-
     a = a.split('.');
     b = b.split('.');
 
@@ -577,7 +569,6 @@ class RemoteUpdate {                                        // bg options
 class CheckMatches {
   // bg popup
   static async process(tabId, tabUrl, bg) {
-
     const frames = await browser.webNavigation.getAllFrames({tabId});
     const urls = [...new Set(frames.map(item => item.url.replace(/#.*/, '').replace(/(:\/\/[^:/]+):\d+/, '$1'))
                                .filter(item => /^(https?|wss?|file|about:blank)/.test(item)))];
@@ -601,16 +592,13 @@ class CheckMatches {
   }
 
   static get(item, tabUrl, urls, gExclude = []) {           // here
-
     if (!tabUrl) { return false; }
-
     if (!item.allFrames) { urls = [tabUrl]; }               // only check main frame
 
     const styleMatches = item.style && item.style[0] ? item.style.flatMap(i => i.matches) : [];
     const userMatches = item.userMatches ? item.userMatches.split(/\s+/) : [];
 
     switch (true) {
-
       // --- Global Script Exclude Matches
       case gExclude[0] && this.isMatch(urls, gExclude): return false;
 
@@ -637,7 +625,6 @@ class CheckMatches {
   }
 
   static isMatch(urls, arr, glob, regex) {                  // here
-
     if (regex) {
       return urls.some(u => new RegExp(this.prepareRegEx(arr), 'i').test(u));
     }
@@ -648,7 +635,6 @@ class CheckMatches {
 
     // catch all checks
     switch (true) {
-
       case arr.includes('<all_urls>'):
       case arr.includes('*://*/*') && urls.some(item => item.startsWith('http')):
       case arr.includes('file:///*') && urls.some(item => item.startsWith('file:///')):
@@ -659,7 +645,6 @@ class CheckMatches {
   }
 
   static prepareMatch(arr) {                                // here
-
     const regexSpChar = /[-\/\\^$+?.()|[\]{}]/g;            // Regular Expression Special Characters
     const str = arr.map(item => '(^' +
         item.replace(regexSpChar, '\\$&').replace(/\*/g, '.*').replace('/.*\\.', '/(.*\\.)?') + '$)').join('|');
@@ -667,7 +652,6 @@ class CheckMatches {
   }
 
   static prepareGlob(arr) {
-
     const regexSpChar = /[-\/\\^$+.()|[\]{}]/g;             // Regular Expression Special Characters minus * ?
     const str = arr.map(item => '(^' + item.replace(regexSpChar, '\\$&').replace(/\*/g, '.*') + '$)').join('|');
     return str.replace(/\?/g, '.');
