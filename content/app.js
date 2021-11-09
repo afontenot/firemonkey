@@ -46,30 +46,30 @@ class App {
   }
 
   static async readData(data) {
-    let importData;
-    try { importData = JSON.parse(data); }                  // Parse JSON
+    try { data = JSON.parse(data); }
     catch(e) {
       App.notify(browser.i18n.getMessage('fileParseError')); // display the error
       return;
     }
 
     // --- importing pre-2.25 data
-    if (importData.hasOwnProperty('content')) {
+    if (data.hasOwnProperty('content')) {
       localStorage.removeItem('migrate');                   // prepare to migrate
-      pref = importData;
+      pref = data;
       await Migrate.run();                                  // migrate
+      this.callback();
+      return;
     }
+
     // update pref with the saved version
-    else {
-      Object.keys(importData).forEach(item =>
-            (pref.hasOwnProperty(item) || item.startsWith('_')) && (pref[item] = importData[item]));
-    }
+    Object.keys(pref).forEach(item => data.hasOwnProperty(item) && (pref[item] = data[item]));
+
     this.callback();                                        // successful import
   }
 
   static export() {
     const data = JSON.stringify(pref, null, 2);
-    const filename = browser.i18n.getMessage('extensionName') + '_' + new Date().toISOString().substring(0, 10) + '.json';
+    const filename = `${browser.i18n.getMessage('extensionName')}_${new Date().toISOString().substring(0, 10)}.json`;
     App.saveFile(data, filename);
   }
 
@@ -104,7 +104,7 @@ class App {
     target.querySelectorAll('[data-i18n]').forEach(node => {
       let [text, attr] = node.dataset.i18n.split('|');
       text = browser.i18n.getMessage(text);
-      attr ? node[attr] = text : node.append(text);
+      attr ? node.setAttribute(attr, text) : node.append(text);
     });
   }
 
@@ -133,7 +133,7 @@ class App {
     return Object.keys(pref).filter(item => item.startsWith('_'));
   }
 
-  static allowedHost(url) {                                 // bg & options
+  static allowedHost(url) {                                 // bg options
     return  url.startsWith('https://greasyfork.org/scripts/') ||
             url.startsWith('https://sleazyfork.org/scripts/') ||
             url.startsWith('https://openuserjs.org/install/') ||
@@ -146,7 +146,7 @@ App.android = navigator.userAgent.includes('Android');
 // ----------------- Parse Metadata Block ------------------
 class Meta {                                                // bg options
 
-  static get(str, userMatches = '', userExcludeMatches = '') {
+  static get(str, userMeta = '') {
     // --- get all
     const metaData = str.match(this.regEx);
     if (!metaData) { return null; }
@@ -170,9 +170,7 @@ class Meta {                                                // bg options
       require: [],
       requireRemote: [],
       resource: {},
-      userMatches,
-      userExcludeMatches,
-      userRunAt: this.userRunAt ? this.userRunAt.value : '',
+      userMeta,
       i18n: {
         name: {},
         description: {}
@@ -195,21 +193,17 @@ class Meta {                                                // bg options
       runAt: !js ? 'document_start' : 'document_idle'  // "document_start" "document_end" "document_idle" (default)
     };
 
-    metaData[2].split(/[\r\n]+/).forEach(item =>  {           // lines
+    const lineRegex = /^[\s\/]*@([\w:-]+)(?:\s+(.+))?/;
 
-      item = item.trim();
-      let [,prop, value] = item.match(/^(?:\/\/)?\s*@([\w-:]+)\s+(.+)/) || [];
-      if (!prop) { return; }                                  // continue to next
-
-      value = value.trim();
-
+    metaData[2].split(/[\r\n]+/).forEach(item => {          // lines
+      let [,prop, value] = item.trim().match(lineRegex) || [];
+      if (!prop) { return; }                                // continue to next
+      let converted;
       switch (prop) {
-
         // --- disallowed properties
         case 'js':
         case 'css':
-        case 'userMatches':
-        case 'userExcludeMatches':
+        case 'userMeta':
         case 'requireRemote':
         case 'i18n':
           value = '';                                       // no more processing
@@ -220,7 +214,6 @@ class Meta {                                                // bg options
           value = '';                                       // no more processing
           break;
 
-
         case 'match': prop = 'matches'; break;
         case 'exclude-match': prop = 'excludeMatches'; break;
         case 'includeGlob': prop = 'includeGlobs'; break;
@@ -228,10 +221,20 @@ class Meta {                                                // bg options
         case 'antifeature': prop = 'antifeatures'; break;
 
         case 'include':                                     // keep regex in include, rest in includeGlobs
+          converted = this.convertPattern(value);
+          if (converted) {
+            [prop, value] = ['matches', converted];
+            break;
+          }
           prop = value.startsWith('/') &&  value.endsWith('/') ? 'includes' : 'includeGlobs';
           break;
 
         case 'exclude':                                     // keep regex in exclude rest in excludeGlobs
+          converted = this.convertPattern(value);
+          if (converted) {
+            [prop, value] = ['excludeMatches', converted];
+            break;
+          }
           prop = value.startsWith('/') &&  value.endsWith('/') ? 'excludes' : 'excludeGlobs';
           break;
 
@@ -318,7 +321,7 @@ class Meta {                                                // bg options
             case js && url === 'bootstrap-5':
               value = 'lib/bootstrap-5.jsm';
               break;
-            
+
             case js && cdn && url.includes('/bootstrap.min.js'):
             case js && cdn && url.endsWith('/bootstrap.js'):
               value = url.includes('@5.') ? 'lib/bootstrap-5.jsm' : 'lib/bootstrap-4.jsm';
@@ -348,9 +351,7 @@ class Meta {                                                // bg options
       }
 
       if (data.hasOwnProperty(prop) && value !== '') {
-
         switch (typeof data[prop]) {
-
           case 'boolean': data[prop] = value === 'true'; break;
           case 'object': data[prop].push(value); break;
           case 'string': data[prop] = value; break;
@@ -365,9 +366,9 @@ class Meta {                                                // bg options
     data.matches = data.matches.flatMap(this.checkPattern);        // flatMap() FF62
     data.excludeMatches = data.excludeMatches.flatMap(this.checkPattern);
 
-    // --- prepare for include/exclude
-    (data.includes[0] || data.excludes[0] || data.includeGlobs[0] || data.excludeGlobs[0]) &&
-          data.matches.push('*://*/*', 'file:///*');
+//    // --- prepare for include/exclude
+//    (data.includes[0] || data.excludes[0] || data.includeGlobs[0] || data.excludeGlobs[0]) &&
+//          data.matches.push('*://*/*', 'file:///*');
 
     // --- remove duplicates
     Object.keys(data).forEach(item => Array.isArray(data[item]) && (data[item] = [...new Set(data[item])]));
@@ -420,6 +421,67 @@ class Meta {                                                // bg options
       });
     }
 
+    // ------------- User Metadata -------------------------
+    const matches = [];
+    const excludeMatches = [];
+    data.userMeta && data.userMeta.split(/[\r\n]+/).forEach(item => { // lines
+      let [,prop, value] = item.trim().match(lineRegex) || [];
+      if (!prop) { return; }                                // continue to next
+
+      switch (prop) {
+        case 'disable-match':
+          data.matches = value ? data.matches.filter(item => item !== value) : [];
+          break
+
+        case 'disable-exclude-match':
+          data.excludeMatches = value ? data.excludeMatches.filter(item => item !== value) : [];
+          break
+
+        case 'disable-include':
+          data.includes = value ? data.includes.filter(item => item !== value) : [];
+          data.includeGlobs = value ? data.includeGlobs.filter(item => item !== value) : [];
+          break
+
+        case 'disable-exclude':
+          data.excludes = value ? data.excludes.filter(item => item !== value) : [];
+          data.excludeGlobs = value ? data.excludeGlobs.filter(item => item !== value) : [];
+          break
+
+        case 'match':
+          matches.push(value);
+          break;
+
+        case 'exclude-match':
+          excludeMatches.push(value);
+          break;
+
+        case 'matchAboutBlank':
+          data.matchAboutBlank = value === 'true';
+          break;
+
+        case 'allFrames':
+          data.allFrames = value === 'true';
+          break;
+
+        case 'inject-into':
+          js && value === 'page' && (data.injectInto = 'page');
+          break;
+
+        case 'run-at':
+          value = value.replace('-', '_');
+          ['document_start', 'document_end', 'document_idle'].includes(value) && (data.runAt = value);
+          break;
+      }
+    });
+
+    data.matches.push(...matches);
+    data.excludeMatches.push(...excludeMatches);
+    // ------------- /User Metadata ------------------------
+
+    // --- check for overlap rules
+    data.matches = this.checkOverlap(data.matches);
+    data.excludeMatches = this.checkOverlap(data.excludeMatches);
+
     return data;
   }
 
@@ -469,6 +531,85 @@ class Meta {                                                // bg options
     }
 
     return p;
+  }
+
+  // --- attempt to convert to matches API
+  static convertPattern(p) {
+    if (this.validPattern(p)) { return p; }                      // valid match pattern
+
+    switch (true) {
+      // Regular Expression
+      case p.startsWith('/') && p.endsWith('/'): return;
+
+      // fix complete pattern
+      case p === '*':  return '<all_urls>';
+      case p === 'http://*': return 'http://*/*';
+      case p === 'https://*': return 'https://*/*';
+      case p === 'http*://*': return '*://*/*';
+
+      // fix scheme
+      case p.startsWith('http*'): p = p.substring(4); break;  // *://.....
+      case p.startsWith('*//'): p = '*:' + p.substring(1); break; // bad protocol wildcard
+      case p.startsWith('//'): p = '*:' + p; break;           // Protocol-relative URL
+      case !p.includes('://'): p = '*://' + p; break;         // no protocol
+    }
+
+    // test again
+    if (this.validPattern(p)) { return p; }
+
+    let [scheme, host, ...path] = p.split(/:\/{2,3}|\/+/);
+
+    // http/https schemes
+    if (!['http', 'https', 'file', '*'].includes(scheme.toLowerCase())) { scheme = '*'; } // bad scheme
+    if (host.includes(':')) { host = host.replace(/:.+/, ''); } // host with port
+    if (host.endsWith('.co*.*')) { host = host.slice(0, -5) + 'TLD'; } // TLD wildcard google.co*.*
+    if (host.endsWith('.*')) { host = host.slice(0, -1) + 'TLD'; } // TLD wildcard google.*
+    if (host.startsWith('*') && host[1] && host[1] !== '.') { host = '*.' + host.substring(1); } // starting wildcard *google.com
+    p = scheme +  '://' + [host, ...path].join('/');        // rebuild pattern
+
+    if (!path[0] && !p.endsWith('/')) { p += '/'; }         // fix trailing slash
+
+    // test again
+    if (this.validPattern(p)) { return p; }
+  }
+
+  static validPattern(p) {
+    return p === '<all_urls>' ||
+            /^(https?|\*):\/\/(\*|\*\.[^*/]+|[^*/]+)\/.*$/i.test(p) ||
+            /^file:\/\/\/.*$/i.test(p);
+  }
+
+  static checkOverlap(arr) {
+    if (arr.includes('<all_urls>')) {
+      return ['<all_urls>'];
+    }
+
+    if (arr.includes('*://*/*')) {
+      arr = arr.filter(item => !item.startsWith('http://') && !item.startsWith('https://') && !item.startsWith('*://'));
+      arr.push('*://*/*');
+    }
+
+    if (arr.includes('file:///*')) {
+      arr = arr.filter(item => !item.startsWith('file:///'));
+      arr.push('file:///*');
+    }
+
+    if (arr.includes('http://*/*')) {
+      arr = arr.filter(item => !item.startsWith('http://'));
+      arr.push('http://*/*');
+    }
+
+    if (arr.includes('https://*/*')) {
+      arr = arr.filter(item => !item.startsWith('https://'));
+      arr.push('https://*/*');
+    }
+
+    if (arr.includes('http://*/*') && arr.includes('https://*/*')) {
+      arr = arr.filter(item => !['http://*/*', 'https://*/*'].includes(item));
+      arr.push('*://*/*');
+    }
+
+    return [...new Set(arr)];
   }
 }
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
@@ -596,7 +737,6 @@ class CheckMatches {
     if (!item.allFrames) { urls = [tabUrl]; }               // only check main frame
 
     const styleMatches = item.style && item.style[0] ? item.style.flatMap(i => i.matches) : [];
-    const userMatches = item.userMatches ? item.userMatches.split(/\s+/) : [];
 
     switch (true) {
       // --- Global Script Exclude Matches
@@ -609,8 +749,7 @@ class CheckMatches {
       case urls.includes('about:blank') && item.matchAboutBlank: return true;
 
       // --- includes & matches & globs
-      case item.userExcludeMatches && this.isMatch(urls, item.userExcludeMatches.split(/\s+/)):
-      case !this.isMatch(urls, [...item.matches, ...userMatches, ...styleMatches]):
+      case !this.isMatch(urls, [...item.matches, ...styleMatches]):
       case item.includeGlobs[0] && !this.isMatch(urls, item.includeGlobs, true):
       case item.includes[0] && !this.isMatch(urls, item.includes, false, true):
 
@@ -647,13 +786,22 @@ class CheckMatches {
   static prepareMatch(arr) {                                // here
     const regexSpChar = /[-\/\\^$+?.()|[\]{}]/g;            // Regular Expression Special Characters
     const str = arr.map(item => '(^' +
-        item.replace(regexSpChar, '\\$&').replace(/\*/g, '.*').replace('/.*\\.', '/(.*\\.)?') + '$)').join('|');
+        item.replace(regexSpChar, '\\$&')
+            .replace(/^\*:/g, 'https?:')
+            .replace(/\*/g, '.*')
+            .replace('/.*\\.', '/(.*\\.)?')
+            + '$)')
+            .join('|');
     return str;
   }
 
   static prepareGlob(arr) {
     const regexSpChar = /[-\/\\^$+.()|[\]{}]/g;             // Regular Expression Special Characters minus * ?
-    const str = arr.map(item => '(^' + item.replace(regexSpChar, '\\$&').replace(/\*/g, '.*') + '$)').join('|');
+    const str = arr.map(item => '(^' +
+        item.replace(regexSpChar, '\\$&')
+            .replace(/^\*:/g, 'http(|s):')
+            .replace(/\*/g, '.*') + '$)')
+            .join('|');
     return str.replace(/\?/g, '.');
   }
 

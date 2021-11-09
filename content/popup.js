@@ -156,9 +156,9 @@ class Popup {
     script.homepage = homepage;
     script.support = support;
 
-    const infoArray = ['name', 'description', 'author', 'version', 'homepage', 'support', 'size', 'updateURL', 'matches',
-                        'excludeMatches', 'includes', 'excludes', 'includeGlobs', 'excludeGlobs',
-                        'require', 'userMatches', 'userExcludeMatches', 'injectInto', 'runAt', 'userRunAt', 'error'];
+    const infoArray = ['name', 'description', 'author', 'version', 'homepage', 'support', 'size', 'updateURL', 
+                        'matches', 'excludeMatches', 'includes', 'excludes', 'includeGlobs', 'excludeGlobs',
+                        'require', 'injectInto', 'runAt', 'error'];
 
     infoArray.forEach(item => {
       if (!script[item]) { return; }                        // skip to next
@@ -170,7 +170,7 @@ class Popup {
         case 'name':                                        // i18n if different
         case 'description':
           const i18n = script.i18n[item][this.lang] || script.i18n[item][this.lang.substring(0, 2)]; // fallback to primary language
-          i18n !== script[item] && arr.push(i18n);
+          i18n && i18n !== script[item] && arr.push(i18n);
           break;
 
         case 'homepage':
@@ -203,11 +203,6 @@ class Popup {
           item = 'run-at';
           arr[0] = arr[0].replace('_', '-');
           break;
-
-        case 'userRunAt':
-          item = 'user run-at';
-          arr[0] = arr[0].replace('_', '-');
-          break;
       }
 
       const dt = this.dtTemp.cloneNode();
@@ -237,9 +232,9 @@ class Popup {
     const url = script.updateURL;
     const meta = (script.js || script.css).match(Meta.regEx)[2];
 
-    // look for @homepage @homepageURL
-    const hm = meta.match(/@homepage(URL)?\s+(http\S+)/);
-    hm && (homepage = hm[2]);
+    // look for @homepage @homepageURL @website and @source
+    const hm = meta.match(/@(homepage(URL)?|website|source)\s+(http\S+)/);
+    hm && (homepage = hm[3]);
 
     // look for @support @supportURL
     const sup = meta.match(/@support(URL)?\s+(http\S+)/);
@@ -287,7 +282,10 @@ class Popup {
     message.command.forEach(item => {
       const dd = this.ddTemp.cloneNode();
       dd.textContent = item;
-      dd.addEventListener('click', () => browser.tabs.sendMessage(tabId, {name: message.name, command: item}));
+      dd.addEventListener('click', () => {
+        browser.tabs.sendMessage(tabId, {name: message.name, command: item});
+        window.close();
+      });
       dl.appendChild(dd);
     });
   }

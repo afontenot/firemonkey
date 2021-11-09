@@ -17,8 +17,8 @@ App.getPref().then(() => {
 // ----------------- Options -------------------------------
 class Options {
 
-  constructor(keys) {
-    this.prefNode = document.querySelectorAll(keys || '#'+Object.keys(pref).join(',#')); // defaults to pref keys
+  constructor(keys = Object.keys(pref)) {
+    this.prefNode = document.querySelectorAll('#' + keys.join(',#')); // defaults to pref keys
     document.querySelector('button[type="submit"]').addEventListener('click', () => this.check()); // submit button
     this.pBar = document.querySelector('.progressBar');
 
@@ -45,7 +45,7 @@ class Options {
 
   progressBar() {
     this.pBar.classList.toggle('on');
-    setTimeout(() => { this.pBar.classList.toggle('on'); }, 2000);
+    setTimeout(() => this.pBar.classList.toggle('on'), 2000);
   }
 
   check() {
@@ -97,7 +97,7 @@ class Options {
     }
   }
 }
-const options = new Options('#autoUpdateInterval, #globalScriptExcludeMatches, #sync, #counter, #customCSS, #cmOptions');
+const options = new Options(['autoUpdateInterval', 'globalScriptExcludeMatches', 'sync', 'counter', 'customCSS', 'cmOptions']);
 // ----------------- /Options ------------------------------
 
 // ----------------- Scripts -------------------------------
@@ -122,14 +122,8 @@ class Script {
     this.autoUpdate.addEventListener('change', () => this.toggleAutoUpdate());
     Meta.autoUpdate = this.autoUpdate;
 
-    this.userRunAt = document.querySelector('#userRunAt');
-    this.userRunAt.selectedIndex = 0;                       // browser retains selected on refresh
-    Meta.userRunAt = this.userRunAt;
-
-    this.userMatches = document.querySelector('#userMatches');
-    this.userMatches.value = '';
-    this.userExcludeMatches = document.querySelector('#userExcludeMatches');
-    this.userExcludeMatches.value = '';
+    this.userMeta = document.querySelector('#userMeta');
+    this.userMeta.value = '';
 
     document.querySelectorAll('.script button, .script li.button, aside button').forEach(item =>
       item.addEventListener('click', e => this.processButtons(e)));
@@ -157,13 +151,12 @@ class Script {
 */`
 };
 
-
     // --- Import/Export Script
-    document.getElementById('fileScript').addEventListener('change', (e) => this.processFileSelect(e));
+    document.getElementById('fileScript').addEventListener('change', e => this.processFileSelect(e));
 
     // --- menu dropdown
     const menuDetails = document.querySelectorAll('.menu details');
-    document.body.addEventListener('click', (e) =>
+    document.body.addEventListener('click', e =>
       menuDetails.forEach(item => !item.contains(e.explicitOriginalTarget) && (item.open = false))
     );
 
@@ -207,16 +200,12 @@ class Script {
     // --- script storage changes
     browser.storage.onChanged.addListener((changes, area) => { // Change Listener
       area === 'local' && Object.keys(changes).forEach(item => { // local only, not for sync
-
         pref[item] = changes[item].newValue;                // update pref with the saved version
-
         if (!item.startsWith('_')) { return; }              // skip
 
-        const id = item;
-        const oldValue = changes[item].oldValue;
-        const newValue = changes[item].newValue;
-
+        const {oldValue, newValue} = changes[item];
         if (oldValue && newValue && newValue.enabled !== oldValue.enabled) { // if enabled/disabled
+          const id = item;
           const li = document.getElementById(id);
           li && li.classList.toggle('disabled', !newValue.enabled);
           if (id === this.box.id) {
@@ -279,7 +268,6 @@ class Script {
       };
 
     const options = {
-
       lineNumbers: true,
       theme: this.theme,
       mode: js ? 'javascript' : 'css',
@@ -339,7 +327,6 @@ class Script {
   colorPicker(cm, node) {
     this.oldColor = node.style.getPropertyValue('--fm-color');
     let color = this.oldColor;
-
     switch (true) {
       case this.oldColor.startsWith('rgb'):                 // convert rgba?() -> #rrggbb
         color = this.rgbToHex(color);
@@ -567,55 +554,15 @@ class Script {
     const fromTo = [{line, ch: 0}, {line}];
 
     // --- check if pattern is already a valid match mattern
-    if (!Pattern.check(p)) {                                // valid match pattern;
+    const converted = Meta.convertPattern(p);
+    if (converted) {                                        // valid match pattern;
       cm.replaceRange(start + p, ...fromTo);
       return;
     }
 
-    // --- convert specific patterns
-    switch (true) {
-      // fix complete pattern
-      case ['*', 'http*://*'].includes(p):  p = '*://*/*'; break;
-      case p === 'http://*': p = 'http://*/*'; break;
-      case p === 'https://*': p = 'https://*/*'; break;
-    }
-    if (p !==  node.textContent) {                          // it has changed
-      cm.replaceRange(start + p, ...fromTo);
-      return;
-    }
-
-    // --- check file:///
-    if (p.startsWith('file:')) {
-      const error = !Pattern.check(p);
-      !error ? cm.replaceRange(start + p, ...fromTo) : App.notify(p + '\n' + error);
-      return;
-    }
-
-    // --- convert some common incompatibilities with matches API
-    switch (true) {
-      // fix scheme
-      case p.startsWith('http*'): p = p.substring(4); break; // *://.....
-      case p.startsWith('*//'): p = '*:' + p.substring(1); break; // bad protocol wildcard
-      case p.startsWith('//'): p = '*:' + p; break;         // Protocol-relative URL
-      case !p.includes('://'): p = '*://' + p; break;       // no protocol
-    }
-
-    let [scheme, host, ...path] = p.split(/:\/{2,3}|\/+/);
-
-    // http/https schemes
-    if (!['http', 'https', 'file', '*'].includes(scheme.toLowerCase())) { scheme = '*'; } // bad scheme
-    if (host.includes(':')) { host = host.replace(/:.+/, ''); } // host with port
-    if (host.endsWith('.co*.*')) { host = host.slice(0, -5) + 'TLD'; } // TLD wildcard google.co*.*
-    if (host.endsWith('.*')) { host = host.slice(0, -1) + 'TLD'; } // TLD wildcard google.*
-    if (host.startsWith('*') && host[1] && host[1] !== '.') { host = '*.' + host.substring(1); } // starting wildcard *google.com
-    p = scheme +  '://' + [host, ...path].join('/');        // rebuild pattern
-
-    if (!path[0] && !p.endsWith('/')) { p += '/'; }         // fix trailing slash
-
-
-    // --- check if it is valid
+    // --- show error
     const error = Pattern.check(p);
-    !error ? cm.replaceRange(start + p, ...fromTo) : App.notify(p + '\n' + error);
+    error && App.notify(p + '\n' + error);
   }
 
   makeStats(js, text = this.box.value) {
@@ -684,8 +631,7 @@ class Script {
   }
 
   newScript(type) {
-    const box = this.box;
-    const legend = this.legend;
+    const {box, legend} = this;
     this.enable.checked = true;
 
     const last = document.querySelector('aside li.on');
@@ -737,13 +683,13 @@ class Script {
     item.enabled || li.classList.add('disabled');
     item.error && li.classList.add('error');
     li.textContent = item.name;
-    li.id = '_' + item.name;
+    li.id = `_${item.name}`;
     this.docfrag.appendChild(li);
     li.addEventListener('click', e => this.showScript(e));
   }
 
   showScript(e) {
-    const box = this.box;
+    const {box} = this;
     const li = e.target;
     li.classList.add('on');
 
@@ -776,9 +722,6 @@ class Script {
     }
     this.cm && this.cm.toTextArea();                        // reset CodeMirror
 
-    // --- reset
-    [this.userMatches, this.userExcludeMatches].forEach(item => item.classList.remove('invalid'));
-
     const id = li.id;
     box.id = id;
     this.legend.textContent = pref[id].name;
@@ -799,9 +742,7 @@ class Script {
     box.value = pref[id].js || pref[id].css;
     pref[id].error && App.notify(pref[id].error, id);
     pref[id].antifeatures[0] && this.legend.classList.add('antifeature');
-    this.userRunAt.value = pref[id].userRunAt || '';
-    this.userMatches.value = pref[id].userMatches || '';
-    this.userExcludeMatches.value = pref[id].userExcludeMatches || '';
+    this.userMeta.value = pref[id].userMeta || '';
 
     // --- CodeMirror
     this.setCodeMirror();
@@ -812,17 +753,14 @@ class Script {
   }
 
   unsavedChanges() {
-    const box = this.box;
+    const {box} = this;
     const text = this.noSpace(this.box.value);
-
     switch (true) {
       case !text:
       case !box.id && text === this.noSpace(pref.template.js || this.template.js):
       case !box.id && text === this.noSpace(pref.template.css || this.template.css):
       case  box.id && text === this.noSpace(pref[box.id].js + pref[box.id].css) &&
-              this.userMatches.value.trim() === (pref[box.id].userMatches || '') &&
-              this.userExcludeMatches.value.trim() === (pref[box.id].userExcludeMatches || ''):
-
+                this.userMeta.value.trim() === (pref[box.id].userMeta || ''):
         return false;
 
       default:
@@ -865,7 +803,7 @@ class Script {
   }
 
   deleteScript() {
-    const box = this.box;
+    const {box} = this;
 
     const multi = document.querySelectorAll('aside li.on');
     if (!multi[0]) { return; }
@@ -895,20 +833,29 @@ class Script {
   }
 
   async saveScript() {
-    const box = this.box;
+    const {box} = this;
     this.cm && this.cm.save();                              // save CodeMirror to textarea
 
-    // --- check User Matches User Exclude Matches
-    if(!Pattern.validate(this.userMatches)) { return; }
-    if(!Pattern.validate(this.userExcludeMatches)) { return; }
-
     // --- chcek meta data
-    const data = Meta.get(box.value.trim(), this.userMatches.value, this.userExcludeMatches.value);
+    this.userMeta.value = this.userMeta.value.trim();
+    const data = Meta.get(box.value.trim(), this.userMeta.value);
     if (!data) { throw 'Meta Data Error'; }
     else if (data.error) {
       App.notify(browser.i18n.getMessage('metaError'));
       return;
     }
+
+    // --- check if patterns are valid match mattern
+    let matchError = 0;
+    [...data.matches, ...data.excludeMatches].forEach(p => {
+      const error = Pattern.check(p);
+      if (error) {
+        matchError++;
+        matchError < 4 && App.notify(p + '\n' + error);     // max 3 notifications
+      }
+    });
+    if (matchError) { return; }
+
 
     // --- check name
     if (!data.name) {
@@ -921,7 +868,7 @@ class Script {
       data.enabled = false;                                 // allow no matches but disable
     }
 
-    const id = '_' + data.name;                             // set id as _name
+    const id = `_${data.name}`;                             // set id as _name
 
     if (!box.id) {                                          // new script
       this.addScript(data);
@@ -974,7 +921,7 @@ class Script {
 
   // --- Remote Update
   updateScript() {                                          // manual update, also for disabled and disabled autoUpdate
-    const box = this.box;
+    const {box} = this;
     if (!box.id) { return; }
 
     const id = box.id;
@@ -991,8 +938,8 @@ class Script {
     const data = Meta.get(text);
     if (!data) { throw `${name}: Update Meta Data error`; }
 
-    const id = '_' + data.name;                             // set id as _name
-    const oldId = '_' + name;
+    const id = `_${data.name}`;                             // set id as _name
+    const oldId = `_${name}`;
 
     // --- check version
     if (!RU.higherVersion(data.version, pref[id].version)) {
@@ -1064,7 +1011,7 @@ class Script {
       return;
     }
 
-    let id = '_' + data.name;                             // set id as _name
+    let id = `_${data.name}`;                             // set id as _name
 
     // --- check name
     if (pref[id]) {
@@ -1072,15 +1019,14 @@ class Script {
       const targetType = pref[id].js ? 'js' : 'css';
       if (dataType !== targetType) { // same name exist in another type
         data.name += ` (${dataType})`;
-        id = '_' + data.name;
+        id = `_${data.name}`;
         if (pref[id]) { throw `${data.name}: Update new name already exists`; } // name already exists
       }
 
       // --- update/import from previous version
       data.enabled = pref[id].enabled;
       data.autoUpdate = pref[id].autoUpdate;
-      data.userMatches = pref[id].userMatches;
-      data.userExcludeMatches = pref[id].userExcludeMatches;
+      data.userMeta = pref[id].userMeta;
     }
 
     pref[id] = data;                                        // save to pref
@@ -1143,8 +1089,8 @@ class Script {
 
       const data = Meta.get(text);
       data.enabled = item.enabled;
-      if (pref['_' + data.name]) { data.name += ' (Stylus)'; }
-      const id = '_' + data.name;                           // set id as _name
+      if (pref[`_${data.name}`]) { data.name += ' (Stylus)'; }
+      const id = `_${data.name}`;                           // set id as _name
       pref[id] = data;                                      // save to pref
       obj[id] = pref[id];
     });
@@ -1200,11 +1146,12 @@ class Pattern {
   static validate(node) {
     node.classList.remove('invalid');
     node.value = node.value.trim();
-
     if (!node.value) { return true; }                       // emtpy
 
-    for (const item of node.value.split(/\s+/)) {           // use for loop to be able to break
+    // use for loop to be able to break early
+    for (const item of node.value.split(/\s+/)) {
 
+      if (Meta.validPattern(item)) { continue; }
       const error = this.check(item);
       if (error) {
         node.classList.add('invalid');
@@ -1218,7 +1165,6 @@ class Pattern {
 
   static check(pattern) {
     pattern = pattern.toLowerCase();
-
     const [scheme, host, path] = pattern.split(/:\/{2,3}|\/+/);
 
     // --- specific patterns

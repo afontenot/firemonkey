@@ -17,21 +17,39 @@
     <h2 id="changelog">Changelog</h2>
     <dl class="about">
 
+      <dt>2.35</dt>
+        <dd>Added match pattern check when saving Script/CSS (#384)</dd>
+        <dd>Added new persistent User Metadata feature (#383)</dd>
+        <dd>Removed user run-at/matches/exclude matches, in favour of User Metadata</dd>
+        <dd>Database Migrate to move user run-at/matches/exclude matches to User Metadata</dd>         
+        <dd>Close popup after script command (#382)</dd>
+        <dd>Fixed a bug in GM addValueChangeListener (from 2.25 database migrate) (#381)</dd>
+        <dd>Added container/incognito cookie isolation for GM xmlHttpReques/fetch/download (#378)</dd>
+        <dd>Added "cookies" permission to deal with container/incognito cookie isolation</dd>
+        <dd>Added anonymous flag to GM xmlHttpRequest & fetch</dd>
+        <dd>Fixed an error with quotation mark when inject-to page (#377)</dd>
+        <dd>Added <code>@website</code> and <code>@source</code> as homepage link to popup Info page</dd>
+        <dd>Updated all <code>Promise</code> based GM APIs to return a <code>Promise</code> (for using <code>await</code> or <code>then()</code>)</dd>
+        <dd>Removed FTP support due to Firefox Stopping FTP support in Firefox 90</dd>
+        <dd>Fixed <code>*://*/*</code> showing matched to <code>file:///</code></dd>        
+        <dd>Added limited <code>@include/@exclude</code> to <code>@match/@exclude-match</code> auto-conversion (#304)</dd>
+        <dd>Added feature to remove overlapping patterns</dd>
+
       <dt>2.34</dt>
-        <dd>Added homepage link to popup Info page (if available)</dd>
+        <dd>Added object support to GM setValue (#376)</dd>
+        <dd>Fixed an error when setting the same key & value in GM setValue</dd>        
+        <dd>Fixed an issue when cancelling confirm discard changes (#373)</dd>
+        <dd>Added homepage link to popup Info page (if available) (#370)</dd>
         <dd>Added support link to popup Info page (if available)</dd>
         <dd>Added <i>Bootstrap 5</i> library (v5.1.3)</dd>
         <dd>Updated Locale Maker to v1.4</dd>
-        <dd>Added object support to GM setValue</dd>
-        <dd>Fixed an error when setting the same key & value in GM setValue</dd>
-        <dd>Fixed an issue when canceling confirm discard changes</dd>
 
       <dt>2.33</dt>
-        <dd>Updated GM fetch API to return an object (breaking change)</dd>
-        <dd>Updated Dark Mode implementation for Private Window</dd>
-
+        <dd>Updated Dark Mode implementation for Private Window (#367)</dd>
+        <dd>Updated GM fetch API to return an object (breaking change) (#364)</dd>
+        
       <dt>2.32</dt>
-        <dd>Removed Android export test code</dd>
+        <dd>Removed Android export test code (#359)</dd>
 
       <dt>2.31</dt>
         <dd>Upgraded JSHint to 2.13.1</dd>
@@ -41,7 +59,7 @@
         <dd>Enabled CodeMirror <code>match-highlighter</code> addon by default</dd>
         <dd>Suppressed CodeMirror UserCSS Metadata Block <code>*/</code> error</dd>
         <dd>Suppressed CSSLint Metadata Block <code>*/</code> error</dd>
-        <dd>Fixed Android export</dd>
+        <dd>Fixed Android export (#359)</dd>
 
       <dt>2.30</dt>
         <dd>Fixed case-insensitivity of header names</dd>

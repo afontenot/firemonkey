@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
-  "version": "2.34",
+  "version": "2.35",
   "default_locale": "en",
   "homepage_url": "https://github.com/erosman/support",
   "author": "erosman",
@@ -32,6 +32,7 @@
   },
   "permissions": [
     "clipboardWrite",
+    "cookies",
     "downloads",
     "idle",
     "menus",

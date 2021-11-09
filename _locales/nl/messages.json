@@ -19,9 +19,7 @@
 
   "globalScriptExcludeMatches": { "message": "Globale script-uitsluitingen" },
   "globalScriptExcludeMatchesDescription": { "message": "Uitsluitpatronen (één per regel). Scripts worden niet uitgevoerd als ze hiermee overeenkomen." },
-  "userMatches": { "message": "Eigen overeenkomsten" },
-  "userExcludeMatches": { "message": "Uitsluitingen" },
-  "userMatchesExcludeMatches": { "message": "Eigen en uitsluitovereenkomsten" },
+  "userMeta": { "message": "User Metadata" },
 
   "sidebar": { "message": "Zijbalk" },
   "script": { "message": "Scripts en css" },
