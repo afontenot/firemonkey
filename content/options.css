@@ -411,8 +411,9 @@ button.bin:hover img {
   border: 1px solid #ccc;
 }
 
-.menu details li.userRunAt select {
-  width: 9em;
+.menu #userMeta {
+  margin-top: 0.5em;
+  white-space: pre;
 }
 
 .menu details textarea {

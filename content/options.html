@@ -66,7 +66,7 @@
     <link rel="stylesheet" href="cm.css">
 
     <!-- custom style -->
-    <style data-src="custom-css"></style>
+    <style></style>
 
     <script type="module" src="options.js"></script>
   </head>
@@ -290,21 +290,9 @@
                   <li class="button" data-i18n="toUpperCase">&#x1f520; </li>
                   <li class="button" data-i18n="toLowerCase">&#x1f521; </li>
                   <li class="separator"></li>
-
-                  <li class="flex userRunAt">
-                    <label>&#x1f464; run-at</label>
-                    <select id="userRunAt">
-                      <option value="" selected>default</option>
-                      <option value="document_start">document-start</option>
-                      <option value="document_end">document-end</option>
-                      <option value="document_idle">document-idle</option>
-                    </select>
-                  </li>
-
-                  <li class="textarea"><label data-i18n="userMatches">&#x1f464; </label><br>
-                  <textarea id="userMatches" rows="4" spellcheck="false" placeholder="*://*.example.com/*"></textarea></li>
-                  <li class="textarea"><label data-i18n="userExcludeMatches">&#x1f464; </label><br>
-                  <textarea id="userExcludeMatches" rows="4" spellcheck="false" autocomplete="off" placeholder="*://*.example.com/*"></textarea></li>
+               
+                  <li class="textarea"><label data-i18n="userMeta">&#x1f464; </label><br>
+                  <textarea id="userMeta" rows="10" spellcheck="false"></textarea></li>
                 </ul>
 
 
