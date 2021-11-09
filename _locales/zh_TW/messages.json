@@ -41,14 +41,8 @@
   "globalScriptExcludeMatchesDescription": {
     "message": "Exclude Match pattens (one per line) to prevent all scripts from running on them."
   },
-  "userMatches": {
-    "message": "User Matches"
-  },
-  "userExcludeMatches": {
-    "message": "User Exclude Matches"
-  },
-  "userMatchesExcludeMatches": {
-    "message": "User Matches & Exclude Matches"
+  "userMeta": {
+    "message": "User Metadata"
   },
   "sidebar": { "message": "Sidebar" },
   "script": {
@@ -213,4 +207,4 @@
   "saveOptions": {
     "message": "儲存"
   }
-} 
+}

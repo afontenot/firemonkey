@@ -41,14 +41,8 @@
   "globalScriptExcludeMatchesDescription": {
     "message": "Шаблоните (по един на ред) за изключване чрез съвпадение предотвратяват изпълнение на скриптовете."
   },
-  "userMatches": {
-    "message": "Потребителски шаблони"
-  },
-  "userExcludeMatches": {
-    "message": "Потребителски шаблони за изключване"
-  },
-  "userMatchesExcludeMatches": {
-    "message": "Потребителски шаблони за включване и изключване"
+  "userMeta": {
+    "message": "User Metadata"
   },
   "sidebar": {
     "message": "Странична лента"

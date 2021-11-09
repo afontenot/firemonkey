@@ -18,7 +18,7 @@ img {
   vertical-align: text-bottom;
 }
 
-dl {
+article > dl {
   margin-left: 2em;
 }
 
@@ -34,7 +34,7 @@ dd + dt {
   margin-top: 0.5em;
 }
 
-dd > dl, dd > ul {
+dd > dl /*, dd > ul*/{
   margin: 1em auto;
 }
 
@@ -124,7 +124,7 @@ h2 img, h3 img, h4 img {
   width: 1em;
 }
 
-h3 {
+article > h3 {
   font-size: 1.2em;
   color: #333;
   margin-bottom: 0;
@@ -147,7 +147,7 @@ h3 span, h4 span {
   font-size: 0.8em;
 }
 
-p {
+article > p {
   margin: 0.2em auto 0.2em 2em;
 }
 
@@ -187,12 +187,14 @@ a[href^="https://bugzilla.mozilla.org/show_bug.cgi?id="]::before {
   margin-right: 0.3em;
 }
 
-a[href^="https://support.mozilla.org/"]::before,
+a[href^="https://github.com/"]::before,
+a[href^="https://addons.mozilla.org/"]::before,
+a[href^="https://blog.mozilla.org/"]::before,
 a[href^="https://developer.mozilla.org/"]::before,
-a[href^="https://blog.mozilla.org/"]::before {
+a[href^="https://support.mozilla.org/"]::before,
+a[href^="https://www.mozilla.org/"]::before {
   content: '';
-  background: url('../image/dino.svg') no-repeat center;
-  background-size: contain;
+  background: url('../image/dino.svg') no-repeat center / contain;
   display: inline-block;
   height: 1.1em;
   width: 1.1em;
@@ -201,7 +203,12 @@ a[href^="https://blog.mozilla.org/"]::before {
 }
 
 a[href^="https://blog.mozilla.org/"]::before {
-  background: #000 url('../image/moz.svg') no-repeat center;
+  background: url('../image/moz.svg') no-repeat center / contain;
+  border-radius: 1em;
+}
+
+a[href^="https://github.com/"]::before {
+  background: url('../image/github.svg') no-repeat center / contain;
 }
 
 /* ----- Navigation ----- */
@@ -403,7 +410,7 @@ figure pre {
 }
 
 blockquote {
-  padding: 1em 3.5em;
+  padding: 0.5em 3.5em 1em;
   font-style: italic;
   position: relative;
   border-radius: 1.5em;

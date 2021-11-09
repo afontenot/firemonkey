@@ -46,11 +46,11 @@
 
         <li class="arrow"><a href="#script-api">Script API</a>
           <ul>
-            <li><a href="#getValue">getValue & listValues</a></li>
+            <!-- <li><a href="#getValue">getValue & listValues</a></li> -->
             <li><a href="#openInTab">openInTab</a></li>
             <li><a href="#fetch">fetch</a></li>
             <li><a href="#xmlHttpRequest">xmlHttpRequest</a></li>
-            <li><a href="#forbidden-header-name">Forbidden header name</a></li>
+            <!-- <li><a href="#forbidden-header-name">Forbidden header name</a></li> -->
             <li><a href="#notification">notification</a></li>
             <li><a href="#registerMenuCommand">registerMenuCommand</a></li>
             <li><a href="#unregisterMenuCommand">unregisterMenuCommand</a></li>
@@ -67,6 +67,7 @@
             <li><a href="#unsafeWindow">unsafeWindow</a></li>
           </ul>
         </li>
+        <li><a href="#Cookie-Isolation">Cookie Isolation</a></li>
         <li><a href="#Detecting_JavaScript_Navigation">Detecting JavaScript Navigation</a></li>
         <li><a href="#xray-vision">Xray Vision & Sharing objects with page scripts</a></li>
         <li><a href="#UserCSS">UserCSS</a></li>
@@ -84,8 +85,8 @@
 
   <h2 id="Preamble">Preamble</h2>
   <p><i>FireMonkey</i> is a totally new combined user-script and user-style manager. While it has similar functions to other user-Script managers like <i>Greasemonkey/Tampermonkey/Violentmonkey</i>, and user-style managers like <i>Stylish/Stylus/xStyle</i>, there are also differences. Similar to other userscript managers, scripts (or CSS) are injected in tabs and for a new script/CSS to have an effect, tab must be reloaded. The behaviour differs from <i>Stylus</i> which can inject CSS into a tab and remove it without having to reload the tab.<sup>1</sup></p>
-    
-  
+
+
   <p class="footnote">Some functions like script injection are prevented by Firefox on sites with restrictive Content Security Policy (CSP), as well as certain domains e.g. accounts-static.cdn.mozilla.net, accounts.firefox.com, addons.cdn.mozilla.net, api.accounts.firefox.com, content.cdn.mozilla.net, content.cdn.mozilla.net, discovery.addons.mozilla.org, input.mozilla.org, install.mozilla.org, oauth.accounts.firefox.com, profile.accounts.firefox.com, support.mozilla.org, sync.services.mozilla.com, testpilot.firefox.com (ref <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts" target="_blank">Content scripts</a>).</p>
 
   <p><sup>1</sup> <i>It is not possible with the current API (Changes are planned as part of <a href="https://blog.mozilla.org/addons/2021/05/27/manifest-v3-update/" target="_blank">Manifest v3 update</a>).</i></p>
@@ -111,7 +112,8 @@
       <dd>Display Help document <sup>1</sup></dd>
 
     <dt><img src="../image/document.svg" alt=""> Log</dt>
-      <dd>Display the latest (100) error and script-update messages when not in Private Window <sup>1</sup></dd>
+      <dd>Display the latest (default 100) error and script-update messages when not in Private Window <sup>1</sup></dd>
+      <dd>Log data is not available in Container/Private mode</dd>
 
     <dt><img src="../locale-maker/locale-maker.svg" alt=""> Locale Maker</dt>
       <dd>Open the Locale Maker stand-alone module to create & share locale translations</dd>
@@ -141,7 +143,7 @@
 
     <dt><i>{name}</i> <img src="../image/next.svg" alt=""></dt>
       <dd>Shows the Information for the Script/CSS</dd>
-      <dd>Displays <i>homepage</i> link if script has <code>@homepage</code>, <code>@homepageURL</code>, or <code>updateURL</code></dd>
+      <dd>Displays <i>homepage</i> link if script has <code>@homepage</code>, <code>@homepageURL</code>, <code>updateURL</code>, <code>@website</code>, or <code>@source</code></dd>
       <dd>Displays <i>support</i> link if script has <code>@support</code>, or <code>@supportURL</code></dd>
 
       <dd>
@@ -231,11 +233,12 @@
   <h3 id="enable-storage">Enable Storage Sync</h3>
   <p>Enable to sync storage if it is under 100KB. If the storage is over 100KB, there will be a notification and the Sync will be turned off automatically to avoid repeated errors.</p>
 
-  <blockquote>For Firefox a user must have Add-ons checked under the "Sync Settings" options in "about:preferences".
-  <br><br>
-  The main use case of this API is to store preferences about your extension and allow the user to sync them to different profiles. You can store up to 100KB of data using this API. If you try to store more than this, the call will fail with an error message. The API is provided without any guarantees about uptime or performance.
+  <blockquote>
+    <p>For Firefox a user must have Add-ons checked under the "Sync Settings" options in "about:preferences".</p>
 
-  <cite><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/storage/sync" target="_blank">storage.sync</a></cite>
+    <p>The main use case of this API is to store preferences about your extension and allow the user to sync them to different profiles. You can store up to 100KB of data using this API. If you try to store more than this, the call will fail with an error message. The API is provided without any guarantees about uptime or performance.</p>
+
+    <cite><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/storage/sync" target="_blank">storage.sync</a></cite>
   </blockquote>
 
   <h4>Storage quotas for sync data</h4>
@@ -419,7 +422,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
 
   <h3 id="editing">Editing</h3>
-  <p><a href="https://codemirror.net/" target="_blank">CodeMirror</a> editor and a number of its addons is used for easier editing (v2.0+).</p>
+  <p><a href="https://codemirror.net/" target="_blank">CodeMirror</a> editor and a number of its addons is used for easier editing (v2.0).</p>
 
   <h4>CodeMirror & addon Guide</h4>
   <ul>
@@ -493,11 +496,24 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
           <dt>&#x1f521; Selection to Lowercase</dt>
             <dd>&nbsp;</dd>
 
-          <dt>&#x1f464; run-at</dt>
-            <dd>Persistent user custom script run-at</dd>
+          <dt>&#x1f464; User Metadata</dt>
+            <dd>Persistent user metadata rules to add/amend/disable original Script & CSS metadata rules</dd>
+            <dd><pre class="comment">
+// Disable Rule
+// without a value disables ALL original metadata rules of each entry
+// with a value disables SINGLE original metadata rules of each entry
+@disable-match
+@disable-exclude-match
+@disable-include
+@disable-exclude
 
-          <dt>&#x1f464; User Matches & Exclude Matches</dt>
-            <dd>Persistent user matches & excludeMatches (one per line using Match Patterns) can be set for each script to supplement script's matches & excludeMatches. Please note that invalid match pattern will cause the script to fail and thus get disabled.</dd>
+// Add/Amend Rule changes existing metadata rules
+@match
+@exclude-match
+@matchAboutBlank
+@allFrames
+@inject-into
+@run-at</pre></dd>
 
         </dl>
       </dd>
@@ -620,7 +636,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
 
 
-  <p><i>FireMonkey</i> supports the following entries based on <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/contentScripts/register" target="_blank">contentScripts.register()</a> & <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/userScripts/register" target="_blank">userScripts.register()</a>. Each entry must be in the format of <code>@entry ...some space ... detail</code>. In case of matches & globes, repeat entry for each detail. Match details must conform to the <b>Match Patterns</b>.</p>
+  <p><i>FireMonkey</i> supports the following entries based on <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/contentScripts/register" target="_blank">contentScripts.register()</a> & <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/userScripts/register" target="_blank">userScripts.register()</a>. Each entry must be in the format of <code>@entry ...some space ... value</code>. In case of matches & globes, repeat entry for each detail. Match details must conform to the <b>Match Patterns</b>.</p>
   <p>Script/CSS developers are free to add any other <i>@entry</i> (e.g. <i>@homepage, @copyright, @support</i> etc) for reference or information.</p>
 
 
@@ -673,13 +689,13 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   </thead>
   <tbody class="slim">
     <tr><th>@name</th>              <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@name:xx-YY</th>        <td class="pass"></td><td class="pass"><span>v4.11+</span> <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@name:xx-YY</th>        <td class="pass"></td><td class="pass"><span>v4.11</span> <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@author</th>            <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"><a href="https://violentmonkey.github.io/api/metadata-block/" target="_blank">undocumented </a> <a href="https://github.com/violentmonkey/violentmonkey/blob/e49c64f7235ef4609fe0a33bc9e3670404cabb1c/src/common/options-defaults.js#L64" target="_blank">&#x24d8;</a></td></tr>
     <tr><th>@description</th>       <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@description:xx-YY</th> <td class="pass"></td><td class="pass"><span>v4.11+</span> <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@description:xx-YY</th> <td class="pass"></td><td class="pass"><span>v4.11</span> <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@version</th>           <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@updateURL</th>         <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"><a href="https://violentmonkey.github.io/api/metadata-block/" target="_blank">undocumented </a> <a href="https://github.com/violentmonkey/violentmonkey/blob/e49c64f7235ef4609fe0a33bc9e3670404cabb1c/src/background/utils/update.js#L71" target="_blank">&#x24d8;</a></td></tr>
-    <tr><th>@match</th>             <td class="pass"></td><td class="pass"><span>v0.9.8+ (2011)</span> <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@match</th>             <td class="pass"></td><td class="pass"><span>v0.9.8 (2011)</span> <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@include</th>           <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@exclude</th>           <td class="pass"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@exclude-match</th>     <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="pass"></td></tr>
@@ -702,11 +718,16 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
     <tr><th class="dim">@excludeGlobs</th>       <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th class="dim">@runAt</th>             <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
 
-    <tr><th>@namespace</th>         <td class="fail"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@homepage</th>          <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
+    <tr><th>@homepageURL</th>       <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@website</th>           <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
+    <tr><th>@source</th>            <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
+    <tr><th>@support</th>           <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
+    <tr><th>@supportURL</th>        <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
+
     <tr><th>@grant</th>             <td class="fail"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@namespace</th>         <td class="fail"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@icon</th>              <td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@supportURL</th>        <td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>@homepageURL</th>       <td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@connect</th>           <td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
     <tr><th>@unwrap</th>            <td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
     <tr><th>@nocompat</th>          <td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
@@ -897,7 +918,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
       <th>alter page CSP <sup>2</sup></th>
       <td class="fail"></td>
       <td class="fail"></td>
-      <td class="pass"><a href="https://github.com/Tampermonkey/tampermonkey/blob/07f668cd1cabb2939220045839dec4d95d2db0c8/src/background.js#L5907" title="v2.9+ Latest commit on 8 Jan 2013" target="_blank">&#x24d8;</a></td>
+      <td class="pass"><a href="https://github.com/Tampermonkey/tampermonkey/blob/07f668cd1cabb2939220045839dec4d95d2db0c8/src/background.js#L5907" title="v2.9 Latest commit on 8 Jan 2013" target="_blank">&#x24d8;</a></td>
       <td class="fail"><a href="https://github.com/violentmonkey/violentmonkey/issues/997" title="[Firefox] Can't modify page properties on sites which use CSP" target="_blank">&#x24d8;</a> <a href="https://github.com/violentmonkey/violentmonkey/issues/1001" title="[Firefox] Can't modify page properties on sites which use CSP" target="_blank">&#x24d8;</a></td>
     </tr>
 
@@ -917,9 +938,11 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   <h4>antifeature</h4>
   <p>Under-development feature on <i>GreasyFork</i> (ref <a href="https://github.com/JasonBarnabe/greasyfork/issues/604" target="_blank">#604</a>) to mark possibly undesirable behaviour e.g. miners, ads etc.</p>
 
-  <blockquote>Anti-Features are flags packagers apply to apps, warning of possibly undesirable behaviour from the user's perspective, often serving the interest of the developer or a third party.
+  <blockquote>
+    <p>Anti-Features are flags packagers apply to apps, warning of possibly undesirable behaviour from the user's perspective, often serving the interest of the developer or a third party.</p>
 
-  <cite><a href="https://f-droid.org/wiki/page/AntiFeatures" target="_blank">AntiFeatures</a></cite></blockquote>
+    <cite><a href="https://f-droid.org/wiki/page/AntiFeatures" target="_blank">AntiFeatures</a></cite>
+  </blockquote>
 
 
 
@@ -928,11 +951,12 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   <h4>matchAboutBlank</h4>
   <p>The code cannot be inserted in top-level <code>about:</code> frames.</p>
 
-  <blockquote>Insert the content scripts into pages whose URL is <code>"about:blank"</code> or <code>"about:srcdoc"</code>, if the URL of the page that opened or created this page <a href="https://developer.mozilla.org/Add-ons/WebExtensions/manifest.json/content_scripts#Matching_URL_patterns" target="_blank">matches the patterns</a> specified in the rest of the <code>content_scripts</code> key.<br><br>
+  <blockquote>
+    <p>Insert the content scripts into pages whose URL is <code>"about:blank"</code> or <code>"about:srcdoc"</code>, if the URL of the page that opened or created this page <a href="https://developer.mozilla.org/Add-ons/WebExtensions/manifest.json/content_scripts#Matching_URL_patterns" target="_blank">matches the patterns</a> specified in the rest of the <code>content_scripts</code> key.</p>
 
-  This is especially useful to run scripts in empty iframes , whose URL is <code>"about:blank"</code>. To do this you should also set the <code>all_frames</code> key.<br><br>
+    <p>This is especially useful to run scripts in empty iframes , whose URL is <code>"about:blank"</code>. To do this you should also set the <code>all_frames</code> key.</p>
 
-  For example, suppose you have a <code>content_scripts</code> key like this:<br>
+    <p>For example, suppose you have a <code>content_scripts</code> key like this:</p>
 
 <pre>
 "content_scripts": [
@@ -945,16 +969,18 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 ]
 </pre>
 
-  If the user loads <code>https://example.org/</code>, and this page embeds an empty iframe, then <code>"my-script.js"</code> will be loaded into the iframe.
+    <p>If the user loads <code>https://example.org/</code>, and this page embeds an empty iframe, then <code>"my-script.js"</code> will be loaded into the iframe.</p>
 
-  <cite><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts" target="_blank">content_scripts</a></cite></blockquote>
+    <cite><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts" target="_blank">content_scripts</a></cite>
+  </blockquote>
 
-  <blockquote><b>matchAboutBlank</b> <i>Optional</i><br><br>
+  <blockquote><p><b>matchAboutBlank</b> <i>Optional</i></p>
 
-    <code>boolean</code>. If <code>true</code>, the code will be injected into embedded <code>about:blank</code> and <code>about:srcdoc</code> frames if your extension has access to their parent document. The code cannot be inserted in top-level <code>about:</code> frames.
+    <p><code>boolean</code>. If <code>true</code>, the code will be injected into embedded <code>about:blank</code> and <code>about:srcdoc</code> frames if your extension has access to their parent document. The code cannot be inserted in top-level <code>about:</code> frames.</p>
 
-    Defaults to <code>false</code>.
-  <cite><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/tabs/executeScript" target="_blank">tabs.executeScript()</a></cite></blockquote>
+    <p>Defaults to <code>false</code>.</p>
+    <cite><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/tabs/executeScript" target="_blank">tabs.executeScript()</a></cite>
+  </blockquote>
 
   <h4>run-at</h4>
   <p><i>FireMonkey</i> default <code>run-at</code> is <code>document_idle</code> for Scripts, therefore there is no need for event listeners such as <code>'load'</code> or <code>'DOMContentLoaded'</code> as they may not apply. If script has to run earlier, then the <code>run-at</code> has to be set accordingly.</p>
@@ -978,15 +1004,17 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   <h4>run-at (non-standard)</h4>
   <p><i>Tampermonkey</i> supports additional non-standard <code>run-at</code>.</p>
 
-  <blockquote><dl style="margin: 0;">
-    <dt>document-body</dt>
-      <dd>The script will be injected if the body element exists.</dd>
+  <blockquote>
+    <dl>
+      <dt>document-body</dt>
+        <dd>The script will be injected if the body element exists.</dd>
 
-    <dt>context-menu</dt>
-      <dd>The script will be injected if it is clicked at the browser context menu (desktop Chrome-based browsers only).</dd>
-      <dd>Note: all <code>@include</code> and <code>@exclude</code> statements will be ignored if this value is used, but this may change in the future.</dd>
-  </dl>
-  <cite><a href="https://www.tampermonkey.net/documentation.php#_run_at" target="_blank">Tampermonkey Documentation</a></cite></blockquote>
+      <dt>context-menu</dt>
+        <dd>The script will be injected if it is clicked at the browser context menu (desktop Chrome-based browsers only).</dd>
+        <dd>Note: all <code>@include</code> and <code>@exclude</code> statements will be ignored if this value is used, but this may change in the future.</dd>
+    </dl>
+    <cite><a href="https://www.tampermonkey.net/documentation.php#_run_at" target="_blank">Tampermonkey Documentation</a></cite>
+  </blockquote>
 
 
   <h4>defaults</h4>
@@ -1032,19 +1060,26 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
 
 
-  <blockquote>include_globs: Applied after matches to include only those URLs that also match this glob. Intended to emulate the @include Greasemonkey keyword.<br><br>
-  exclude_globs:  Applied after matches to exclude URLs that match this glob. Intended to emulate the @exclude Greasemonkey keyword.
+  <blockquote>
+    <p>include_globs: Applied after matches to include only those URLs that also match this glob. Intended to emulate the @include Greasemonkey keyword.</p>
 
-  <cite><a href="https://developer.chrome.com/docs/extensions/mv2/content_scripts/#matchAndGlob" target="_blank">Exclude matches and globs</a></cite></blockquote>
+    <p>exclude_globs:  Applied after matches to exclude URLs that match this glob. Intended to emulate the @exclude Greasemonkey keyword.</p>
+
+    <cite><a href="https://developer.chrome.com/docs/extensions/mv2/content_scripts/#matchAndGlob" target="_blank">Exclude matches and globs</a></cite>
+  </blockquote>
 
 
-  <blockquote>The <code>@match</code> metadata imperative is very similar to <code>@include</code>, however it is safer. It sets more strict rules on what the <code>*</code> character means.
+  <blockquote>
+    <p>The <code>@match</code> metadata imperative is very similar to <code>@include</code>, however it is safer. It sets more strict rules on what the <code>*</code> character means.</p>
 
-  <cite><a href="https://wiki.greasespot.net/Metadata_Block#.40match" target="_blank">Greasemonkey @match</a></cite></blockquote>
+    <cite><a href="https://wiki.greasespot.net/Metadata_Block#.40match" target="_blank">Greasemonkey @match</a></cite>
+  </blockquote>
 
-  <blockquote>It is recommended to use <code>@match</code> / <code>@exclude-match</code> rather than <code>@include</code> / <code>@exclude</code> because the match rules are safer and more strict.
+  <blockquote>
+    <p>It is recommended to use <code>@match</code> / <code>@exclude-match</code> rather than <code>@include</code> / <code>@exclude</code> because the match rules are safer and more strict.</p>
 
-  <cite><a href="https://violentmonkey.github.io/api/matching/" target="_blank">Violentmonkey Matching</a></cite></blockquote>
+    <cite><a href="https://violentmonkey.github.io/api/matching/" target="_blank">Violentmonkey Matching</a></cite>
+  </blockquote>
 
   <h4 class="experimental">Regular Expression in include & exclude</h4>
   <p>Regular Expression support has been implemented for <code>@include/@exclude</code> <span class="small">(v2.5)</span>.</p>
@@ -1062,7 +1097,8 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   <h4>includeGlob & excludeGlob</h4>
   <p>Due to the following logic process in Firefox & Chrome, when using <code>includeGlob</code>, there must also be the mandatory <code>match</code>.</p>
 
-  <blockquote>Since <code>matches</code> is the only mandatory key, the other three keys are used to limit further the URLs that match. To match the key as a whole, a URL must:
+  <blockquote>
+    <p>Since <code>matches</code> is the only mandatory key, the other three keys are used to limit further the URLs that match. To match the key as a whole, a URL must:</p>
 
     <ul>
       <li>match the <code>matches</code> property</li>
@@ -1071,7 +1107,8 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
       <li>AND NOT match the <code>exclude_globs</code> property, if present</li>
     </ul>
 
-  <cite><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts" target="_blank">content_scripts</a></cite></blockquote>
+    <cite><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts" target="_blank">content_scripts</a></cite>
+  </blockquote>
 
   <figure>
     <figcaption>Example with includeGlob</figcaption>
@@ -1270,13 +1307,23 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
 <h4 id="ftp">FTP &#x26a0;&#xfe0f;</h4>
 
-  <blockquote>The implementation is currently disabled in the Firefox Nightly and Beta pre-release channels and will be disabled when Firefox 88 is released on April 19, 2021. The implementation will be removed in Firefox 90.  After FTP is disabled in Firefox, the browser will delegate <code>ftp://</code> links to external applications in the same manner as other protocol handlers.
+  <blockquote>
+    <p>Aligning with our <a href="https://blog.mozilla.org/security/2015/04/30/deprecating-non-secure-http/" target="_blank">intent to deprecate non-secure HTTP</a> and increase the percentage of secure connections, we, as well as other major web browsers, decided to discontinue support of the FTP protocol.</p>
 
-  <cite><a href="https://blog.mozilla.org/addons/2021/04/15/built-in-ftp-implementation-to-be-removed-in-firefox-90/" target="_blank">Built-in FTP implementation to be removed in Firefox 90</a></cite></blockquote>
+    <cite><a href="https://blog.mozilla.org/security/2021/07/20/stopping-ftp-support-in-firefox-90/" target="_blank">Stopping FTP support in Firefox 90</a></cite>
+  </blockquote>
 
-  <blockquote>The Firefox platform development team recently <a href="https://groups.google.com/forum/#!msg/mozilla.dev.platform/FqCZUT9ay_o/jt4DLRDjAwAJ">announced plans</a> to first disable, and then remove the implementation for built-in <a href="https://developer.mozilla.org/docs/Glossary/FTP">FTP</a> from the browser.
+  <blockquote>
+    <p>The implementation is currently disabled in the Firefox Nightly and Beta pre-release channels and will be disabled when Firefox 88 is released on April 19, 2021. The implementation will be removed in Firefox 90.  After FTP is disabled in Firefox, the browser will delegate <code>ftp://</code> links to external applications in the same manner as other protocol handlers.</p>
 
-  <cite><a href="https://blog.mozilla.org/addons/2020/04/13/what-to-expect-for-the-upcoming-deprecation-of-ftp-in-firefox/" target="_blank">What to expect for the upcoming deprecation of FTP in Firefox</a></cite></blockquote>
+    <cite><a href="https://blog.mozilla.org/addons/2021/04/15/built-in-ftp-implementation-to-be-removed-in-firefox-90/" target="_blank">Built-in FTP implementation to be removed in Firefox 90</a></cite>
+  </blockquote>
+
+  <blockquote>
+    <p>The Firefox platform development team recently <a href="https://groups.google.com/forum/#!msg/mozilla.dev.platform/FqCZUT9ay_o/jt4DLRDjAwAJ">announced plans</a> to first disable, and then remove the implementation for built-in <a href="https://developer.mozilla.org/docs/Glossary/FTP">FTP</a> from the browser.</p>
+
+  <cite><a href="https://blog.mozilla.org/addons/2020/04/13/what-to-expect-for-the-upcoming-deprecation-of-ftp-in-firefox/" target="_blank">What to expect for the upcoming deprecation of FTP in Firefox</a></cite>
+  </blockquote>
 
 
 
@@ -1775,7 +1822,7 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
 <pre>(<span class="keyword">async</span> () =&gt; {
 <span class="string">'use strict'</span>;
 
-  <span class="comment">// ----- Synchronous Partial <a href="#GM_getValue">&#x24d8;</a></span>
+  <span class="comment">// ----- Synchronous Partial <a href="#getValue">&#x24d8;</a></span>
 
   <span class="comment">// stored value for key OR default</span>
   <span class="keyword">const</span> <span class="property">value</span> = <span class="gm">GM_getValue</span>(key, default);
@@ -1792,6 +1839,7 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
   <span class="comment">// an array of keys set by script OR []</span>
   <span class="keyword">const</span> <span class="method">keys</span> = <span class="keyword">await</span> <span class="gm">GM.listValues</span>();
 
+  <span class="comment">// value can be string, number, boolean, or object</span>
   <span class="gm">GM.setValue</span>(key, <span class="property">value</span>)
   <span class="gm">GM_setValue</span>(key, <span class="property">value</span>)
 
@@ -1902,7 +1950,7 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
     <tr><th>GM.getResource<b style="color: #f30;">Url</b></th><td class="pass"></td><td class="pass"><a href="https://wiki.greasespot.net/GM.getResourceUrl" target="_blank">&#x24d8;</a></td><td class="pass"><span>GM_* alias</span></td><td class="fail"></td></tr>
     <tr><th>GM.getResource<b style="color: #f30;">URL</b></th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="pass"><span>GM_* alias</span> <a href="https://github.com/violentmonkey/violentmonkey/blob/f0a35490f61e7c0141244bcf32f48352ab13ddb4/src/injected/web/gm-api.js#L198" target="_blank">&#x24d8;</a></td></tr>
 
-    <tr><th>GM.registerMenuCommand</th><td class="pass"></td><td class="pass"><span>v4.11+</span> <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"><span>GM_* alias</span></td><td class="fail"></td></tr>
+    <tr><th>GM.registerMenuCommand</th><td class="pass"></td><td class="pass"><span>v4.11</span> <a href="https://wiki.greasespot.net/Version_history" target="_blank">&#x24d8;</a></td><td class="pass"><span>GM_* alias</span></td><td class="fail"></td></tr>
     <tr><th>GM.unregisterMenuCommand</th><td class="pass"></td><td class="fail"></td><td class="pass"><span>GM_* alias</span></td><td class="fail"></td></tr>
     <tr><th>GM.addStyle</th><td class="pass"></td><td class="fail"><a href="https://wiki.greasespot.net/GM_addStyle" title="As of Greasemonkey 4.0, this method has been removed. " target="_blank">&#x24d8;</a></td><td class="pass"><span>GM_* alias</span></td><td class="pass"><span>GM_* alias</span></td></tr>
     <tr><th>GM.addScript &#x1f1f3;</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
@@ -1915,9 +1963,9 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
 
     <tr><th>&nbsp;</th><td colspan="6"></td></tr>
 
-    <tr><th>GM_getValue</th><td style="background: #fff0f5;"><span class="pass">partial</span> <a href="#GM_getValue">&#x24d8;</a></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>GM_getValue</th><td style="background: #fff0f5;"><span class="pass">partial</span> <a href="#getValue">&#x24d8;</a></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_setValue</th><td style="background: #fff0f5;"><span class="pass">async</span></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
-    <tr><th>GM_listValues</th><td style="background: #fff0f5;"><span class="pass">partial</span> <a href="#GM_getValue">&#x24d8;</a></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>GM_listValues</th><td style="background: #fff0f5;"><span class="pass">partial</span> <a href="#getValue">&#x24d8;</a></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_deleteValue</th><td style="background: #fff0f5;"><span class="pass">async</span></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_addValueChangeListener</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_removeValueChangeListener</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
@@ -1926,7 +1974,7 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
     <tr><th>GM_notification</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_xmlhttpRequest</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_fetch &#x1f1f3;</th><td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
-    <tr><th>GM_download</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
+    <tr><th>GM_download</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_getResourceText</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_getResourceURL</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>GM_registerMenuCommand</th><td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
@@ -1963,8 +2011,8 @@ img.<span class="property">src</span> = <span class="string">'http://www.example
       </td>
     </tr>
 
-    <tr><th>window.close <sup>2</sup></th><td class="fail"></td><td class="fail"><a href="https://github.com/greasemonkey/greasemonkey/issues/2538" title ="Add support for @grant window.close (Tampermonkey parity)" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"><span>v2.6.2+</span> <a href="https://violentmonkey.github.io/api/metadata-block/#grant" target="_blank">&#x24d8;</a></td></tr>
-    <tr><th>window.focus <sup>2</sup></th><td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="pass"><span>v2.12.10+</span> <a href="https://violentmonkey.github.io/api/metadata-block/#grant" target="_blank">&#x24d8;</a></td></tr>
+    <tr><th>window.close <sup>1</sup></th><td class="fail"></td><td class="fail"><a href="https://github.com/greasemonkey/greasemonkey/issues/2538" title ="Add support for @grant window.close (Tampermonkey parity)" target="_blank">&#x24d8;</a></td><td class="pass"></td><td class="pass"><span>v2.6.2</span> <a href="https://violentmonkey.github.io/api/metadata-block/#grant" target="_blank">&#x24d8;</a></td></tr>
+    <tr><th>window.focus <sup>2</sup></th><td class="fail"></td><td class="fail"></td><td class="pass"></td><td class="pass"><span>v2.12.10</span> <a href="https://violentmonkey.github.io/api/metadata-block/#grant" target="_blank">&#x24d8;</a></td></tr>
     <tr><th>window.onurlchange <sup>3</sup></th><td class="fail"></td><td class="fail"></td><td class="pass"><span>v4.11</span> <a href="https://www.tampermonkey.net/changelog.php?ext=dhdg&show=fire" target="_blank">&#x24d8;</a></td><td class="fail"></td></tr>
 
 
@@ -2017,10 +2065,10 @@ sandbox/injected-web.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>550</td>
-      <td>264k</td>
-      <td>435k</td>
-      <td>44k</td>
+      <td>~600</td>
+      <td>260k</td>
+      <td>457k</td>
+      <td>46k</td>
     </tr>
 
   </tbody>
@@ -2091,10 +2139,10 @@ js/promisify.js</code></td>
 
     <tr>
       <th>&#x1f465; Firefox Users</th>
-      <td>550</td>
-      <td>67k</td>
-      <td>67k</td>
-      <td>400</td>
+      <td>~600</td>
+      <td>66k</td>
+      <td>66k</td>
+      <td>380</td>
     </tr>
 
   </tbody>
@@ -2127,9 +2175,9 @@ js/promisify.js</code></td>
     <li class="async">The only way to update storage is via an async operation</li>
   </ul>
 
-  <h3 id="getValue">getValue & listValues</h3>
+  <!-- <h3 id="getValue">getValue & listValues</h3> -->
+  <h4 id="getValue">&#x2139;&#xfe0f; getValue & listValues</h4>
   <p>Partial compatibility has been implemented. Please note:</p>
-
   <ul>
     <li>Scripts that run <code>GM_getValue</code> & <code>GM_listValues</code> immediately will get the values at the start of the session which is the browser start-up time or script enabled time, whichever later</li>
     <li>Scripts that run <code>GM_getValue</code> & <code>GM_listValues</code> on an <code>event</code> will get the values at page load time</li>
@@ -2139,7 +2187,7 @@ js/promisify.js</code></td>
   <p>The async <code>GM.getValue</code> & <code>GM.listValues</code> will get the most up-to-date values at that moment.</p>
 
 
-  <h3 id="openInTab">openInTab</h3>
+  <h3 id="openInTab">openInTab(url, open_in_background)</h3>
   <p>The option support for <code>openInTab</code> is not unified between userscript managers.</p>
   <p>The default value for <code>open_in_background</code> honors Firefox configuration.</p>
 
@@ -2183,7 +2231,7 @@ js/promisify.js</code></td>
 
 
 
-  <h3 id="fetch">fetch <span>(&#x26a0;&#xfe0f; breaking changes in v2.33)</span></h3>
+  <h3 id="fetch">fetch(url[, init]) <span>(&#x26a0;&#xfe0f; breaking changes in v2.33)</span></h3>
   <p><i>FireMonkey</i> <code>fetch</code> API is based on the JavaScript <a href="https://developer.mozilla.org/docs/Web/API/WindowOrWorkerGlobalScope/fetch" target="_blank">Fetch API</a> which provides the new Promise based interface for fetching resources (including across the network). It will seem familiar to anyone who has used <code>XMLHttpRequest</code>, but it provides a more powerful and flexible feature set.</p>
   <p>For simplicity and compatibility, the same GM style naming is kept for <code>fetch</code> API although it is not available in <i>Greasemonkey</i>.</p>
   <p><i>FireMonkey</i> <code>fetch</code> returns response object/string or <code>null</code> (check console & the log for errors e.g.: <i>TypeError: "NetworkError when attempting to fetch resource.</i>").</p>
@@ -2205,7 +2253,9 @@ GM_fetch(url[, init]);</pre>
     <li><code>headers:</code> Any headers you want to add to your request, contained within a Headers object or an object literal with ByteString values.</li>
     <li><code>body:</code> Any body that you want to add to your request: this can be a Blob, BufferSource, FormData, URLSearchParams, or USVString object. Note that a request using the GET or HEAD method cannot have a body.</li>
     <li><code>mode:</code> The mode you want to use for the request, e.g., cors, no-cors, or same-origin.</li>
-    <li><code>credentials:</code> The request credentials you want to use for the request: omit, same-origin, or include. To automatically send cookies for the current domain, this option must be provided. Starting with Chrome 50, this property also takes a FederatedCredential instance or a PasswordCredential instance.</li>
+    <li><code>credentials:</code> The request credentials you want to use for the request: omit, same-origin (default), or include. To automatically send cookies for the current domain, this option must be provided. Starting with Chrome 50, this property also takes a FederatedCredential instance or a PasswordCredential instance.
+    <p class="note">Since the request is made from FireMonkey's background script, same-origin and include have the same effect.</p></li>
+
     <li><code>cache:</code> The cache mode you want to use for the request.</li>
     <li><code>redirect:</code> The redirect mode to use: follow (automatically follow redirects), error (abort with an error if a redirect occurs), or manual (handle redirects manually). In Chrome the default is follow (before Chrome 47 it defaulted to manual).</li>
     <li><code>referrer:</code> A USVString specifying no-referrer, client, or a URL. The default is client.</li>
@@ -2214,12 +2264,14 @@ GM_fetch(url[, init]);</pre>
     <li><code>keepalive:</code> The keepalive option can be used to allow the request to outlive the page. Fetch with the keepalive flag is a replacement for the Navigator.sendBeacon() API.</li>
     <li><code>signal:</code> An AbortSignal object instance; allows you to communicate with a fetch request and abort it if desired via an AbortController.<br><br></li>
 
+    <li><code>anonymous:</code> <i>(Optional, true/false (default))</i><br>
+    If true, no cookie will be sent with the request.</li>
     <li><code>responseType:</code> <i>(Optional, FireMonkey only)</i><br>
     You can set a responseType for the response e.g: <code>'text'</code> <i>(default)</i>, <code>'json'</code>, <code>'blob'</code>, <code>'arrayBuffer'</code>, <code>'formData'</code></li>
   </ul>
 
   <p class="warning">Since v2.33. GM.fetch returns an object in all cases.</p>
-  
+
 
   <figure>
     <figcaption>Example</figcaption>
@@ -2243,7 +2295,7 @@ GM_fetch(url[, init]);</pre>
   statusText: "OK",
   type: "basic",
   url: "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch",
-  
+
   // plus one of the following properties based on responseType, if method is not HEAD
   text: ...,
   json: ...,
@@ -2285,7 +2337,7 @@ GM_fetch(url[, init]);</pre>
   </figure>
 
 
-  <h3 id="xmlHttpRequest">xmlHttpRequest</h3>
+  <h3 id="xmlHttpRequest">xmlHttpRequest({object})</h3>
   <p><code>GM.xmlHttpRequest/GM_xmlhttpRequest</code> is the xmlHttpRequest interface and mostly compatible with <i>Greasemonkey</i> API.</p>
   <p>All requests are <code>asynchronous</code>, therefore <i>Greasemonkey</i> <code>synchronous</code> is not supported.</p>
 
@@ -2302,12 +2354,18 @@ GM_fetch(url[, init]);</pre>
   password,                 // optional, password to send with the request
   timeout,                  // optional, number of milliseconds before terminating the request
                                (default 0 = no timeout)
+
   withCredentials,          // Optional, Boolean, for cross-site Access-Control
                                e.g. cookies, authorization headers or TLS client certificates,
                                defaults to false, no effect on same-site requests
+
+                               <span class="note">Since the request is made from FireMonkey's background script, true/false have the same effect.</span>
+
   responseType              // Optional, '' or 'text' (default), 'arraybuffer', 'blob', 'document', 'json'
                                if used, get the result from response (not responseText)
 
+  anonymous,                // Optional, true/false (default)
+                               if true, no cookie will be sent with the request
   onload,                   // callback function
   onerror,                  // callback function
   onabort,                  // callback function
@@ -2396,18 +2454,21 @@ xhr.send(<span class="keyword">null</span>);
   <p>Due to a bug in Firefox <code>userScript</code> context, CORS fails in JavaScript <code>new XMLHttpRequest()</code> & <code>fetch()</code> (ref <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1715249" title="scripts running using userScripts API seem to block all cross-origin requests" target="_blank">Bug 1715249</a>).</p>
   <p>After liaising with Mozilla engineers, once the bug is fixed, userscripts will get the same origin as the web-page they are on.</p>
 
-  <p class="warning">Userscripts injected in <code>content</code> context (as in GM|TM|VM), or in <i>FireMonkey</i> Scratchpad & temporary script injection, carry certain security concerns. Changes are planned as part of <a href="https://blog.mozilla.org/addons/2021/05/27/manifest-v3-update/" target="_blank">Manifest v3 update</a>.</p>
-
-  <blockquote>• the content script sandbox has an expanded principal that includes the extension principal, and so in manifest_version 2 extension that allows the imported fetch and XMLHttpRequest to do cross site requests based on the extension host permission (but in manifest_version 3 this is not going to be allowed anymore)<br><br>
-
-  • the user script sandbox has an expanded principal but it doesn't include the extension principal and so the imported fetch and XMLHttpRequest can't do cross site requests based on the extension host permission (and this part is actually intended, the single userScript is not supposed to silently inherit expanded permission that the userScript manager extension does have)
-  <cite>Luca Greco <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1715249#c6" target="_blank">Bug 1715249</a></cite>
-  </blockquote>
-
   <p class="note">Please note that <code>userScript</code> context used in FireMonkey is more restrictive than the <code>content</code> context used in GM|TM|VM. Therefore the behaviour of <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#xhr_and_fetch" title="XHR and Fetch" target="_blank">JavaScript xmlHttpRequest & fetch</a> in GM|TM|VM will be somwhow different.</p>
 
+  <p class="warning">Userscripts injected in <code>content</code> context (as in GM|TM|VM), or in <i>FireMonkey</i> Scratchpad & temporary script injection, carry certain security concerns. Changes are planned as part of <a href="https://blog.mozilla.org/addons/2021/05/27/manifest-v3-update/" target="_blank">Manifest v3 update</a>.</p>
 
-  <h3 id="forbidden-header-name">Forbidden header name</h3>
+  <blockquote>
+    <p>• the content script sandbox has an expanded principal that includes the extension principal, and so in manifest_version 2 extension that allows the imported fetch and XMLHttpRequest to do cross site requests based on the extension host permission (but in manifest_version 3 this is not going to be allowed anymore)</p>
+
+    <p>• the user script sandbox has an expanded principal but it doesn't include the extension principal and so the imported fetch and XMLHttpRequest can't do cross site requests based on the extension host permission (and this part is actually intended, the single userScript is not supposed to silently inherit expanded permission that the userScript manager extension does have)</p>
+
+    <cite>Luca Greco <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1715249#c6" target="_blank">Bug 1715249</a></cite>
+  </blockquote>
+
+
+
+  <h4 id="forbidden-header-name">&#x2139;&#xfe0f; Forbidden header name</h4>
   <p>A <a href="https://developer.mozilla.org/docs/Glossary/Forbidden_header_name" target="_blank">forbidden header name</a> (also <a href="https://fetch.spec.whatwg.org/#forbidden-header-name" target="_blank">forbidden header name</a>) is the name of any <a href="https://developer.mozilla.org/docs/Web/HTTP/Headers" target="_blank">HTTP header</a> that cannot be modified programmatically; specifically, an HTTP <b>request</b> header name (in contrast with a Forbidden response header name).</p>
 
   <p>Modifying such headers is forbidden because the user agent retains full control over them. Names starting with `<code>Sec-</code>` are reserved for creating new headers safe from APIs using <code>fetch</code> that grant developers control over headers, such as <code>XMLHttpRequest</code>.</p>
@@ -2441,7 +2502,7 @@ xhr.send(<span class="keyword">null</span>);
   </ul>
 
   <p>After confirmation from AMO (ref 2019-09-28 Rob W), modification to the following Forbidden headers will be allowed:</p>
-  <p>Header names are case-insensitive (v2.30+).</p>
+  <p>Header names are case-insensitive (v2.30).</p>
 
   <ul style="columns: 2;">
     <li>Cookie</li>
@@ -2552,7 +2613,7 @@ xhr.send(<span class="keyword">null</span>);
 <span class="gm">GM_download</span>(<span class="string">'https;//www.example.com/icon.jpg'</span>, <span class="string">'new-name.jpg'</span>);
 </pre>
 
-  <h3 id="addStyle">addStyle</h3>
+  <h3 id="addStyle">addStyle(css)</h3>
     <p>Utility function to inject style element e.g.</p>
 <pre><span class="keyword">const</span> script = <span class="property">document</span>.<span class="method">createElement</span>(<span class="string">'style'</span>);
 script.<span class="property">textContent</span> = <span class="string">`... css ...`</span>;
@@ -2570,7 +2631,7 @@ script.<span class="property">textContent</span> = <span class="string">`... css
 </pre>
   </figure>
 
-  <h3 id="addScript">addScript</h3>
+  <h3 id="addScript">addScript(code)</h3>
     <p><i>FireMonkey</i> only utility function to inject script element (code runs in page context) e.g.</p>
 <pre><span class="keyword">const</span> script = <span class="property">document</span>.<span class="method">createElement</span>(<span class="string">'script'</span>);
 script.<span class="property">textContent</span> = <span class="string">`... code ...`</span>;
@@ -2602,7 +2663,7 @@ script.<span class="method">remove</span>();
   </figure>
 
 
-  <h3 id="popup">popup</h3>
+  <h3 id="popup">popup(options)</h3>
   <p><i>FireMonkey</i> only utility function to create a <a href="https://developer.mozilla.org/docs/Web/Web_Components/Using_shadow_DOM" target="_blank">shadow DOM</a> popup blank element with animation that can be customized.</p>
 
 
@@ -2786,7 +2847,7 @@ popup.addStyle(css);
   }
 }</pre>
 
-  <h3 id="log">log</h3>
+  <h3 id="log">log(text [, text2, ..., textN])</h3>
   <p>The API is added for convenience and compatibility and is no longer supported by Greasemonkey or Violentmonkey but Tampermonkey still has it. Multiple parameters can be passed e.g. <code>GM_log('one', 'two', 'three')</code>. You can also use <code>console.log()</code> instead.</p>
 
 <pre>
@@ -2829,19 +2890,24 @@ popup.addStyle(css);
 
 
 
-  <blockquote>This API object allows a User script to access "custom" properties--variable and functions defined in the page--set by the web page. The <code>unsafeWindow</code> object is shorthand for <code>window.wrappedJSObject</code>. It is the raw window object inside the <code>XPCNativeWrapper</code> provided by the Greasemonkey Sandbox.<br><br>
+  <blockquote>
+    <p>This API object allows a User script to access "custom" properties--variable and functions defined in the page--set by the web page. The <code>unsafeWindow</code> object is shorthand for <code>window.wrappedJSObject</code>. It is the raw window object inside the <code>XPCNativeWrapper</code> provided by the Greasemonkey Sandbox.</p>
 
-  <b>USE OF UNSAFEWINDOW IS INSECURE, AND IT SHOULD BE AVOIDED WHENEVER POSSIBLE.</b>
-  <cite><a href="https://sourceforge.net/p/greasemonkey/wiki/unsafeWindow/" target="_blank">unsafeWindow</a></cite></blockquote>
+    <p><b>USE OF UNSAFEWINDOW IS INSECURE, AND IT SHOULD BE AVOIDED WHENEVER POSSIBLE.</b></p>
+
+    <cite><a href="https://sourceforge.net/p/greasemonkey/wiki/unsafeWindow/" target="_blank">unsafeWindow</a></cite>
+  </blockquote>
 
   <p>Safer alternatives to <code>unsafeWindow</code> are also listed in above page.</p>
 
 
-  <blockquote>This command can open certain security holes in your user script, and it is recommended to use this command sparingly.<br>
+  <blockquote>
+    <p>This command can open certain security holes in your user script, and it is recommended to use this command sparingly.</p>
 
-  Please be sure to read the entire article and understand it before using it in a script.
+    <p>Please be sure to read the entire article and understand it before using it in a script.</p>
 
-  <cite><a href="https://wiki.greasespot.net/UnsafeWindow" target="_blank">unsafeWindow</a></cite></blockquote>
+    <cite><a href="https://wiki.greasespot.net/UnsafeWindow" target="_blank">unsafeWindow</a></cite>
+  </blockquote>
 
 
   <h4>exportFunction() & cloneInto()</h4>
@@ -2857,6 +2923,177 @@ exportFunction(notify, <span class="object">window</span>, {defineAs: 'notify'})
 <span class="comment">// object with methods</span>
 <span class="gm">unsafeWindow</span>.messenger = cloneInto(obj, <span class="gm">unsafeWindow</span>, {cloneFunctions: true});
 </pre>
+
+
+
+
+
+  <h3 id="Cookie-Isolation">Cookies Isolation</h3>
+  <p>Browsing modes in Firefox can be divided into 3 distinct modes: <i>normal, container, & private/incognito</i>.</p>
+  <p>JavaScript <code>xmlHttpRequest/fetch</code> send cookies and credentials with their HTTP requests. In web pages, <code>xmlHttpRequest/fetch</code> send cookies according to the mode of the tab i.e. cookies belonging to normal browsing mode are not sent when in container or private mode, and vice versa. Cookies in each mode are isolated to preserve users' security and privacy.</p>
+
+  <blockquote>
+    <h3>Private Browsing</h3>
+
+    <p>Private Browsing does not save your browsing information, such as history and cookies, and leaves no trace after you end the session. Firefox also has <a href="https://support.mozilla.org/kb/enhanced-tracking-protection-firefox-desktop">Enhanced Tracking Protection</a>, which prevents hidden trackers from collecting your data across multiple sites and slowing down your browsing.</p>
+
+    <cite><a href="https://support.mozilla.org/en-US/kb/private-browsing-use-firefox-without-history" target="_blank">Private Browsing - Use Firefox without saving history</a></cite>
+  </blockquote>
+
+
+  <blockquote>
+    <h3>Firefox Multi-Account Containers</h3>
+
+    <p>The Firefox <a href="https://addons.mozilla.org/firefox/addon/multi-account-containers/">Multi-Account Containers</a> add-on isn’t technically a form of private browsing or tracking protection, but it can help keep companies from knowing everything you do online. It lets you open fresh, cookie-free tabs that can be used for different accounts—personal, work, shopping, etc. That means you can use Multi-Account Containers to open several Google accounts at once without any overlap. Most trackers won’t associate the different accounts, keeping your work life separate from your personal life online. Some more advanced trackers, however, can and will track you across different accounts, so beware.</p>
+
+    <cite><a href="https://www.mozilla.org/en-US/firefox/browsers/incognito-browser/" target="_blank">Incognito browser: What it really means</a></cite>
+  </blockquote>
+
+  <blockquote>
+    <h3>Cookies</h3>
+
+    <p>Cookies were first used to customize websites, keep track of shopping carts, and maintain online account security, but today most are used to help companies serve targeted ads.</p>
+
+    <p>Here’s how it works: You visit a site, an advertiser leaves a cookie on your browser. The cookie is your unique ID. Your information is stored in the cloud along with that ID. That can include which sites you visited, how long you visited them, what you clicked on, your language preferences and more.</p>
+
+    <p>Cookies also help advertisers deliver ads in your social media feeds. Social sites have their own tracking schemes and they’re far more robust. They can track every click, post, and comment. In addition, cookies can report what you’ve been doing online to a social site, which is how some ads follow you into social media. </p>
+
+    <cite><a href="https://www.mozilla.org/en-US/firefox/browsers/incognito-browser/" target="_blank">Incognito browser: What it really means</a></cite>
+  </blockquote>
+
+<br><br>
+
+
+  <p>GM <code>xmlHttpRequest/fetch</code> are sent from <i>FireMonkey</i> background script where modes do not apply. In order to honour users' browsing mode and privacy choice, <i>FireMonkey</i> (v2.35+) isolates cookies that are sent by the userscript according the mode of the tab userscript is running in.</p>
+
+  <dl>
+    <dt>Normal Browsing Mode</dt>
+      <dd>Cookies are handled by Firefox according to <code>withCredentials</code> or <code>credentials</code></dd>
+      <dd>
+      <ul>
+        <li><code>xmlHttpRequest</code>: Firefox sends cookies, <code>withCredentials</code> has no effect <a href="https://developer.mozilla.org/docs/Web/API/XMLHttpRequest/withCredentials" title="XMLHttpRequest.withCredentials" target="_blank">&#x24d8;</a></li>
+        <li><code>fetch</code> : Firefox sends cookies, unless <code>{credentials: 'omit'}</code> <a href="https://developer.mozilla.org/docs/Web/API/Request/credentials" title="Request.credentials" target="_blank">&#x24d8;</a></li>
+      </ul>
+    </dd>
+    <dd>Cookies set via GM API headers will merge with Firefox cookies</dd>
+    <dd>Cookies sent back in the response will be handled by Firefox</dd>
+
+    <dt>Container or Private (Incognito) Browsing Mode</dt>
+      <dd><i>FireMonkey</i> gets and sends contextual cookies according to the mode</dd>
+      <dd>Cookies set via GM API headers will merge with above cookies</dd>
+
+
+    <dt>anonymous: true</dt>
+      <dd>Tells browsers to exclude credentials from the request, and ignore any credentials sent back in the response (e.g., any <a href="https://developer.mozilla.org/docs/Web/HTTP/Headers/Set-Cookie"><code>Set-Cookie</code></a> header)</dd>
+      <dd>Cookies set via GM API headers will be sent</dd>
+      <dd><code>fetch</code>: Same as userscript setting <code>{credentials: 'omit'}</code> <a href="https://developer.mozilla.org/en-US/docs/Web/API/fetch#parameters" title="fetch() Parameters" target="_blank">&#x24d8;</a></dd>
+      <dd><code>xmlHttpRequest</code>: <code>mozAnon</code> will be set <a href="https://developer.mozilla.org/docs/Web/API/XMLHttpRequest/mozAnon" title="XMLHttpRequest.mozAnon" target="_blank">&#x24d8;</a></dd>
+  </dl>
+
+
+<table>
+  <caption>Cookies Isolation Comparison</caption>
+  <thead>
+    <tr>
+      <th></th>
+      <th>FireMonkey</th>
+      <th>Greasemonkey</th>
+      <th>Tampermonkey</th>
+      <th>Violentmonkey</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Sending Cookies</th>
+      <td class="pass"></td>
+      <td class="pass"><a href="https://github.com/greasemonkey/greasemonkey/blob/efd22a93121225ada47f2fe9f021af0ab6100c21/src/bg/on-user-script-xhr.js#L128-L137" target="_blank">&#x24d8;</a></td>
+      <td class="pass"></td>
+      <td class="pass"><a href="https://github.com/violentmonkey/violentmonkey/blob/8322fc7eafda4dd76b3ffa01dfb595d6e4228265/src/background/utils/requests.js#L347-L357" target="_blank">&#x24d8;</a></td>
+    </tr>
+
+
+    <tr>
+      <th>xmlHttpRequest<br>Browser Cookie Isolation</th>
+      <td class="pass"></td>
+      <td class="fail"></td>
+      <td class="pass"><span>v4.12.6132</span> <a href="https://addons.mozilla.org/en-US/firefox/addon/tampermonkey/versions/" target="_blank">&#x24d8;</a></td>
+      <td class="pass"></td>
+    </tr>
+
+    <tr>
+      <th>xmlHttpRequest<br>withCredentials<br><span>(not effective)</span></th>
+      <td class="pass"></td>
+      <td class="pass"></td>
+      <td class="fail"></td>
+      <td class="fail"></td>
+    </tr>
+
+    <tr>
+      <th>fetch<br>Browser Cookie Isolation</th>
+      <td class="pass"></td>
+      <td>n/a</td>
+      <td>n/a</td>
+      <td>n/a</td>
+    </tr>
+
+    <tr>
+      <th>fetch<br>credentials<br><span>(only 'omit' effective)</span></th>
+      <td class="pass"></td>
+      <td>n/a</td>
+      <td>n/a</td>
+      <td>n/a</td>
+    </tr>
+
+    <tr>
+      <th>anonymous flag</th>
+      <td class="pass"></td>
+      <td class="fail"></td>
+      <td class="pass"></td>
+      <td class="pass"><span>v2.10.1</span> <a href="https://violentmonkey.github.io/api/gm/#gm_xmlhttprequest" title="Violentmonkey GM_* APIs" target="_blank">&#x24d8;</a>
+      </td>
+    </tr>
+
+    <tr>
+      <th>anonymous<br>block Set-Cookie</th>
+      <td class="pass"></td>
+      <td class="fail"></td>
+      <td class="pass"></td>
+      <td class="pass"><span>v2.12.5</span> <a href="https://violentmonkey.github.io/api/gm/#gm_xmlhttprequest" title="Violentmonkey GM_* APIs" target="_blank">&#x24d8;</a>
+      <a href="https://github.com/violentmonkey/violentmonkey/issues/794" title="GM_xmlhttpRequest's Set-Cookie header overwrites cookies " target="_blank">&#x24d8;</a>
+      </td>
+    </tr>
+
+    <tr>
+      <th>Container/Incognito<br>block Set-Cookie<br></th>
+      <td class="pass"></td>
+      <td class="fail"></td>
+      <td class="fail"></td>
+      <td class="fail"></td>
+    </tr>
+
+    <tr>
+      <th>download<br>Browser Cookie Isolation</th>
+      <td class="pass"></td>
+      <td>n/a</td>
+      <td class="unknown"></td>
+      <td class="unknown"></td>
+    </tr>
+
+  </tbody>
+</table>
+
+  <p>Further information:</p>
+  <ul>
+    <li><a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1670278" target="_blank">Enable extensions to send network requests (fetch) with a specific cookieStoreId (container tab context)</a></li>
+    <li><a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1738567" target="_blank">Add Incognito flag to script injection APIs</a></li>
+    <li><a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1470651" target="_blank">Contextual Identities: Allow matching on cookieStoreId for browser.contentScripts.register</a></li>
+  </ul>
+
+
+
+
+
+
 
   <h3 id="Detecting_JavaScript_Navigation">&#x2139;&#xfe0f; Detecting JavaScript Navigation</h3>
   <p>When sites use JavaScript to navigate, Firefox API does not detect the navigation and does not re-inject the userScript/userCSS. In case of userCSS it does not matter since the rules will continue to apply nonetheless, but in case of userScript, it needs to re-run. One way to detect JavaScript navigation is to use <a href="https://developer.mozilla.org/docs/Web/API/MutationObserver" target="_blank">MutationObserver</a> with appropriate <a href="https://developer.mozilla.org/docs/Web/API/MutationObserverInit" target="_blank">MutationObserverInit</a>.</p>
@@ -2916,30 +3153,36 @@ exportFunction(notify, <span class="object">window</span>, {defineAs: 'notify'})
 </table>
 
 
-  <blockquote>As an extension developer you should consider that scripts running in arbitrary web pages are hostile code whose aim is to steal the user's personal information, damage their computer, or attack them in some other way.<br><br>
+  <blockquote>
+    <p>As an extension developer you should consider that scripts running in arbitrary web pages are hostile code whose aim is to steal the user's personal information, damage their computer, or attack them in some other way.</p>
 
-  The isolation between content scripts and scripts loaded by web pages is intended to make it more difficult for hostile web pages to do this.<br><br>
+    <p>The isolation between content scripts and scripts loaded by web pages is intended to make it more difficult for hostile web pages to do this.</p>
 
-  Since the techniques described in this section break down that isolation, they are inherently dangerous and should be used with great care.<br>
+    <p>Since the techniques described in this section break down that isolation, they are inherently dangerous and should be used with great care.<br>
   ...<br>
-  Note that once you do this, you can no longer rely on any of this object's properties or functions being, or doing, what you expect. Any of them, even setters and getters, could have been redefined by untrusted code.
+  Note that once you do this, you can no longer rely on any of this object's properties or functions being, or doing, what you expect. Any of them, even setters and getters, could have been redefined by untrusted code.</p>
 
-  <cite><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts" target="_blank">Sharing objects with page scripts</a></cite></blockquote>
+    <cite><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts" target="_blank">Sharing objects with page scripts</a></cite>
+  </blockquote>
 
 
-  <blockquote>By default, content scripts don't get access to objects created by page scripts. However, they can communicate with page scripts using the DOM <code>window.postMessage</code> and <code>window.addEventListener</code> APIs.
+  <blockquote>
+    <p>By default, content scripts don't get access to objects created by page scripts. However, they can communicate with page scripts using the DOM <code>window.postMessage</code> and <code>window.addEventListener</code> APIs.</p>
 
-  <cite><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#Communicating_with_the_web_page" target="_blank">Communicating with the web page</a></cite></blockquote>
+    <cite><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#Communicating_with_the_web_page" target="_blank">Communicating with the web page</a></cite>
+  </blockquote>
 
-  <blockquote>In Chrome, <code>eval()</code> always runs code in the context of the content script, not in the context of the page.<br>
+  <blockquote>
+    <p>In Chrome, <code>eval()</code> always runs code in the context of the content script, not in the context of the page.</p>
 
-  In Firefox:
+    <p>In Firefox:</p>
       <ul>
         <li>If you call <code>eval()</code>, it runs code in the context of the content script.</li>
         <li>If you call <code>window.eval()</code>, it runs code in the context of the page.</li>
       </ul>
 
-  <cite><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#Using_eval_in_content_scripts" target="_blank">Using eval() in content scripts</a></cite></blockquote>
+    <cite><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#Using_eval_in_content_scripts" target="_blank">Using eval() in content scripts</a></cite>
+  </blockquote>
 
 
 
@@ -3048,7 +3291,7 @@ script.<span class="method">remove</span>();
   <p>You can override a 3rd party userCSS with custom CSS.</p>
 
   <ul>
-    <li>Disable the 3rd party script (it will auto-update in FM 2.19+)</li>
+    <li>Disable the 3rd party script (it will auto-update in FM 2.19)</li>
     <li>Create a new userCSS</li>
     <li>Copy the relevant data from the target userCSS e.g. <code>@match</code> etc</li>
     <li>Give it a new name</li>
@@ -3140,13 +3383,15 @@ script.<span class="method">remove</span>();
   <p>Above process is considerably resource intensive in comparison to using a dedicated API to inject Style/CSS.</p>
 
 
-  <blockquote>-x- Implemented with the vendor prefix: `-moz-`<br><br>
+  <blockquote>
+    <p>-x- Implemented with the vendor prefix: `-moz-`</p>
 
-* Notes Disabled by default in web pages, except for an empty <code>url-prefix()</code> value, which is supported due to its use in Firefox browser detection. Still supported in user stylesheets.<br><br>
+    <p>* Notes Disabled by default in web pages, except for an empty <code>url-prefix()</code> value, which is supported due to its use in Firefox browser detection. Still supported in user stylesheets.</p>
 
-🏴 Disabled From version 61: this feature is behind the <code>layout.css.moz-document.content.enabled</code> preference (needs to be set to <code>true</code>). To change preferences in Firefox, visit <code>about:config</code>.
+    <p>🏴 Disabled From version 61: this feature is behind the <code>layout.css.moz-document.content.enabled</code> preference (needs to be set to <code>true</code>). To change preferences in Firefox, visit <code>about:config</code>.</p>
 
-  <cite><a href="https://developer.mozilla.org/docs/Web/CSS/@document" target="_blank">@document</a></cite></blockquote>
+    <cite><a href="https://developer.mozilla.org/docs/Web/CSS/@document" target="_blank">@document</a></cite>
+  </blockquote>
 
   <h4>Converting UserStyle @-moz-document to UserCSS @match</h4>
   <p>The first 3 are quite straight forward and easy to convert. The only difficulty is with the <code>regexp()</code>. The more complex the regexp (<a href="https://developer.mozilla.org/docs/Web/JavaScript/Guide/Regular_Expressions" target="_blank">Regular Expressions</a>), the more <code>@match</code> may be needed, but once done, it is easy to read and maintain.</p>

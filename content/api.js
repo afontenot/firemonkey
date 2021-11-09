@@ -1,94 +1,141 @@
 ﻿browser.userScripts.onBeforeScript.addListener(script => {
-  const {name, resource} = script.metadata;
-
-  // --------------- Script Storage ------------------------
-  const id = `_${name}`;                                    // set id as _name
-  let storage = script.metadata.storage;
-  browser.storage.local.get(id).then((result = {}) => storage = result[id].storage);
-
+  // --- globals
+  const {name, resource, info, id = `_${name}`} = script.metadata; // set id as _name
   const cache = {};
   const valueChange = {};
+  const scriptCommand = {};
+  let storage = script.metadata.storage;                    // storage at the time of registration
 
-  function storageChange(changes, area) {
-    if (changes.hasOwnProperty(id)) {
-      const {oldValue = {}, newValue = {}} = changes[id].storage;
+  class API {
+
+    constructor() {
+      // ----- Script Storage
+     browser.storage.local.get(id).then((result = {}) => storage = result[id].storage);
+
+      // ----- Script Command registerMenuCommand
+      browser.runtime.onMessage.addListener(message => {
+        switch (true) {
+          case message.hasOwnProperty('listCommand'):       // to popup.js
+            const command = Object.keys(scriptCommand);
+            command[0] && browser.runtime.sendMessage({name, command});
+            break;
+
+          case message.name === name && message.hasOwnProperty('command'): // from popup.js
+            (scriptCommand[message.command])();
+            break;
+        }
+      });
+    }
+
+    // ----- Script Storage
+    storageChange(changes) {
+      if (!changes[id]) { return; }                         // not this userscript
+      const oldValue = changes[id].oldValue.storage;
+      const newValue = changes[id].newValue.storage;
       // process addValueChangeListener (only for remote) (key, oldValue, newValue, remote)
       Object.keys(valueChange).forEach(item =>
-         oldValue[item] !== newValue[item] &&
-          (valueChange[item])(item, oldValue[item], newValue[item], newValue[item] !== cache[item])
+         !api.equal(oldValue[item], newValue[item]) &&
+          (valueChange[item])(item, oldValue[item], newValue[item], !api.equal(newValue[item], cache[item]))
       );
     }
-  }
 
-  // ----- synch APIs
-  function GM_getValue(key, defaultValue) {
-    const response = storage.hasOwnProperty(key) ? storage[key] : defaultValue;
-    return prepare(response);
-  }
-
-  function GM_listValues() {
-    return script.export(Object.keys(storage));
-  }
-
-  // --------------- Script Command ------------------------
-  const scriptCommand = {};
-  browser.runtime.onMessage.addListener((message, sender) => {
-    switch (true) {
-      // --- to popup.js for registerMenuCommand
-      case message.hasOwnProperty('listCommand'):
-        const command = Object.keys(scriptCommand);
-        command[0] && browser.runtime.sendMessage({name, command});
-        break;
-
-      // from popup.js for registerMenuCommand
-      case message.name === name && message.hasOwnProperty('command'):
-        (scriptCommand[message.command])();
-        break;
+    equal(a, b) {
+      return JSON.stringify(a) === JSON.stringify(b);
     }
-  });
 
-  // --------------- xmlHttpRequest callback ---------------
-  /*
-    Ref: robwu (Rob Wu)
-    In order to make callback functions visible
-    ONLY for GM.xmlHttpRequest(GM_xmlhttpRequest)
-  */
-  function callUserScriptCallback(object, name, ...args) {
-    try {
-      const cb = object.wrappedJSObject[name];
-      typeof cb === 'function' && cb(...args);
-    } catch(error) { log(`callUserScriptCallback ➜ ${error.message}`, 'error'); }
-  }
+    // ----- synch APIs
+    GM_getValue(key, defaultValue) {
+      const response = cache.hasOwnProperty(key) ? cache[key] :
+                          storage.hasOwnProperty(key) ? storage[key] : defaultValue;
+      return api.prepare(response);
+    }
 
-  // --------------- log from background -------------------
-  function log(message, type) {
-    browser.runtime.sendMessage({
-      name,
-      api: 'log',
-      data: {message, type}
-    });
-  }
+    GM_listValues() {
+      return script.export([...new Set([...Object.keys(storage), ...Object.keys(cache)])]);
+    }
 
-  // ----- auxiliary regex include/exclude test function
-  function matchURL() {
-    const url = location.href;
-    const {includes, excludes} = script.metadata.info.script;
-    return (!includes[0] || arrayTest(includes, url)) && (!excludes[0] || !arrayTest(excludes, url));
-  }
+    // ----- prepare return value
+    prepare(value) {
+      return ['object', 'function'].includes(typeof value) && value !== null ? script.export(value) : value;
+    }
 
-  function arrayTest(arr, url) {
-    return new RegExp(arr.map(item => `(${item.slice(1, -1)})`).join('|'), 'i').test(url);
-  }
+    // ----- auxiliary regex include/exclude test function
+    matchURL() {
+      const {includes, excludes} = info.script;
+      return (!includes[0] || api.arrayTest(includes)) && (!excludes[0] || !api.arrayTest(excludes));
+    }
 
-  // ----- cloneInto wrapper for object methods
-  function cloneIntoFM(obj, target, options = {}) {
-    return cloneInto(options.cloneFunctions ? obj.wrappedJSObject : obj, target, options);
-  }
+    arrayTest(arr, url = location.href) {
+      return arr.some(item => new RegExp(item.slice(1, -1), 'i').test(url));
+    }
 
-  // ----- prepare return value
-  function prepare(value) {
-    return ['object', 'function'].includes(typeof value) && value !== null ? script.export(value) : value; 
+    // ----- cloneInto wrapper for object methods
+    cloneIntoFM(obj, target, options = {}) {
+      return cloneInto(options.cloneFunctions ? obj.wrappedJSObject : obj, target, options);
+    }
+
+    // ----- log from background
+    log(message, type) {
+      browser.runtime.sendMessage({
+        name,
+        api: 'log',
+        data: {message, type}
+      });
+    }
+
+    checkURL(url) {
+      try { url = new URL(url, location.href); }
+      catch (error) {
+        this.log(name, `checkURL ${url} ➜ ${error.message}`, 'error');
+        return;
+      }
+
+      // --- check protocol
+      if (!['http:', 'https:'].includes(url.protocol)) {
+        this.log(name, `checkURL ${url} ➜ Unsupported Protocol ${url.protocol}`, 'error');
+        return;
+      }
+      return url.href;
+    }
+
+    // --- prepare request headers
+    async prepareInit(url, init) {
+      // --- remove forbidden headers (Attempt to set a forbidden header was denied: Referer), allow specialHeader
+      const specialHeader = ['cookie', 'host', 'origin', 'referer'];
+      const forbiddenHeader = ['accept-charset', 'accept-encoding', 'access-control-request-headers',
+        'access-control-request-method', 'connection', 'content-length', 'cookie2', 'date', 'dnt', 'expect',
+        'keep-alive', 'te', 'trailer', 'transfer-encoding', 'upgrade', 'via'];
+
+      Object.keys(init.headers).forEach(item =>  {
+        const LC = item.toLowerCase();
+        if (LC.startsWith('proxy-') || LC.startsWith('sec-') || forbiddenHeader.includes(LC)) {
+          delete init.headers[item];
+        }
+        else if (specialHeader.includes(LC)) {
+          const name = LC.charAt(0).toUpperCase() + LC.substring(1); // fix case
+          init.headers[item] && (init.headers[`FM-${name}`] = init.headers[item]); // set a new FM header
+          delete init.headers[item];                        // delete original header
+        }
+      });
+
+      delete init.anonymous;                                // clean up
+    }
+
+    // --------------- xmlHttpRequest callback ---------------
+    /*
+      Ref: robwu (Rob Wu)
+      In order to make callback functions visible
+      ONLY for GM.xmlHttpRequest(GM_xmlhttpRequest)
+    */
+    callUserScriptCallback(object, name, ...args) {
+      try {
+        const cb = object.wrappedJSObject[name];
+        typeof cb === 'function' && cb(...args);
+      } catch(error) { api.log(`callUserScriptCallback ➜ ${error.message}`, 'error'); }
+    }
   }
+  const api = new API();
+
 
   // --------------- GM4 Object based functions ------------
   const GM = {
@@ -99,7 +146,7 @@
         api: 'getValue',
         data: {key, defaultValue}
       });
-      return prepare(response);
+      return api.prepare(response);
     },
 
     async listValues() {
@@ -111,18 +158,18 @@
       return script.export(response);
     },
 
-    async setValue(key, value) {
+    setValue(key, value) {
       cache[key] = value;
-      return await browser.runtime.sendMessage({
+      return browser.runtime.sendMessage({
         name,
         api: 'setValue',
         data: {key, value}
       });
     },
 
-    async deleteValue(key) {
+    deleteValue(key) {
       delete cache[key];
-      return await browser.runtime.sendMessage({
+      return browser.runtime.sendMessage({
         name,
         api: 'deleteValue',
         data: {key}
@@ -130,7 +177,7 @@
     },
 
     addValueChangeListener(key, callback) {
-      browser.storage.onChanged.hasListener(storageChange) || browser.storage.onChanged.addListener(storageChange)
+      browser.storage.onChanged.hasListener(api.storageChange) || browser.storage.onChanged.addListener(api.storageChange)
       valueChange[key] = callback;
       return key;
     },
@@ -139,27 +186,27 @@
       delete valueChange[key];
     },
 
-    async openInTab(url, open_in_background) {
-      return await browser.runtime.sendMessage({
+    openInTab(url, open_in_background) {
+      return browser.runtime.sendMessage({
         name,
         api: 'openInTab',
         data: {url, active: !open_in_background}
       });
     },
 
-    async setClipboard(text) {
-      return await browser.runtime.sendMessage({
+    setClipboard(text) {
+      return browser.runtime.sendMessage({
         name,
         api: 'setClipboard',
         data: {text}
       });
     },
 
-    async notification(text, title, image, onclick) {
+    notification(text, title, image, onclick) {
       // (text, title, image, onclick) | ({text, title, image, onclick})
       const txt = typeof text === 'string' ? text : text.text;
       if (typeof txt !== 'string' || !txt.trim()) { return; }
-      return await browser.runtime.sendMessage({
+      return browser.runtime.sendMessage({
         name,
         api: 'notification',
         data: typeof text === 'string' ? {text, title, image, onclick} : text
@@ -167,41 +214,68 @@
     },
 
     async fetch(url, init = {}) {
+      // --- check url
+      url = api.checkURL(url);
+      if (!url) { return Promise.reject(); }
+
+      const data = {
+        url,
+        init: {
+          headers: {}
+        }
+      };
+
+      ['method', 'headers', 'body', 'mode', 'credentials', 'cache', 'redirect', 'referrer', 'referrerPolicy', 'integrity',
+          'keepalive', 'signal'].forEach(item => init.hasOwnProperty(item) && (data.init[item] = init[item]));
+
+      // exclude credentials in request, ignore credentials sent back in response (e.g. Set-Cookie header)
+      init.anonymous && (data.init.credentials = 'omit');
+
+      await api.prepareInit(url, data.init);
+
       const response = await browser.runtime.sendMessage({
         name,
         api: 'fetch',
-        data: {url, init, base: location.href}
+        data
       });
       // cloneInto() work around for https://bugzilla.mozilla.org/show_bug.cgi?id=1583159
       return response ? cloneInto(response, window) : null;
     },
 
     async xmlHttpRequest(init) {
+      // --- check url
+      const url = api.checkURL(init.url);
+      if (!url) { return Promise.reject(); }
+
       const data = {
         method: 'GET',
+        url,
         data: null,
         user: null,
         password: null,
         responseType: '',
-        base: location.href
+        headers: {},
+        mozAnon: !!init.anonymous
       };
 
-      ['url', 'method', 'headers', 'data', 'overrideMimeType', 'user', 'password',
-        'timeout', 'withCredentials', 'responseType'].forEach(item => init.hasOwnProperty(item) && (data[item] = init[item]));
+      // not processing withCredentials as it has no effect from bg script
+      ['method', 'headers', 'data', 'overrideMimeType', 'user', 'password', 'timeout',
+        'responseType'].forEach(item => init.hasOwnProperty(item) && (data[item] = init[item]));
+
+      await api.prepareInit(url, data);
 
       const response = await browser.runtime.sendMessage({
         name,
         api: 'xmlHttpRequest',
         data
       });
-
       if (!response) { throw 'There was an error with the xmlHttpRequest request.'; }
 
       // only these 4 callback functions are processed
       // cloneInto() work around for https://bugzilla.mozilla.org/show_bug.cgi?id=1583159
       const type = response.type;
       delete response.type;
-      callUserScriptCallback(init, type,
+      api.callUserScriptCallback(init, type,
          typeof response.response === 'string' ? script.export(response) : cloneInto(response, window));
     },
 
@@ -211,7 +285,6 @@
         api: 'fetch',
         data: {url: resource[resourceName], init: {}}
       });
-
       return response ? script.export(response) : null;
     },
 
@@ -231,11 +304,15 @@
       delete scriptCommand[text];
     },
 
-    async download(url, filename) {
-      return await browser.runtime.sendMessage({
+    download(url, filename) {
+      // --- check url
+      url = api.checkURL(url);
+      if (!url) { return Promise.reject(); }
+
+      return browser.runtime.sendMessage({
         name,
         api: 'download',
-        data: {url, filename, base: location.href}
+        data: {url, filename}
       });
     },
 
@@ -246,7 +323,7 @@
         node.textContent = css;
         node.dataset.src = name + '.user.js';
         (document.head || document.body || document.documentElement || document).appendChild(node);
-      } catch(error) { log(`addStyle ➜ ${error.message}`, 'error'); }
+      } catch(error) { api.log(`addStyle ➜ ${error.message}`, 'error'); }
     },
 
     addScript(js) {
@@ -260,7 +337,7 @@
         }
         (document.body || document.head || document.documentElement || document).appendChild(node);
         node.remove();
-      } catch(error) { log(`addScript ➜ ${error.message}`, 'error'); }
+      } catch(error) { api.log(`addScript ➜ ${error.message}`, 'error'); }
     },
 
     popup({type = 'center', modal = true} = {}) {
@@ -411,7 +488,7 @@
         hide(e) {
           if (!e || [host, close].includes(e.originalTarget)) {
             host.style.opacity = 0;
-            setTimeout(() => { host.classList.toggle('on', false); }, 500);
+            setTimeout(() => host.classList.toggle('on', false), 500);
           }
         },
 
@@ -426,15 +503,15 @@
     },
 
     log(...text) { console.log(name + ':', ...text); },
-    info: script.metadata.info
+    info
   };
 
 
   script.defineGlobals({
 
     GM,
-    GM_getValue,
-    GM_listValues,
+    GM_getValue:                  api.GM_getValue,
+    GM_listValues:                api.GM_listValues,
     GM_deleteValue:               GM.deleteValue,
     GM_setValue:                  GM.setValue,
     GM_addValueChangeListener:    GM.addValueChangeListener,
@@ -459,7 +536,7 @@
     GM_info:                      GM.info,
 
     exportFunction,
-    cloneInto:                    cloneIntoFM,
-    matchURL
+    cloneInto:                    api.cloneIntoFM,
+    matchURL:                     api.matchURL
   });
 });
