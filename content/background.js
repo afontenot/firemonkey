@@ -877,7 +877,7 @@ class Migrate {
       await browser.storage.local.remove('content');
     }
 
-    // --- v2.35 migrate 2021-11-
+    // --- v2.35 migrate 2021-11-09
     App.getIds().forEach(id => {
       const item = pref[id];
       const meta = [];

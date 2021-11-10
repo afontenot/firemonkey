@@ -215,7 +215,7 @@
 
     async fetch(url, init = {}) {
       // --- check url
-      url = api.checkURL(url);
+      url = url && api.checkURL(url);
       if (!url) { return Promise.reject(); }
 
       const data = {
@@ -226,7 +226,7 @@
       };
 
       ['method', 'headers', 'body', 'mode', 'credentials', 'cache', 'redirect', 'referrer', 'referrerPolicy', 'integrity',
-          'keepalive', 'signal'].forEach(item => init.hasOwnProperty(item) && (data.init[item] = init[item]));
+          'keepalive', 'signal', 'responseType'].forEach(item => init.hasOwnProperty(item) && (data.init[item] = init[item]));
 
       // exclude credentials in request, ignore credentials sent back in response (e.g. Set-Cookie header)
       init.anonymous && (data.init.credentials = 'omit');
@@ -242,9 +242,9 @@
       return response ? cloneInto(response, window) : null;
     },
 
-    async xmlHttpRequest(init) {
+    async xmlHttpRequest(init = {}) {
       // --- check url
-      const url = api.checkURL(init.url);
+      const url = init.url && api.checkURL(init.url);
       if (!url) { return Promise.reject(); }
 
       const data = {
