@@ -214,29 +214,13 @@ class Meta {                                                // bg options
           value = '';                                       // no more processing
           break;
 
+        case 'include': prop = 'includes'; break;
+        case 'exclude': prop = 'excludes'; break;
         case 'match': prop = 'matches'; break;
         case 'exclude-match': prop = 'excludeMatches'; break;
         case 'includeGlob': prop = 'includeGlobs'; break;
         case 'excludeGlob': prop = 'excludeGlobs'; break;
         case 'antifeature': prop = 'antifeatures'; break;
-
-        case 'include':                                     // keep regex in include, rest in includeGlobs
-          converted = this.convertPattern(value);
-          if (converted) {
-            [prop, value] = ['matches', converted];
-            break;
-          }
-          prop = value.startsWith('/') &&  value.endsWith('/') ? 'includes' : 'includeGlobs';
-          break;
-
-        case 'exclude':                                     // keep regex in exclude rest in excludeGlobs
-          converted = this.convertPattern(value);
-          if (converted) {
-            [prop, value] = ['excludeMatches', converted];
-            break;
-          }
-          prop = value.startsWith('/') &&  value.endsWith('/') ? 'excludes' : 'excludeGlobs';
-          break;
 
         case 'updateURL':                                   // disregarding .meta.js
           if (value.endsWith('.meta.js')) { prop = 'updateURLnull'; }
@@ -370,8 +354,7 @@ class Meta {                                                // bg options
 //    (data.includes[0] || data.excludes[0] || data.includeGlobs[0] || data.excludeGlobs[0]) &&
 //          data.matches.push('*://*/*', 'file:///*');
 
-    // --- remove duplicates
-    Object.keys(data).forEach(item => Array.isArray(data[item]) && (data[item] = [...new Set(data[item])]));
+
 
     // --- process UserStyle
     if (userStyle) {
@@ -478,9 +461,16 @@ class Meta {                                                // bg options
     data.excludeMatches.push(...excludeMatches);
     // ------------- /User Metadata ------------------------
 
+    // --- convert include/exclude rules
+    [data.includes, data.matches, data.includeGlobs] = this.convert(data.includes, data.matches, data.includeGlobs);
+    [data.excludes, data.excludeMatches, data.excludeGlobs] = this.convert(data.excludes, data.excludeMatches, data.excludeGlobs);
+
     // --- check for overlap rules
     data.matches = this.checkOverlap(data.matches);
     data.excludeMatches = this.checkOverlap(data.excludeMatches);
+
+    // --- remove duplicates
+    Object.keys(data).forEach(item => Array.isArray(data[item]) && (data[item] = [...new Set(data[item])]));
 
     return data;
   }
@@ -531,6 +521,26 @@ class Meta {                                                // bg options
     }
 
     return p;
+  }
+
+  static convert(inc, mtch, glob) {
+    const newInc = [];
+    inc.forEach(item => {
+      const converted = this.convertPattern(item);
+      switch (true) {
+        case !!converted:
+          mtch.push(converted);
+          break;;
+
+        case item.startsWith('/') &&  item.endsWith('/'): // keep regex in includes/excludes, rest in includeGlobs/excludeGlobs
+          newInc.push(item);
+          break;
+
+        default:
+          glob.push(item);
+      }
+    });
+    return [newInc, mtch, glob];
   }
 
   // --- attempt to convert to matches API
@@ -609,7 +619,7 @@ class Meta {                                                // bg options
       arr.push('*://*/*');
     }
 
-    return [...new Set(arr)];
+    return arr;
   }
 }
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
