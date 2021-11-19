@@ -1147,11 +1147,6 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   </tbody>
 </table>
 
-
-  <h4>&#x1f501; include/exclude Converter</h4>
-  <p>Click on &#x1f501; next to URL in metadata block to convert <code>@include/@exclude</code> to <code>@match/@exclude-match</code>, if possible.</p>
-
-
   <h3 id="match-patterns">Match Patterns</h3>
   <p><i>FireMonkey</i> uses <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/match_patterns" target="_blank">Match Patterns</a> for <code>@matches/@match</code> & <code>@excludeMatches</code> and <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts#globs" target="_blank">globs</a> for <code>@includeGlobs</code> & <code>@excludeGlobs</code></p>
   <p>Note: Paths are case-sensitive.</p>
@@ -3074,6 +3069,14 @@ exportFunction(notify, <span class="object">window</span>, {defineAs: 'notify'})
 
     <tr>
       <th>download<br>Browser Cookie Isolation</th>
+      <td class="pass"></td>
+      <td>n/a</td>
+      <td class="unknown"></td>
+      <td class="unknown"></td>
+    </tr>
+
+    <tr>
+      <th>getResourceText<br>Browser Cookie Isolation</th>
       <td class="pass"></td>
       <td>n/a</td>
       <td class="unknown"></td>

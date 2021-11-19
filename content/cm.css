@@ -72,21 +72,6 @@ span.cm-fm-color::before {
   left: -1.4em;;
 }
 
-/* ----- Convert ----- */
-span.fm-convert {
-  position: relative;
-}
-
-span.fm-convert::after {  
-  content: '\1f501';
-  display: inline-block;
-  pointer-events: auto;
-  cursor: pointer;
-  position: absolute;
-  top: 0;
-  right: -2em;;
-}
-
 /* ----- Lint ----- */
 .CodeMirror-lint-mark-info {
   border-bottom: 2px dotted #7cf;
@@ -107,26 +92,17 @@ li.CodeMirror-lint-message-info {
 }
 
 /* ----- match-highlighter ----- */
-/*
 .CodeMirror-focused .cm-matchhighlight {
-  outline: 1px solid #aaa;
-}
-*/
-.cm-matchhighlight {
-  background-color: #dfd;
+  outline: 1px solid #fa5;
+  border-radius: 3px;
 }
 
 .CodeMirror-selection-highlight-scrollbar {
   background-color: #0a0;
 }
 
-
 .dark .CodeMirror-focused .cm-matchhighlight {
   outline: 1px solid #eee;
-}
-
-.dark .cm-matchhighlight {
-  background-color: #789;
 }
 
 .dark .CodeMirror-selection-highlight-scrollbar {

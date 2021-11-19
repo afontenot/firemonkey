@@ -3,12 +3,10 @@
 class Config {
 
   constructor() {
-
     this.lint = this.lint.bind(this);
 
     // add custom meta lint in fm-lint.js 184-185
     CodeMirror.registerHelper('firemonkey', 'lint', this.lint);
-
 
     // add to window global for lint & hint fm-javascript.js 132-134
     window.GM = {
@@ -27,7 +25,6 @@ class Config {
     ];
     gm.forEach(item => window[item] = {});
 
-
     this.reportUL = document.querySelector('div.report ul');
     this.reportDefault = this.reportUL.firstElementChild.cloneNode(true);
 
@@ -44,7 +41,6 @@ class Config {
   }
 
   lint(cm, annotationsNotSorted) {
-
     const text = cm.getValue();
     const js = cm.options.mode === 'javascript';
     const meta = text.match(/^([\s\S]+)==(UserScript|UserCSS|UserStyle)==([\s\S]+)==\/\2==/i) || ['','','',''];
@@ -54,12 +50,10 @@ class Config {
     // ------------- Lint Filter ---------------------------
     const idx =[];                                          // delete index cache
     annotationsNotSorted.forEach((item, index) => {
-
       const m = item.message.match(/'(GM_getValue|GM_listValues|GM_getTabs?|GM_saveTab|exportFunction|cloneInto)' is not defined/);
       const {line, ch} = item.from;
 
       switch (true) {
-
         // suppress CSSLint Metadata Block */ error
         case !js && line > b4 && line < end:
           idx.push(index);
@@ -112,7 +106,6 @@ class Config {
     const sticky = null;
 
     meta[3].split(/\r?\n/).forEach((item, index) =>  {      // lines
-
       let [,com, prop, value] = item.match(/^\s*(\/\/)?\s*(\S+)(?:\s*)(.*)/) || [];
       if (!prop) { return; }                                // continue to next
 
@@ -169,27 +162,12 @@ class Config {
         to: {line, ch: ch + prop.length, sticky}
       });
 
-
       // ----- value check
       message = '';
       switch (true) {
-
-        // Regular Expression
-        case ['@include', '@exclude'].includes(prop) && value.startsWith('/') && value.endsWith('/'):
-          message = 'Regular Expression is not supported.';
-          severity = 'info';
+        case !js || prop !== '@grant':
           break;
 
-        case prop === '@include':
-        case prop === '@exclude':
-          ch = item.indexOf(value);
-          cm.markText({line, ch},{line, ch: ch + value.length}, {
-            className: 'fm-convert',
-            attributes: {'data-line': line, 'data-index': ch}
-          });
-          break;
-
-        case !js || prop !== '@grant': break;
         // all js & grant
         case ['GM_getValue', 'GM_listValues'].includes(value):
           message = value + ' is partially supported. Read the Help for more information.';
@@ -234,7 +212,6 @@ class Config {
   }
 
   report(cm, lint) {
-
     const nf = new Intl.NumberFormat();
     const docfrag = document.createDocumentFragment();
     this.reportUL.textContent = '';
