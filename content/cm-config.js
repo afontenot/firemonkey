@@ -99,9 +99,11 @@ class Config {
     const supported = ['@name', '@author', '@description', '@version', '@updateURL', '@match',
           '@matches', '@include', '@exclude', '@exclude-match', '@excludeMatches', '@includeGlobs',
           '@excludeGlobs', '@matchAboutBlank', '@allFrames', '@noframes', '@require', '@resource',
-          '@run-at', '@runAt', '@downloadURL', '@inject-into', '@compatible'];
+          '@run-at', '@runAt', '@downloadURL', '@inject-into', '@compatible',
+          '@homepage', '@homepageURL', '@website', '@source',
+          '@support', '@supportURL'];
 
-    const unsupported = ['@namespace', '@grant', '@icon', '@supportURL', '@homepageURL', '@connect', '@unwrap', '@nocompat'];
+    const unsupported = ['@namespace', '@grant', '@icon', '@connect', '@unwrap', '@nocompat'];
 
     const sticky = null;
 
@@ -118,7 +120,6 @@ class Config {
 
       // ----- property check
       switch (true) {
-
         case js && prop === '//':
         case supported.includes(prop):
         case /^@(name|description):[a-z]{2}(-[A-Z]{2})?/.test(prop): // i18n
@@ -224,7 +225,6 @@ class Config {
 
     lint.sort((a, b) => a.from.line - b.from.line);
     lint.forEach(item => {
-
       const li = liTemp.cloneNode();
       li.className = 'CodeMirror-lint-message-' + item.severity;
       li.dataset.line = nf.format(item.from.line +1);

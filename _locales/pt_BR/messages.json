@@ -60,7 +60,7 @@
     "message": "Atualizar"
   },
   "autoUpdate": {
-    "message": "Atualização Automática"
+    "message": "Atualização Automátiac"
   },
   "theme": {
     "message": "Tema"
@@ -108,7 +108,7 @@
     "message": "Deseja excluir \n'$1'\n e seus dados armazenados?"
   },
   "deleteMultiConfirm": {
-    "message": "Deseja excluir os $1 Scripts/CSS selecionados e seus dados armazenados?"
+    "message": "Deseja deletar os $1 Scripts/CSS selecionados e seus dados armazenados?"
   },
   "installConfirm": {
     "message": "Deseja instalar '$1'?\nScript/CSS com o mesmo nome será substituído se tiver versão menor"
@@ -164,17 +164,11 @@
   "advanced": {
     "message": "Avançado"
   },
-  "optionsCustomCSS": {
-    "message": "CSS personalizado para a página de Opções"
+  "customCSS": {
+    "message": "Custom CSS"
   },
-  "optionsCustomCSSDescription": {
-    "message": "Personalizar estilo da página de Opções & CodeMirror."
-  },
-  "popupCustomCSS": {
-    "message": "CSS personalizado para a Popup"
-  },
-  "popupCustomCSSDescription": {
-    "message": "Personalizar estilo da Popup."
+  "customCSSDescription": {
+    "message": "Customize Options page & CodeMirror style configuration."
   },
   "cmOptionsDescription": {
     "message": "Personalizar configuração do CodeMirror, addons & JavaScript lint"
