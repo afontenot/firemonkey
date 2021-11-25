@@ -19,7 +19,7 @@ class LocaleMaker {
     this.select.addEventListener('change', (e) => {
       if (!e.target.value) { return; }
       this.footer.textContent = '';                           // reset
-      const lang = e.target.value;
+      const lang = e.target.value.replace('-', '_');
       fetch(`/_locales/${lang}/messages.json`)
       .then(response => response.json())
       .then(data =>  this.setLocale(data))
@@ -108,7 +108,7 @@ class LocaleMaker {
     this.inputs.forEach(item => item.value && (data[item.id].message = JSON.parse(`"${item.value}"`)));
     data = JSON.stringify(data, null, 2);
     const blob = new Blob([data], {type : 'text/plain;charset=utf-8'});
-    const filename = this.select.value ? this.select.value + '/messages.json' : 'messages.json';
+    const filename = this.select.value ? this.select.value.replace('-', '_') + '/messages.json' : 'messages.json';
 
     chrome.downloads.download({
       url: URL.createObjectURL(blob),

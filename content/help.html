@@ -446,6 +446,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   <dl>
     <dt>&#x1f4be; Save</dt>
       <dd>Save the currently displaying Script/CSS</dd>
+      <dd class="note">Trailing Spaces are removed automatically when saving</dd>
 
     <dt>&#x1f504; Update</dt>
       <dd>Update the currently displaying Script/CSS</dd>
@@ -486,10 +487,10 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
           <dt>➜ Tabs to Spaces</dt>
             <dd>Convert Tabs to spaces (2 per tab)</dd>
-
+<!-- 
           <dt>✂ Trim Trailing Spaces</dt>
             <dd>Remove trailing spaces</dd>
-
+ -->
           <dt>&#x1f520; Selection to Uppercase</dt>
             <dd>&nbsp;</dd>
 
@@ -501,7 +502,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
             <dd><pre class="comment">
 // Disable Rule
 // without a value disables ALL original metadata rules of each entry
-// with a value disables SINGLE original metadata rules of each entry
+// with a value disables SINGLE original metadata rule of each entry
 @disable-match
 @disable-exclude-match
 @disable-include
@@ -1616,8 +1617,18 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
   <h3 id="require">require</h3>
   <p>The API is added for convenience and compatibility but it works differently in comparison to other script managers.</p>
-  <p>You can use <code>@require</code> for both scripts and CSS but it will be added as the same type i.e. <code>@require</code> in scripts will be injected as JavaScript and require in CSS will be injected as CSS.</p>
-
+  <p>You can use <code>@require</code> for both scripts and CSS.</p> 
+  <dl>
+    <dt>UserCSS</dt>
+      <dd>Require another installed UserCSS by name</dd>
+      <dd>Require a remote CSS</dd>
+      
+    <dt>UserScript</dt>
+      <dd>Require another installed UserScript by name</dd>
+      <dd>Require a remote JS</dd>
+      <dd>Require a remote CSS (URL ending with <code>.css</code>)</dd>   
+   </dl> 
+    
 
   <h4>require  <span style="font-size: inherit; margin-left: 8em;">script-name</span></h4>
   <p><code>@require</code> can be used to pre-include other existing scripts into a script (or other existing CSS into a CSS). For example:</p>
@@ -1666,6 +1677,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 <pre class="comment">
 // @require         jquery-3
 // @require         HelperSet
+// @require         https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/fontawesome.min.css
 </pre>
   </figure>
 
@@ -1679,9 +1691,12 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 @match              http://www.example.org/*
 @version            1.0
 @require            DefaultCSS
+@require            https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/fontawesome.min.css
 ==/UserCSS==
 */</pre>
   </figure>
+
+
 
   <h4>require <span style="font-size: inherit; margin-left: 8em;">specific-library</span></h4>
   <p>Few libraries have been packed with <i>FireMonkey</i> which will be injected for user-scripts using <code>@require</code>. A shorthand (case-insensitive) can also be used.</p>
@@ -1739,6 +1754,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   ... etc
 // @require         https://unpkg.com/jquery@3.5.0/dist/jquery.js
   ... etc
+// @require         https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/fontawesome.min.css
 </pre>
 </figure>
 
