@@ -543,7 +543,7 @@ footer {
 }
 
 .log tr.error td:nth-of-type(3)::before {
-  content: '\1f6ab';
+  content: '\2757';
   margin-right: 0.5em;
 }
 
@@ -563,5 +563,9 @@ footer {
   counter-increment: n;
   content: counter(n);
   font-size: 0.7em;
+}
+
+.log input[type="number"] {
+  color: var(--color);
 }
 /* ----- /log ----- */
