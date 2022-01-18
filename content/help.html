@@ -508,13 +508,18 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 @disable-include
 @disable-exclude
 
+@disable-container            (Firefox 97-98)
+@disable-synchGM              (force GM_* API in userscripts that use both)
+
 // Add/Amend Rule changes existing metadata rules
 @match
 @exclude-match
 @matchAboutBlank
 @allFrames
 @inject-into
-@run-at</pre></dd>
+@run-at
+
+@container                    (Firefox 97-98)</pre></dd>
 
         </dl>
       </dd>
@@ -660,6 +665,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 @noframes           <i>if present will set @allFrames to false (default)</i>
 @run-at             <i>document-start/document-end/document-idle (default)</i>
 @inject-into        <i>page</i>
+@container          <i>default|private|container-1|container-2|... (Firefox 97-98)</i>
 
 @includeGlob
 @excludeGlob
@@ -725,6 +731,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
     <tr><th>@source</th>            <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="fail"></td></tr>
     <tr><th>@support</th>           <td class="pass"></td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
     <tr><th>@supportURL</th>        <td class="pass"></td><td class="fail"></td><td class="pass"></td><td class="pass"></td></tr>
+    <tr><th>@container</th>         <td class="pass">Firefox 97-98</td><td class="fail"></td><td class="fail"></td><td class="fail"></td></tr>
 
     <tr><th>@grant</th>             <td class="fail"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
     <tr><th>@namespace</th>         <td class="fail"></td><td class="pass"></td><td class="pass"></td><td class="pass"></td></tr>
@@ -795,6 +802,32 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
     </tr>
   </tbody>
 </table>
+
+  <h4 class="experimental">container <span>(UserCSS Firefox 97, UserScript Firefox 98)</span></h4>
+  <p>Setting one or more entries will further limit the script/CSS to certain contextual identity containers e.g. <code>default|private|container-1|container-2|...</code> after URL matching. (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1470651" title="Contextual Identities: Allow matching on cookieStoreId for browser.contentScripts.register" target="_blank">Bug 1470651</a> & <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1738567" title="Support cookieStoreId option in userScripts.register" target="_blank">Bug 1738567</a>)</p>
+
+
+  <dl>
+    <dt>no container</dt>
+      <dd>inject into all tabs</dd>
+
+    <dt>default</dt>
+      <dd>inject only into non-private, non-container tabs</dd>
+
+    <dt>private</dt>
+      <dd>inject only into private tabs</dd>
+      <dd class="note">`private` only works if user has allowed the extension to run in private mode.</dd>
+
+    <dt>container-N</dt>
+      <dd>inject only into Firefox container-N tabs</dd>
+  </dl>
+
+
+<pre class="comment">
+@container          container-1
+@container          private
+</pre>
+
 
 
   <h4 class="experimental">inject-into</h4>
@@ -1737,7 +1770,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   <tr><td>jquery 3.*</td>     <td>jquery-3</td>       <td>3.6.0</td></tr>
   <tr><td>jquery-ui 1.*</td>  <td>jquery-ui-1</td>    <td>1.12.1</td></tr>
   <tr><td>moment</td>         <td>moment-2</td>       <td>2.29.1</td></tr>
-  <tr><td>underscore</td>     <td>underscore-1</td>   <td>1.12.0</td></tr>
+  <tr><td>underscore</td>     <td>underscore-1</td>   <td>1.13.1</td></tr>
   </tbody>
 </table>
 
@@ -3105,7 +3138,7 @@ exportFunction(notify, <span class="object">window</span>, {defineAs: 'notify'})
   <p>Further information:</p>
   <ul>
     <li><a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1670278" target="_blank">Enable extensions to send network requests (fetch) with a specific cookieStoreId (container tab context)</a></li>
-    <li><a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1738567" target="_blank">Add Incognito flag to script injection APIs</a></li>
+    <li><a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1738567" target="_blank">Support cookieStoreId option in userScripts.register</a></li>
     <li><a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1470651" target="_blank">Contextual Identities: Allow matching on cookieStoreId for browser.contentScripts.register</a></li>
   </ul>
 

@@ -17,14 +17,24 @@
     <h2 id="changelog">Changelog</h2>
     <dl class="about">
 
+      <dt>2.41</dt>
+        <dd>Added feature to @require userCSS in userScripts</dd>
+        <dd>Added userCSS container support for Firefox 97 (#378)</dd>
+        <dd>Added userScript container support for Firefox 98? (#378)</dd>
+        <dd>Removed editor update after save (#403)</dd>
+        <dd>Added feature to disable synchronous GM API via user metadata (#408)</dd>
+        <dd>Fixed the error when userscript is loaded in a background tab (#409)</dd>
+        <dd>Added delete script to Log</dd>
+        <dd>Upgraded <i>underscore</i> library to 1.13.1</dd>
+        <dd>Upgraded JSHint to 2.13.2</dd>
+
       <dt>2.40</dt>
-        <dd>Added feature to @require CSS in userscripts</dd>
+        <dd>Added feature to @require remote CSS in userScripts</dd>
         <dd>Added automatic Trim Trailing Spaces on SAVE</dd>
         <dd>Fixed user metadata application in Auto-update (#395)</dd>
         <dd>Updated Brazilian Portuguese (pt_BR) locale</dd>
         <dd>Updated Locale Maker to v1.5</dd>
-        
-        
+
       <dt>2.39</dt>
         <dd>Fixed an options import bug (from 2.35) (#394)</dd>
         <dd>Improved metadata block comment processing (#393)</dd>
@@ -290,7 +300,7 @@
         <dd>Added Trim Trailing Spaces</dd>
         <dd>Added Selection to Uppercase</dd>
         <dd>Added Selection to Lowercase</dd>
-        <dd>Added log size control</dd>
+        <dd>Added Log size control</dd>
         <dd>Added more info to Log</dd>
         <dd>Fixed <code>unsafeWindow</code> bug (from 1.47)</dd>
         <dd>Added <code>name</code> & <code>description</code> localization</dd>
@@ -310,7 +320,7 @@
         <dd>Fixed an issue when GM API is also defined in the userScript e.g. <code>GM_addStyle()</code></dd>
 
       <dt>1.45</dt>
-        <dd>Added new script installations to the log</dd>
+        <dd>Added new script installations to the Log</dd>
         <dd>Added new GM <code>addScript</code> API</dd>
         <dd>Added new GM <code>popup</code> API</dd>
         <dd>Added separate CSS & JS insertion in Scratchpad</dd>
@@ -322,7 +332,7 @@
 
 
       <dt>1.44</dt>
-        <dd>New live Log adds new entries while log is open</dd>
+        <dd>New live Log adds new entries while Log is open</dd>
         <dd>Code Improvement</dd>
 
       <dt>1.43</dt>
