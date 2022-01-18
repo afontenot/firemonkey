@@ -203,12 +203,12 @@ a[href^="https://www.mozilla.org/"]::before {
 }
 
 a[href^="https://blog.mozilla.org/"]::before {
-  background: url('../image/moz.svg') no-repeat center / contain;
+  background-image: url('../image/moz.svg');
   border-radius: 1em;
 }
 
 a[href^="https://github.com/"]::before {
-  background: url('../image/github.svg') no-repeat center / contain;
+  background-image: url('../image/github.svg');
 }
 
 /* ----- Navigation ----- */

@@ -28,13 +28,6 @@ body {
   overflow: hidden;
 }
 
-/* overflow menu windows 348px Linux (GNOME) 425px */
-@media screen and (min-width: 348px) and (max-width: 425px) {
-  body {
-    width: auto;
-  }
-}
-
 body.android {
   width: auto;
 }
