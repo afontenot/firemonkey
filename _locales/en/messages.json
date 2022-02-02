@@ -18,7 +18,7 @@
   "counter": { "message": "Counter" },
 
   "globalScriptExcludeMatches": { "message": "Global Script Exclude Matches" },
-  "globalScriptExcludeMatchesDescription": { "message": "Exclude Match pattens (one per line) to prevent all scripts from running on them." },
+  "globalScriptExcludeMatchesDescription": { "message": "Exclude Match pattens (one per line) to prevent all scripts from running on them" },
 
   "userMeta": { "message": "User Metadata" },
 
@@ -77,9 +77,11 @@
   "findScript": { "message": "Find scripts for this site" },
 
   "advanced": { "message": "Advanced" },
-  "customCSS": { "message": "Custom CSS" },
-  "customCSSDescription": { "message": "Customize Options page & CodeMirror style configuration." },
-  "cmOptionsDescription": { "message": "Customize CodeMirror, addons & JavaScript lint configuration." },
+  "customOptionsCSS": { "message": "Custom Options CSS" },
+  "customOptionsCSSDescription": { "message": "Customize Options page & CodeMirror style configuration" },
+  "customPopupCSS": { "message": "Custom Popup CSS" },
+  "customPopupCSSDescription": { "message": "Customize toolbar popup style configuration" },
+  "cmOptionsDescription": { "message": "Customize CodeMirror, addons & JavaScript lint configuration" },
   "cmOptionsError": { "message": "Invalid CodeMirror JSON" },
 
 

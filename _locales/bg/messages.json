@@ -182,12 +182,12 @@
   "advanced": {
     "message": "Разширени"
   },
-  "customCSS": {
-    "message": "Потребителски стилов лист"
-  },
-  "customCSSDescription": {
+  "customOptionsCSS": { "message": "Custom Options CSS" },
+  "customOptionsCSSDescription": {
     "message": "Настройка на изгледа на страницата с настройки и CodeMirror."
   },
+  "customPopupCSS": { "message": "Custom Popup CSS" },
+  "customPopupCSSDescription": { "message": "Customize toolbar popup style configuration." },
   "cmOptionsDescription": {
     "message": "Настройка на CodeMirror, добавките и проверките на кода на JavaScript."
   },

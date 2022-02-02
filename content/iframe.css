@@ -34,7 +34,7 @@ dd + dt {
   margin-top: 0.5em;
 }
 
-dd > dl /*, dd > ul*/{
+dd > dl {
   margin: 1em auto;
 }
 
@@ -82,7 +82,7 @@ dd sup, p sup {
 
 h2 {
   color: #066;
-  display: inline-block;
+  display: table;
   background: #def linear-gradient(to right, #def, #bcd);
   min-width: 12em;
   padding: 0.2em 0.5em;
@@ -131,7 +131,7 @@ article > h3 {
   padding: 0.5em;
   border-left: 4px solid #777;
   background: #eee;
-  display: inline-block;
+  display: table;
   border-radius: 4px;
 }
 
@@ -404,7 +404,7 @@ figure pre {
 }
 
 .scroll {
-  max-height: 15em;
+  max-height: 12em;
   overflow: auto;
   scrollbar-width: thin;
 }
@@ -634,20 +634,27 @@ h4 sup {
   padding: 0.1em 0.4em;
 }
 
-.async::before {
-  content: '\24b6';
-  color: #080;
-  font-weight: 900;
-  margin-right: 0.5em;
-}
-
-.sync::before {
-  content: '\24c8';
-  color: #f50;
-  font-weight: 900;
-  margin-right: 0.5em;
-}
-
 .dim {
   color: #777;
+}
+
+h3 i {
+  color: #777;
+}
+
+/* ----- FireMonkey ----- */
+.sync {
+  background-color: #dff  !important;
+}
+
+.async {
+  background-color: #fee !important;
+}
+
+.semi-sync {
+  background-color: #eef !important;
+}
+
+.callback {
+  background-color: #dfc !important;
 }

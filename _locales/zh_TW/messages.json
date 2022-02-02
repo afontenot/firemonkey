@@ -180,12 +180,12 @@
   "advanced": {
     "message": "Advanced"
   },
-  "customCSS": {
-    "message": "Custom CSS"
-  },
-  "customCSSDescription": {
+  "customOptionsCSS": { "message": "Custom Options CSS" },
+  "customOptionsCSSDescription": {
     "message": "Customize Options page & CodeMirror style configuration."
   },
+  "customPopupCSS": { "message": "Custom Popup CSS" },
+  "customPopupCSSDescription": { "message": "Customize toolbar popup style configuration." },
   "cmOptionsDescription": {
     "message": "Customize CodeMirror, addons & JavaScript lint configuration."
   },

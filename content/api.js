@@ -1,10 +1,10 @@
 ﻿browser.userScripts.onBeforeScript.addListener(script => {
   // --- globals
-  const {name, resource, info, id = `_${name}`} = script.metadata; // set id as _name
+  const {name, resource, info, id = `_${name}`, injectInto, grant} = script.metadata; // set id as _name
   const cache = {};
   const valueChange = {};
   const scriptCommand = {};
-  let storage = script.metadata.storage;                    // storage at the time of registration
+  let {storage} = script.metadata;                          // storage at the time of registration
 
   class API {
 
@@ -288,11 +288,7 @@
       return response ? script.export(response.text) : null;
     },
 
-    getResourceUrl(resourceName) {                          // GreaseMonkey | TamperMonkey
-      return resource[resourceName];
-    },
-
-    getResourceURL(resourceName) {                          // ViolentMonkey
+    getResourceUrl(resourceName) {
       return resource[resourceName];
     },
 
@@ -331,7 +327,7 @@
       try {
         const node = document.createElement('script');
         node.textContent = js;
-        if (script.metadata.injectInto !== 'page') {
+        if (injectInto !== 'page') {
           node.textContent +=
             `\n\n//# sourceURL=user-script:FireMonkey/${encodeURI(name)}/GM.addScript_${Math.random().toString(36).substring(2)}.js`;
         }
@@ -508,38 +504,39 @@
 
   const globals = {
     GM,
-    GM_getValue:                  api.GM_getValue,
-    GM_listValues:                api.GM_listValues,
-    GM_deleteValue:               GM.deleteValue,
-    GM_setValue:                  GM.setValue,
-    GM_addValueChangeListener:    GM.addValueChangeListener,
-    GM_removeValueChangeListener: GM.removeValueChangeListener,
-
-    GM_openInTab:                 GM.openInTab,
-    GM_setClipboard:              GM.setClipboard,
-    GM_notification:              GM.notification,
-    GM_xmlhttpRequest:            GM.xmlHttpRequest,
-    GM_fetch:                     GM.fetch,
-    GM_download:                  GM.download,
-    GM_getResourceText:           GM.getResourceText,
-    GM_getResourceUrl:            GM.getResourceUrl,        // GreaseMonkey | TamperMonkey
-    GM_getResourceURL:            GM.getResourceURL,        // ViolentMonkey
-    GM_registerMenuCommand:       GM.registerMenuCommand,
-    GM_unregisterMenuCommand:     GM.unregisterMenuCommand,
-
-    GM_addStyle:                  GM.addStyle,
     GM_addScript:                 GM.addScript,
-    GM_popup:                     GM.popup,
-
-    GM_log:                       GM.log,
+    GM_addStyle:                  GM.addStyle,
+    GM_addValueChangeListener:    GM.addValueChangeListener,
+    GM_deleteValue:               GM.deleteValue,
+    GM_download:                  GM.download,
+    GM_fetch:                     GM.fetch,
+    GM_getResourceText:           GM.getResourceText,
+    GM_getResourceURL:            GM.getResourceUrl,
+    GM_getValue:                  api.GM_getValue,
     GM_info:                      GM.info,
+    GM_listValues:                api.GM_listValues,
+    GM_log:                       GM.log,
+    GM_notification:              GM.notification,
+    GM_openInTab:                 GM.openInTab,
+    GM_popup:                     GM.popup,
+    GM_registerMenuCommand:       GM.registerMenuCommand,
+    GM_removeValueChangeListener: GM.removeValueChangeListener,
+    GM_setClipboard:              GM.setClipboard,
+    GM_setValue:                  GM.setValue,
+    GM_unregisterMenuCommand:     GM.unregisterMenuCommand,
+    GM_xmlhttpRequest:            GM.xmlHttpRequest,
 
-    exportFunction,
     cloneInto:                    api.cloneIntoFM,
+    exportFunction,
     matchURL:                     api.matchURL
   };
 
-  script.metadata.disableSyncGM && Object.keys(globals).forEach(item => item.startsWith('GM_') && delete globals[item]);
+  // case-altered GM API
+  grant.includes('GM.xmlHttpRequest') && grant.push('GM.xmlhttpRequest');
+  grant.includes('GM.getResourceUrl') && grant.push('GM.getResourceURL');
+
+  // auto-disable sync GM API if async GM API are supported
+  grant.forEach(item => item.startsWith('GM_') && grant.includes(`GM.${item.substring(3)}`) && delete globals[item]);
 
   script.defineGlobals(globals);
 });
