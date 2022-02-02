@@ -81,8 +81,10 @@
   "findScript": { "message": "Scripts zoeken voor deze site" },
 
   "advanced": { "message": "Geavanceerd" },
-  "customCSS": { "message": "Aangepaste css" },
-  "customCSSDescription": { "message": "Pas de optiepagina en het CodeMirror-stijlblad aan." },
+  "customOptionsCSS": { "message": "Custom Options CSS" },
+  "customOptionsCSSDescription": { "message": "Pas de optiepagina en het CodeMirror-stijlblad aan." },
+  "customPopupCSS": { "message": "Custom Popup CSS" },
+  "customPopupCSSDescription": { "message": "Customize toolbar popup style configuration." },
   "cmOptionsDescription": { "message": "Pas de CodeMirror-, add-ons- en JavaScript-lintconfiguratie aan." },
   "cmOptionsError": { "message": "Ongeldige CodeMirror-json" },
 

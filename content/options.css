@@ -42,7 +42,6 @@ aside {
   left: 0;
   z-index: 10;
   background: var(--bg);
-  /*box-shadow: 0 4px 10px 0 var(--shadow);*/
   border-right: 1px solid var(--border);
   transition: 0.5s;
   flex-direction: column;
@@ -109,6 +108,7 @@ aside li {
   text-overflow: ellipsis;
   border-right: 4px solid transparent;
   padding-left: 0.5em;
+  user-select: none;
 }
 
 aside li:hover {
@@ -291,13 +291,8 @@ button.bin {
 
 button.bin img {
   width: 1.6em;
-  transition: 0.5s;
-  filter: var(--bin-filter);
 }
 
-button.bin:hover img {
-  filter: opacity(1) grayscale(0);
-}
 /* --- menu popup --- */
 .menu details {
   position: relative;

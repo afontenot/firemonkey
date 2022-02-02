@@ -6,7 +6,8 @@ let pref = {
   autoUpdateLast: 0,
   cmOptions: '',
   counter: true,
-  customCSS: '',
+  customOptionsCSS: '',
+  customPopupCSS: '',
   globalScriptExcludeMatches: '',
   sync: false,
   template: {css: '', js: ''}
@@ -178,7 +179,7 @@ class Meta {                                                // bg options
       },
       error: '',                                            // reset error on save
       storage: {},
-      disableSyncGM: false,
+      grant: [],
 
       // --- API related data
       allFrames: false,
@@ -228,8 +229,8 @@ class Meta {                                                // bg options
           /default|private|container-\d+/i.test(value) && (value = value.toLowerCase());
           break;
 
-        case 'updateURL':                                   // disregarding .meta.js
-          if (value.endsWith('.meta.js')) { prop = 'updateURLnull'; }
+        case 'updateURL':
+          value.endsWith('.meta.js') && (value = '');       // disregarding .meta.js
           break;
 
         case 'downloadURL':                                 // convert downloadURL/installURL to updateURL
@@ -375,7 +376,6 @@ class Meta {                                                // bg options
 
         const r = rule.split(/\s*[\s()'",]+\s*/);             // split into pairs
         for (let i = 0, len = r.length; i < len; i+=2) {
-
           if(!r[i+1]) { break; }
           const func = r[i];
           const value = r[i+1];
@@ -419,7 +419,7 @@ class Meta {                                                // bg options
     // ------------- User Metadata -------------------------
     const matches = [];
     const excludeMatches = [];
-    data.userMeta && data.userMeta.split(/[\r\n]+/).forEach(item => { // lines
+    data.userMeta?.split(/[\r\n]+/).forEach(item => { // lines
       let [,prop, value = ''] = item.trim().match(lineRegex) || [];
       if (!prop) { return; }                                // continue to next
 
@@ -445,10 +445,6 @@ class Meta {                                                // bg options
         case 'disable-container':
           const vlc = value.toLowerCase();
           data.container = value ? data.container.filter(item => item !== vlc) : [];
-          break;
-
-        case 'disable-synchGM':
-          data.disableSyncGM = true;
           break;
 
         case 'match':
@@ -646,7 +642,7 @@ class Meta {                                                // bg options
 
     return arr;
   }
-  
+
   // fixing metadata block since there would be an error with /* ... *://*/* ... */
   static prepare(str) {
     return str.replace(this.regEx, (m) =>
