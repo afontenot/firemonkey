@@ -180,12 +180,12 @@
   "advanced": {
     "message": "高级"
   },
-  "customCSS": {
-    "message": "自定义 CSS"
-  },
-  "customCSSDescription": {
+  "customOptionsCSS": { "message": "Custom Options CSS" },
+  "customOptionsCSSDescription": {
     "message": "自定义选项页面 & CodeMirror 样式配置。"
   },
+  "customPopupCSS": { "message": "Custom Popup CSS" },
+  "customPopupCSSDescription": { "message": "Customize toolbar popup style configuration." },
   "cmOptionsDescription": {
     "message": "自定义 CodeMirror, 插件 & JavaScript lint 配置。"
   },

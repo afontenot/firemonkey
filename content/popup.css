@@ -74,17 +74,16 @@ h3 span.frame{
 h3.menu {
   padding: 0.1em 0.5em;
   cursor: pointer;
-  transition: 0.3s;
   position: relative;
   margin-bottom: 1px;
-  opacity: 0.5;
-  transition: 0.5s;
+/*  opacity: 0.5;
+  transition: 0.5s;*/
 }
-
+/*
 h3.menu:hover {
   opacity: 1;
 }
-
+*/
 h3.menu::after {
   content: '';
   background: url('../image/next.svg') no-repeat center;
@@ -289,13 +288,7 @@ section.info {
 }
 
 section.info h3 span {
-  opacity: 0.5;
   cursor: pointer;
-  transition: 0.3s;
-}
-
-section.info h3 span:hover {
-  opacity: 1;
 }
 
 section.info h3 img {
@@ -412,13 +405,8 @@ button[data-i18n="undo"] {
 
 img.bin {
   width: 1.4em;
-  transition: 0.5s;
   cursor: pointer;
   float: right;
-  filter: var(--bin-filter);
 }
 
-img.bin:hover {
-  filter: opacity(1) grayscale(0);
-}
 /* ----- /Scratchpad ----- */
