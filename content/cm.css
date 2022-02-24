@@ -1,4 +1,24 @@
-﻿/* ----- CodeMirror ----- */
+﻿/* ----- Dark Theme ----- */
+:root, body.dark {
+  --trailingspace-bg: #234;
+  --trailingspace-border: #555;
+  --gm: gold;
+  --focused: #eee;
+  --selection-scrollbar: #cfc;
+}
+
+/* ----- Light Theme ----- */
+@media screen and (prefers-color-scheme: light) {
+  :root {
+    --trailingspace-bg: #f5f5f5;
+    --trailingspace-border: #ccc;
+    --focused: #fa5;
+    --gm: maroon;
+    --selection-scrollbar: #0a0;
+  }
+}
+
+/* ----- CodeMirror ----- */
 .CodeMirror {
   height: 100%;
 }
@@ -13,26 +33,18 @@
 }
 
 .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
-  background-color: transparent; /* The little square between H and V scrollbars */
+  background-color: inherit; /* The little square between H and V scrollbars */
 }
 
 .cm-tab, .cm-trailingspace {
-  background: #f5f5f5;
-  border-bottom: 1px solid #ccc;
+  background: var(--trailingspace-bg);
+  border-bottom: 1px solid var(--trailingspace-border);
   border-radius: 5px;
   line-height: 0.5;
 }
 
-.dark .cm-tab, .dark .cm-trailingspace {
-  background: #234;
-  border-color: #555;
-}
-
 .cm-gm {
-  color: maroon !important;
-}
-.dark .cm-gm {
-  color: gold !important;
+  color: var(--gm) !important;
 }
 
 .CodeMirror-lint-marker {
@@ -42,9 +54,8 @@
 .CodeMirror-lint-tooltip {
   color: #050;
   border-color: #ccc;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px var(--shadow);
 }
-
 
 div.CodeMirror-code > div:hover .CodeMirror-linenumber {
   color: #f00;
@@ -93,18 +104,10 @@ li.CodeMirror-lint-message-info {
 
 /* ----- match-highlighter ----- */
 .CodeMirror-focused .cm-matchhighlight {
-  outline: 1px solid #fa5;
+  outline: 1px solid var(--focused);
   border-radius: 3px;
 }
 
 .CodeMirror-selection-highlight-scrollbar {
-  background-color: #0a0;
-}
-
-.dark .CodeMirror-focused .cm-matchhighlight {
-  outline: 1px solid #eee;
-}
-
-.dark .CodeMirror-selection-highlight-scrollbar {
-  background-color: #cfc;
+  background-color: var(--selection-scrollbar);
 }

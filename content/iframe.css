@@ -382,13 +382,12 @@ figure {
 figcaption {
   color: #fff;
   background-color: #4682b4;
-  padding: 0.2em 0.5em 0.2em 1em;
-  display: inline-block;
-  min-width: 25em;
-  border-radius: 1em;
+  padding: 0.3em 0.5em;
   font-weight: bold;
   font-size: 0.9em;
-  margin-left: -1.5em;
+  display: inline-block;
+  min-width: 25em;
+  clip-path: polygon(0 0, 90% 0, 100% 100%, 0 100%);
 }
 
 figcaption span {
@@ -477,6 +476,7 @@ address {
   margin-top: 0.5em;
   color: #333;
   border-radius: 4px;
+  display: table;
 }
 
 .warning::before {
@@ -492,6 +492,7 @@ address {
   color: #333;
   font-style: italic;
   border-radius: 4px;
+  display: table;
 }
 
 .footnote {
@@ -505,8 +506,7 @@ address {
 
 .experimental::after {
   content: '';
-  background: url('../image/beaker.svg') no-repeat center;
-  background-size: contain;
+  background: url('../image/beaker.svg') no-repeat center / contain;
   display: inline-block;
   width: 1.2em;
   height: 1.2em;
@@ -526,13 +526,12 @@ table {
 caption {
   color: #fff;
   background-color: #abc;
-  padding: 0.2em 0.5em 0.2em 1em;
-  border-radius: 1em;
+  padding: 0.3em 0.5em;
   font-weight: bold;
   font-size: 0.9em;
-  margin-left: -1.5em;
   text-align: left;
   width: 25em;
+  clip-path: polygon(0 0, 90% 0, 100% 100%, 0 100%);
 }
 
 caption ~ thead, caption ~ tbody {
@@ -643,18 +642,35 @@ h3 i {
 }
 
 /* ----- FireMonkey ----- */
+table#api tbody td:last-of-type {
+  color: #555;
+  text-align: right;
+}
+  
 .sync {
-  background-color: #dff  !important;
+  background-color: #dff !important;
+}
+
+.sync::after {
+  content: ' sync';
 }
 
 .async {
   background-color: #fee !important;
 }
 
-.semi-sync {
-  background-color: #eef !important;
+.async::after {
+  content: ' async';
+}
+
+.alt {
+  background-color: #edf !important;
 }
 
 .callback {
   background-color: #dfc !important;
+}
+
+.callback::after {
+  content: ' callback';
 }

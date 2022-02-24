@@ -7,7 +7,6 @@
   --invert: invert(1);
   --dim: 0.8;
   --img-filter: invert(1) grayscale(1);
-  --bin-filter: grayscale(1) invert(1) contrast(4);
 }
 
 /* ----- Light Theme ----- */
@@ -17,7 +16,6 @@
     --color2: #05f;
     --dim: 0.5;
     --img-filter: none;
-    --bin-filter: grayscale(1) invert(1) contrast(4);
   }
 }
 
@@ -49,10 +47,6 @@ section.main {
   flex-direction: column;
 }
 
-body.android section {
-  height: 100vh;
-}
-
 h3 {
   font-weight: normal;
   margin: 0;
@@ -70,37 +64,77 @@ h3 span.frame{
 }
 /* ----- /General ----- */
 
+/* ----- Selectors ----- */
+input[type="checkbox"].control {
+  display: none;
+}
+
+h3.list {
+  align-items: center;
+}
+
+.list label {
+  margin-left: 0.3em;
+}
+
+.list label {
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.list label img {
+  width: 1.1em;
+  vertical-align: middle;
+  filter: /*opacity(0.5)*/ grayscale(1);
+}
+
+#listJS:checked ~ h3 label[for="listJS"] img,
+#listCSS:checked ~ h3 label[for="listCSS"] img {
+  filter: /*opacity(0.7)*/ grayscale(0);
+}
+
+#listJS:not(:checked) ~ ul li.js,
+#listCSS:not(:checked) ~ ul li.css {
+  display: none;
+}
+/* ----- /Selectors ----- */
+
 /* ----- menu ----- */
 h3.menu {
-  padding: 0.1em 0.5em;
+  padding: 0.2em 0.5em;
   cursor: pointer;
   position: relative;
   margin-bottom: 1px;
-/*  opacity: 0.5;
-  transition: 0.5s;*/
+  transition: 0.5s;
 }
-/*
+
 h3.menu:hover {
-  opacity: 1;
+  background: var(--hover);
 }
-*/
-h3.menu::after {
+
+h3.menu:not(:last-of-type)::after, 
+li span.name::after {
   content: '';
-  background: url('../image/next.svg') no-repeat center;
-  background-size: contain;
+  background: url('../image/next.svg') no-repeat center / contain;
   display: inline-block;
   width: 1em;
-  height: 1em;
+  height: 100%;
   position: absolute;
   right: 0.5em;
-  opacity: 0.5;
+  top: 0;
+  opacity: 0;
   transition: 0.5s;
+  box-sizing: border-box;
   filter: var(--img-filter);
 }
 
-h3.menu:hover::after {
+h3.menu:not(:last-of-type):hover::after, 
+li span.name:hover::after {
   opacity: 1;
 }
+
 /* ----- /menu ----- */
 
 /* ----- Buttons ----- */
@@ -147,7 +181,7 @@ ul {
   padding: 0.1em;
   margin: 0;
   overflow-y: auto;
-  height: 10em;
+  height: 12em;
   scrollbar-color: var(--scrollbar);
   scrollbar-width: thin;
 }
@@ -223,62 +257,7 @@ li.css span.name::before {
   background: url('../image/css.svg');
 }
 
-li span.name::after {
-  content: '';
-  background: url('../image/next.svg') no-repeat center;
-  background-size: contain;
-  display: inline-block;
-  width: 1em;
-  height: 100%;
-  position: absolute;
-  right: 0.5em;
-  opacity: 0;
-  transition: 0.5s;
-  box-sizing: border-box;
-  filter: var(--img-filter);
-}
-
-li span.name:hover::after {
-  opacity: 1;
-}
 /* ----- /Scripts ----- */
-
-/* ----- Selectors ----- */
-input[type="checkbox"].control {
-  display: none;
-}
-
-h3.list {
-  align-items: center;
-}
-
-.list label {
-  margin-left: 0.3em;
-}
-
-.list label {
-  padding: 0;
-  border: 0;
-  cursor: pointer;
-  flex: 0 0 auto;
-}
-
-.list label img {
-  width: 1.1em;
-  vertical-align: middle;
-  filter: opacity(0.5) grayscale(1);
-}
-
-#listJS:checked ~ h3 label[for="listJS"] img,
-#listCSS:checked ~ h3 label[for="listCSS"] img {
-  filter: opacity(0.7) grayscale(0);
-}
-
-#listJS:not(:checked) ~ ul li.js,
-#listCSS:not(:checked) ~ ul li.css {
-  display: none;
-}
-/* ----- /Selectors ----- */
 
 /* ----- Info ----- */
 section.info {
@@ -311,8 +290,7 @@ dl {
 dl.js::after,
 dl.css::after {
   content: '';
-  background: url('../image/js.svg') no-repeat center;
-  background-size: contain;
+  background: url('../image/js.svg') no-repeat center / contain;
   display: inline-block;
   width: 2em;
   height: 2em;
@@ -404,7 +382,7 @@ button[data-i18n="undo"] {
 }
 
 img.bin {
-  width: 1.4em;
+  width: 1.2em;
   cursor: pointer;
   float: right;
 }
