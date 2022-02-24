@@ -14,13 +14,14 @@
 
 
 <table>
-  <caption><img src="locale-maker.svg" alt=""> Locale Maker <span>1.5</span></caption>
+  <caption><img src="locale-maker.svg" alt=""> Locale Maker <span>1.6</span></caption>
   <thead>
     <tr>
       <th>
         <input type="file" id="import" accept=".json">
-        <label for="import" class="flat">Import</label>&nbsp;
+        <label for="import" class="flat">Import</label>
         <button type="button" id="export" class="flat">Export</button>
+        <button type="button" id="exportAll" class="flat">&#x1f5c3; Export All</button>
       </th>
       <th>
         <select id="locale" autocomplete="off">
@@ -42,38 +43,38 @@
           <option value="ca">Catalan - català</option>
           <option value="ckb">Central Kurdish - کوردی (دەستنوسی عەرەبی)</option>
           <option value="zh">Chinese - 中文</option>
-          <option value="zh-HK">Chinese (Hong Kong) - 中文（香港）</option>
-          <option value="zh-CN">Chinese (Simplified) - 中文（简体）</option>
-          <option value="zh-TW">Chinese (Traditional) - 中文（繁體）</option>
+          <option value="zh_HK">Chinese (Hong Kong) - 中文（香港）</option>
+          <option value="zh_CN">Chinese (Simplified) - 中文（简体）</option>
+          <option value="zh_TW">Chinese (Traditional) - 中文（繁體）</option>
           <option value="co">Corsican</option>
           <option value="hr">Croatian - hrvatski</option>
           <option value="cs">Czech - čeština</option>
           <option value="da">Danish - dansk</option>
           <option value="nl">Dutch - Nederlands</option>
           <option value="en">English</option>
-          <option value="en-AU">English (Australia)</option>
-          <option value="en-CA">English (Canada)</option>
-          <option value="en-IN">English (India)</option>
-          <option value="en-NZ">English (New Zealand)</option>
-          <option value="en-ZA">English (South Africa)</option>
-          <option value="en-GB">English (United Kingdom)</option>
-          <option value="en-US">English (United States)</option>
+          <option value="en_AU">English (Australia)</option>
+          <option value="en_CA">English (Canada)</option>
+          <option value="en_IN">English (India)</option>
+          <option value="en_NZ">English (New Zealand)</option>
+          <option value="en_ZA">English (South Africa)</option>
+          <option value="en_GB">English (United Kingdom)</option>
+          <option value="en_US">English (United States)</option>
           <option value="eo">Esperanto - esperanto</option>
           <option value="et">Estonian - eesti</option>
           <option value="fo">Faroese - føroyskt</option>
           <option value="fil">Filipino</option>
           <option value="fi">Finnish - suomi</option>
           <option value="fr">French - français</option>
-          <option value="fr-CA">French (Canada) - français (Canada)</option>
-          <option value="fr-FR">French (France) - français (France)</option>
-          <option value="fr-CH">French (Switzerland) - français (Suisse)</option>
+          <option value="fr_CA">French (Canada) - français (Canada)</option>
+          <option value="fr_FR">French (France) - français (France)</option>
+          <option value="fr_CH">French (Switzerland) - français (Suisse)</option>
           <option value="gl">Galician - galego</option>
           <option value="ka">Georgian - ქართული</option>
           <option value="de">German - Deutsch</option>
-          <option value="de-AT">German (Austria) - Deutsch (Österreich)</option>
-          <option value="de-DE">German (Germany) - Deutsch (Deutschland)</option>
-          <option value="de-LI">German (Liechtenstein) - Deutsch (Liechtenstein)</option>
-          <option value="de-CH">German (Switzerland) - Deutsch (Schweiz)</option>
+          <option value="de_AT">German (Austria) - Deutsch (Österreich)</option>
+          <option value="de_DE">German (Germany) - Deutsch (Deutschland)</option>
+          <option value="de_LI">German (Liechtenstein) - Deutsch (Liechtenstein)</option>
+          <option value="de_CH">German (Switzerland) - Deutsch (Schweiz)</option>
           <option value="el">Greek - Ελληνικά</option>
           <option value="gn">Guarani</option>
           <option value="gu">Gujarati - ગુજરાતી</option>
@@ -87,8 +88,8 @@
           <option value="ia">Interlingua</option>
           <option value="ga">Irish - Gaeilge</option>
           <option value="it">Italian - italiano</option>
-          <option value="it-IT">Italian (Italy) - italiano (Italia)</option>
-          <option value="it-CH">Italian (Switzerland) - italiano (Svizzera)</option>
+          <option value="it_IT">Italian (Italy) - italiano (Italia)</option>
+          <option value="it_CH">Italian (Switzerland) - italiano (Svizzera)</option>
           <option value="ja">Japanese - 日本語</option>
           <option value="kn">Kannada - ಕನ್ನಡ</option>
           <option value="kk">Kazakh - қазақ тілі</option>
@@ -118,8 +119,8 @@
           <option value="fa">Persian - فارسی</option>
           <option value="pl">Polish - polski</option>
           <option value="pt">Portuguese - português</option>
-          <option value="pt-BR">Portuguese (Brazil) - português (Brasil)</option>
-          <option value="pt-PT">Portuguese (Portugal) - português (Portugal)</option>
+          <option value="pt_BR">Portuguese (Brazil) - português (Brasil)</option>
+          <option value="pt_PT">Portuguese (Portugal) - português (Portugal)</option>
           <option value="pa">Punjabi - ਪੰਜਾਬੀ</option>
           <option value="qu">Quechua</option>
           <option value="ro">Romanian - română</option>
@@ -137,11 +138,11 @@
           <option value="so">Somali - Soomaali</option>
           <option value="st">Southern Sotho</option>
           <option value="es">Spanish - español</option>
-          <option value="es-AR">Spanish (Argentina) - español (Argentina)</option>
-          <option value="es-419">Spanish (Latin America) - español (Latinoamérica)</option>
-          <option value="es-MX">Spanish (Mexico) - español (México)</option>
-          <option value="es-ES">Spanish (Spain) - español (España)</option>
-          <option value="es-US">Spanish (United States) - español (Estados Unidos)</option>
+          <option value="es_AR">Spanish (Argentina) - español (Argentina)</option>
+          <option value="es_419">Spanish (Latin America) - español (Latinoamérica)</option>
+          <option value="es_MX">Spanish (Mexico) - español (México)</option>
+          <option value="es_ES">Spanish (Spain) - español (España)</option>
+          <option value="es_US">Spanish (United States) - español (Estados Unidos)</option>
           <option value="su">Sundanese</option>
           <option value="sw">Swahili - Kiswahili</option>
           <option value="sv">Swedish - svenska</option>
@@ -168,32 +169,65 @@
           <option value="yo">Yoruba - Èdè Yorùbá</option>
           <option value="zu">Zulu - isiZulu</option>
         </select>
-   
+
         <details>
-          <summary>
-            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 512 512">
-              <g><circle cx="256" cy="256" r="64"/><circle cx="256" cy="448" r="64"/><circle cx="256" cy="64" r="64"/></g></svg>
-          </summary>
+          <summary><img src="menu-dot.svg" alt=""></summary>
           <div>
             <div class="help">
               <h3>&#x1f1ed; Help</h3>
               <dl>
                 <dt>&#x1f518; Select Language</dt>
                   <dd>Select & load the locale from extension <code>_locale</code> if available</dd>
-    
+
                 <dt>&#x1f4e5; Import</dt>
                   <dd>After selecting the language, import a locale from file</dd>
-    
+
                 <dt>&#x1f4e4; Export</dt>
                   <dd>Export the current locale to <code>{language-code}/messages.json</code> (blank entries will be filled with default language)</dd>
-    
+
+                <dt>&#x1f5c3; Export All</dt>
+                  <dd>Export all included languages <code>Local-Maker/{language-code}/messages.json</code> (blank entries will be filled with default language)</dd>
+
                 <dt>&#x2b07;&#xfe0f; Paste</dt>
                   <dd>Usefull when copy/pasting from a translation API, on <code>paste</code>, if there are more than 3 lines of text, each line will fill the inputs starting from active input or the first one</dd>
-    
+
                 <dt>&#x1f465; Share</dt>
                   <dd>Please share your translations to <a href="https://github.com/erosman/extension-translations" target="_blank">extension-translations</a></dd>
-    
+
+                <dt>&#x1f1ed; Support</dt>
+                  <dd>Please use the GitHub Community <a href="https://github.com/erosman/support" target="_blank">Support</a></dd>
               </dl>
+
+              <h3>&#x1f4d1; Changelog</h3>
+              <dl>
+                <dt>1.6 <span>(2022-02-07)</span></dt>
+                  <dd>Added Export All</dd>
+                  <dd>Added marking of available locales</dd>
+                  <dd>Added options to save without "downloads" permission (required to save in folders)</dd>
+
+                <dt>1.5 <span>(2021-11-22)</span></dt>
+                  <dd>Fixed changing dash to underscore when saving</dd>
+
+                <dt>1.4 <span>(2021-10-15)</span></dt>
+                  <dd>Added more Language selection</dd>
+
+                <dt>1.3 <span>(2021-10-15)</span></dt>
+                  <dd>Added more Language selection</dd>
+
+                <dt>1.2 <span>(2021-01-21)</span></dt>
+                  <dd>Updated Style</dd>
+
+                <dt>1.1 <span>(2020-12-14)</span></dt>
+                  <dd>Added Dark/Light theme</dd>
+                  <dd>Updated Language selection</dd>
+                  <dd>Updated Style</dd>
+
+                <dt>1.0 <span>(2020-12-08)</span></dt>
+                  <dd>Initial release</dd>
+              </dl>
+
+
+
             </div>
           </div>
         </details>

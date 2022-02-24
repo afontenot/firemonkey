@@ -138,7 +138,7 @@ aside li::before {
   margin-right: 0.5em;
 }
 
-aside li.disabled {
+aside li.disabled::first-line {
   opacity: 0.5;
 }
 
@@ -290,7 +290,7 @@ button.bin {
 }
 
 button.bin img {
-  width: 1.6em;
+  width: 1.4em;
 }
 
 /* --- menu popup --- */

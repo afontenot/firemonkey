@@ -11,6 +11,9 @@
   --bg3: #999;
   --bg-even: #444;
   --bg-odd: #555; 
+  --img-filter: invert(1) grayscale(1);
+  --focus: #345;
+  --valid: #200;
 }
 
 @media screen and (prefers-color-scheme: light) {
@@ -26,6 +29,9 @@
     --bg3: #fff;
     --bg-even: #eee;
     --bg-odd: #ddd4;
+    --img-filter: none;
+    --focus: #def8;
+    --valid: #fff5f5;
   }  
 }
 
@@ -119,6 +125,14 @@ input {
   background: transparent;
 }
 
+input:valid {
+  background-color: var(--valid);
+}
+
+input:focus {
+  background-color: var(--focus);
+}
+
 tfoot td {
   padding: 0.2em 0.5em;
   position: sticky;
@@ -150,10 +164,10 @@ summary {
   transition: 0.5s;
 }
 
-summary svg {
+summary img {
   width: 1em;
   vertical-align: bottom;
-  fill: var(--color);
+  filter: var(--img-filter);
 }
 
 
@@ -201,6 +215,9 @@ div.help {
   padding: 0.5em;
   border-radius: 5px;
   font-size: 0.9em;
+  max-height: 50vh;
+  overflow: auto;
+  scrollbar-width: thin;
 }
 
 code {
@@ -222,6 +239,10 @@ dt {
   padding: 0.1em 0.5em;
 }
 
+dt span {
+  font-size: 0.7em;
+}
+
 dd + dt {
   margin-top: 1em;
 }
@@ -233,6 +254,10 @@ input[type="file"] {
 
 label[for="import"] {
   border-top-color: #6a4;
+}
+
+button {
+  margin-left: 0.5em;
 }
 
 button[id="export"] {
@@ -255,7 +280,7 @@ button[id="export"]::before {
   border: 1px solid var(--border);
   border-top: 3px solid #3be;
   border-radius: 5px;
-  padding: 0.4em 1em;
+  padding: 0.2em 1em;
   font-size: 0.9em;
   transition: 0.5s;
   cursor: pointer;

@@ -17,6 +17,19 @@
     <h2 id="changelog">Changelog</h2>
     <dl class="about">
 
+      <dt>2.43</dt>
+        <dd>Added CodeMirror Key Maps (#423)</dd>
+        <dd>Added experimental live userCSS update of open tabs (#295)</dd>
+        <dd>Added experimental sync storage compatibility (#98)</dd>
+        <dd>Added GM addElement</dd>
+        <dd>Updated GM_getResourceText for improved compatibility</dd>
+        <dd>Fixed an issue with disabled Auto-Update Interval</dd>
+        <dd>Fixed an issue with Regular Expressions in @include</dd>
+        <dd>Fixed F11 & sidebar</dd>
+        <dd>Removed cssOrigin to Scratchpad & temporary CSS insertion (from 2.23)</dd>
+        <dd>Updated custom error messages for GM API</dd>
+        <dd>Updated Locale Maker to v1.6</dd>
+
       <dt>2.42</dt>
         <dd>Added option to customize Toolbar Popup style configuration (#302, #413)</dd>
         <dd>Removed hidden entries from multiple script selection</dd>
@@ -333,8 +346,8 @@
 
       <dt>1.45</dt>
         <dd>Added new script installations to the Log</dd>
-        <dd>Added new GM <code>addScript</code> API</dd>
-        <dd>Added new GM <code>popup</code> API</dd>
+        <dd>Added new <code>GM addScript</code> API</dd>
+        <dd>Added new <code>GM popup</code> API</dd>
         <dd>Added separate CSS & JS insertion in Scratchpad</dd>
         <dd>Added undo CSS in Scratchpad</dd>
         <dd>Added more info to Log</dd>
@@ -434,36 +447,36 @@
         <dd>Fixed a typo in <code>&lt;all_urls&gt;</code> processing</dd>
 
       <dt>1.29</dt>
-        <dd>Fixed an issue with same-name command by different scripts on GM <code>registerMenuCommand</code></dd>
-        <dd>Changed GM <code>registerMenuCommand</code> process since it did not work in private window (bug 1329304)</dd>
-        <dd>Added GM <code>unregisterMenuCommand</code></dd>
-        <dd>Added GM <code>addValueChangeListener</code></dd>
-        <dd>Added GM <code>removeValueChangeListener</code></dd>
-        <dd>Added GM <code>download</code></dd>
-        <dd>Added <code>browser</code> to GM <code>info</code></dd>
-        <dd>Added <code>platform</code> to GM <code>info</code></dd>
+        <dd>Fixed an issue with same-name command by different scripts on <code>GM registerMenuCommand</code></dd>
+        <dd>Changed <code>GM registerMenuCommand</code> process since it did not work in private window (bug 1329304)</dd>
+        <dd>Added <code>GM unregisterMenuCommand</code></dd>
+        <dd>Added <code>GM addValueChangeListener</code></dd>
+        <dd>Added <code>GM removeValueChangeListener</code></dd>
+        <dd>Added <code>GM download</code></dd>
+        <dd>Added <code>browser</code> to <code>GM info</code></dd>
+        <dd>Added <code>platform</code> to <code>GM info</code></dd>
         <dd>Added more <code>@include</code> to <code>@match</code> conversion processes</dd>
         <dd>Fixed an error with Auto-Update</dd>
         <dd>Toolbar Icon Badge now counts the active scripts</dd>
         <dd>Added sticky navigation and submenus to Help</dd>
 
       <dt>1.28</dt>
-        <dd>Added GM <code>log</code></dd>
+        <dd>Added <code>GM log</code></dd>
         <dd>Fixed an issue with sync</dd>
 
       <dt>1.27</dt>
         <dd>Added Storage Sync option</dd>
         <dd>Added remote <code>@require</code> processing <i>(experimental)</i></dd>
         <dd>Added <code>@resource</code> processing</dd>
-        <dd>Added GM <code>getResourceText</code></dd>
-        <dd>Added GM <code>getResourceUrl</code></dd>
-        <dd>Added GM <code>registerMenuCommand</code></dd>
+        <dd>Added <code>GM getResourceText</code></dd>
+        <dd>Added <code>GM getResourceUrl</code></dd>
+        <dd>Added <code>GM registerMenuCommand</code></dd>
         <dd>Added Direct Install option for files loaded into tab ending in <code>*.user.js</code></dd>
         <dd>Work-around for <code>https://raw.githubusercontent.com/*/*.user.js</code> using <code>cdn.jsdelivr.net</code> mirror (bug 1411641)</dd>
         <dd>Fixed an error in <code>@noframes</code> processing</dd>
-        <dd>Added resources to GM <code>info</code> response</dd>
+        <dd>Added resources to <code>GM info</code> response</dd>
         <dd>Added Help to toolbar contextmenu</dd>
-        <dd>Added <code>@require</code> parsing to include <ibootstrapp.js</i> from included library</dd>
+        <dd>Added <code>@require</code> parsing to include <i>bootstrapp.js</i> from included library</dd>
         <dd>Added <code>@require</code> parsing to include <i>moment.js</i> from included library</dd>
         <dd>Added <code>@require</code> parsing to include <i>underscore.js</i> from included library</dd>
         <dd>Added <code>@require</code> parsing to ignore <i>gm4-polyfill..js</i> as it is not applicable</dd>
@@ -491,7 +504,7 @@
         <dd>Fixed a XMLHttpRequest returning <i>null</i></dd>
         <dd>Fixed a layout issue when syntax highlighting is disabled</dd>
         <dd>Added <code>@require</code> parsing to include <i>jQuery1/2/3</i> & <i>jQuery UI</i> from included library</dd>
-        <dd>Added GM <code>addStyle</code></dd>
+        <dd>Added <code>GM addStyle</code></dd>
         <dd>Added <code>@noframes</code> processing</dd>
         <dd>Added <code>unsafeWindow</code> support</dd>
 
