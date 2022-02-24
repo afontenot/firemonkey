@@ -10,14 +10,14 @@ class Config {
 
     // add to window global for lint & hint fm-javascript.js 132-134
     window.GM = {
-      addScript: {}, addStyle: {}, addValueChangeListener: {}, deleteValue: {}, download: {}, fetch: {},
+      addElement: {}, addScript: {}, addStyle: {}, addValueChangeListener: {}, deleteValue: {}, download: {}, fetch: {},
       getResourceText: {}, getResourceURL: {}, getResourceUrl: {}, getValue: {}, info: {}, listValues: {}, log: {},
       notification: {}, openInTab: {}, popup: {}, registerMenuCommand: {}, removeValueChangeListener: {},
       setClipboard: {}, setValue: {}, unregisterMenuCommand: {}, xmlhttpRequest: {}
     };
 
     const gm = [
-      'GM_addScript', 'GM_addStyle', 'GM_addValueChangeListener', 'GM_deleteValue', 'GM_download',
+      'GM_addElement', 'GM_addScript', 'GM_addStyle', 'GM_addValueChangeListener', 'GM_deleteValue', 'GM_download',
       'GM_fetch', 'GM_getResourceText', 'GM_getResourceURL', 'GM_getValue', 'GM_info',
       'GM_listValues', 'GM_log', 'GM_notification', 'GM_openInTab', 'GM_popup',
       'GM_registerMenuCommand', 'GM_removeValueChangeListener', 'GM_setClipboard',
@@ -71,8 +71,10 @@ class Config {
           idx.push(index);
           break;
 
+        // suppress not defined
         case m && ['GM_getValue', 'GM_listValues'].includes(m[1]):
-          item.message = m[1] + ' is partially supported. Read the Help for more information.';
+         // item.message = m[1] + ' is partially supported. Read the Help for more information.';
+          idx.push(index);
           break;
 
         case m && ['GM_getTab', 'GM_getTabs', 'GM_saveTab'].includes(m[1]):
@@ -99,11 +101,11 @@ class Config {
     const supported = ['@name', '@author', '@description', '@version', '@updateURL', '@match',
           '@matches', '@include', '@exclude', '@exclude-match', '@excludeMatches', '@includeGlobs',
           '@excludeGlobs', '@matchAboutBlank', '@allFrames', '@noframes', '@require', '@resource',
-          '@run-at', '@runAt', '@downloadURL', '@inject-into', '@compatible',
-          '@homepage', '@homepageURL', '@website', '@source',
+          '@run-at', '@runAt', '@downloadURL', '@inject-into', '@compatible', '@container',
+          '@homepage', '@homepageURL', '@website', '@source', '@grant',
           '@support', '@supportURL'];
 
-    const unsupported = ['@namespace', '@grant', '@icon', '@connect', '@unwrap', '@nocompat'];
+    const unsupported = ['@namespace', '@icon', '@connect', '@unwrap', '@nocompat'];
 
     const sticky = null;
 
@@ -134,7 +136,11 @@ class Config {
           message = 'Includes unexpected content e.g. ads, mineres etc.';
           severity = 'error';
           break;
-
+/*
+        case prop === '@resource':
+          message = `${prop} is implemented differently in FireMonkey. Read the Help for more information.`;
+          break;
+*/
         case unsupported.includes(prop):
           message = `${prop} is not processed.`;
           severity = 'info';
@@ -165,21 +171,24 @@ class Config {
 
       // ----- value check
       message = '';
+      severity = 'warning';
       switch (true) {
+        case prop === '@resource' && !/\.css\b/i.test(value):
+          message = `${value} is not supported for GM_getResourceText.`;
+          break;
+
         case !js || prop !== '@grant':
           break;
 
         // all js & grant
-        case ['GM_getValue', 'GM_listValues'].includes(value):
-          message = value + ' is partially supported. Read the Help for more information.';
-          severity = 'warning';
-          break;
-
-        case ['GM_setValue', 'GM_deleteValue'].includes(value):
-          message = `${value} is asynchronous in FireMonkey but in most cases does not cause an issue.`;
+        case value === 'GM_getResourceText':
+        case value === 'GM_getResourceUrl':
+          message = `${value} is implemented differently in FireMonkey. Please read the Help for more information.`;
           break;
 
         case /^(GM(\.|_)(getTabs?|saveTab)$)/.test(value):
+        case value.startsWith('window.'): // window.close | window.focus | window.onurlchange 
+        case value === 'GM_getResourceURL': 
           message = `${value} is not supported.`;
           break;
       }
