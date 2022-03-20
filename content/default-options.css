@@ -2,25 +2,20 @@
 :root, body.dark {
   --shadow: #fff8;
   --selected-bg: #555;
-  --selected-border: #ccc;
   --btn-hover: #444;
   --fieldset-color: #0cf;
   --submit-filter: brightness(0.4);
-  --iframe-bg: #aaa;
   --img-filter: invert(1) grayscale(1);
 }
 
 /* ----- Light Theme ----- */
 @media screen and (prefers-color-scheme: light) {
   :root {
-    --option-bg: #f9f9fa;
     --shadow: #0004;
     --selected-bg: #eeea;
-    --selected-border: #f84;
     --btn-hover: #fff;
     --fieldset-color: #066;
     --submit-filter: none;
-    --iframe-bg: inherit;
     --img-filter: none;
   }
 }
@@ -29,9 +24,9 @@
   --nav-height: 2.5rem;
 }
 
-#nav1:checked ~ article,
-#nav2:checked ~ article {
-  background: var(--iframe-bg);
+#nav3:checked ~ article,
+#nav4:checked ~ article {
+  background: var(--option-bg);
 }
 
 /* ----- General ----- */
@@ -39,7 +34,7 @@ body {
   opacity: 0;
   transition: opacity 0.5s;
   overflow: hidden;
-  background: var(--option-bg);
+  background: var(--bg);
 }
 
 nav label img {
@@ -206,7 +201,7 @@ nav label a:hover {
 #nav5:checked ~ nav label[for="nav5"],
 #nav6:checked ~ nav label[for="nav6"] {
   background-color: var(--selected-bg);
-  border-bottom-color: var(--selected-border);
+  border-bottom-color: #f84;
   opacity: 1;
 }
 

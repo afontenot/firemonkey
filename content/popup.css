@@ -232,7 +232,7 @@ li span.name {
   flex-grow: 1;
 }
 
-li.disabled span.name {
+li.disabled span.name::first-line {
   opacity: var(--dim);
 }
 

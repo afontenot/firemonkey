@@ -17,17 +17,36 @@
     <h2 id="changelog">Changelog</h2>
     <dl class="about">
 
+      <dt>2.45</dt>
+        <dd>Fixed an issue with responseXML (#430)</dd>
+        <dd>Added User Metadata select</dd>
+        <dd>Added History link to the Log Updates</dd>
+        <dd>Updated <code>@require</code> in userCSS to use <code>@import</code></dd>
+        <dd>Updated <code>@require</code> CSS in userScript process</dd>
+        <dd>Added <code>@grant</code> requirement for GM registerMenuCommand</dd>
+        <dd>Added storage view/edit feature (#429 #issuecomment-1063275408)</dd>
+        <dd>Added storage to Statistic Info display</dd>
+        <dd>Fixed an issue with mixed match/include (#429 #issuecomment-1067484735)</dd>
+        <dd>Set JavaScript <code>window.close()</code> to work in tabs opened with GM openIntab (#429 #issuecomment-1073011484)</dd>
+        <dd>Removed TLD wildcard for <code>@matches</code></dd>
+        <dd>Added complete dark theme for Help & About pages</dd>
+        <dd>Added data option to GM setClipboard</dd>
+        <dd>Upgraded jQuery-ui library to 1.13.1</dd>
+        <dd>Added <i>cdn.bootcdn.net</i> to processed URLs</dd>
+        <dd>Added <i>lf*-cdn-tos.bytecdntp.com</i> to processed URLs</dd>
+
       <dt>2.44</dt>
-        <dd>Updated GM addElement to return the element & fixed a typo (from 2.43)</dd>
+        <dd>Updated GM addElement to return the element</dd>
+        <dd>Fixed a typo in <code>GM_getResourceText</code> (from 2.43)</dd>
 
       <dt>2.43</dt>
         <dd>Added CodeMirror Key Maps (#423)</dd>
         <dd>Added experimental live userCSS update of open tabs (#295)</dd>
         <dd>Added experimental sync storage compatibility (#98)</dd>
         <dd>Added GM addElement</dd>
-        <dd>Updated GM_getResourceText for improved compatibility</dd>
+        <dd>Updated <code>GM_getResourceText</code> for improved compatibility</dd>
         <dd>Fixed an issue with disabled Auto-Update Interval</dd>
-        <dd>Fixed an issue with Regular Expressions in @include</dd>
+        <dd>Fixed an issue with Regular Expressions in <code>@include</code></dd>
         <dd>Fixed F11 & sidebar</dd>
         <dd>Removed cssOrigin to Scratchpad & temporary CSS insertion (from 2.23)</dd>
         <dd>Updated custom error messages for GM API</dd>
@@ -36,8 +55,8 @@
       <dt>2.42</dt>
         <dd>Added option to customize Toolbar Popup style configuration (#302, #413)</dd>
         <dd>Removed hidden entries from multiple script selection</dd>
-        <dd>Added experimental background @grant processing to auto-disable sync GM API if async GM API are supported (#408) (after save)</dd>
-        <dd>Removed @disable-synchGM to disable synchronous GM API via user metadata (#408) due to auto-disable feature</dd>
+        <dd>Added experimental background <code>@grant</code> processing to auto-disable sync GM API if async GM API are supported (#408) (after save)</dd>
+        <dd>Removed <code>@disable-synchGM</code> to disable synchronous GM API via user metadata (#408) due to auto-disable feature</dd>
         <dd>Added <code>grant</code> to Toolbar Pop-up script Info (after save)</dd>
         <dd>Fixed <code>size</code> in Toolbar Pop-up script Info (from 2.10)</dd>
         <dd>Minimum version increased to Firefox 74 (released 2020-03-10)</dd>
@@ -46,18 +65,18 @@
         <dd>Improved UI (#418)</dd>
 
       <dt>2.41</dt>
-        <dd>Added feature to @require userCSS in userScripts</dd>
+        <dd>Added feature to <code>@require</code> userCSS in userScripts</dd>
         <dd>Added userCSS container support for Firefox 97 (#378)</dd>
         <dd>Added userScript container support for Firefox 98 (#378)</dd>
         <dd>Removed editor update after save (#403)</dd>
-        <dd>Added @disable-synchGM to disable synchronous GM API via user metadata (#408)</dd>
+        <dd>Added <code>@disable-synchGM</code> to disable synchronous GM API via user metadata (#408)</dd>
         <dd>Fixed the error when userscript is loaded in a background tab (#409)</dd>
         <dd>Added delete script to Log</dd>
         <dd>Upgraded Underscore library to 1.13.1</dd>
         <dd>Upgraded JSHint to 2.13.2</dd>
 
       <dt>2.40</dt>
-        <dd>Added feature to @require remote CSS in userScripts</dd>
+        <dd>Added feature to <code>@require</code> remote CSS in userScripts</dd>
         <dd>Added automatic Trim Trailing Spaces on SAVE</dd>
         <dd>Fixed user metadata application in Auto-update (#395)</dd>
         <dd>Updated Brazilian Portuguese (pt_BR) locale</dd>
@@ -178,11 +197,11 @@
         <dd>Code Improvement</dd>
 
       <dt>2.21</dt>
-        <dd>Added headers object to GM.fetch API HEAD request response object</dd>
+        <dd>Added headers object to <code>GM.fetch</code> API HEAD request response object</dd>
         <dd>Fixed typos in Stylish update process</dd>
 
       <dt>2.20</dt>
-        <dd>Updated the GM.fetch API to return response object on HEAD request</dd>
+        <dd>Updated the <code>GM.fetch</code> API to return response object on HEAD request</dd>
         <dd>Updated userstyles.org process</dd>
         <dd>Added <kbd>Shift</kbd> to Multi-selection for enable/delete/export</dd>
         <dd>Added option to inject userScript & userCSS temporarily</dd>
@@ -483,12 +502,12 @@
         <dd>Added <code>@require</code> parsing to include <i>moment.js</i> from included library</dd>
         <dd>Added <code>@require</code> parsing to include <i>underscore.js</i> from included library</dd>
         <dd>Added <code>@require</code> parsing to ignore <i>gm4-polyfill..js</i> as it is not applicable</dd>
-        <dd>Added case <i>ajax.aspnetcdn.com</i> to processed URLs</dd>
-        <dd>Added case <i>cdn.staticfile.org</i> to processed URLs</dd>
-        <dd>Added case <i>pagecdn.io</i> to processed URLs</dd>
-        <dd>Added case <i>apps.bdimg.com</i> to processed URLs</dd>
-        <dd>Added case <i>libs.baidu.com</i> to processed URLs</dd>
-        <dd>Added case <i>lib.baomitu.com</i> to processed URLs</dd>
+        <dd>Added <i>ajax.aspnetcdn.com</i> to processed URLs</dd>
+        <dd>Added <i>cdn.staticfile.org</i> to processed URLs</dd>
+        <dd>Added <i>pagecdn.io</i> to processed URLs</dd>
+        <dd>Added <i>apps.bdimg.com</i> to processed URLs</dd>
+        <dd>Added <i>libs.baidu.com</i> to processed URLs</dd>
+        <dd>Added <i>lib.baomitu.com</i> to processed URLs</dd>
 
      <dt>1.26</dt>
         <dd>Added update version checking via <code>.meta.js</code></dd>
