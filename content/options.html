@@ -299,11 +299,34 @@
                   <li class="button" data-i18n="toUpperCase">&#x1f520; </li>
                   <li class="button" data-i18n="toLowerCase">&#x1f521; </li>
                   <li class="separator"></li>
-               
-                  <li class="textarea"><label data-i18n="userMeta">&#x1f464; </label><br>
-                  <textarea id="userMeta" rows="10" spellcheck="false"></textarea></li>
-                </ul>
 
+                  <li>
+                    <label data-i18n="userMeta">&#x1f464; </label><br>
+                    <textarea id="userMeta" rows="10" spellcheck="false"></textarea>
+                  </li>
+                  <li style="padding: 0 0.5em 0.8em;">
+                    <select id="userMetaSelect">
+                      <option disabled selected>&nbsp;</option>
+                      <option>@disable-match</option>
+                      <option>@disable-exclude-match</option>
+                      <option>@disable-include</option>
+                      <option>@disable-exclude</option>
+                      <option>@disable-container</option>
+                      <option value="@match               *://*/*">@match</option>
+                      <option value="@exclude-match       *://*/*">@exclude-match</option>
+                      <option value="@matchAboutBlank     true">@matchAboutBlank</option>
+                      <option value="@allFrames           true">@allFrames</option>
+                      <option value="@container           container-1">@container</option>
+                      <option value="@inject-into         page">@inject-into</option>
+                      <option value="@@run-at             document-start">@run-at</option>
+                    </select>
+                  </li>
+                  <li>
+                    <label data-i18n="storage">&#x1f4bf; </label><br>
+                    <textarea id="storage" rows="6" spellcheck="false"></textarea>
+                  </li>
+
+                </ul>
 
               </div>
             </details>

@@ -16,10 +16,10 @@
     --color: #000;
     --bg: #fff;
     --hover: #eee;
-    --btn-bg: #f9f9fa;
+    --btn-bg: #f5f5f5;
     --bg2: #eeea;
     --border: #ddd;
-    --option-bg: #f9f9fa;
+    --option-bg: #f5f5f5;
     --link: #08f;
   }
 }
@@ -55,14 +55,14 @@ select, textarea {
 }
 
 a {
-  text-decoration: none;
   color: var(--link);
+  text-decoration: none;
 }
-
+/*
 a:hover {
   text-decoration: underline;
 }
-
+*/
 button > * {
   pointer-events: none;
 }
