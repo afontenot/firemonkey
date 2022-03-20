@@ -117,7 +117,7 @@ aside li:hover {
 
 aside li.on {
   background-color: var(--selected-bg);
-  border-color: var(--selected-border);
+  border-color: #f84;
 }
 
 aside li.error::after {
@@ -374,11 +374,11 @@ button.bin img {
   transition: 0.5s;
 }
 
-.menu details li:not(.theme):not(.textarea) {
+.menu details li.button {
   cursor: pointer;
 }
 
-.menu details li:not(.theme):not(.textarea):hover {
+.menu details li.button:hover {
   background-color: var(--hover);
 }
 
@@ -401,18 +401,27 @@ button.bin img {
 
 .menu details li select {
   color: inherit;
-  width: 50%;
-  background: inherit;
+  /*width: 100%;*/
   border: 1px solid #ccc;
 }
 
+.menu details li.theme select {
+  background: inherit;
+  width: 50%;
+}
+
+.menu details li:last-of-type {
+  padding-top: 0;
+}
+
 .menu #userMeta {
-  margin-top: 0.5em;
   white-space: pre;
 }
 
 .menu details textarea {
+  margin-top: 0.5em;
   resize: none;
+  height: 20vh;
 }
 
 .menu div.report {
@@ -458,7 +467,7 @@ button.bin img {
   border: 0;
   margin: 0;
   padding: 0 0 0.5em;
-  height: calc(100% - 3em);
+  height: calc(100% - 3rem);
   background: unset;
 }
 
@@ -508,7 +517,7 @@ legend span {
 
 footer {
   color: #999;
-  font-size: 0.7em;
+  font-size: 0.7rem;
   text-align: right;
   height: 1rem;
 }
@@ -562,5 +571,9 @@ footer {
 
 .log input[type="number"] {
   color: var(--color);
+}
+
+.log td a {
+  margin-left: 1em;
 }
 /* ----- /log ----- */

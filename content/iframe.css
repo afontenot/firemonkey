@@ -1,9 +1,65 @@
-﻿/* ----- General ----- */
+﻿/* ----- Dark Theme ----- */
+:root, body.dark {
+  --color: #fff;
+  --bg: #000;
+  --dim: #ccc;
+  --nav: #444;
+  --hover: #888;
+  --shadow: #fff8;
+  --link: #0ef;
+  --h2: #0cf;
+  --dt: #abc;
+  --dt-bg: #555;
+  --pre: #cdf;
+  --table: #345;
+  --table1: #678;
+  --table3: #567;
+  --table5: #456;
+  --table-border: #678;
+  --border: #444;
+  --quote: #400;
+  --note: #335;
+  --warn: #422;
+  --pass: #0c0;
+  --img-filter: invert(1) grayscale(1);
+}
+
+/* ----- Light Theme ----- */
+@media screen and (prefers-color-scheme: light) {
+  :root {
+    --color: #000;
+    --bg: #fff;
+    --dim: #777;
+    --nav: #fff;
+    --hover: #eee;
+    --shadow: #0004;
+    --link: #08f;
+    --h2: #066;
+    --dt: #567;
+    --dt-bg: #eee;
+    --pre: #48b1;
+    --table: #abc;
+    --table1: #abc1;
+    --table3: #abc3;
+    --table5: #abc5;
+    --table-border: #fff;    
+    --border: #ddd;
+    --quote: #fed;
+    --warn: #fee;
+    --note: #17f1;
+    --pass: #080;
+    --img-filter: none;
+  }
+}
+
+/* ----- General ----- */
 html {
-  scroll-padding-top: 2.5em; /* Firefox 68+ */
+  scroll-padding-top: 2.5em; /* FF68 */
 }
 
 body {
+  color: var(--color);
+  background: var(--bg);
   padding: 0;
   margin: 0;
   font-size: 0.9em;
@@ -18,16 +74,61 @@ img {
   vertical-align: text-bottom;
 }
 
-article > dl {
-  margin-left: 2em;
+a {
+  color: var(--link);
+  text-decoration: none;
 }
 
+article {
+  padding: 0.5em;
+}
+
+article > *:not(h2):not(h3) {
+  margin-left: 2rem;
+}
+
+h1, h2, h3, h4 {
+  letter-spacing: 0.5px;
+}
+
+h2 img, h3 img, h4 img {
+  width: 1em;
+}
+
+img[src$=".svg"]:not([src$="js.svg"]):not([src$="css.svg"]) {
+  filter: var(--img-filter);
+}
+
+article > h2 {
+  color: var(--h2);
+  font-size: 2em;
+}
+
+article > h3 {
+  font-size: 1.5em;
+}
+
+h4 {
+  font-size: 1.2em;
+  margin-bottom: 0;
+}
+
+h3 span, h4 span {
+  color: var(--dim);
+  font-size: 0.8em;
+  font-style: italic;
+  font-weight: normal;
+  margin-left: 0.5em;
+}
+
+
+
 dt {
-  color: #567;
+  color: var(--dt);
+  background-color: var(--dt-bg);
   font-weight: bold;
-  background-color: #eee;
-  display: inline-block;
-  padding: 0.1em 0.5em;
+  display: table;
+  padding: 0.2em 0.5em;
 }
 
 dd + dt {
@@ -38,15 +139,30 @@ dd > dl {
   margin: 1em auto;
 }
 
+dt img, dd img {
+  width: 1.2em;
+}
+
+dt span {
+  margin-left: 0.5em;
+  color: var(--dim);
+  font-style: italic;
+  font-weight: normal;
+  font-size: 0.9em;
+}
+
+dd sup, p sup {
+  color: #05f;
+}
+
+/* ----- About ----- */
 dl.about  {
   margin-left: initial;
 }
 
 .about dt {
   color: #fff;
-  margin-top: 1em;
-  display: inline-block;
-  background-color: #bcd;
+  background-color: var(--table);
   padding: 0.2em 0.5em;
   position: relative;
   border-radius: 1em;
@@ -55,125 +171,23 @@ dl.about  {
 }
 
 .about dt::before {
+  background-color: var(--table);
   content: '';
   height: 2px;
   width: 20vw;
   position: absolute;
   bottom: 0;
   left: 1em;
-  background-color: #bcd;
 }
-
-dt img, dd img {
-  width: 1.2em;
-}
-
-dt span {
-  margin-left: 0.5em;
-  color: #777;
-  font-style: italic;
-  font-weight: normal;
-  font-size: 0.8em;
-}
-
-dd sup, p sup {
-  color: #05f;
-}
-
-h2 {
-  color: #066;
-  display: table;
-  background: #def linear-gradient(to right, #def, #bcd);
-  min-width: 12em;
-  padding: 0.2em 0.5em;
-  text-align:right;
-  border: 3px solid #fff;
-  box-shadow: 0px 5px 8px #0003;
-  text-shadow: 1px 1px 1px #fff9;
-  border-radius: 0 1em 1em 0;
-  position: relative;
-  margin-top: 2em;
-}
-
-h2::before {
-  content: '';
-  background-image: url('../image/icon32.png'), url('../image/icon.svg');
-  background-position: center, center;
-  background-repeat: no-repeat, no-repeat;
-  background-size: contain, contain;
-  display: inline-block;
-  width: 1.5em;
-  height: 1.5em;
-  position: absolute;
-  left: 1em;
-  top: -0.7em;
-}
-
-h2::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  border-width: calc(1em - 3px);
-  border-style: solid;
-  border-color: transparent transparent transparent #fff;
-}
+/* ----- /About ----- */
 
 
-h2 img, h3 img, h4 img {
-  width: 1em;
-}
-
-article > h3 {
-  font-size: 1.2em;
-  color: #333;
-  margin-bottom: 0;
-  padding: 0.5em;
-  border-left: 4px solid #777;
-  background: #eee;
-  display: table;
-  border-radius: 4px;
-}
-
-h4 {
-  margin-bottom: 0;
-}
-
-h3 span, h4 span {
-  margin-left: 0.5em;
-  color: #777;
-  font-style: italic;
-  font-weight: normal;
-  font-size: 0.8em;
-}
-
-article > p {
-  margin: 0.2em auto 0.2em 2em;
-}
-
-article {
-  padding: 0.5em;
-}
-
-article ul {
-  margin-top: 0.5em;
-}
-
-article li {
-  margin-left: 1em;
-}
-
-article li::marker { /* FF 68+ */
-  color: #aaa;
+article li::marker { /* FF68 */
+  color: var(--dim);
 }
 
 article li img {
   width: 1em;
-}
-
-a {
-  color: #08f;
-  text-decoration: none;
 }
 
 a[href^="http"]::after {
@@ -200,6 +214,7 @@ a[href^="https://www.mozilla.org/"]::before {
   width: 1.1em;
   margin-right: 0.3em;
   vertical-align: text-bottom;
+  filter: var(--img-filter);
 }
 
 a[href^="https://blog.mozilla.org/"]::before {
@@ -213,11 +228,11 @@ a[href^="https://github.com/"]::before {
 
 /* ----- Navigation ----- */
 nav  {
-  background-color: #fff;
+  background-color: var(--nav);
   position: sticky;
   top: 0;
   z-index: 1;
-  box-shadow: 0px 3px 6px #0003;
+  box-shadow: 0px 3px 6px var(--shadow);
 }
 
 nav div {
@@ -237,7 +252,7 @@ nav > a:hover, nav div:hover {
 }
 
 nav a {
-  color: #066;
+  color: var(--h2);
   display: inline-block;
   padding: 0.3em 0.5em;
   text-align: center;
@@ -249,8 +264,8 @@ nav div ul {
   left: 0;
   top: 1em;
   display: none;
-  background-color: #f5f5f5;
-  box-shadow: 0px 8px 16px 0px #0003;
+  background-color: var(--nav);
+  box-shadow: 0px 8px 16px 0px var(--shadow);
   list-style: none;
   padding: 0;
   border-radius: 5px;
@@ -268,7 +283,7 @@ nav ul::after {
   left: 0.5em;
   border-width: 1em;
   border-style: solid;
-  border-color: transparent transparent #f5f5f5 transparent;
+  border-color: transparent transparent var(--nav) transparent;
 }
 
 nav li {
@@ -283,13 +298,13 @@ nav li.arrow::after {
   right: 0.5em;
   top: 0;
   font-size: 1.5em;
-  color: #066;
+  color: var(--h2);
   opacity: 0.5;
   font-weight: bold;
 }
 
 nav li:hover {
-  background-color: #fff;
+  background-color: var(--hover);
 }
 
 nav li a {
@@ -310,7 +325,7 @@ nav li ul::after {
   left: -1.8em;
   border-width: 1em;
   border-style: solid;
-  border-color: transparent #f5f5f5 transparent transparent;
+  border-color: transparent var(--nav) transparent transparent;
 }
 
 nav li:hover ul {
@@ -328,14 +343,13 @@ strong {
   color: #905;
 }
 
-pre {
-  background-color: #fff;
-  border-left: 4px solid #4682b4;
-  padding: 1em;
-}
 
-article > pre {
-  margin-left: 2.5em;
+/* ----- Pre/figure ----- */
+pre {
+  color: #000;
+  background-color: var(--pre);
+  border-left: 4px solid #48b;
+  padding: 1em;
 }
 
 pre code {
@@ -348,12 +362,12 @@ pre code {
 }
 
 pre code::after {
-  content: '\263a';
-  color: #0d0;
+  content: '\2714';
+  color: #080;
   opacity: 0.6;
-  font-size: 2.5em;
+  font-size: 2em;
   position: absolute;
-  bottom: 0;
+  top: 0.1em;
   right: 0.2em;
 }
 
@@ -362,59 +376,55 @@ pre code.deprecated {
 }
 
 pre code.deprecated::after {
-  content: '\2639';
-  color: #f70;
-  font-size: 2.1em;
+  content: '\2718';
+  color: #f00;
 }
 
 pre.error {
   color: #800;
   background-color: #fff5f5;
   border-left-color: #800;
+  display: table;
 }
 
-figure {
-  border-left: 4px solid #4682b4;
-  padding: 0;
-  margin: 1em auto 1em 2em;
-}
-
-figcaption {
+precaption {
   color: #fff;
-  background-color: #4682b4;
+  background-color: #48b;
   padding: 0.3em 0.5em;
   font-weight: bold;
   font-size: 0.9em;
-  display: inline-block;
+  display: table;
   min-width: 25em;
   clip-path: polygon(0 0, 90% 0, 100% 100%, 0 100%);
 }
 
-figcaption span {
+precaption + pre {
+  margin-top: 0;
+}
+
+precaption span {
   margin-left: 0.5em;
   color: #eee;
   font-style: italic;
   font-weight: normal;
 }
 
-figure pre {
-  border: 0;
-  margin: 0;
-}
-
 .scroll {
-  max-height: 12em;
+  max-height: 25em;
   overflow: auto;
   scrollbar-width: thin;
 }
 
+
+
 blockquote {
+  color: var(--color);
   padding: 0.5em 3.5em 1em;
   font-style: italic;
   position: relative;
   border-radius: 1.5em;
-  background: #e9967a66 url("../image/blob.svg") center no-repeat;
-  background-size: 100% 100%;
+  background-color: var(--quote);
+  mask: url('../image/blob.svg') 0 0/100% 100%;
 }
 
 blockquote::before,
@@ -449,59 +459,57 @@ cite::before {
 
 code {
   font-size: 1.2em;
-  padding: 0 0.2em;
-  background-color: #eee;
+  padding: 0 0.3em;
+  background-color: var(--dt-bg);
 }
+
 
 kbd {
   color: #333;
   padding: 0.1em 0.4em;
   background: transparent linear-gradient(to bottom, #eee, #fff 60%);
-  border-radius: 6px;
+  border-radius: 4px;
   border: 1px solid #ccc;
   line-height: 1;
   display: inline-block;
   font-family: monospace;
 }
 
-address {
-  font-size: 0.9em;
-  margin: 2em auto 2em 2em;
-}
 
-.warning {
-  background-color: #fff5f5;
-  border-left: 4px solid #fab;
+.note, .footnote, .warning  {
+  color: var(--color);
+  background-color: var(--note);
+  border: 1px solid var(--border);
+  border-left: 4px solid #17f;
   padding: 0.5em;
   margin-top: 0.5em;
-  color: #333;
   border-radius: 4px;
   display: table;
+  padding-left: 2em;
+  position: relative;
 }
 
-.warning::before {
-  content: '\26a0\fe0f';
-  margin-right: 0.3em;
-}
-
-.note, .footnote {
-  background-color: #fbf5d7;
-  border-left: 4px solid #e1c542;
-  padding: 0.5em;
-  margin-top: 0.5em;
-  color: #333;
-  font-style: italic;
-  border-radius: 4px;
-  display: table;
+.note::before, .footnote::before, .warning::before {
+  content: '\1f4cc';
+  /*margin-right: 0.5em;*/
+  position: absolute;
+  top: 0.5em;
+  left: 0.8em;
 }
 
 .footnote {
   font-size: 0.9em;
+  font-style: italic;
 }
 
-.note::before, .footnote::before {
-  content: '\1f4cc';
-  margin-right: 0.5em;
+.warning {
+  border-left-color: #d40;
+  background-color: var(--warn);
+}
+
+.warning::before {
+  content: '\26a0\fe0f';
+  /*margin-right: 0.3em;*/
 }
 
 .experimental::after {
@@ -516,16 +524,14 @@ address {
 
 /* ----- Table ----- */
 table {
-  background: #fff;
-  border: 1px solid #eaeff2;
-  margin: 1em auto 2.5em 2em;
   border-collapse: collapse;
   min-width: 70%;
+  margin-bottom: 1em;
 }
 
 caption {
   color: #fff;
-  background-color: #abc;
+  background-color: var(--table);
   padding: 0.3em 0.5em;
   font-weight: bold;
   font-size: 0.9em;
@@ -535,32 +541,34 @@ caption {
 }
 
 caption ~ thead, caption ~ tbody {
-  border-left: 4px solid #abc;
+  border-left: 4px solid var(--table);
+}
+
+thead {
+  border-top: 1px solid var(--table);
 }
 
 th {
-  background-color: #e9eef1;
+  background-color: var(--table5);
   text-align: left;
   padding: 0.5em;
-  border-top: 1px solid #abc;
-  border-bottom: 1px solid #fff;
 }
 
 tbody th {
-  border-top: 0;
   font-weight: normal;
+  min-width: 10em;
+}
+
+tr {
+  border-bottom: 1px solid var(--table-border);
 }
 
 tr:nth-child(odd) td {
-  background-color: #f4f6f8;
+  background-color: var(--table1);
 }
 
 tr:nth-child(even) td {
-  background-color: #f8fafb;
-}
-
-tr:not(:last-of-type) {
-  border-bottom: 1px solid #fff;
+  background-color: var(--table3);
 }
 
 td {
@@ -587,17 +595,18 @@ td code {
 td .pass, td .fail,
 td.pass span, td.fail span {
  font-family: monospace;
+ font-size: initial;
 }
 
 th span, .small {
-  color: #777;
+  color: var(--dim);
   font-style: italic;
   font-weight: normal;
-  font-size: 0.8em;
+  font-size: 0.9em;
 }
 
 th sup {
-  color: #aaa;
+  color: var(--dim);
 }
 
 .slim th:first-of-type, .slim td {
@@ -605,7 +614,7 @@ th sup {
 }
 
 .pass {
-  color: #080;
+  color: var(--pass);
 }
 
 .pass::before {
@@ -634,19 +643,23 @@ h4 sup {
 }
 
 .dim {
-  color: #777;
+  color: var(--dim);
 }
 
 h3 i {
-  color: #777;
+  color: var(--dim);
 }
+
+
+
+
 
 /* ----- FireMonkey ----- */
 table#api tbody td:last-of-type {
-  color: #555;
+  color: var(--dim);
   text-align: right;
 }
-  
+
 .sync {
   background-color: #dff !important;
 }
@@ -674,3 +687,18 @@ table#api tbody td:last-of-type {
 .callback::after {
   content: ' callback';
 }
+
+
+/* ----- Light Theme for Help ----- */
+.comment { color: #090; }
+.keyword, .html { color: blue; }
+.object, .font { color: red; }
+.string { color: #777; }
+.method, .function { color: darkviolet; }
+.gm { color: maroon; }
+
+.property { color: #f50; }
+.value { color: dodgerblue; }
+.pseudo { color: #060; }
+.important { color: brown; }
+.color { color: orchid; }
