@@ -206,7 +206,8 @@ a[href^="https://addons.mozilla.org/"]::before,
 a[href^="https://blog.mozilla.org/"]::before,
 a[href^="https://developer.mozilla.org/"]::before,
 a[href^="https://support.mozilla.org/"]::before,
-a[href^="https://www.mozilla.org/"]::before {
+a[href^="https://www.mozilla.org/"]::before,
+a[href^="https://extensionworkshop.com/"]::before {
   content: '';
   background: url('../image/dino.svg') no-repeat center / contain;
   display: inline-block;
@@ -415,7 +416,9 @@ precaption span {
   scrollbar-width: thin;
 }
 
-
+q {
+  font-style: italic;
+}
 
 blockquote {
   color: var(--color);
