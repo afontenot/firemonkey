@@ -528,8 +528,9 @@ kbd {
 /* ----- Table ----- */
 table {
   border-collapse: collapse;
-  min-width: 70%;
+  border: 1px solid var(--border);
   margin-bottom: 1em;
+  min-width: 70%;
 }
 
 caption {
@@ -562,7 +563,7 @@ tbody th {
   min-width: 10em;
 }
 
-tr {
+tr:not(:last-of-type) {
   border-bottom: 1px solid var(--table-border);
 }
 
@@ -606,6 +607,10 @@ th span, .small {
   font-style: italic;
   font-weight: normal;
   font-size: 0.9em;
+}
+
+code.small {
+  font-size: initial;
 }
 
 th sup {
@@ -691,6 +696,9 @@ table#api tbody td:last-of-type {
   content: ' callback';
 }
 
+#blocked li {
+  margin-right: 1em;
+}
 
 /* ----- Light Theme for Help ----- */
 .comment { color: #090; }
